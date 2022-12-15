@@ -1,9 +1,9 @@
 package com.tulip.host.repository.impl;
 
 import com.querydsl.core.types.Projections;
+import com.tulip.host.data.pojo.EmployeePojo;
 import com.tulip.host.data.pojo.LoginPojo;
 import com.tulip.host.domain.Credential;
-import com.tulip.host.domain.Employee;
 import com.tulip.host.repository.CredentialRepository;
 import java.util.Optional;
 import javax.persistence.EntityManager;
@@ -41,20 +41,37 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
     }
 
     @Override
-    public Optional<Credential> findByUserIdAndPassword(String userId, String password) {
-        return Optional.empty();
+    public Optional<String> findAuthoritiesByUserId(String userId) {
+        return Optional.ofNullable(
+            jpaQueryFactory
+                .select(USER_GROUP.authority)
+                .from(CREDENTIAL)
+                .innerJoin(EMPLOYEE)
+                .on(EMPLOYEE.id.eq(CREDENTIAL.fkEmployee))
+                .innerJoin(USER_GROUP)
+                .on(USER_GROUP.id.eq(EMPLOYEE.groupId))
+                .where(CREDENTIAL.userName.eq(userId))
+                .fetchFirst()
+        );
     }
 
     @Override
-    public Optional<Credential> findAuthoritiesByUserId(String userId) {
-        return Optional.empty();
+    public Optional<EmployeePojo> findUserProfileByUserId(String userId) {
+        return Optional.ofNullable(
+            jpaQueryFactory
+                .select(Projections.bean(EmployeePojo.class))
+                .from(CREDENTIAL)
+                .innerJoin(EMPLOYEE)
+                .on(EMPLOYEE.id.eq(CREDENTIAL.fkEmployee))
+                .innerJoin(USER_GROUP)
+                .on(USER_GROUP.id.eq(EMPLOYEE.groupId))
+                .where(CREDENTIAL.userName.eq(userId))
+                .fetchFirst()
+        );
     }
 
     @Override
-    public Optional<Employee> findUserProfileByUserId(String userId) {
-        return Optional.empty();
+    public void disableProfileByUserId(String userId) {
+        return;
     }
-
-    @Override
-    public void disableProfileByUserId(String userId) {}
 }
