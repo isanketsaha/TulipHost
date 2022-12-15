@@ -1,5 +1,7 @@
 package com.tulip.host.repository.impl;
 
+import com.querydsl.core.types.Projections;
+import com.tulip.host.data.pojo.CredentialPojo;
 import com.tulip.host.domain.Credential;
 import com.tulip.host.domain.Employee;
 import com.tulip.host.repository.CredentialRepository;
@@ -13,8 +15,12 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
     }
 
     @Override
-    public Optional<Credential> findByUserId(String userId) {
-        return Optional.empty();
+    public CredentialPojo findByUserId(String userId) {
+        return jpaQueryFactory
+            .select(Projections.fields(CredentialPojo.class, CREDENTIAL.userName, CREDENTIAL.resetPassword, CREDENTIAL.createdDate))
+            .from(CREDENTIAL)
+            .where(CREDENTIAL.userName.eq(userId))
+            .fetchFirst();
     }
 
     @Override

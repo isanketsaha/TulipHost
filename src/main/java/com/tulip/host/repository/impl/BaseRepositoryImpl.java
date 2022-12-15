@@ -41,13 +41,6 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
     @PersistenceContext
     EntityManager em;
 
-    Config config;
-
-    @Autowired
-    public void setRequiredConfig(Config config) {
-        this.config = config;
-    }
-
     JPAQueryFactory jpaQueryFactory;
 
     JPAQuery<T> jpaQuery;
