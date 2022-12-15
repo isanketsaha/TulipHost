@@ -25,6 +25,7 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
                         CREDENTIAL.resetPassword,
                         CREDENTIAL.createdDate,
                         EMPLOYEE.name,
+                        EMPLOYEE.active,
                         CREDENTIAL.password,
                         USER_GROUP.authority
                     )

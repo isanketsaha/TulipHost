@@ -17,6 +17,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,8 @@ public class DomainUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
     private final CredentialRepository credentialRepository;
 
     @Override
@@ -44,12 +47,12 @@ public class DomainUserDetailsService implements UserDetailsService {
     }
 
     private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, LoginPojo user) {
-        //        if (!user.getActive()) {
-        //            throw new UsernameNotFoundException("User " + lowercaseLogin + " was not activated");
-        //        }
+        if (!user.getActive()) {
+            throw new UsernameNotFoundException("User " + lowercaseLogin + " was not activated");
+        }
         return new org.springframework.security.core.userdetails.User(
             user.getUserName(),
-            user.getPassword(),
+            user.getPassword(), //Default Password - tulip123
             Arrays.asList(new SimpleGrantedAuthority(user.getAuthority()))
         );
     }
