@@ -25,7 +25,6 @@ public class ClassDetail extends AbstractAuditingEntity<Long> implements Seriali
     @Column(name = "std", length = 10)
     private String std;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_head_teacher")
-    private Employee fkHeadTeacher;
+    @Column(name = "fk_head_teacher")
+    private Long fkHeadTeacher;
 }

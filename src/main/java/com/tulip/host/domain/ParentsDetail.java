@@ -47,7 +47,6 @@ public class ParentsDetail extends AbstractAuditingEntity<Long> implements Seria
     private String aadharNo;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
+    @Column(name = "student_id", nullable = false)
+    private Long student;
 }

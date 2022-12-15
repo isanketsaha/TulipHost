@@ -33,7 +33,6 @@ public class Fee extends AbstractAuditingEntity<Long> implements Serializable {
     @Column(name = "to_month", length = 10)
     private String toMonth;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_mode_id")
-    private PaymentMode paymentMode;
+    @Column(name = "payment_mode_id")
+    private Long paymentMode;
 }

@@ -1,10 +1,10 @@
 package com.tulip.host.security;
 
-import com.tulip.host.data.pojo.CredentialPojo;
+import com.tulip.host.data.pojo.LoginPojo;
 import com.tulip.host.domain.Authority;
-import com.tulip.host.domain.User;
 import com.tulip.host.repository.CredentialRepository;
 import com.tulip.host.repository.UserRepository;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -37,31 +37,20 @@ public class DomainUserDetailsService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(final String login) {
         log.debug("Authenticating {}", login);
-        CredentialPojo byUserId = credentialRepository.findByUserId(login);
-        if (new EmailValidator().isValid(login, null)) {
-            return userRepository
-                .findOneWithAuthoritiesByEmailIgnoreCase(login)
-                .map(user -> createSpringSecurityUser(login, user))
-                .orElseThrow(() -> new UsernameNotFoundException("User with email " + login + " was not found in the database"));
-        }
-
-        String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
-        return userRepository
-            .findOneWithAuthoritiesByLogin(lowercaseLogin)
-            .map(user -> createSpringSecurityUser(lowercaseLogin, user))
-            .orElseThrow(() -> new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the database"));
+        return credentialRepository
+            .findByUserId(login)
+            .map(user -> createSpringSecurityUser(login, user))
+            .orElseThrow(() -> new UsernameNotFoundException("User " + login + " was not found in the database"));
     }
 
-    private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, User user) {
-        if (!user.isActivated()) {
-            throw new UsernameNotFoundException("User " + lowercaseLogin + " was not activated");
-        }
-        List<GrantedAuthority> grantedAuthorities = user
-            .getAuthorities()
-            .stream()
-            .map(Authority::getName)
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
-        return new org.springframework.security.core.userdetails.User(user.getLogin(), user.getPassword(), grantedAuthorities);
+    private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, LoginPojo user) {
+        //        if (!user.getActive()) {
+        //            throw new UsernameNotFoundException("User " + lowercaseLogin + " was not activated");
+        //        }
+        return new org.springframework.security.core.userdetails.User(
+            user.getUserName(),
+            user.getPassword(),
+            Arrays.asList(new SimpleGrantedAuthority(user.getAuthority()))
+        );
     }
 }

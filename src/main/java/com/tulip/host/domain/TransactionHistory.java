@@ -25,22 +25,19 @@ public class TransactionHistory extends AbstractAuditingEntity<Long> implements 
     @Column(name = "payment_mode_id", nullable = false)
     private Long paymentModeId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "purchase_order_id")
-    private PurchaseOrder purchaseOrder;
+    @Column(name = "purchase_order_id")
+    private Long purchaseOrder;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fees_id")
-    private Fee fees;
+    @Column(name = "fees_id")
+    private Long fees;
 
     @NotNull
     @Column(name = "total_amount", nullable = false)
     private Double totalAmount;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
+    @Column(name = "student_id", nullable = false)
+    private Long student;
 
     @Size(max = 100)
     @Column(name = "comments", length = 100)

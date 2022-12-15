@@ -29,7 +29,6 @@ public class PurchaseOrder extends AbstractAuditingEntity<Long> implements Seria
     @Column(name = "purchase", nullable = false)
     private Integer purchase;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_mode_id")
-    private PaymentMode paymentMode;
+    @Column(name = "payment_mode_id")
+    private Long paymentMode;
 }

@@ -36,9 +36,8 @@ public class Student extends AbstractAuditingEntity<Long> implements Serializabl
     private String address;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "class_detailsfk", nullable = false)
-    private ClassDetail classDetailsfk;
+    @Column(name = "class_detailsfk", nullable = false)
+    private Long classDetails;
 
     @Size(max = 2)
     @NotNull

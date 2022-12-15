@@ -74,7 +74,6 @@ public class Employee extends AbstractAuditingEntity<Long> implements Serializab
     private String religion;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "group_id", nullable = false)
-    private UserGroup group;
+    @Column(name = "group_id", nullable = false)
+    private Long groupId;
 }

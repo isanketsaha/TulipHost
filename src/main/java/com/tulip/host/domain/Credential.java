@@ -35,7 +35,7 @@ public class Credential extends AbstractAuditingEntity<Long> implements Serializ
     @Column(name = "user_name", nullable = false, length = 20)
     private String userName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_employee")
-    private Employee fkEmployee;
+    @NotNull
+    @Column(name = "fk_employee")
+    private Long fkEmployee;
 }

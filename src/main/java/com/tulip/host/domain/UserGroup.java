@@ -24,8 +24,8 @@ public class UserGroup extends AbstractAuditingEntity<Long> implements Serializa
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Size(max = 10)
+    @Size(max = 20)
     @NotNull
-    @Column(name = "authority", nullable = false, length = 10)
+    @Column(name = "authority", nullable = false, length = 20)
     private String authority;
 }

@@ -1,7 +1,7 @@
 package com.tulip.host.repository.impl;
 
 import com.querydsl.core.types.Projections;
-import com.tulip.host.data.pojo.CredentialPojo;
+import com.tulip.host.data.pojo.LoginPojo;
 import com.tulip.host.domain.Credential;
 import com.tulip.host.domain.Employee;
 import com.tulip.host.repository.CredentialRepository;
@@ -15,12 +15,28 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
     }
 
     @Override
-    public CredentialPojo findByUserId(String userId) {
-        return jpaQueryFactory
-            .select(Projections.fields(CredentialPojo.class, CREDENTIAL.userName, CREDENTIAL.resetPassword, CREDENTIAL.createdDate))
-            .from(CREDENTIAL)
-            .where(CREDENTIAL.userName.eq(userId))
-            .fetchFirst();
+    public Optional<LoginPojo> findByUserId(String userId) {
+        return Optional.ofNullable(
+            jpaQueryFactory
+                .select(
+                    Projections.fields(
+                        LoginPojo.class,
+                        CREDENTIAL.userName,
+                        CREDENTIAL.resetPassword,
+                        CREDENTIAL.createdDate,
+                        EMPLOYEE.name,
+                        CREDENTIAL.password,
+                        USER_GROUP.authority
+                    )
+                )
+                .from(CREDENTIAL)
+                .innerJoin(EMPLOYEE)
+                .on(EMPLOYEE.id.eq(CREDENTIAL.fkEmployee))
+                .innerJoin(USER_GROUP)
+                .on(USER_GROUP.id.eq(EMPLOYEE.groupId))
+                .where(CREDENTIAL.userName.eq(userId))
+                .fetchFirst()
+        );
     }
 
     @Override

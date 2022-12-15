@@ -48,9 +48,9 @@ public class Catalog extends AbstractAuditingEntity<Long> implements Serializabl
     @Column(name = "tag", nullable = false)
     private String tag;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "std")
-    private ClassDetail std;
+    @NotNull
+    @Column(name = "std")
+    private Long std;
 
     @Size(max = 20)
     @Column(name = "size", length = 20)

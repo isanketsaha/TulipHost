@@ -34,12 +34,10 @@ public class LineItem extends AbstractAuditingEntity<Long> implements Serializab
     private Double amount;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "purchase_order_id", nullable = false)
-    private PurchaseOrder purchaseOrder;
+    @Column(name = "purchase_order_id", nullable = false)
+    private Long purchaseOrder;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Catalog product;
+    @Column(name = "product_id", nullable = false)
+    private Long product;
 }

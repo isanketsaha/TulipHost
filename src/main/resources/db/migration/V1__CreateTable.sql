@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS  user_group (
   id bigint NOT NULL AUTO_INCREMENT,
   created_date timestamp DEFAULT  CURRENT_TIMESTAMP,
   last_modified_date timestamp DEFAULT  CURRENT_TIMESTAMP,
-  authority varchar(10) NOT NULL,
+  authority varchar(20) NOT NULL,
   created_by varchar(50) DEFAULT NULL,
   last_modified_by varchar(50) DEFAULT NULL,
   PRIMARY KEY (id),
