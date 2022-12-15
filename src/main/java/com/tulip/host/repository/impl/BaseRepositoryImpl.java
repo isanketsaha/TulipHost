@@ -1,7 +1,8 @@
 package com.tulip.host.repository.impl;
 
 import com.querydsl.core.annotations.Config;
-import com.tulip.host.domain.*;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.tulip.host.domain.QCatalog;
 import com.tulip.host.domain.QClassDetail;
 import com.tulip.host.domain.QCredential;
@@ -47,8 +48,14 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
         this.config = config;
     }
 
+    JPAQueryFactory jpaQueryFactory;
+
+    JPAQuery<T> jpaQuery;
+
     protected BaseRepositoryImpl(Class<T> domainClass, EntityManager em) {
         super(domainClass, em);
         this.em = em;
+        this.jpaQueryFactory = new JPAQueryFactory(em);
+        this.jpaQuery = new JPAQuery<>(em);
     }
 }
