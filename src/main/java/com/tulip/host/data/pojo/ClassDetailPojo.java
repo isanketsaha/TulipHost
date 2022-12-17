@@ -16,5 +16,5 @@ public class ClassDetailPojo implements Serializable {
     @Size(max = 10)
     private final String std;
 
-    private final EmployeePojo fkHeadTeacher;
+    private final EmployeePojo HeadTeacher;
 }

@@ -25,6 +25,6 @@ public class ClassDetail extends AbstractAuditingEntity<Long> implements Seriali
     @Column(name = "std", length = 10)
     private String std;
 
-    @Column(name = "fk_head_teacher")
-    private Long fkHeadTeacher;
+    @Column(name = "head_teacher_id")
+    private Long headTeacher;
 }

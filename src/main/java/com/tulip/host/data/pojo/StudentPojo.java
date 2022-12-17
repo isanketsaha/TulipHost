@@ -27,7 +27,7 @@ public class StudentPojo {
     private final String address;
 
     @NotNull
-    private final ClassDetailPojo classDetailsfk;
+    private final ClassDetailPojo classDetails;
 
     @Size(max = 2)
     @NotNull

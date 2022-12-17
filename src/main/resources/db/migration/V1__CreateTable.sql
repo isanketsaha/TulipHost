@@ -15,6 +15,18 @@ CREATE TABLE IF NOT EXISTS  holiday (
   UNIQUE KEY (occasion)
 );
 
+CREATE TABLE IF NOT EXISTS  session (
+    id bigint NOT NULL AUTO_INCREMENT,
+    display_text varchar(10) NOT NULL,
+    from_date DATE NOT NULL,
+    to_date DATE NOT NULL,
+    created_by varchar(50) DEFAULT NULL,
+    last_modified_by varchar(50) DEFAULT NULL,
+    created_date timestamp DEFAULT  CURRENT_TIMESTAMP,
+    last_modified_date timestamp DEFAULT  CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY (display_text)
+);
 
 -- db.user_group definition
 
@@ -51,7 +63,7 @@ CREATE TABLE IF NOT EXISTS  employee (
   religion varchar(20) DEFAULT NULL,
   group_id bigint NOT NULL,
   created_by varchar(50) DEFAULT NULL,
-    last_modified_by varchar(50) DEFAULT NULL,
+  last_modified_by varchar(50) DEFAULT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY (phone_number),
   FOREIGN KEY (group_id) REFERENCES user_group (id)
@@ -66,13 +78,15 @@ CREATE TABLE IF NOT EXISTS  employee (
 CREATE TABLE IF NOT EXISTS  class_details (
   id bigint NOT NULL AUTO_INCREMENT,
   std varchar(10) DEFAULT NULL,
-  fk_head_teacher bigint DEFAULT NULL,
+  head_teacher_id bigint DEFAULT NULL,
+  session_id bigint  NOT NULL,
   created_date timestamp DEFAULT CURRENT_TIMESTAMP,
   last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
   created_by varchar(50) DEFAULT NULL,
-    last_modified_by varchar(50) DEFAULT NULL,
+  last_modified_by varchar(50) DEFAULT NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (fk_head_teacher) REFERENCES employee (id)
+  FOREIGN KEY (head_teacher_id) REFERENCES employee (id),
+   FOREIGN KEY (session_id) REFERENCES session (id)
 ) ;
 
 
@@ -84,14 +98,14 @@ CREATE TABLE IF NOT EXISTS  credential (
   password varchar(150) NOT NULL,
   reset_password bit(1) NOT NULL,
   user_name varchar(20) NOT NULL,
-  fk_employee bigint DEFAULT NULL,
+  employee_id bigint DEFAULT NULL,
   created_by varchar(50) DEFAULT NULL,
     last_modified_by varchar(50) DEFAULT NULL,
   created_date timestamp DEFAULT CURRENT_TIMESTAMP,
   last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY (user_name),
-  FOREIGN KEY (fk_employee) REFERENCES employee (id)
+  FOREIGN KEY (employee_id) REFERENCES employee (id)
 ) ;
 
 
@@ -102,20 +116,18 @@ CREATE TABLE IF NOT EXISTS  student (
   name varchar(50) NOT NULL,
   dob date NOT NULL,
   address varchar(255) DEFAULT NULL,
-   class_detailsfk bigint NOT NULL,
+   class_details_id bigint NOT NULL,
   blood_group varchar(2) NOT NULL,
   gender varchar(6) NOT NULL,
   is_active bit(1) NOT NULL,
   previous_school varchar(50) DEFAULT NULL,
-
   termination_date date DEFAULT NULL,
   created_by varchar(50) DEFAULT NULL,
     last_modified_by varchar(50) DEFAULT NULL,
   last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
   created_date timestamp DEFAULT CURRENT_TIMESTAMP,
-
   PRIMARY KEY (student_id),
-  FOREIGN KEY (class_detailsfk) REFERENCES class_details (id)
+  FOREIGN KEY (class_details_id) REFERENCES class_details (id)
 ) ;
 
 
@@ -162,13 +174,15 @@ CREATE TABLE IF NOT EXISTS catalog (
   type varchar(255) NOT NULL,
   tag varchar(255) NOT NULL,
   std bigint DEFAULT NULL,
+  session_id bigint NOT NULL,
   size varchar(20) DEFAULT NULL,
   created_by varchar(50) DEFAULT NULL,
-      last_modified_by varchar(50) DEFAULT NULL,
+  last_modified_by varchar(50) DEFAULT NULL,
   created_date timestamp DEFAULT CURRENT_TIMESTAMP,
   last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY (item_name),
+  FOREIGN KEY (session_id) REFERENCES session (id),
   FOREIGN KEY (std) REFERENCES class_details(id)
 ) ;
 
@@ -215,6 +229,7 @@ CREATE TABLE IF NOT EXISTS  transaction_history (
   comments varchar(100) DEFAULT NULL,
   discount int DEFAULT 0,
   after_discount double NOT NULL,
+  session_id bigint NOT NULL,
   created_by varchar(50) DEFAULT NULL,
       last_modified_by varchar(50) DEFAULT NULL,
   created_date datetime DEFAULT CURRENT_TIMESTAMP,
@@ -222,7 +237,8 @@ CREATE TABLE IF NOT EXISTS  transaction_history (
   PRIMARY KEY (transaction_id),
   FOREIGN KEY (student_id) REFERENCES student (student_id),
   FOREIGN KEY (purchase_order_id) REFERENCES purchase_order (id),
-   FOREIGN KEY (fees_id) REFERENCES fees (id)
+   FOREIGN KEY (fees_id) REFERENCES fees (id),
+    FOREIGN KEY (session_id) REFERENCES session (id)
 ) ;
 
 

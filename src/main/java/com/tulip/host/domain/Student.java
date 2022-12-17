@@ -36,7 +36,7 @@ public class Student extends AbstractAuditingEntity<Long> implements Serializabl
     private String address;
 
     @NotNull
-    @Column(name = "class_detailsfk", nullable = false)
+    @Column(name = "class_details_id", nullable = false)
     private Long classDetails;
 
     @Size(max = 2)

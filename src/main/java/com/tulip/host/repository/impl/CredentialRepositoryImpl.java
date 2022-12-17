@@ -32,7 +32,7 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
                 )
                 .from(CREDENTIAL)
                 .innerJoin(EMPLOYEE)
-                .on(EMPLOYEE.id.eq(CREDENTIAL.fkEmployee))
+                .on(EMPLOYEE.id.eq(CREDENTIAL.employeeId))
                 .innerJoin(USER_GROUP)
                 .on(USER_GROUP.id.eq(EMPLOYEE.groupId))
                 .where(CREDENTIAL.userName.eq(userId))
@@ -47,7 +47,7 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
                 .select(USER_GROUP.authority)
                 .from(CREDENTIAL)
                 .innerJoin(EMPLOYEE)
-                .on(EMPLOYEE.id.eq(CREDENTIAL.fkEmployee))
+                .on(EMPLOYEE.id.eq(CREDENTIAL.employeeId))
                 .innerJoin(USER_GROUP)
                 .on(USER_GROUP.id.eq(EMPLOYEE.groupId))
                 .where(CREDENTIAL.userName.eq(userId))
@@ -62,7 +62,7 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
                 .select(Projections.bean(EmployeePojo.class))
                 .from(CREDENTIAL)
                 .innerJoin(EMPLOYEE)
-                .on(EMPLOYEE.id.eq(CREDENTIAL.fkEmployee))
+                .on(EMPLOYEE.id.eq(CREDENTIAL.employeeId))
                 .innerJoin(USER_GROUP)
                 .on(USER_GROUP.id.eq(EMPLOYEE.groupId))
                 .where(CREDENTIAL.userName.eq(userId))
@@ -72,6 +72,10 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
 
     @Override
     public void disableProfileByUserId(String userId) {
-        return;
+        jpaQueryFactory
+            .update(EMPLOYEE)
+            .set(EMPLOYEE.active, false)
+            .where(CREDENTIAL.employeeId.eq(EMPLOYEE.id).and(CREDENTIAL.userName.eq(userId)))
+            .execute();
     }
 }

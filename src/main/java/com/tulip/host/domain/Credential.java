@@ -36,6 +36,6 @@ public class Credential extends AbstractAuditingEntity<Long> implements Serializ
     private String userName;
 
     @NotNull
-    @Column(name = "fk_employee")
-    private Long fkEmployee;
+    @Column(name = "employee_id")
+    private Long employeeId;
 }
