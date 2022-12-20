@@ -79,7 +79,12 @@ public class TokenProvider {
             .claim(AUTHORITIES_KEY, authorities)
             .signWith(key, SignatureAlgorithm.HS512)
             .setExpiration(validity)
+            .setIssuedAt(new Date(System.currentTimeMillis()))
             .compact();
+    }
+
+    public String doGenerateRefreshToken(Authentication authentication) {
+        return createToken(authentication, false);
     }
 
     public Authentication getAuthentication(String token) {
