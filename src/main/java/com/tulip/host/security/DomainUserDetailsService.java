@@ -51,7 +51,7 @@ public class DomainUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User " + lowercaseLogin + " was not activated");
         }
         return new org.springframework.security.core.userdetails.User(
-            user.getUserName(),
+            user.getName(),
             user.getPassword(), //Default Password - tulip123
             Arrays.asList(new SimpleGrantedAuthority(user.getAuthority()))
         );
