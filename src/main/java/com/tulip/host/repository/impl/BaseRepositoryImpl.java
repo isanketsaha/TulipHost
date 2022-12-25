@@ -3,19 +3,7 @@ package com.tulip.host.repository.impl;
 import com.querydsl.core.annotations.Config;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.tulip.host.domain.QCatalog;
-import com.tulip.host.domain.QClassDetail;
-import com.tulip.host.domain.QCredential;
-import com.tulip.host.domain.QEmployee;
-import com.tulip.host.domain.QFee;
-import com.tulip.host.domain.QHoliday;
-import com.tulip.host.domain.QLineItem;
-import com.tulip.host.domain.QParentsDetail;
-import com.tulip.host.domain.QPaymentMode;
-import com.tulip.host.domain.QPurchaseOrder;
-import com.tulip.host.domain.QStudent;
-import com.tulip.host.domain.QTransactionHistory;
-import com.tulip.host.domain.QUserGroup;
+import com.tulip.host.domain.*;
 import com.tulip.host.repository.BaseRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -37,6 +25,7 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
     static final QPurchaseOrder PURCHASE_ORDER = QPurchaseOrder.purchaseOrder;
     static final QLineItem LINE_ITEM = QLineItem.lineItem;
     static final QHoliday HOLIDAY = QHoliday.holiday;
+    static final QSession SESSION = QSession.session;
 
     @PersistenceContext
     EntityManager em;
