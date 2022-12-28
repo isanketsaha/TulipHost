@@ -1,4 +1,4 @@
-package com.tulip.host.data.pojo;
+package com.tulip.host.data;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -10,7 +10,7 @@ import lombok.Data;
  * A DTO for the {@link com.tulip.host.domain.Fee} entity
  */
 @Data
-public class FeePojo implements Serializable {
+public class FeeDto implements Serializable {
 
     private final String createdBy;
     private final Instant createdDate;
@@ -27,5 +27,5 @@ public class FeePojo implements Serializable {
     @Size(max = 10)
     private final String toMonth;
 
-    private final PaymentModePojo paymentMode;
+    private final PaymentModeDTO paymentMode;
 }

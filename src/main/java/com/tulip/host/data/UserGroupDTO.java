@@ -1,5 +1,6 @@
-package com.tulip.host.data.pojo;
+package com.tulip.host.data;
 
+import com.tulip.host.domain.UserGroup;
 import java.io.Serializable;
 import java.time.Instant;
 import javax.validation.constraints.NotNull;
@@ -7,10 +8,10 @@ import javax.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * A DTO for the {@link com.tulip.host.domain.PaymentMode} entity
+ * A DTO for the {@link UserGroup} entity
  */
 @Data
-public class PaymentModePojo implements Serializable {
+public class UserGroupDTO implements Serializable {
 
     private final String createdBy;
     private final Instant createdDate;
@@ -18,7 +19,7 @@ public class PaymentModePojo implements Serializable {
     private final Instant lastModifiedDate;
     private final Long id;
 
-    @Size(max = 20)
+    @Size(max = 10)
     @NotNull
-    private final String name;
+    private final String authority;
 }

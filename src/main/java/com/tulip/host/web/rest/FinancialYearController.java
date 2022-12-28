@@ -1,6 +1,6 @@
 package com.tulip.host.web.rest;
 
-import com.tulip.host.data.pojo.SessionPojo;
+import com.tulip.host.data.SessionDTO;
 import com.tulip.host.service.FinancialYearService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -9,19 +9,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/financialYear")
+@RequestMapping("/financialYear")
 @RequiredArgsConstructor
 public class FinancialYearController {
 
     private final FinancialYearService financialYearService;
 
     @GetMapping("/current")
-    public SessionPojo fetchCurrentFinancialYear() {
+    public SessionDTO fetchCurrentFinancialYear() {
         return financialYearService.fetchCurrentSession().get();
     }
 
     @GetMapping("/all")
-    public List<SessionPojo> fetchAllFinancialYear() {
+    public List<SessionDTO> fetchAllFinancialYear() {
         return financialYearService.fetchAllFinancialYear();
     }
 }

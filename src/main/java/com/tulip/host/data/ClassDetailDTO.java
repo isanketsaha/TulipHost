@@ -1,4 +1,4 @@
-package com.tulip.host.data.pojo;
+package com.tulip.host.data;
 
 import com.tulip.host.domain.ClassDetail;
 import java.io.Serializable;
@@ -9,12 +9,12 @@ import lombok.Data;
  * A DTO for the {@link ClassDetail} entity
  */
 @Data
-public class ClassDetailPojo implements Serializable {
+public class ClassDetailDTO implements Serializable {
 
     private final Long id;
 
     @Size(max = 10)
     private final String std;
 
-    private final EmployeePojo HeadTeacher;
+    private final EmployeeDetailsDTO HeadTeacher;
 }

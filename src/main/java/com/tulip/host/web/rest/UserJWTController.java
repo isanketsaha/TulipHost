@@ -1,7 +1,6 @@
 package com.tulip.host.web.rest;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tulip.host.data.dto.LoggedUserDTO;
+import com.tulip.host.data.LoggedUserDTO;
 import com.tulip.host.security.jwt.JWTFilter;
 import com.tulip.host.security.jwt.TokenProvider;
 import com.tulip.host.web.rest.vm.LoginVM;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
  * Controller to authenticate users.
  */
 @RestController
-@RequestMapping("/api")
 public class UserJWTController {
 
     private final TokenProvider tokenProvider;

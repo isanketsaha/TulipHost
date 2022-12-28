@@ -1,4 +1,4 @@
-package com.tulip.host.data.pojo;
+package com.tulip.host.data;
 
 import com.tulip.host.domain.Catalog;
 import java.io.Serializable;
@@ -10,7 +10,7 @@ import lombok.Data;
  * A DTO for the {@link Catalog} entity
  */
 @Data
-public class CatalogPojo implements Serializable {
+public class CatalogDTO implements Serializable {
 
     private final Long id;
 
@@ -32,7 +32,7 @@ public class CatalogPojo implements Serializable {
     @NotNull
     private final String tag;
 
-    private final ClassDetailPojo std;
+    private final ClassDetailDTO std;
 
     @Size(max = 20)
     private final String size;

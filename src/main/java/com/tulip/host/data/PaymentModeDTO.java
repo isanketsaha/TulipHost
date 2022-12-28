@@ -1,15 +1,16 @@
-package com.tulip.host.data.pojo;
+package com.tulip.host.data;
 
 import java.io.Serializable;
 import java.time.Instant;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * A DTO for the {@link com.tulip.host.domain.PurchaseOrder} entity
+ * A DTO for the {@link com.tulip.host.domain.PaymentMode} entity
  */
 @Data
-public class PurchaseOrderPojo implements Serializable {
+public class PaymentModeDTO implements Serializable {
 
     private final String createdBy;
     private final Instant createdDate;
@@ -17,9 +18,7 @@ public class PurchaseOrderPojo implements Serializable {
     private final Instant lastModifiedDate;
     private final Long id;
 
+    @Size(max = 20)
     @NotNull
-    private final Double amount;
-
-    @NotNull
-    private final Integer purchase;
+    private final String name;
 }

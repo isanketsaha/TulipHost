@@ -1,18 +1,12 @@
 package com.tulip.host.security;
 
-import com.tulip.host.data.pojo.LoginPojo;
-import com.tulip.host.domain.Authority;
+import com.tulip.host.data.LoginDTO;
 import com.tulip.host.repository.CredentialRepository;
 import com.tulip.host.repository.UserRepository;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -46,7 +40,7 @@ public class DomainUserDetailsService implements UserDetailsService {
             .orElseThrow(() -> new UsernameNotFoundException("User " + login + " was not found in the database"));
     }
 
-    private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, LoginPojo user) {
+    private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, LoginDTO user) {
         if (!user.getActive()) {
             throw new UsernameNotFoundException("User " + lowercaseLogin + " was not activated");
         }

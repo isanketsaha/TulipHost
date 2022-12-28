@@ -1,4 +1,4 @@
-package com.tulip.host.data.pojo;
+package com.tulip.host.data;
 
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginPojo implements Serializable {
+public class LoginDTO implements Serializable {
 
     @NotNull
     private String name;

@@ -188,6 +188,7 @@ spring:
 
 server:
   servlet:
+    context-path: /api
     session:
       cookie:
         http-only: true

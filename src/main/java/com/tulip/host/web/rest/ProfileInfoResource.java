@@ -3,7 +3,6 @@ package com.tulip.host.web.rest;
 import com.tulip.host.config.DefaultProfileUtil;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.jhipster.config.JHipsterProperties;
 
@@ -11,7 +10,6 @@ import tech.jhipster.config.JHipsterProperties;
  * Resource to return information about the currently running Spring profiles.
  */
 @RestController
-@RequestMapping("/api")
 public class ProfileInfoResource {
 
     private final Environment env;

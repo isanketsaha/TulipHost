@@ -1,4 +1,4 @@
-package com.tulip.host.data.pojo;
+package com.tulip.host.data;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -10,7 +10,7 @@ import lombok.Data;
  * A DTO for the {@link com.tulip.host.domain.TransactionHistory} entity
  */
 @Data
-public class TransactionHistoryPojo implements Serializable {
+public class TransactionHistoryDTO implements Serializable {
 
     private final String createdBy;
     private final Instant createdDate;
@@ -21,14 +21,14 @@ public class TransactionHistoryPojo implements Serializable {
     @NotNull
     private final Long paymentModeId;
 
-    private final PurchaseOrderPojo purchaseOrder;
-    private final FeePojo fees;
+    private final PurchaseOrderDTO purchaseOrder;
+    private final FeeDto fees;
 
     @NotNull
     private final Double totalAmount;
 
     @NotNull
-    private final StudentPojo student;
+    private final StudentDetailsDTO student;
 
     @Size(max = 100)
     private final String comments;

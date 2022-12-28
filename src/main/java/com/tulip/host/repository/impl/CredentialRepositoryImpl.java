@@ -1,8 +1,8 @@
 package com.tulip.host.repository.impl;
 
 import com.querydsl.core.types.Projections;
-import com.tulip.host.data.pojo.EmployeePojo;
-import com.tulip.host.data.pojo.LoginPojo;
+import com.tulip.host.data.EmployeeDetailsDTO;
+import com.tulip.host.data.LoginDTO;
 import com.tulip.host.domain.Credential;
 import com.tulip.host.repository.CredentialRepository;
 import java.util.Optional;
@@ -15,12 +15,12 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
     }
 
     @Override
-    public Optional<LoginPojo> findByUserId(String userId) {
+    public Optional<LoginDTO> findByUserId(String userId) {
         return Optional.ofNullable(
             jpaQueryFactory
                 .select(
                     Projections.fields(
-                        LoginPojo.class,
+                        LoginDTO.class,
                         CREDENTIAL.userName,
                         CREDENTIAL.resetPassword,
                         CREDENTIAL.createdDate,
@@ -56,10 +56,10 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
     }
 
     @Override
-    public Optional<EmployeePojo> findUserProfileByUserId(String userId) {
+    public Optional<EmployeeDetailsDTO> findUserProfileByUserId(String userId) {
         return Optional.ofNullable(
             jpaQueryFactory
-                .select(Projections.bean(EmployeePojo.class))
+                .select(Projections.bean(EmployeeDetailsDTO.class))
                 .from(CREDENTIAL)
                 .innerJoin(EMPLOYEE)
                 .on(EMPLOYEE.id.eq(CREDENTIAL.employeeId))

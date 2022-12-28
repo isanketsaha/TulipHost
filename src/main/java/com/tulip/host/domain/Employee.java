@@ -2,6 +2,7 @@ package com.tulip.host.domain;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Date;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -34,7 +35,7 @@ public class Employee extends AbstractAuditingEntity<Long> implements Serializab
     private String bloodGroup;
 
     @Column(name = "dob")
-    private Instant dob;
+    private Date dob;
 
     @Size(max = 255)
     @Column(name = "experience")
@@ -67,7 +68,7 @@ public class Employee extends AbstractAuditingEntity<Long> implements Serializab
 
     @Size(max = 20)
     @Column(name = "qualification", length = 20)
-    private String qualification;
+    private String highestQualification;
 
     @Size(max = 20)
     @Column(name = "religion", length = 20)

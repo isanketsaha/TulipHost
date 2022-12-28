@@ -1,19 +1,13 @@
-package com.tulip.host.data.pojo;
+package com.tulip.host.data;
 
-import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class StudentPojo {
+public class StudentDetailsDTO {
 
-    private final String createdBy;
-    private final Instant createdDate;
-    private final String lastModifiedBy;
-    private final Instant lastModifiedDate;
     private final Long id;
 
     @Size(max = 50)
@@ -27,7 +21,7 @@ public class StudentPojo {
     private final String address;
 
     @NotNull
-    private final ClassDetailPojo classDetails;
+    private final ClassDetailDTO classDetails;
 
     @Size(max = 2)
     @NotNull
@@ -44,4 +38,6 @@ public class StudentPojo {
     private final String previousSchool;
 
     private final LocalDate terminationDate;
+
+    private ParentsDetailDto parentsDetail;
 }

@@ -1,12 +1,10 @@
-package com.tulip.host.data.dto;
+package com.tulip.host.data;
 
-import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
 
 @Data
 @NoArgsConstructor

@@ -1,8 +1,5 @@
-package com.tulip.host.data.pojo;
+package com.tulip.host.data;
 
-import javax.persistence.Column;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SessionPojo {
+public class SessionDTO {
 
     private Long id;
     private String displayText;
