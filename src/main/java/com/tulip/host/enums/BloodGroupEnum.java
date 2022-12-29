@@ -5,7 +5,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public enum BloodGroup {
+public enum BloodGroupEnum {
     aPositive("A+"),
     aNegative("A-"),
     bPositive("B+"),
@@ -17,7 +17,7 @@ public enum BloodGroup {
 
     private final String displayType;
 
-    BloodGroup(String displayType) {
+    BloodGroupEnum(String displayType) {
         this.displayType = displayType;
     }
 }

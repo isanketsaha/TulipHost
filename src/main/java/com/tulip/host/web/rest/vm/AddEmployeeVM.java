@@ -1,8 +1,7 @@
 package com.tulip.host.web.rest.vm;
 
-import com.tulip.host.enums.BloodGroup;
-import com.tulip.host.enums.Gender;
-import java.time.Instant;
+import com.tulip.host.enums.BloodGroupEnum;
+import com.tulip.host.enums.GenderEnum;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
@@ -17,7 +16,7 @@ public class AddEmployeeVM {
     private String address;
 
     @Size(max = 4)
-    private BloodGroup bloodGroup;
+    private BloodGroupEnum bloodGroup;
 
     private Date dob;
 
@@ -28,7 +27,7 @@ public class AddEmployeeVM {
     private String father;
 
     @Size(max = 6)
-    private Gender gender;
+    private GenderEnum gender;
 
     @Size(max = 50)
     @NotNull

@@ -5,13 +5,13 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public enum Gender {
+public enum GenderEnum {
     MALE("Male"),
     FEMALE("Female");
 
     private final String displayType;
 
-    Gender(String displayType) {
+    GenderEnum(String displayType) {
         this.displayType = displayType;
     }
 }
