@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class DropDownOptionsDto {
 
     String label;
-    String key;
+    String value;
 }

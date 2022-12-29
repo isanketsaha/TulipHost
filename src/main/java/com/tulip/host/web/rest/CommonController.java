@@ -1,10 +1,7 @@
 package com.tulip.host.web.rest;
 
 import com.tulip.host.data.DropDownOptionsDto;
-import com.tulip.host.enums.BloodGroupEnum;
-import com.tulip.host.enums.GenderEnum;
-import com.tulip.host.enums.RelationEnum;
-import com.tulip.host.enums.ReligionEnum;
+import com.tulip.host.enums.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +18,7 @@ public class CommonController {
     public List<DropDownOptionsDto> genderList() {
         return Arrays
             .stream(GenderEnum.values())
-            .map(item -> DropDownOptionsDto.builder().label(item.getDisplayType()).key(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder().label(item.getDisplayType()).value(item.name()).build())
             .collect(Collectors.toList());
     }
 
@@ -29,7 +26,7 @@ public class CommonController {
     public List<DropDownOptionsDto> bloodGroupList() {
         return Arrays
             .stream(BloodGroupEnum.values())
-            .map(item -> DropDownOptionsDto.builder().label(item.getDisplayType()).key(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder().label(item.getDisplayType()).value(item.name()).build())
             .collect(Collectors.toList());
     }
 
@@ -37,7 +34,7 @@ public class CommonController {
     public List<DropDownOptionsDto> dependentRelationList() {
         return Arrays
             .stream(RelationEnum.values())
-            .map(item -> DropDownOptionsDto.builder().label(item.name()).key(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
             .collect(Collectors.toList());
     }
 
@@ -45,7 +42,15 @@ public class CommonController {
     public List<DropDownOptionsDto> religionList() {
         return Arrays
             .stream(ReligionEnum.values())
-            .map(item -> DropDownOptionsDto.builder().label(item.name()).key(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
+            .collect(Collectors.toList());
+    }
+
+    @RequestMapping("/userRoleList")
+    public List<DropDownOptionsDto> userRoleList() {
+        return Arrays
+            .stream(UserRoleEnum.values())
+            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
             .collect(Collectors.toList());
     }
 }
