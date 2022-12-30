@@ -1,6 +1,7 @@
 package com.tulip.host.service;
 
 import com.tulip.host.data.DropDownOptionsDto;
+import com.tulip.host.data.SessionDTO;
 import com.tulip.host.repository.SessionRepository;
 import java.util.List;
 import java.util.Optional;
@@ -14,12 +15,11 @@ public class FinancialYearService {
 
     private final SessionRepository sessionRepository;
 
-    public Optional<DropDownOptionsDto> fetchCurrentSession() {
-        return sessionRepository
-            .fetchCurrentSession()
-            .map(financialYear ->
-                DropDownOptionsDto.builder().label(financialYear.getDisplayText()).value(String.valueOf(financialYear.getId())).build()
-            );
+    public Long fetchCurrentSession() {
+        Optional<SessionDTO> sessionDTO = sessionRepository.fetchCurrentSession();
+        if (sessionDTO.isPresent()) {
+            return sessionDTO.get().getId();
+        }
     }
 
     public List<DropDownOptionsDto> fetchAllFinancialYear() {

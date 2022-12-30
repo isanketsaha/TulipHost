@@ -60,8 +60,8 @@ public class CommonController {
     }
 
     @GetMapping("/currentFinancialYear")
-    public DropDownOptionsDto fetchCurrentFinancialYear() {
-        return financialYearService.fetchCurrentSession().get();
+    public Long fetchCurrentFinancialYear() {
+        return financialYearService.fetchCurrentSession();
     }
 
     @GetMapping("/financialYearList")
