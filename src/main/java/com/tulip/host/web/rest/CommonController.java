@@ -1,11 +1,14 @@
 package com.tulip.host.web.rest;
 
 import com.tulip.host.data.DropDownOptionsDto;
+import com.tulip.host.data.SessionDTO;
 import com.tulip.host.enums.*;
+import com.tulip.host.service.FinancialYearService;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/common")
 @RequiredArgsConstructor
 public class CommonController {
+
+    private final FinancialYearService financialYearService;
 
     @RequestMapping("/genderList")
     public List<DropDownOptionsDto> genderList() {
@@ -52,5 +57,15 @@ public class CommonController {
             .stream(UserRoleEnum.values())
             .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
             .collect(Collectors.toList());
+    }
+
+    @GetMapping("/currentFinancialYear")
+    public DropDownOptionsDto fetchCurrentFinancialYear() {
+        return financialYearService.fetchCurrentSession().get();
+    }
+
+    @GetMapping("/financialYearList")
+    public List<DropDownOptionsDto> fetchAllFinancialYear() {
+        return financialYearService.fetchAllFinancialYear();
     }
 }

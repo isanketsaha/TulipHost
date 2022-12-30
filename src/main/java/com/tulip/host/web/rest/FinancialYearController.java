@@ -1,6 +1,6 @@
 package com.tulip.host.web.rest;
 
-import com.tulip.host.data.SessionDTO;
+import com.tulip.host.data.DropDownOptionsDto;
 import com.tulip.host.service.FinancialYearService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +16,12 @@ public class FinancialYearController {
     private final FinancialYearService financialYearService;
 
     @GetMapping("/current")
-    public SessionDTO fetchCurrentFinancialYear() {
+    public DropDownOptionsDto fetchCurrentFinancialYear() {
         return financialYearService.fetchCurrentSession().get();
     }
 
     @GetMapping("/all")
-    public List<SessionDTO> fetchAllFinancialYear() {
+    public List<DropDownOptionsDto> fetchAllFinancialYear() {
         return financialYearService.fetchAllFinancialYear();
     }
 }
