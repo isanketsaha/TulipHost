@@ -26,7 +26,7 @@ public class StudentController {
     @RolesAllowed({ "UG_ADMIN", "UG_PRINCIPAL" })
     @RequestMapping("/add")
     public void add() {
-        studentService.addStudent();
+        //        studentService.addStudent();
     }
 
     @RequestMapping("/search/{id}")

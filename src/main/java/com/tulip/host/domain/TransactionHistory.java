@@ -1,6 +1,5 @@
 package com.tulip.host.domain;
 
-import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -15,7 +14,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "transaction_history")
-public class TransactionHistory extends AbstractAuditingEntity<Long> implements Serializable {
+public class TransactionHistory extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "transaction_id", nullable = false)
@@ -25,11 +24,13 @@ public class TransactionHistory extends AbstractAuditingEntity<Long> implements 
     @Column(name = "payment_mode_id", nullable = false)
     private Long paymentModeId;
 
-    @Column(name = "purchase_order_id")
-    private Long purchaseOrder;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_order_id")
+    private PurchaseOrder purchaseOrder;
 
-    @Column(name = "fees_id")
-    private Long fees;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fees_id")
+    private Fee fees;
 
     @NotNull
     @Column(name = "total_amount", nullable = false)

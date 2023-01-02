@@ -18,7 +18,7 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
     static final QFee FEE = QFee.fee;
     static final com.tulip.host.domain.QEmployee EMPLOYEE = QEmployee.employee;
     static final QStudent STUDENT = QStudent.student;
-    static final QParentsDetail PARENTS_DETAIL = QParentsDetail.parentsDetail;
+    static final QDependent DEPENDENT = QDependent.dependent;
     static final QUserGroup USER_GROUP = QUserGroup.userGroup;
     static final QTransactionHistory TRANSACTION_HISTORY = QTransactionHistory.transactionHistory;
     static final QPaymentMode PAYMENT_MODE = QPaymentMode.paymentMode;

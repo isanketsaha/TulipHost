@@ -1,6 +1,5 @@
 package com.tulip.host.domain;
 
-import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -14,8 +13,8 @@ import lombok.*;
 @Setter
 @ToString
 @Entity
-@Table(name = "parents_details")
-public class ParentsDetail extends AbstractAuditingEntity<Long> implements Serializable {
+@Table(name = "dependent")
+public class Dependent extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)
@@ -43,10 +42,12 @@ public class ParentsDetail extends AbstractAuditingEntity<Long> implements Seria
 
     @Size(max = 15)
     @NotNull
-    @Column(name = "aadhar_no", nullable = false, length = 15)
-    private String aadharNo;
+    @Column(name = "aadhaar_no", nullable = false, length = 15)
+    private String aadhaarNo;
 
-    @NotNull
     @Column(name = "student_id", nullable = false)
     private Long student;
+
+    @Column(name = "emp_id", nullable = false)
+    private Long emp;
 }

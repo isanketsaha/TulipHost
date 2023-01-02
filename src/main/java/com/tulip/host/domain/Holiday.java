@@ -1,6 +1,5 @@
 package com.tulip.host.domain;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import javax.persistence.Column;
@@ -19,7 +18,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "holiday")
-public class Holiday extends AbstractAuditingEntity<Long> implements Serializable {
+public class Holiday extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)

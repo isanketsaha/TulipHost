@@ -20,6 +20,7 @@ public class FinancialYearService {
         if (sessionDTO.isPresent()) {
             return sessionDTO.get().getId();
         }
+        return null;
     }
 
     public List<DropDownOptionsDto> fetchAllFinancialYear() {

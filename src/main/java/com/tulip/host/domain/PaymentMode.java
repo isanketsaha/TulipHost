@@ -1,6 +1,5 @@
 package com.tulip.host.domain;
 
-import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -17,7 +16,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "payment_mode")
-public class PaymentMode extends AbstractAuditingEntity<Long> implements Serializable {
+public class PaymentMode extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)

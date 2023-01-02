@@ -4,6 +4,7 @@ import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.service.EmployeeService;
 import com.tulip.host.web.rest.vm.AddEmployeeVM;
+import com.tulip.host.web.rest.vm.OnboardingVM;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
@@ -28,12 +29,6 @@ public class EmployeeController {
     @RequestMapping("/all")
     public List<EmployeeBasicDTO> fetch() {
         return employeeService.fetchAllEmployee();
-    }
-
-    @RolesAllowed({ "UG_ADMIN", "UG_PRINCIPAL" })
-    @RequestMapping("/add")
-    public void add(@Valid @RequestBody AddEmployeeVM employeeVM) {
-        employeeService.addEmployee(employeeVM);
     }
 
     @RequestMapping("/searchById/{id}")

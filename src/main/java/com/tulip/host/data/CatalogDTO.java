@@ -1,6 +1,5 @@
 package com.tulip.host.data;
 
-import com.tulip.host.domain.Catalog;
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

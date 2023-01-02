@@ -1,9 +1,15 @@
 package com.tulip.host.service;
 
+import com.tulip.host.data.ClassDetailDTO;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
+import com.tulip.host.domain.Dependent;
 import com.tulip.host.domain.Student;
+import com.tulip.host.repository.ClassDetailRepository;
+import com.tulip.host.repository.DependentRepository;
 import com.tulip.host.repository.StudentRepository;
+import com.tulip.host.web.rest.vm.DependentVM;
+import com.tulip.host.web.rest.vm.OnboardingVM;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,12 +20,43 @@ public class StudentService {
 
     private final StudentRepository studentRepository;
 
+    private final ClassDetailRepository classDetailRepository;
+
+    private final DependentRepository dependentRepository;
+
     public List<StudentBasicDTO> fetchAllStudent() {
         return studentRepository.fetchAll();
     }
 
-    public Student addStudent() {
-        return studentRepository.add(null);
+    public void addStudent(OnboardingVM onboardingVM) {
+        ClassDetailDTO classDetailDTO = classDetailRepository.fetchClass(onboardingVM.getSession(), onboardingVM.getStd());
+
+        Student student = Student
+            .builder()
+            .gender(onboardingVM.getGender().getDisplayType())
+            .bloodGroup(onboardingVM.getBloodGroup().getDisplayType())
+            .std(classDetailDTO.getId())
+            .phoneNumber(String.valueOf(onboardingVM.getContact()))
+            .dob(onboardingVM.getDob())
+            .previousSchool(onboardingVM.getPreviousSchool())
+            .address(onboardingVM.getAddress())
+            .name(onboardingVM.getName())
+            .build();
+
+        Student admission = studentRepository.add(student);
+        for (DependentVM dependent : onboardingVM.getDependent()) {
+            Dependent build = Dependent
+                .builder()
+                .contact(String.valueOf(dependent.getContact()))
+                .name(dependent.getName())
+                .occupation(dependent.getOccupation())
+                .qualification(dependent.getQualification())
+                .relationship(dependent.getRelation().name())
+                .aadhaarNo(String.valueOf(dependent.getAadhaar()))
+                .student(student.getId())
+                .build();
+            dependentRepository.save(build);
+        }
     }
 
     public List<StudentBasicDTO> searchStudent(String name) {

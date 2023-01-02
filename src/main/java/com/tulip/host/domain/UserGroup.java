@@ -1,6 +1,5 @@
 package com.tulip.host.domain;
 
-import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,7 +17,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "user_group")
-public class UserGroup extends AbstractAuditingEntity<Long> implements Serializable {
+public class UserGroup extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)

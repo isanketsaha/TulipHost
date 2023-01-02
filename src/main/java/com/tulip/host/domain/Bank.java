@@ -16,24 +16,23 @@ import lombok.*;
 @Setter
 @ToString
 @Entity
-@Table(name = "credential")
-public class Credential extends AbstractAuditingEntity {
+@Table(name = "bank")
+public class Bank extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Size(max = 150)
     @NotNull
-    @Column(name = "password", nullable = false, length = 150)
-    private String password;
+    @Column(name = "account_no", nullable = false)
+    private Long accountNo;
 
+    @Size(max = 30)
     @NotNull
-    @Column(name = "reset_password", nullable = false)
-    private Boolean resetPassword = false;
+    @Column(name = "ifsc", nullable = false, length = 30)
+    private String ifsc;
 
-    @Size(max = 20)
-    @NotNull
-    @Column(name = "user_name", nullable = false, length = 20)
-    private String userName;
+    @Size(max = 30)
+    @Column(name = "bank_name", length = 30)
+    private String bankName;
 }

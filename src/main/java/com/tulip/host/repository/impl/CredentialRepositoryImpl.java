@@ -32,9 +32,9 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
                 )
                 .from(CREDENTIAL)
                 .innerJoin(EMPLOYEE)
-                .on(EMPLOYEE.id.eq(CREDENTIAL.employeeId))
+                .on(EMPLOYEE.credential.eq(CREDENTIAL.id))
                 .innerJoin(USER_GROUP)
-                .on(USER_GROUP.id.eq(EMPLOYEE.groupId))
+                .on(USER_GROUP.id.eq(EMPLOYEE.group))
                 .where(CREDENTIAL.userName.eq(userId))
                 .fetchFirst()
         );
@@ -47,9 +47,9 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
                 .select(USER_GROUP.authority)
                 .from(CREDENTIAL)
                 .innerJoin(EMPLOYEE)
-                .on(EMPLOYEE.id.eq(CREDENTIAL.employeeId))
+                .on(EMPLOYEE.credential.eq(CREDENTIAL.id))
                 .innerJoin(USER_GROUP)
-                .on(USER_GROUP.id.eq(EMPLOYEE.groupId))
+                .on(USER_GROUP.id.eq(EMPLOYEE.group))
                 .where(CREDENTIAL.userName.eq(userId))
                 .fetchFirst()
         );
@@ -62,9 +62,9 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
                 .select(Projections.bean(EmployeeDetailsDTO.class))
                 .from(CREDENTIAL)
                 .innerJoin(EMPLOYEE)
-                .on(EMPLOYEE.id.eq(CREDENTIAL.employeeId))
+                .on(EMPLOYEE.credential.eq(CREDENTIAL.id))
                 .innerJoin(USER_GROUP)
-                .on(USER_GROUP.id.eq(EMPLOYEE.groupId))
+                .on(USER_GROUP.id.eq(EMPLOYEE.group))
                 .where(CREDENTIAL.userName.eq(userId))
                 .fetchFirst()
         );
@@ -75,7 +75,7 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
         jpaQueryFactory
             .update(EMPLOYEE)
             .set(EMPLOYEE.active, false)
-            .where(CREDENTIAL.employeeId.eq(EMPLOYEE.id).and(CREDENTIAL.userName.eq(userId)))
+            .where(EMPLOYEE.credential.eq(CREDENTIAL.id).and(CREDENTIAL.userName.eq(userId)))
             .execute();
     }
 }

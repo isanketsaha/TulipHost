@@ -34,24 +34,24 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                     STUDENT.dob,
                     STUDENT.gender,
                     STUDENT.bloodGroup,
-                    PARENTS_DETAIL.contact,
+                    DEPENDENT.contact,
                     Projections.fields(
                         ParentsDetailDto.class,
-                        PARENTS_DETAIL.contact,
-                        PARENTS_DETAIL.name,
-                        PARENTS_DETAIL.relationship,
-                        PARENTS_DETAIL.aadharNo,
-                        PARENTS_DETAIL.id,
-                        PARENTS_DETAIL.occupation,
-                        PARENTS_DETAIL.occupation
+                        DEPENDENT.contact,
+                        DEPENDENT.name,
+                        DEPENDENT.relationship,
+                        DEPENDENT.aadhaarNo,
+                        DEPENDENT.id,
+                        DEPENDENT.occupation,
+                        DEPENDENT.occupation
                     ),
                     Projections.fields(ClassDetailDTO.class, CLASS_DETAIL.headTeacher, CLASS_DETAIL.std, CLASS_DETAIL.id)
                 )
             )
             .from(STUDENT)
-            .join(PARENTS_DETAIL)
+            .join(DEPENDENT)
             .join(CLASS_DETAIL)
-            .on(CLASS_DETAIL.id.eq(STUDENT.classDetails))
+            .on(CLASS_DETAIL.id.eq(STUDENT.std))
             .fetch();
     }
 
@@ -67,24 +67,24 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                     STUDENT.dob,
                     STUDENT.gender,
                     STUDENT.bloodGroup,
-                    PARENTS_DETAIL.contact,
+                    DEPENDENT.contact,
                     Projections.fields(
                         ParentsDetailDto.class,
-                        PARENTS_DETAIL.contact,
-                        PARENTS_DETAIL.name,
-                        PARENTS_DETAIL.relationship,
-                        PARENTS_DETAIL.aadharNo,
-                        PARENTS_DETAIL.id,
-                        PARENTS_DETAIL.occupation,
-                        PARENTS_DETAIL.occupation
+                        DEPENDENT.contact,
+                        DEPENDENT.name,
+                        DEPENDENT.relationship,
+                        DEPENDENT.aadhaarNo,
+                        DEPENDENT.id,
+                        DEPENDENT.occupation,
+                        DEPENDENT.occupation
                     ),
                     Projections.fields(ClassDetailDTO.class, CLASS_DETAIL.headTeacher, CLASS_DETAIL.std, CLASS_DETAIL.id)
                 )
             )
             .from(STUDENT)
-            .join(PARENTS_DETAIL)
+            .join(DEPENDENT)
             .join(CLASS_DETAIL)
-            .on(CLASS_DETAIL.id.eq(STUDENT.classDetails))
+            .on(CLASS_DETAIL.id.eq(STUDENT.std))
             .where(STUDENT.isActive.eq(isActive))
             .fetch();
     }
@@ -106,24 +106,24 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                     STUDENT.dob,
                     STUDENT.gender,
                     STUDENT.bloodGroup,
-                    PARENTS_DETAIL.contact,
+                    DEPENDENT.contact,
                     Projections.fields(
                         ParentsDetailDto.class,
-                        PARENTS_DETAIL.contact,
-                        PARENTS_DETAIL.name,
-                        PARENTS_DETAIL.relationship,
-                        PARENTS_DETAIL.aadharNo,
-                        PARENTS_DETAIL.id,
-                        PARENTS_DETAIL.occupation,
-                        PARENTS_DETAIL.occupation
+                        DEPENDENT.contact,
+                        DEPENDENT.name,
+                        DEPENDENT.relationship,
+                        DEPENDENT.aadhaarNo,
+                        DEPENDENT.id,
+                        DEPENDENT.occupation,
+                        DEPENDENT.occupation
                     ),
                     Projections.fields(ClassDetailDTO.class, CLASS_DETAIL.headTeacher, CLASS_DETAIL.std, CLASS_DETAIL.id)
                 )
             )
             .from(STUDENT)
-            .join(PARENTS_DETAIL)
+            .join(DEPENDENT)
             .join(CLASS_DETAIL)
-            .on(CLASS_DETAIL.id.eq(STUDENT.classDetails))
+            .on(CLASS_DETAIL.id.eq(STUDENT.std))
             .where(STUDENT.name.likeIgnoreCase(Expressions.asString("%").concat(name).concat("%")))
             .fetch();
     }
@@ -140,26 +140,26 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                     STUDENT.dob,
                     STUDENT.gender,
                     STUDENT.bloodGroup,
-                    PARENTS_DETAIL.contact,
+                    DEPENDENT.contact,
                     STUDENT.previousSchool,
                     Projections.fields(
                         ParentsDetailDto.class,
-                        PARENTS_DETAIL.contact,
-                        PARENTS_DETAIL.name,
-                        PARENTS_DETAIL.relationship,
-                        PARENTS_DETAIL.aadharNo,
-                        PARENTS_DETAIL.id,
-                        PARENTS_DETAIL.occupation,
-                        PARENTS_DETAIL.occupation
+                        DEPENDENT.contact,
+                        DEPENDENT.name,
+                        DEPENDENT.relationship,
+                        DEPENDENT.aadhaarNo,
+                        DEPENDENT.id,
+                        DEPENDENT.occupation,
+                        DEPENDENT.occupation
                     ),
                     Projections.fields(ClassDetailDTO.class, CLASS_DETAIL.headTeacher, CLASS_DETAIL.std, CLASS_DETAIL.id)
                 )
             )
             .from(STUDENT)
-            .join(PARENTS_DETAIL)
+            .join(DEPENDENT)
             .join(CLASS_DETAIL)
-            .on(CLASS_DETAIL.id.eq(STUDENT.classDetails))
-            .on(PARENTS_DETAIL.student.eq(STUDENT.id))
+            .on(CLASS_DETAIL.id.eq(STUDENT.std))
+            .on(DEPENDENT.student.eq(STUDENT.id))
             .where(STUDENT.id.eq(id))
             .fetchOne();
     }

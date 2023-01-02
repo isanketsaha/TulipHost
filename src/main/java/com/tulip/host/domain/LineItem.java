@@ -1,6 +1,5 @@
 package com.tulip.host.domain;
 
-import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -15,7 +14,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "line_item")
-public class LineItem extends AbstractAuditingEntity<Long> implements Serializable {
+public class LineItem extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)

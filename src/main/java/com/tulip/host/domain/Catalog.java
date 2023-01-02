@@ -1,7 +1,5 @@
 package com.tulip.host.domain;
 
-import java.io.Serializable;
-import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -15,7 +13,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "catalog")
-public class Catalog extends AbstractAuditingEntity<Long> implements Serializable {
+public class Catalog extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)
@@ -48,9 +46,12 @@ public class Catalog extends AbstractAuditingEntity<Long> implements Serializabl
     @Column(name = "tag", nullable = false)
     private String tag;
 
-    @NotNull
-    @Column(name = "std")
+    @Column(name = "std_id", nullable = false)
     private Long std;
+
+    @NotNull
+    @Column(name = "session_id", nullable = false)
+    private Long session;
 
     @Size(max = 20)
     @Column(name = "size", length = 20)

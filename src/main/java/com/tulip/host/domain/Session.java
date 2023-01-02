@@ -2,7 +2,10 @@ package com.tulip.host.domain;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.*;
@@ -15,7 +18,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "session")
-public class Session extends AbstractAuditingEntity<Long> {
+public class Session extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)

@@ -92,7 +92,7 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
                     EMPLOYEE.gender,
                     EMPLOYEE.bloodGroup,
                     EMPLOYEE.phoneNumber,
-                    EMPLOYEE.groupId
+                    EMPLOYEE.group
                 )
             )
             .from(EMPLOYEE)

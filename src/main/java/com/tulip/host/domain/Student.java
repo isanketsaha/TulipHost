@@ -1,8 +1,8 @@
 package com.tulip.host.domain;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Date;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -16,7 +16,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "student")
-public class Student extends AbstractAuditingEntity<Long> implements Serializable {
+public class Student extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "student_id", nullable = false)
@@ -29,15 +29,15 @@ public class Student extends AbstractAuditingEntity<Long> implements Serializabl
 
     @NotNull
     @Column(name = "dob", nullable = false)
-    private LocalDate dob;
+    private Date dob;
 
     @Size(max = 255)
     @Column(name = "address")
     private String address;
 
     @NotNull
-    @Column(name = "class_details_id", nullable = false)
-    private Long classDetails;
+    @Column(name = "std_id", nullable = false)
+    private Long std;
 
     @Size(max = 2)
     @NotNull
@@ -52,6 +52,11 @@ public class Student extends AbstractAuditingEntity<Long> implements Serializabl
     @NotNull
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = false;
+
+    @Size(max = 20)
+    @NotNull
+    @Column(name = "phone_number", nullable = false, length = 20)
+    private String phoneNumber;
 
     @Size(max = 50)
     @Column(name = "previous_school", length = 50)

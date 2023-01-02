@@ -1,6 +1,5 @@
 package com.tulip.host.data;
 
-import com.tulip.host.domain.UserGroup;
 import java.io.Serializable;
 import java.time.Instant;
 import javax.validation.constraints.NotNull;

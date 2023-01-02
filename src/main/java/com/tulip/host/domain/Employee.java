@@ -1,8 +1,6 @@
 package com.tulip.host.domain;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.Date;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -16,15 +14,15 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "employee")
-public class Employee extends AbstractAuditingEntity<Long> implements Serializable {
+public class Employee extends AbstractAuditingEntity {
 
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "emp_id", nullable = false)
     private Long id;
 
     @NotNull
     @Column(name = "active", nullable = false)
-    private Boolean active = false;
+    private Boolean active = true;
 
     @Size(max = 255)
     @Column(name = "address")
@@ -35,15 +33,11 @@ public class Employee extends AbstractAuditingEntity<Long> implements Serializab
     private String bloodGroup;
 
     @Column(name = "dob")
-    private Date dob;
+    private Instant dob;
 
     @Size(max = 255)
     @Column(name = "experience")
     private String experience;
-
-    @Size(max = 50)
-    @Column(name = "father", length = 50)
-    private String father;
 
     @Size(max = 6)
     @Column(name = "gender", length = 6)
@@ -61,6 +55,9 @@ public class Employee extends AbstractAuditingEntity<Long> implements Serializab
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
+    @Column(name = "credential_id")
+    private Long credential;
+
     @Size(max = 20)
     @NotNull
     @Column(name = "phone_number", nullable = false, length = 20)
@@ -68,13 +65,21 @@ public class Employee extends AbstractAuditingEntity<Long> implements Serializab
 
     @Size(max = 20)
     @Column(name = "qualification", length = 20)
-    private String highestQualification;
+    private String qualification;
 
     @Size(max = 20)
     @Column(name = "religion", length = 20)
     private String religion;
 
     @NotNull
-    @Column(name = "group_id", nullable = false)
-    private Long groupId;
+    @Column(name = "group_id", length = 20)
+    private Long group;
+
+    @NotNull
+    @Column(name = "bank_id", length = 20)
+    private Long bank;
+
+    @NotNull
+    @Column(name = "interview_id", length = 20)
+    private Long interview;
 }

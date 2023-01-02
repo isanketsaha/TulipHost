@@ -59,6 +59,14 @@ public class CommonController {
             .collect(Collectors.toList());
     }
 
+    @RequestMapping("/classList")
+    public List<DropDownOptionsDto> classList() {
+        return Arrays
+            .stream(StdEnum.values())
+            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
+            .collect(Collectors.toList());
+    }
+
     @GetMapping("/currentFinancialYear")
     public Long fetchCurrentFinancialYear() {
         return financialYearService.fetchCurrentSession();

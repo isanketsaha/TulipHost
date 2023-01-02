@@ -2,7 +2,6 @@ package com.tulip.host.security;
 
 import com.tulip.host.data.LoginDTO;
 import com.tulip.host.repository.CredentialRepository;
-import com.tulip.host.repository.UserRepository;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,8 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class DomainUserDetailsService implements UserDetailsService {
 
     private final Logger log = LoggerFactory.getLogger(DomainUserDetailsService.class);
-
-    private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
 
