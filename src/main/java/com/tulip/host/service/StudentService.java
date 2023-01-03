@@ -13,6 +13,7 @@ import com.tulip.host.web.rest.vm.OnboardingVM;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +29,8 @@ public class StudentService {
         return studentRepository.fetchAll();
     }
 
-    public void addStudent(OnboardingVM onboardingVM) {
+    @Transactional(readOnly = false)
+    public Long addStudent(OnboardingVM onboardingVM) {
         ClassDetailDTO classDetailDTO = classDetailRepository.fetchClass(onboardingVM.getSession(), onboardingVM.getStd());
 
         Student student = Student
@@ -38,12 +40,14 @@ public class StudentService {
             .std(classDetailDTO.getId())
             .phoneNumber(String.valueOf(onboardingVM.getContact()))
             .dob(onboardingVM.getDob())
+            .isActive(Boolean.TRUE)
+            .religion(onboardingVM.getReligion().name())
             .previousSchool(onboardingVM.getPreviousSchool())
             .address(onboardingVM.getAddress())
             .name(onboardingVM.getName())
             .build();
 
-        Student admission = studentRepository.add(student);
+        Student admission = studentRepository.save(student);
         for (DependentVM dependent : onboardingVM.getDependent()) {
             Dependent build = Dependent
                 .builder()
@@ -57,6 +61,7 @@ public class StudentService {
                 .build();
             dependentRepository.save(build);
         }
+        return admission.getId();
     }
 
     public List<StudentBasicDTO> searchStudent(String name) {

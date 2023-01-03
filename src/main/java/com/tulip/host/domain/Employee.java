@@ -18,6 +18,7 @@ public class Employee extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "emp_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull

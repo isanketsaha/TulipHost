@@ -34,7 +34,7 @@ public class EmployeeService {
         return employeeRepository.fetchAll();
     }
 
-    public void addEmployee(OnboardingVM employeeVM) {
+    public Long addEmployee(OnboardingVM employeeVM) throws Exception {
         UserGroup userGroupByAuthority = userGroupRepository.findUserGroupByAuthority(
             "UG_" + employeeVM.getInterview().getRole().name().toUpperCase()
         );
@@ -64,7 +64,9 @@ public class EmployeeService {
                 Dependent dependentModel = buildDependentModel(dependent, addEmployee.getId());
                 dependentRepository.save(dependentModel);
             }
+            return employee.getId();
         }
+        throw new Exception("Unable to find usergroup");
     }
 
     public List<EmployeeBasicDTO> searchEmployee(String name) {

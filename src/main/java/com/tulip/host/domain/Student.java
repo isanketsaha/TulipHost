@@ -20,6 +20,7 @@ public class Student extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "student_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Size(max = 50)
@@ -49,9 +50,8 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "gender", nullable = false, length = 6)
     private String gender;
 
-    @NotNull
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = false;
+    @Column(name = "active", nullable = false)
+    private Boolean isActive = Boolean.TRUE;
 
     @Size(max = 20)
     @NotNull
@@ -64,4 +64,7 @@ public class Student extends AbstractAuditingEntity {
 
     @Column(name = "termination_date")
     private LocalDate terminationDate;
+
+    @Column(name = "religion")
+    private String religion;
 }

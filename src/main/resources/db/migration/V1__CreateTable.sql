@@ -149,14 +149,14 @@ CREATE TABLE IF NOT EXISTS  class_details (
 -- db.student definition
 
 CREATE TABLE IF NOT EXISTS  student (
-  student_id bigint NOT NULL,
+  student_id bigint NOT NULL AUTO_INCREMENT,
   name varchar(50) NOT NULL,
   dob date NOT NULL,
   address varchar(255) DEFAULT NULL,
   std_id bigint NOT NULL,
   blood_group varchar(2) NOT NULL,
   gender varchar(6) NOT NULL,
-  is_active bit(1) NOT NULL,
+  active bit(1) DEFAULT 1,
   phone_number varchar(20) NOT NULL,
   previous_school varchar(50) DEFAULT NULL,
   termination_date date DEFAULT NULL,

@@ -18,11 +18,6 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
     }
 
     @Override
-    public Student add(Student student) {
-        return save(student);
-    }
-
-    @Override
     public List<StudentBasicDTO> fetchAll() {
         return jpaQueryFactory
             .select(

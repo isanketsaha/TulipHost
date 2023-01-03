@@ -28,7 +28,7 @@ public class DomainUserDetailsService implements UserDetailsService {
     private final CredentialRepository credentialRepository;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public UserDetails loadUserByUsername(final String login) {
         log.debug("Authenticating {}", login);
         return credentialRepository

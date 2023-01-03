@@ -5,6 +5,7 @@ import com.tulip.host.service.StudentService;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,16 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class OnboardingController {
 
-    EmployeeService employeeService;
+    private final EmployeeService employeeService;
 
-    StudentService studentService;
+    private final StudentService studentService;
 
     @PostMapping
-    public void onboard(@Valid @RequestBody OnboardingVM onboardingVM) {
+    public ResponseEntity<Long> onboard(@Valid @RequestBody OnboardingVM onboardingVM) throws Exception {
         if (onboardingVM.getType().equals("employee")) {
-            employeeService.addEmployee(onboardingVM);
+            ResponseEntity.ok(employeeService.addEmployee(onboardingVM));
         } else if (onboardingVM.getType().equals("student")) {
-            studentService.addStudent(onboardingVM);
+            ResponseEntity.ok(studentService.addStudent(onboardingVM));
         }
+        throw new Exception("No Match found for onboard type.");
     }
 }

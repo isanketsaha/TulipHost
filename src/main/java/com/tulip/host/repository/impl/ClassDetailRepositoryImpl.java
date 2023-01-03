@@ -19,7 +19,9 @@ public class ClassDetailRepositoryImpl extends BaseRepositoryImpl<ClassDetail, L
     @Override
     public List<ClassDetailDTO> fetchClassListBySession(Long sessionId) {
         return jpaQueryFactory
-            .select(Projections.bean(ClassDetailDTO.class))
+            .select(
+                Projections.fields(ClassDetailDTO.class, CLASS_DETAIL.id, CLASS_DETAIL.std, CLASS_DETAIL.headTeacher, CLASS_DETAIL.session)
+            )
             .from(CLASS_DETAIL)
             .where(CLASS_DETAIL.session.eq(sessionId))
             .fetch();
@@ -28,7 +30,9 @@ public class ClassDetailRepositoryImpl extends BaseRepositoryImpl<ClassDetail, L
     @Override
     public ClassDetailDTO fetchClass(Long sessionId, String std) {
         return jpaQueryFactory
-            .select(Projections.bean(ClassDetailDTO.class))
+            .select(
+                Projections.fields(ClassDetailDTO.class, CLASS_DETAIL.id, CLASS_DETAIL.std, CLASS_DETAIL.headTeacher, CLASS_DETAIL.session)
+            )
             .from(CLASS_DETAIL)
             .where(CLASS_DETAIL.session.eq(sessionId).and(CLASS_DETAIL.std.eq(std)))
             .fetchFirst();
