@@ -23,9 +23,9 @@ public class OnboardingController {
     @PostMapping
     public ResponseEntity<Long> onboard(@Valid @RequestBody OnboardingVM onboardingVM) throws Exception {
         if (onboardingVM.getType().equals("employee")) {
-            ResponseEntity.ok(employeeService.addEmployee(onboardingVM));
+            return ResponseEntity.ok(employeeService.addEmployee(onboardingVM));
         } else if (onboardingVM.getType().equals("student")) {
-            ResponseEntity.ok(studentService.addStudent(onboardingVM));
+            return ResponseEntity.ok(studentService.addStudent(onboardingVM));
         }
         throw new Exception("No Match found for onboard type.");
     }

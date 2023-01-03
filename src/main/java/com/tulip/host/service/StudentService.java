@@ -44,7 +44,7 @@ public class StudentService {
             .religion(onboardingVM.getReligion().name())
             .previousSchool(onboardingVM.getPreviousSchool())
             .address(onboardingVM.getAddress())
-            .name(onboardingVM.getName())
+            .name(onboardingVM.getName().toUpperCase())
             .build();
 
         Student admission = studentRepository.save(student);
@@ -52,9 +52,9 @@ public class StudentService {
             Dependent build = Dependent
                 .builder()
                 .contact(String.valueOf(dependent.getContact()))
-                .name(dependent.getName())
-                .occupation(dependent.getOccupation())
-                .qualification(dependent.getQualification())
+                .name(dependent.getName().toUpperCase())
+                .occupation(dependent.getOccupation().toUpperCase())
+                .qualification(dependent.getQualification().toUpperCase())
                 .relationship(dependent.getRelation().name())
                 .aadhaarNo(String.valueOf(dependent.getAadhaar()))
                 .student(student.getId())
