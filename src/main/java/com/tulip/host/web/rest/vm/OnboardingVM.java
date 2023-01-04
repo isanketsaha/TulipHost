@@ -42,7 +42,7 @@ public class OnboardingVM {
     String previousSchool;
     ReligionEnum religion;
     Long session;
-    BankVM bank;
-    InterviewVM interview;
+    List<BankVM> bank;
+    List<InterviewVM> interview;
     String std;
 }

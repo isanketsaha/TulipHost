@@ -16,11 +16,6 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
     }
 
     @Override
-    public Employee add(Employee employee) {
-        return save(employee);
-    }
-
-    @Override
     public List<EmployeeBasicDTO> fetchAll(boolean isActive) {
         return jpaQueryFactory
             .select(

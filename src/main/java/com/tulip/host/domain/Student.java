@@ -51,6 +51,7 @@ public class Student extends AbstractAuditingEntity {
     private String gender;
 
     @Column(name = "active", nullable = false)
+    @Builder.Default
     private Boolean isActive = Boolean.TRUE;
 
     @Size(max = 20)

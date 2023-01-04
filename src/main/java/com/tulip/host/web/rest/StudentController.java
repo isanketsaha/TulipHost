@@ -23,12 +23,6 @@ public class StudentController {
         return studentService.fetchAllStudent();
     }
 
-    @RolesAllowed({ "UG_ADMIN", "UG_PRINCIPAL" })
-    @RequestMapping("/add")
-    public void add() {
-        //        studentService.addStudent();
-    }
-
     @RequestMapping("/search/{id}")
     public StudentDetailsDTO search(@Valid @PathVariable int id) {
         return studentService.searchStudent(id);

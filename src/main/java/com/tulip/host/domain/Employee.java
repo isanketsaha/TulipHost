@@ -23,6 +23,7 @@ public class Employee extends AbstractAuditingEntity {
 
     @NotNull
     @Column(name = "active", nullable = false)
+    @Builder.Default
     private Boolean active = true;
 
     @Size(max = 255)
@@ -49,6 +50,7 @@ public class Employee extends AbstractAuditingEntity {
 
     @NotNull
     @Column(name = "locked", nullable = false)
+    @Builder.Default
     private Boolean locked = false;
 
     @Size(max = 50)

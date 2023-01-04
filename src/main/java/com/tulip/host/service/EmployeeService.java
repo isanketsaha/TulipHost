@@ -11,6 +11,7 @@ import com.tulip.host.web.rest.vm.OnboardingVM;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,14 +35,15 @@ public class EmployeeService {
         return employeeRepository.fetchAll();
     }
 
+    @Transactional
     public Long addEmployee(OnboardingVM employeeVM) throws Exception {
         UserGroup userGroupByAuthority = userGroupRepository.findUserGroupByAuthority(
-            "UG_" + employeeVM.getInterview().getRole().name().toUpperCase()
+            "UG_" + employeeVM.getInterview().stream().findFirst().get().getRole().name().toUpperCase()
         );
         if (userGroupByAuthority != null) {
-            Bank bank = buildBankModel(employeeVM.getBank());
+            Bank bank = buildBankModel(employeeVM.getBank().stream().findFirst().get());
             Bank saveBank = bankRepository.save(bank);
-            Interview interview = buildInterviewModel(employeeVM.getInterview());
+            Interview interview = buildInterviewModel(employeeVM.getInterview().stream().findFirst().get());
 
             Interview saveInterview = interviewRepository.save(interview);
             Employee employee = Employee
@@ -55,11 +57,10 @@ public class EmployeeService {
                 .address(employeeVM.getAddress())
                 .name(employeeVM.getName())
                 .group(userGroupByAuthority.getId())
-                .active(Boolean.TRUE)
                 .bank(saveBank.getId())
                 .interview(saveInterview.getId())
                 .build();
-            Employee addEmployee = employeeRepository.add(employee);
+            Employee addEmployee = employeeRepository.save(employee);
             for (DependentVM dependent : employeeVM.getDependent()) {
                 Dependent dependentModel = buildDependentModel(dependent, addEmployee.getId());
                 dependentRepository.save(dependentModel);

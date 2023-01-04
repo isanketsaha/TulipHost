@@ -7,8 +7,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
-    public Employee add(Employee employee);
-
     public List<EmployeeBasicDTO> fetchAll();
 
     List<EmployeeBasicDTO> fetchAll(boolean isActive);

@@ -29,7 +29,7 @@ public class StudentService {
         return studentRepository.fetchAll();
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public Long addStudent(OnboardingVM onboardingVM) {
         ClassDetailDTO classDetailDTO = classDetailRepository.fetchClass(onboardingVM.getSession(), onboardingVM.getStd());
 
