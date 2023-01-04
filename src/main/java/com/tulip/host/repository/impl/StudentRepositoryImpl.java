@@ -3,7 +3,7 @@ package com.tulip.host.repository.impl;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.tulip.host.data.ClassDetailDTO;
-import com.tulip.host.data.ParentsDetailDto;
+import com.tulip.host.data.DependentDTO;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.Student;
@@ -115,7 +115,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                     DEPENDENT.contact,
                     STUDENT.previousSchool,
                     Projections.fields(
-                        ParentsDetailDto.class,
+                        DependentDTO.class,
                         DEPENDENT.contact,
                         DEPENDENT.name,
                         DEPENDENT.relationship,

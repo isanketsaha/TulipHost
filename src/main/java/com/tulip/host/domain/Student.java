@@ -3,6 +3,7 @@ package com.tulip.host.domain;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -37,7 +38,7 @@ public class Student extends AbstractAuditingEntity {
     private String address;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "std_id", nullable = false)
     private ClassDetail std;
 
@@ -70,4 +71,7 @@ public class Student extends AbstractAuditingEntity {
     @Size(max = 20)
     @Column(name = "religion", length = 20)
     private String religion;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "student")
+    private List<Dependent> dependent;
 }

@@ -6,14 +6,18 @@ import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Dependent;
 import com.tulip.host.domain.Student;
+import com.tulip.host.mapper.ClassMapper;
+import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.DependentRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.web.rest.vm.DependentVM;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +30,10 @@ public class StudentService {
     private final ClassDetailRepository classDetailRepository;
 
     private final DependentRepository dependentRepository;
+
+    private final StudentMapper studentMapper;
+
+    private final ClassMapper classMapper;
 
     public List<StudentBasicDTO> fetchAllStudent() {
         return studentRepository.fetchAll();
@@ -71,7 +79,11 @@ public class StudentService {
     }
 
     public StudentDetailsDTO searchStudent(long id) {
-        return studentRepository.search(id);
+        Student byId = studentRepository.findById(id).orElse(null);
+        if (byId != null) {
+            return studentMapper.getEntityFromModel(byId);
+        }
+        return null;
     }
 
     public StudentDetailsDTO editStudent() {

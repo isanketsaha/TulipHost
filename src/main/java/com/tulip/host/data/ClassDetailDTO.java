@@ -19,7 +19,7 @@ public class ClassDetailDTO implements Serializable {
     @Size(max = 10)
     private String std;
 
-    private Long HeadTeacher;
+    private String headTeacher;
 
-    private Long session;
+    private String session;
 }

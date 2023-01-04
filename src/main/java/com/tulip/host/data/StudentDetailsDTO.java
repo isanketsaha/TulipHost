@@ -1,6 +1,7 @@
 package com.tulip.host.data;
 
 import java.time.LocalDate;
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Data;
@@ -39,5 +40,6 @@ public class StudentDetailsDTO {
 
     private final LocalDate terminationDate;
 
-    private ParentsDetailDto parentsDetail;
+    @NotNull
+    private List<DependentDTO> dependent;
 }

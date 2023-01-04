@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ParentsDetailDto implements Serializable {
+public class DependentDTO implements Serializable {
 
     private Long id;
 
