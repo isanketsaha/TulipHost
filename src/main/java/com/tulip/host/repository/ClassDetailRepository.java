@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ClassDetailRepository extends JpaRepository<ClassDetail, Long> {
-    List<ClassDetailDTO> fetchClassListBySession(Long SessionId);
+    List<ClassDetail> findAllBySessionId(Long sessionId);
 
-    ClassDetailDTO fetchClass(Long SessionId, String std);
+    ClassDetail findBySessionIdAndStd(Long sessionId, String std);
 }

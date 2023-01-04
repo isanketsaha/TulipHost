@@ -18,6 +18,7 @@ public class LineItem extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -33,10 +34,12 @@ public class LineItem extends AbstractAuditingEntity {
     private Double amount;
 
     @NotNull
-    @Column(name = "purchase_order_id", nullable = false)
-    private Long purchaseOrder;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "purchase_order_id", nullable = false)
+    private PurchaseOrder purchaseOrder;
 
     @NotNull
-    @Column(name = "product_id", nullable = false)
-    private Long product;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Catalog product;
 }

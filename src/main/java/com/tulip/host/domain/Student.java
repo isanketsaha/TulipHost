@@ -37,8 +37,9 @@ public class Student extends AbstractAuditingEntity {
     private String address;
 
     @NotNull
-    @Column(name = "std_id", nullable = false)
-    private Long std;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
+    @JoinColumn(name = "std_id", nullable = false)
+    private ClassDetail std;
 
     @Size(max = 2)
     @NotNull
@@ -50,9 +51,9 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "gender", nullable = false, length = 6)
     private String gender;
 
-    @Column(name = "active", nullable = false)
+    @Column(name = "active")
     @Builder.Default
-    private Boolean isActive = Boolean.TRUE;
+    private Boolean active = true;
 
     @Size(max = 20)
     @NotNull
@@ -66,6 +67,7 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "termination_date")
     private LocalDate terminationDate;
 
-    @Column(name = "religion")
+    @Size(max = 20)
+    @Column(name = "religion", length = 20)
     private String religion;
 }

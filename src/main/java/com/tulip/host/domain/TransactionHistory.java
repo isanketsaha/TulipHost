@@ -18,6 +18,7 @@ public class TransactionHistory extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "transaction_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -37,8 +38,9 @@ public class TransactionHistory extends AbstractAuditingEntity {
     private Double totalAmount;
 
     @NotNull
-    @Column(name = "student_id", nullable = false)
-    private Long student;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
 
     @Size(max = 100)
     @Column(name = "comments", length = 100)

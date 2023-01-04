@@ -18,6 +18,7 @@ public class Fee extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -32,6 +33,7 @@ public class Fee extends AbstractAuditingEntity {
     @Column(name = "to_month", length = 10)
     private String toMonth;
 
-    @Column(name = "payment_mode_id")
-    private Long paymentMode;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_mode_id")
+    private PaymentMode paymentMode;
 }

@@ -25,7 +25,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                     StudentBasicDTO.class,
                     STUDENT.name,
                     STUDENT.id,
-                    STUDENT.isActive,
+                    STUDENT.active,
                     STUDENT.dob,
                     STUDENT.gender,
                     STUDENT.bloodGroup,
@@ -36,9 +36,9 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             )
             .from(STUDENT)
             .join(DEPENDENT)
-            .on(DEPENDENT.student.eq(STUDENT.id))
+            .on(DEPENDENT.student().eq(STUDENT))
             .join(CLASS_DETAIL)
-            .on(CLASS_DETAIL.id.eq(STUDENT.std))
+            .on(CLASS_DETAIL.eq(STUDENT.std()))
             .orderBy(STUDENT.createdDate.desc())
             .fetch();
     }
@@ -51,7 +51,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                     StudentBasicDTO.class,
                     STUDENT.name,
                     STUDENT.id,
-                    STUDENT.isActive,
+                    STUDENT.active,
                     STUDENT.dob,
                     STUDENT.gender,
                     STUDENT.bloodGroup,
@@ -62,10 +62,10 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             )
             .from(STUDENT)
             .join(DEPENDENT)
-            .on(DEPENDENT.student.eq(STUDENT.id))
+            .on(DEPENDENT.student().eq(STUDENT))
             .join(CLASS_DETAIL)
-            .on(CLASS_DETAIL.id.eq(STUDENT.std))
-            .where(STUDENT.isActive.eq(isActive))
+            .on(CLASS_DETAIL.eq(STUDENT.std()))
+            .where(STUDENT.active.eq(isActive))
             .fetch();
     }
 
@@ -82,7 +82,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                     StudentBasicDTO.class,
                     STUDENT.name,
                     STUDENT.id,
-                    STUDENT.isActive,
+                    STUDENT.active,
                     STUDENT.dob,
                     STUDENT.gender,
                     STUDENT.bloodGroup,
@@ -93,9 +93,9 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             )
             .from(STUDENT)
             .join(DEPENDENT)
-            .on(DEPENDENT.student.eq(DEPENDENT.id))
+            .on(DEPENDENT.student().eq(STUDENT))
             .join(CLASS_DETAIL)
-            .on(CLASS_DETAIL.id.eq(STUDENT.std))
+            .on(CLASS_DETAIL.eq(STUDENT.std()))
             .where(STUDENT.name.likeIgnoreCase(Expressions.asString("%").concat(name).concat("%")))
             .fetch();
     }
@@ -108,7 +108,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                     StudentDetailsDTO.class,
                     STUDENT.name,
                     STUDENT.id,
-                    STUDENT.isActive,
+                    STUDENT.active,
                     STUDENT.dob,
                     STUDENT.gender,
                     STUDENT.bloodGroup,
@@ -124,14 +124,14 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                         DEPENDENT.occupation,
                         DEPENDENT.occupation
                     ),
-                    Projections.fields(ClassDetailDTO.class, CLASS_DETAIL.headTeacher, CLASS_DETAIL.std, CLASS_DETAIL.id)
+                    Projections.fields(ClassDetailDTO.class, CLASS_DETAIL.headTeacher(), CLASS_DETAIL.std, CLASS_DETAIL.id)
                 )
             )
             .from(STUDENT)
             .join(DEPENDENT)
             .join(CLASS_DETAIL)
-            .on(CLASS_DETAIL.id.eq(STUDENT.std))
-            .on(DEPENDENT.student.eq(STUDENT.id))
+            .on(CLASS_DETAIL.eq(STUDENT.std()))
+            .on(DEPENDENT.student().eq(STUDENT))
             .where(STUDENT.id.eq(id))
             .fetchOne();
     }

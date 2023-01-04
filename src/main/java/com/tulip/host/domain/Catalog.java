@@ -1,5 +1,6 @@
 package com.tulip.host.domain;
 
+import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -17,6 +18,7 @@ public class Catalog extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Size(max = 255)
@@ -46,12 +48,14 @@ public class Catalog extends AbstractAuditingEntity {
     @Column(name = "tag", nullable = false)
     private String tag;
 
-    @Column(name = "std_id", nullable = false)
-    private Long std;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "std_id")
+    private ClassDetail std;
 
     @NotNull
-    @Column(name = "session_id", nullable = false)
-    private Long session;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "session_id", nullable = false)
+    private Session session;
 
     @Size(max = 20)
     @Column(name = "size", length = 20)

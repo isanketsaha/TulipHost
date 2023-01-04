@@ -58,8 +58,9 @@ public class Employee extends AbstractAuditingEntity {
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @Column(name = "credential_id")
-    private Long credential;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "credential_id")
+    private Credential credential;
 
     @Size(max = 20)
     @NotNull
@@ -75,14 +76,15 @@ public class Employee extends AbstractAuditingEntity {
     private String religion;
 
     @NotNull
-    @Column(name = "group_id", length = 20)
-    private Long group;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "group_id", nullable = false)
+    private UserGroup group;
 
-    @NotNull
-    @Column(name = "bank_id", length = 20)
-    private Long bank;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "bank_id")
+    private Bank bank;
 
-    @NotNull
-    @Column(name = "interview_id", length = 20)
-    private Long interview;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "interview_id")
+    private Interview interview;
 }

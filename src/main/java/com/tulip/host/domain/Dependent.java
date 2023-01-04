@@ -46,9 +46,11 @@ public class Dependent extends AbstractAuditingEntity {
     @Column(name = "aadhaar_no", nullable = false, length = 15)
     private String aadhaarNo;
 
-    @Column(name = "student_id", nullable = false)
-    private Long student;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "student_id")
+    private Student student;
 
-    @Column(name = "emp_id", nullable = false)
-    private Long emp;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "emp_id")
+    private Employee emp;
 }

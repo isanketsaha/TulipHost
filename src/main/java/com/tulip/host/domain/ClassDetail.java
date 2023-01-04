@@ -25,10 +25,12 @@ public class ClassDetail extends AbstractAuditingEntity {
     @Column(name = "std", length = 10)
     private String std;
 
-    @Column(name = "head_teacher_id", nullable = false)
-    private Long headTeacher;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "head_teacher_id")
+    private Employee headTeacher;
 
     @NotNull
-    @Column(name = "session_id", nullable = false)
-    private Long session;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "session_id", nullable = false)
+    private Session session;
 }

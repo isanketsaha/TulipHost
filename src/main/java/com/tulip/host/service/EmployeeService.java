@@ -9,6 +9,7 @@ import com.tulip.host.web.rest.vm.DependentVM;
 import com.tulip.host.web.rest.vm.InterviewVM;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,10 +43,8 @@ public class EmployeeService {
         );
         if (userGroupByAuthority != null) {
             Bank bank = buildBankModel(employeeVM.getBank().stream().findFirst().get());
-            Bank saveBank = bankRepository.save(bank);
             Interview interview = buildInterviewModel(employeeVM.getInterview().stream().findFirst().get());
 
-            Interview saveInterview = interviewRepository.save(interview);
             Employee employee = Employee
                 .builder()
                 .dob(employeeVM.getDob().toInstant())
@@ -56,16 +55,19 @@ public class EmployeeService {
                 .phoneNumber(String.valueOf(employeeVM.getContact()))
                 .address(employeeVM.getAddress())
                 .name(employeeVM.getName())
-                .group(userGroupByAuthority.getId())
-                .bank(saveBank.getId())
-                .interview(saveInterview.getId())
+                .group(userGroupByAuthority)
+                .bank(bank)
+                .interview(interview)
                 .build();
-            Employee addEmployee = employeeRepository.save(employee);
-            for (DependentVM dependent : employeeVM.getDependent()) {
-                Dependent dependentModel = buildDependentModel(dependent, addEmployee.getId());
-                dependentRepository.save(dependentModel);
-            }
-            return employee.getId();
+            List<Dependent> dependentList = employeeVM
+                .getDependent()
+                .stream()
+                .map(dependentVM -> {
+                    return buildDependentModel(dependentVM, employee);
+                })
+                .collect(Collectors.toList());
+            List<Dependent> dependents = dependentRepository.saveAllAndFlush(dependentList);
+            return dependents.stream().findFirst().get().getEmp().getId();
         }
         throw new Exception("Unable to find usergroup");
     }
@@ -101,7 +103,7 @@ public class EmployeeService {
             .build();
     }
 
-    Dependent buildDependentModel(DependentVM dependent, Long id) {
+    Dependent buildDependentModel(DependentVM dependent, Employee employee) {
         return Dependent
             .builder()
             .contact(String.valueOf(dependent.getContact()))
@@ -110,7 +112,7 @@ public class EmployeeService {
             .qualification(dependent.getQualification())
             .relationship(dependent.getRelation().name())
             .aadhaarNo(String.valueOf(dependent.getAadhaar()))
-            .emp(id)
+            .emp(employee)
             .build();
     }
 }
