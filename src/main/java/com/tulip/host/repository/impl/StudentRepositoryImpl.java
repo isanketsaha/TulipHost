@@ -56,21 +56,13 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                     STUDENT.gender,
                     STUDENT.bloodGroup,
                     DEPENDENT.contact,
-                    Projections.fields(
-                        ParentsDetailDto.class,
-                        DEPENDENT.contact,
-                        DEPENDENT.name,
-                        DEPENDENT.relationship,
-                        DEPENDENT.aadhaarNo,
-                        DEPENDENT.id,
-                        DEPENDENT.occupation,
-                        DEPENDENT.occupation
-                    ),
-                    Projections.fields(ClassDetailDTO.class, CLASS_DETAIL.headTeacher, CLASS_DETAIL.std, CLASS_DETAIL.id)
+                    CLASS_DETAIL.std,
+                    STUDENT.address
                 )
             )
             .from(STUDENT)
             .join(DEPENDENT)
+            .on(DEPENDENT.student.eq(STUDENT.id))
             .join(CLASS_DETAIL)
             .on(CLASS_DETAIL.id.eq(STUDENT.std))
             .where(STUDENT.isActive.eq(isActive))
@@ -95,21 +87,13 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                     STUDENT.gender,
                     STUDENT.bloodGroup,
                     DEPENDENT.contact,
-                    Projections.fields(
-                        ParentsDetailDto.class,
-                        DEPENDENT.contact,
-                        DEPENDENT.name,
-                        DEPENDENT.relationship,
-                        DEPENDENT.aadhaarNo,
-                        DEPENDENT.id,
-                        DEPENDENT.occupation,
-                        DEPENDENT.occupation
-                    ),
-                    Projections.fields(ClassDetailDTO.class, CLASS_DETAIL.headTeacher, CLASS_DETAIL.std, CLASS_DETAIL.id)
+                    CLASS_DETAIL.std,
+                    STUDENT.address
                 )
             )
             .from(STUDENT)
             .join(DEPENDENT)
+            .on(DEPENDENT.student.eq(DEPENDENT.id))
             .join(CLASS_DETAIL)
             .on(CLASS_DETAIL.id.eq(STUDENT.std))
             .where(STUDENT.name.likeIgnoreCase(Expressions.asString("%").concat(name).concat("%")))
