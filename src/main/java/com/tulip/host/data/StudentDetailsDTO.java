@@ -1,5 +1,6 @@
 package com.tulip.host.data;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -17,6 +18,9 @@ public class StudentDetailsDTO {
 
     @NotNull
     private final LocalDate dob;
+
+    @NotNull
+    private final Instant admissionDate;
 
     @Size(max = 255)
     private final String address;

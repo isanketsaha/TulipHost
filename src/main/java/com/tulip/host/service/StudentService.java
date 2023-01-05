@@ -33,8 +33,6 @@ public class StudentService {
 
     private final StudentMapper studentMapper;
 
-    private final ClassMapper classMapper;
-
     public List<StudentBasicDTO> fetchAllStudent() {
         return studentRepository.fetchAll();
     }

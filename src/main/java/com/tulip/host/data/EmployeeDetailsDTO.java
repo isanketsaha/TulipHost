@@ -2,6 +2,7 @@ package com.tulip.host.data;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -32,31 +33,29 @@ public class EmployeeDetailsDTO implements Serializable {
     @Size(max = 255)
     private String experience;
 
-    @Size(max = 50)
-    private String father;
-
     @Size(max = 6)
     private String gender;
-
-    private Double leaveBalance;
 
     @NotNull
     private Boolean locked;
 
-    @Size(max = 50)
     @NotNull
     private String name;
 
-    @Size(max = 20)
     @NotNull
     private String phoneNumber;
 
-    @Size(max = 20)
     private String qualification;
 
-    @Size(max = 20)
     private String religion;
 
     @NotNull
     private String authority;
+
+    @NotNull
+    private List<DependentDTO> dependent;
+
+    private BankDTO bank;
+
+    private InterviewDTO interview;
 }

@@ -27,7 +27,7 @@ public class StudentBasicDTO {
     private Boolean isActive;
 
     @NotNull
-    private Number phoneNumber;
+    private String phoneNumber;
 
     @NotNull
     private String std;

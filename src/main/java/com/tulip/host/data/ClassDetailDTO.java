@@ -22,4 +22,6 @@ public class ClassDetailDTO implements Serializable {
     private String headTeacher;
 
     private String session;
+
+    private int studentStrength;
 }

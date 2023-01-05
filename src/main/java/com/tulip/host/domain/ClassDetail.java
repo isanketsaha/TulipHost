@@ -1,6 +1,8 @@
 package com.tulip.host.domain;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -33,4 +35,7 @@ public class ClassDetail extends AbstractAuditingEntity {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "session_id", nullable = false)
     private Session session;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "std")
+    private Set<Student> studentList;
 }

@@ -34,5 +34,5 @@ public class DependentDTO implements Serializable {
 
     @Size(max = 15)
     @NotNull
-    private String aadharNo;
+    private String aadhaarNo;
 }

@@ -44,5 +44,5 @@ public class OnboardingVM {
     Long session;
     List<BankVM> bank;
     List<InterviewVM> interview;
-    String std;
+    Long std;
 }

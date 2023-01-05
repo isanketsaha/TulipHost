@@ -31,7 +31,7 @@ public class EmployeeController {
         return employeeService.fetchAllEmployee();
     }
 
-    @RequestMapping("/searchById/{id}")
+    @RequestMapping("/search/{id}")
     public EmployeeDetailsDTO search(@PathVariable int id) {
         return employeeService.searchEmployee(id);
     }

@@ -3,7 +3,10 @@ package com.tulip.host.service;
 import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.domain.*;
-import com.tulip.host.repository.*;
+import com.tulip.host.mapper.EmployeeMapper;
+import com.tulip.host.repository.DependentRepository;
+import com.tulip.host.repository.EmployeeRepository;
+import com.tulip.host.repository.UserGroupRepository;
 import com.tulip.host.web.rest.vm.BankVM;
 import com.tulip.host.web.rest.vm.DependentVM;
 import com.tulip.host.web.rest.vm.InterviewVM;
@@ -22,11 +25,9 @@ public class EmployeeService {
 
     private final UserGroupRepository userGroupRepository;
 
-    private final BankRepository bankRepository;
-
-    private final InterviewRepository interviewRepository;
-
     private final DependentRepository dependentRepository;
+
+    private final EmployeeMapper employeeMapper;
 
     public List<EmployeeBasicDTO> fetchAllEmployee(boolean isActive) {
         return employeeRepository.fetchAll(isActive);
@@ -76,8 +77,12 @@ public class EmployeeService {
         return employeeRepository.searchByName(name);
     }
 
-    public EmployeeDetailsDTO searchEmployee(int id) {
-        return employeeRepository.search(id);
+    public EmployeeDetailsDTO searchEmployee(long id) {
+        Employee employee = employeeRepository.findById(id).orElse(null);
+        if (employee != null) {
+            return employeeMapper.getEntityFromModel(employee);
+        }
+        return null;
     }
 
     public EmployeeDetailsDTO editEmployee() {
