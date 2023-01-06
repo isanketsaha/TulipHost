@@ -4,7 +4,6 @@ import com.tulip.host.data.DropDownOptionsDto;
 import com.tulip.host.data.SessionDTO;
 import com.tulip.host.repository.SessionRepository;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,10 +14,10 @@ public class FinancialYearService {
 
     private final SessionRepository sessionRepository;
 
-    public Long fetchCurrentSession() {
-        Optional<SessionDTO> sessionDTO = sessionRepository.fetchCurrentSession();
-        if (sessionDTO.isPresent()) {
-            return sessionDTO.get().getId();
+    public DropDownOptionsDto fetchCurrentSession() {
+        SessionDTO sessionDTO = sessionRepository.fetchCurrentSession().orElse(null);
+        if (sessionDTO != null) {
+            return DropDownOptionsDto.builder().label(sessionDTO.getDisplayText()).value(String.valueOf(sessionDTO.getId())).build();
         }
         return null;
     }
