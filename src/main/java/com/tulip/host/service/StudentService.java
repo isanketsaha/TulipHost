@@ -39,7 +39,7 @@ public class StudentService {
 
     @Transactional
     public Long addStudent(OnboardingVM onboardingVM) {
-        ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(onboardingVM.getSession(), onboardingVM.getStd());
+        ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(onboardingVM.getSession(), onboardingVM.getStd().name());
         Student student = Student
             .builder()
             .gender(onboardingVM.getGender().getDisplayType())

@@ -26,6 +26,9 @@ public class StudentDetailsDTO {
     private final String address;
 
     @NotNull
+    private String phoneNumber;
+
+    @NotNull
     private final ClassDetailDTO classDetails;
 
     @Size(max = 2)
@@ -37,12 +40,14 @@ public class StudentDetailsDTO {
     private final String gender;
 
     @NotNull
-    private final Boolean isActive;
+    private final Boolean active;
 
     @Size(max = 50)
     private final String previousSchool;
 
     private final LocalDate terminationDate;
+
+    private final String religion;
 
     @NotNull
     private List<DependentDTO> dependent;

@@ -3,6 +3,7 @@ package com.tulip.host.web.rest.vm;
 import com.tulip.host.enums.BloodGroupEnum;
 import com.tulip.host.enums.GenderEnum;
 import com.tulip.host.enums.ReligionEnum;
+import com.tulip.host.enums.StdEnum;
 import java.util.Date;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -44,5 +45,5 @@ public class OnboardingVM {
     Long session;
     List<BankVM> bank;
     List<InterviewVM> interview;
-    Long std;
+    StdEnum std;
 }

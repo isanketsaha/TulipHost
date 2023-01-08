@@ -44,7 +44,7 @@ last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
 CREATE TABLE IF NOT EXISTS audit (
 id bigint NOT NULL AUTO_INCREMENT,
 description text NOT NULL,
-metadata text NOT NULL,
+metadata text DEFAULT NULL,
 type varchar(30) NOT NULL,  -- error or log
 created_by varchar(50) DEFAULT NULL,
 last_modified_by varchar(50) DEFAULT NULL,
@@ -260,7 +260,7 @@ CREATE TABLE IF NOT EXISTS purchase_order (
   last_modified_by varchar(50) DEFAULT NULL,
   created_date timestamp DEFAULT CURRENT_TIMESTAMP,
   last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
+  PRIMARY KEY (id)
 );
 
 

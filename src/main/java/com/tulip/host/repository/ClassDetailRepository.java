@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ClassDetailRepository extends JpaRepository<ClassDetail, Long> {
     List<ClassDetail> findAllBySessionId(Long sessionId);
 
-    ClassDetail findBySessionIdAndStd(Long sessionId, Long std);
+    ClassDetail findBySessionIdAndStd(Long sessionId, String std);
 }
