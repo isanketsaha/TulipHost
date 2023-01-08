@@ -13,27 +13,26 @@ import lombok.*;
 @Setter
 @ToString
 @Entity
-@Table(name = "fees")
-public class Fee extends AbstractAuditingEntity {
+@Table(name = "fees_order")
+public class FeesOrder extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
     @Column(name = "amount", nullable = false)
     private Double amount;
 
-    @Size(max = 10)
-    @Column(name = "from_month", length = 10)
-    private String fromMonth;
+    @Column(name = "discount")
+    private Integer discount;
 
-    @Size(max = 10)
-    @Column(name = "to_month", length = 10)
-    private String toMonth;
+    @NotNull
+    @Column(name = "after_discount", nullable = false)
+    private Double afterDiscount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_mode_id")
-    private PaymentMode paymentMode;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "fees_catalog_id", nullable = false)
+    private FeesCatalog feesCatalog;
 }

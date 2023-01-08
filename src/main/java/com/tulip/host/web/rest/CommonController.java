@@ -76,4 +76,12 @@ public class CommonController {
     public List<DropDownOptionsDto> fetchAllFinancialYear() {
         return financialYearService.fetchAllFinancialYear();
     }
+
+    @GetMapping("/availablePaymentOptions")
+    public List<DropDownOptionsDto> fetchPaymentOptions() {
+        return Arrays
+            .stream(PaymentOptionEnum.values())
+            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
+            .collect(Collectors.toList());
+    }
 }

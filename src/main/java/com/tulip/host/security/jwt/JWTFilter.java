@@ -32,6 +32,7 @@ public class JWTFilter extends GenericFilterBean {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String jwt = resolveToken(httpServletRequest);
         if (StringUtils.hasText(jwt) && this.tokenProvider.validateToken(jwt)) {
+            validateFinancialYear(httpServletRequest);
             Authentication authentication = this.tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -44,5 +45,14 @@ public class JWTFilter extends GenericFilterBean {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    private void validateFinancialYear(HttpServletRequest request) {
+        String SessionYear = request.getHeader("session_year");
+        String current_session = (String) request.getSession().getAttribute("current_session");
+        if (current_session == null && current_session != SessionYear) {
+            request.getSession().setAttribute("current_session", SessionYear);
+        }
+        return;
     }
 }

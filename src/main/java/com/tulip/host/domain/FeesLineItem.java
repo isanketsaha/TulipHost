@@ -13,17 +13,34 @@ import lombok.*;
 @Setter
 @ToString
 @Entity
-@Table(name = "line_item")
-public class LineItem extends AbstractAuditingEntity {
+@Table(name = "fees_line_item")
+public class FeesLineItem extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "fees_order_id", nullable = false)
+    private FeesOrder feesOrder;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "fees_product_id", nullable = false)
+    private FeesCatalog feesProduct;
 
     @NotNull
     @Column(name = "unit_price", nullable = false)
     private Double unitPrice;
+
+    @Size(max = 10)
+    @Column(name = "from_month", length = 10)
+    private String fromMonth;
+
+    @Size(max = 10)
+    @Column(name = "to_month", length = 10)
+    private String toMonth;
 
     @NotNull
     @Column(name = "qty", nullable = false)
@@ -32,14 +49,4 @@ public class LineItem extends AbstractAuditingEntity {
     @NotNull
     @Column(name = "amount", nullable = false)
     private Double amount;
-
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "purchase_order_id", nullable = false)
-    private PurchaseOrder purchaseOrder;
-
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Catalog product;
 }

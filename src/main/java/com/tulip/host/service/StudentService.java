@@ -84,6 +84,14 @@ public class StudentService {
         return null;
     }
 
+    public StudentBasicDTO basicSearchStudent(long id) {
+        Student byId = studentRepository.findById(id).orElse(null);
+        if (byId != null) {
+            return studentMapper.getBasicEntityFromModel(byId);
+        }
+        return null;
+    }
+
     public StudentDetailsDTO editStudent() {
         return studentRepository.edit();
     }

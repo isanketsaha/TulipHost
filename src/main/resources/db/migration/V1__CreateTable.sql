@@ -204,70 +204,74 @@ PRIMARY KEY (id)
 );
 
 
-CREATE TABLE IF NOT EXISTS catalog (
+CREATE TABLE IF NOT EXISTS purchase_catalog (
   id bigint NOT NULL AUTO_INCREMENT,
   item_name varchar(255) NOT NULL ,
   cost_price double NOT NULL,
   sell_price double NOT NULL,
   description varchar(255) DEFAULT NULL,
-  type varchar(255) NOT NULL, -- FEES | P.O
-  tag varchar(255) NOT NULL, -- BOY | GIRL
+  tag varchar(10) NOT NULL, -- BOY | GIRL
   std_id bigint DEFAULT NULL,
-  session_id bigint NOT NULL,
   size varchar(20) DEFAULT NULL, -- 22,24,26
   created_by varchar(50) DEFAULT NULL,
   last_modified_by varchar(50) DEFAULT NULL,
   created_date timestamp DEFAULT CURRENT_TIMESTAMP,
   last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY (item_name),
-  FOREIGN KEY (session_id) REFERENCES session (id),
   FOREIGN KEY (std_id) REFERENCES class_details(id)
 ) ;
 
 
-
-
-CREATE TABLE IF NOT EXISTS  fees (
+CREATE TABLE IF NOT EXISTS fees_catalog (
   id bigint NOT NULL AUTO_INCREMENT,
-  amount double NOT NULL,
-  from_month varchar(10) DEFAULT NULL,
-  to_month varchar(10) DEFAULT NULL,
-  payment_mode_id bigint DEFAULT NULL,
+  fees_name varchar(255) NOT NULL ,
+  price double NOT NULL,
+  description varchar(255) DEFAULT NULL,
+  applicableRule varchar(20) NOT NULL, -- Monthly, yearly
+  std_id bigint DEFAULT NULL,
   created_by varchar(50) DEFAULT NULL,
   last_modified_by varchar(50) DEFAULT NULL,
   created_date timestamp DEFAULT CURRENT_TIMESTAMP,
   last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
- FOREIGN KEY (payment_mode_id) REFERENCES payment_mode (id)
+  UNIQUE KEY (fees_name, std_id),
+  FOREIGN KEY (std_id) REFERENCES class_details(id)
+);
+
+CREATE TABLE IF NOT EXISTS  fees_order (
+  id bigint NOT NULL AUTO_INCREMENT,
+  amount double NOT NULL,
+  discount int DEFAULT 0,
+  after_discount double NOT NULL,
+  fees_catalog_id bigint NOT NULL,
+  created_by varchar(50) DEFAULT NULL,
+  last_modified_by varchar(50) DEFAULT NULL,
+  created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+  last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (fees_catalog_id) REFERENCES fees_catalog (id)
 );
 
 -- db.stationery_item definition
-
 CREATE TABLE IF NOT EXISTS purchase_order (
   id bigint NOT NULL AUTO_INCREMENT,
   amount double NOT NULL,
-  purchase int(11) NOT NULL,
-  payment_mode_id bigint DEFAULT NULL,
   created_by varchar(50) DEFAULT NULL,
   last_modified_by varchar(50) DEFAULT NULL,
   created_date timestamp DEFAULT CURRENT_TIMESTAMP,
   last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  FOREIGN KEY (payment_mode_id) REFERENCES payment_mode (id)
-) ;
+);
 
 
 CREATE TABLE IF NOT EXISTS  transaction_history (
   transaction_id bigint NOT NULL,
   payment_mode_id bigint NOT NULL,
   purchase_order_id bigint DEFAULT NULL,
-  fees_id bigint DEFAULT NULL,
+  fees_order_id bigint DEFAULT NULL,
   total_amount double NOT NULL,
   student_id bigint NOT NULL,
   comments varchar(100) DEFAULT NULL,
-  discount int DEFAULT 0,
-  after_discount double NOT NULL,
   created_by varchar(50) DEFAULT NULL,
   last_modified_by varchar(50) DEFAULT NULL,
   created_date datetime DEFAULT CURRENT_TIMESTAMP,
@@ -275,11 +279,28 @@ CREATE TABLE IF NOT EXISTS  transaction_history (
   PRIMARY KEY (transaction_id),
   FOREIGN KEY (student_id) REFERENCES student (student_id),
   FOREIGN KEY (purchase_order_id) REFERENCES purchase_order (id),
-   FOREIGN KEY (fees_id) REFERENCES fees (id)
+   FOREIGN KEY (fees_order_id) REFERENCES fees_order (id)
 ) ;
 
+CREATE TABLE IF NOT EXISTS fees_line_item(
+id bigint NOT NULL AUTO_INCREMENT,
+fees_order_id bigint NOT NUll,
+fees_product_id bigint NOT NULL,
+unit_price double NOT NULL,
+  from_month varchar(10) DEFAULT NULL,
+  to_month varchar(10) DEFAULT NULL,
+qty int(11) NOT NULL,
+amount double NOT NULL,
+created_by varchar(50) DEFAULT NULL,
+ last_modified_by varchar(50) DEFAULT NULL,
+created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+ last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (fees_order_id) REFERENCES fees_order (id),
+  FOREIGN KEY (fees_product_id) REFERENCES fees_catalog (id),
+   PRIMARY KEY (id)
+);
 
-CREATE TABLE IF NOT EXISTS line_item(
+CREATE TABLE IF NOT EXISTS purchase_line_item(
 id bigint NOT NULL AUTO_INCREMENT,
  unit_price double NOT NULL,
  qty int(11) NOT NULL,
@@ -287,11 +308,11 @@ id bigint NOT NULL AUTO_INCREMENT,
 purchase_order_id bigint NOT NUll,
 product_id bigint NOT NULL,
 created_by varchar(50) DEFAULT NULL,
-    last_modified_by varchar(50) DEFAULT NULL,
+ last_modified_by varchar(50) DEFAULT NULL,
 created_date timestamp DEFAULT CURRENT_TIMESTAMP,
  last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (purchase_order_id) REFERENCES purchase_order (id),
-  FOREIGN KEY (product_id) REFERENCES catalog (id),
+  FOREIGN KEY (product_id) REFERENCES purchase_catalog (id),
    PRIMARY KEY (id)
 );
 

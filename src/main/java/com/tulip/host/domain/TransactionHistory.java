@@ -14,11 +14,10 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "transaction_history")
-public class TransactionHistory extends AbstractAuditingEntity {
+public class TransactionHistory {
 
     @Id
     @Column(name = "transaction_id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -30,8 +29,8 @@ public class TransactionHistory extends AbstractAuditingEntity {
     private PurchaseOrder purchaseOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fees_id")
-    private Fee fees;
+    @JoinColumn(name = "fees_order_id")
+    private FeesOrder feesOrder;
 
     @NotNull
     @Column(name = "total_amount", nullable = false)
@@ -46,10 +45,17 @@ public class TransactionHistory extends AbstractAuditingEntity {
     @Column(name = "comments", length = 100)
     private String comments;
 
-    @Column(name = "discount")
-    private Integer discount;
+    @Size(max = 50)
+    @Column(name = "created_by", length = 50)
+    private String createdBy;
 
-    @NotNull
-    @Column(name = "after_discount", nullable = false)
-    private Double afterDiscount;
+    @Size(max = 50)
+    @Column(name = "last_modified_by", length = 50)
+    private String lastModifiedBy;
+
+    @Column(name = "created_date")
+    private Instant createdDate;
+
+    @Column(name = "last_modified_date")
+    private Instant lastModifiedDate;
 }

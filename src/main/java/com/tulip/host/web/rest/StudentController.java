@@ -28,6 +28,11 @@ public class StudentController {
         return studentService.searchStudent(id);
     }
 
+    @RequestMapping("/basicSearch/{id}")
+    public StudentBasicDTO basicSearch(@Valid @PathVariable int id) {
+        return studentService.basicSearchStudent(id);
+    }
+
     @RequestMapping("/searchByName/{name}")
     public List<StudentBasicDTO> search(@Valid @PathVariable String name) {
         return studentService.searchStudent(name);
