@@ -13,10 +13,11 @@ import lombok.*;
 @Setter
 @ToString
 @Entity
-@Table(name = "purchase_catalog")
-public class PurchaseCatalog extends AbstractAuditingEntity {
+@Table(name = "product_catalog")
+public class ProductCatalog {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -26,12 +27,8 @@ public class PurchaseCatalog extends AbstractAuditingEntity {
     private String itemName;
 
     @NotNull
-    @Column(name = "cost_price", nullable = false)
-    private Double costPrice;
-
-    @NotNull
-    @Column(name = "sell_price", nullable = false)
-    private Double sellPrice;
+    @Column(name = "price", nullable = false)
+    private Double price;
 
     @Size(max = 255)
     @Column(name = "description")
@@ -46,7 +43,27 @@ public class PurchaseCatalog extends AbstractAuditingEntity {
     @JoinColumn(name = "std_id")
     private ClassDetail std;
 
+    @NotNull
+    @Column(name = "active", nullable = false)
+    private Boolean active = false;
+
     @Size(max = 20)
     @Column(name = "size", length = 20)
     private String size;
+
+    @Size(max = 50)
+    @Column(name = "created_by", length = 50)
+    private String createdBy;
+
+    @Size(max = 50)
+    @Column(name = "last_modified_by", length = 50)
+    private String lastModifiedBy;
+
+    @NotNull
+    @Column(name = "created_date", nullable = false)
+    private Instant createdDate;
+
+    @NotNull
+    @Column(name = "last_modified_date", nullable = false)
+    private Instant lastModifiedDate;
 }

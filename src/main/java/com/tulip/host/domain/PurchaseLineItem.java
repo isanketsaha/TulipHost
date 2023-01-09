@@ -40,5 +40,5 @@ public class PurchaseLineItem extends AbstractAuditingEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
-    private PurchaseCatalog product;
+    private ProductCatalog product;
 }

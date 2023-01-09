@@ -204,14 +204,14 @@ PRIMARY KEY (id)
 );
 
 
-CREATE TABLE IF NOT EXISTS purchase_catalog (
+CREATE TABLE IF NOT EXISTS product_catalog (
   id bigint NOT NULL AUTO_INCREMENT,
   item_name varchar(255) NOT NULL ,
-  cost_price double NOT NULL,
-  sell_price double NOT NULL,
+  price double NOT NULL,
   description varchar(255) DEFAULT NULL,
   tag varchar(10) NOT NULL, -- BOY | GIRL
   std_id bigint DEFAULT NULL,
+  active bit(1) NOT NULL,
   size varchar(20) DEFAULT NULL, -- 22,24,26
   created_by varchar(50) DEFAULT NULL,
   last_modified_by varchar(50) DEFAULT NULL,
@@ -229,6 +229,7 @@ CREATE TABLE IF NOT EXISTS fees_catalog (
   description varchar(255) DEFAULT NULL,
   applicableRule varchar(20) NOT NULL, -- Monthly, yearly
   std_id bigint DEFAULT NULL,
+  active bit(1) NOT NULL,
   created_by varchar(50) DEFAULT NULL,
   last_modified_by varchar(50) DEFAULT NULL,
   created_date timestamp DEFAULT CURRENT_TIMESTAMP,
@@ -282,6 +283,7 @@ CREATE TABLE IF NOT EXISTS  transaction_history (
    FOREIGN KEY (fees_order_id) REFERENCES fees_order (id)
 ) ;
 
+-- Each fees line item.
 CREATE TABLE IF NOT EXISTS fees_line_item(
 id bigint NOT NULL AUTO_INCREMENT,
 fees_order_id bigint NOT NUll,
@@ -300,6 +302,7 @@ created_date timestamp DEFAULT CURRENT_TIMESTAMP,
    PRIMARY KEY (id)
 );
 
+-- each purchase line item.
 CREATE TABLE IF NOT EXISTS purchase_line_item(
 id bigint NOT NULL AUTO_INCREMENT,
  unit_price double NOT NULL,
@@ -312,12 +315,25 @@ created_by varchar(50) DEFAULT NULL,
 created_date timestamp DEFAULT CURRENT_TIMESTAMP,
  last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (purchase_order_id) REFERENCES purchase_order (id),
-  FOREIGN KEY (product_id) REFERENCES purchase_catalog (id),
+  FOREIGN KEY (product_id) REFERENCES product_catalog (id),
    PRIMARY KEY (id)
 );
 
-
-
+-- this will store the stock and purchases we have made in history.
+CREATE TABLE IF NOT EXISTS inventory (
+id bigint NOT NULL AUTO_INCREMENT,
+product_id bigint NOT NULL,
+unit_price double NOT NULL,
+qty int NOT NULL,
+discountPercent int DEFAULT NULL,
+vendor varchar(50) DEFAULT NULL,
+created_by varchar(50) DEFAULT NULL,
+last_modified_by varchar(50) DEFAULT NULL,
+created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (product_id) REFERENCES product_catalog (id),
+PRIMARY KEY (id)
+);
 
 
 

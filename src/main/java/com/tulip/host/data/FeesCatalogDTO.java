@@ -7,12 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FeesCatalog {
+public class FeesCatalogDTO {
 
     private Long id;
     private String name;
     private Double amount;
     private String description;
     private String applicableRule;
-    private String std;
 }
