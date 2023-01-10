@@ -8,6 +8,5 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface DependentMapper {
-    DependentMapper INSTANCE = Mappers.getMapper(DependentMapper.class);
     DependentDTO getEntityFromModel(Dependent dependent);
 }

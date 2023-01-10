@@ -11,8 +11,6 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring", uses = { ClassMapper.class, DependentMapper.class })
 public interface StudentMapper {
-    StudentMapper INSTANCE = Mappers.getMapper(StudentMapper.class);
-
     @Mapping(target = "classDetails", source = "std")
     @Mapping(target = "admissionDate", source = "createdDate")
     StudentDetailsDTO getEntityFromModel(Student student);

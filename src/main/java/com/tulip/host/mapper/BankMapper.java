@@ -9,8 +9,6 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface BankMapper {
-    BankMapper INSTANCE = Mappers.getMapper(BankMapper.class);
-
     @Mapping(target = "accountNumber", source = "accountNo")
     BankDTO getEntityFromModel(Bank source);
 

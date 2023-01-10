@@ -39,7 +39,7 @@ public class ProductCatalog {
     @Column(name = "tag", nullable = false, length = 10)
     private String tag;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "std_id")
     private ClassDetail std;
 

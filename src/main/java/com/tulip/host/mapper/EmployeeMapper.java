@@ -11,8 +11,6 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring", uses = { DependentMapper.class, BankMapper.class, InterviewMapper.class })
 public interface EmployeeMapper {
-    EmployeeMapper INSTANCE = Mappers.getMapper(EmployeeMapper.class);
-
     @Mapping(target = "authority", source = "group.authority")
     EmployeeDetailsDTO getEntityFromModel(Employee source);
     //    Employee getModelFromEntity(OnboardingVM source);
