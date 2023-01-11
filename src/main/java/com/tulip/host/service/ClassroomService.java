@@ -24,8 +24,8 @@ public class ClassroomService {
 
     private final StudentMapper studentMapper;
 
-    public List<ClassDetailDTO> fetchAllClassroom() {
-        List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(1L);
+    public List<ClassDetailDTO> fetchAllClassroom(Long sessionId) {
+        List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(sessionId);
         if (!CollectionUtils.isEmpty(allBySessionId)) {
             return classMapper.getEntityListFromModelList(allBySessionId);
         }

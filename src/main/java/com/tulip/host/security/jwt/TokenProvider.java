@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -62,7 +63,7 @@ public class TokenProvider {
         this.securityMetersService = securityMetersService;
     }
 
-    public String createToken(Authentication authentication, boolean rememberMe) {
+    public String createToken(Authentication authentication, boolean rememberMe, HttpServletRequest request) {
         String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
@@ -72,6 +73,9 @@ public class TokenProvider {
         } else {
             validity = new Date(now + this.tokenValidityInMilliseconds);
         }
+        //        final Map<String, Object> claims = new HashMap<>();
+        //        claims.put(AUTHORITIES_KEY, authorities);
+        //        claims.put("ip",getClientIp(request));
 
         return Jwts
             .builder()
@@ -83,9 +87,9 @@ public class TokenProvider {
             .compact();
     }
 
-    public String doGenerateRefreshToken(Authentication authentication) {
-        return createToken(authentication, false);
-    }
+    //    public String doGenerateRefreshToken(Authentication authentication) {
+    //        return createToken(authentication, false);
+    //    }
 
     public Authentication getAuthentication(String token) {
         Claims claims = jwtParser.parseClaimsJws(token).getBody();
@@ -104,11 +108,9 @@ public class TokenProvider {
     public boolean validateToken(String authToken) {
         try {
             jwtParser.parseClaimsJws(authToken);
-
             return true;
         } catch (ExpiredJwtException e) {
             this.securityMetersService.trackTokenExpired();
-
             log.trace(INVALID_JWT_TOKEN, e);
         } catch (UnsupportedJwtException e) {
             this.securityMetersService.trackTokenUnsupported();
@@ -127,5 +129,20 @@ public class TokenProvider {
         }
 
         return false;
+    }
+
+    public Claims getAllClaimsFromToken(String token) {
+        return jwtParser.parseClaimsJws(token).getBody();
+    }
+
+    private static String getClientIp(HttpServletRequest request) {
+        String remoteAddr = "";
+        if (request != null) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
+        return remoteAddr;
     }
 }

@@ -7,6 +7,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -35,6 +36,12 @@ public class JWTFilter extends GenericFilterBean {
             validateFinancialYear(httpServletRequest);
             Authentication authentication = this.tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else if (StringUtils.hasText(jwt)) {
+            logger.error("Unable to get JWT Token or JWT Token has expired");
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("anonymous", "anonymous", null);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            ((HttpServletResponse) servletResponse).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
         filterChain.doFilter(servletRequest, servletResponse);
     }
@@ -49,10 +56,6 @@ public class JWTFilter extends GenericFilterBean {
 
     private void validateFinancialYear(HttpServletRequest request) {
         String SessionYear = request.getHeader("session_year");
-        String current_session = (String) request.getSession().getAttribute("current_session");
-        if (current_session == null && current_session != SessionYear) {
-            request.getSession().setAttribute("current_session", SessionYear);
-        }
-        return;
+        request.getSession().setAttribute("current_session", SessionYear);
     }
 }
