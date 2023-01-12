@@ -26,11 +26,6 @@ public class Credential extends AbstractAuditingEntity {
     @Column(name = "password", nullable = false, length = 150)
     private String password;
 
-    @NotNull
-    @Column(name = "reset_password", nullable = false)
-    @Builder.Default
-    private Boolean resetPassword = false;
-
     @Size(max = 20)
     @NotNull
     @Column(name = "user_name", nullable = false, length = 20)

@@ -1,9 +1,9 @@
 package com.tulip.host.domain;
 
-import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.*;
 
 @Builder
@@ -17,8 +17,14 @@ import lombok.*;
 public class FeesOrder extends AbstractAuditingEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
 
     @NotNull
     @Column(name = "amount", nullable = false)
@@ -31,8 +37,14 @@ public class FeesOrder extends AbstractAuditingEntity {
     @Column(name = "after_discount", nullable = false)
     private Double afterDiscount;
 
+    @Lob
+    @Column(name = "note")
+    private String note;
+
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "fees_catalog_id", nullable = false)
-    private FeesCatalog feesCatalog;
+    @Column(name = "payment_mode", nullable = false)
+    private String paymentMode;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "feesOrder", cascade = CascadeType.PERSIST)
+    private Set<FeesLineItem> lineItem;
 }

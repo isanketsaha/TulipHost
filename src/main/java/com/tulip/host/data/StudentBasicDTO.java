@@ -33,5 +33,5 @@ public class StudentBasicDTO {
     private String std;
 
     private String address;
-    private String bloodGroup;
+    private int age;
 }

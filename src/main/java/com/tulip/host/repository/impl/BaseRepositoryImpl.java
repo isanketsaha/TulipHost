@@ -20,8 +20,6 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
     static final QStudent STUDENT = QStudent.student;
     static final QDependent DEPENDENT = QDependent.dependent;
     static final QUserGroup USER_GROUP = QUserGroup.userGroup;
-    static final QTransactionHistory TRANSACTION_HISTORY = QTransactionHistory.transactionHistory;
-    static final QPaymentMode PAYMENT_MODE = QPaymentMode.paymentMode;
     static final QPurchaseOrder PURCHASE_ORDER = QPurchaseOrder.purchaseOrder;
     static final QPurchaseLineItem LINE_ITEM = QPurchaseLineItem.purchaseLineItem;
     static final QHoliday HOLIDAY = QHoliday.holiday;

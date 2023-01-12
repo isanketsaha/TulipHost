@@ -35,7 +35,7 @@ public class ClassroomService {
     public List<StudentBasicDTO> fetchStudentList(Long classroomId) {
         ClassDetail classDetail = classDetailRepository.findById(classroomId).orElse(null);
         if (classDetail != null) {
-            return studentMapper.getBasicEntityListFromModelList(classDetail.getStudentList());
+            return studentMapper.getBasicEntitySetFromModelList(classDetail.getStudentList());
         }
         return Collections.EMPTY_LIST;
     }

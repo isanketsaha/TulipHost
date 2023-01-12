@@ -22,7 +22,7 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
                     Projections.fields(
                         LoginDTO.class,
                         CREDENTIAL.userName,
-                        CREDENTIAL.resetPassword,
+                        EMPLOYEE.resetCredential,
                         CREDENTIAL.createdDate,
                         EMPLOYEE.name,
                         EMPLOYEE.active,

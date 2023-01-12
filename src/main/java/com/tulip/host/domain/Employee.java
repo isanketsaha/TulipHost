@@ -27,6 +27,11 @@ public class Employee extends AbstractAuditingEntity {
     @Builder.Default
     private Boolean active = true;
 
+    @NotNull
+    @Column(name = "reset_credential", nullable = false)
+    @Builder.Default
+    private Boolean resetCredential = false;
+
     @Size(max = 255)
     @Column(name = "address")
     private String address;

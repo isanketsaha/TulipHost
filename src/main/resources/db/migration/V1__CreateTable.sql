@@ -58,7 +58,6 @@ last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
 CREATE TABLE IF NOT EXISTS  credential (
   id bigint NOT NULL AUTO_INCREMENT,
   password varchar(150) NOT NULL,
-  reset_password bit(1) NOT NULL,
   user_name varchar(20) NOT NULL,
   created_by varchar(50) DEFAULT NULL,
   last_modified_by varchar(50) DEFAULT NULL,
@@ -87,7 +86,7 @@ CREATE TABLE IF NOT EXISTS  user_group (
   id bigint NOT NULL AUTO_INCREMENT,
   created_date timestamp DEFAULT  CURRENT_TIMESTAMP,
   last_modified_date timestamp DEFAULT  CURRENT_TIMESTAMP,
-  authority varchar(20) NOT NULL,
+  authority ENUM('UG_ADMIN','UG_ADMIN_VIEW','UG_PRINCIPAL','UG_STAFF','UG_TEACHER','UG_STUDENT') NOT NULL,
   created_by varchar(50) DEFAULT NULL,
   last_modified_by varchar(50) DEFAULT NULL,
   PRIMARY KEY (id),
@@ -106,10 +105,11 @@ CREATE TABLE IF NOT EXISTS  employee (
   blood_group varchar(4) DEFAULT NULL,
   dob datetime DEFAULT NULL,
   experience varchar(255) DEFAULT NULL,
-  gender varchar(6) DEFAULT NULL,
+  gender ENUM('MALE', 'FEMALE','OTHERS') NOT NULL,
   leave_balance double(3,2) DEFAULT '1.00',
   locked bit(1) NOT NULL,
   name varchar(50) NOT NULL,
+  reset_credential bit(1) NOT NULL,
   credential_id bigint DEFAULT NULL,
   phone_number varchar(20) NOT NULL,
   qualification varchar(20) DEFAULT NULL,
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS  student (
   address varchar(255) DEFAULT NULL,
   std_id bigint NOT NULL,
   blood_group varchar(2) NOT NULL,
-  gender varchar(6) NOT NULL,
+  gender ENUM('MALE', 'FEMALE','OTHERS') NOT NULL,
   active bit(1) DEFAULT 1,
   phone_number varchar(20) NOT NULL,
   previous_school varchar(50) DEFAULT NULL,
@@ -192,18 +192,6 @@ CREATE TABLE IF NOT EXISTS  dependent (
   FOREIGN KEY (emp_id) REFERENCES employee (emp_id)
 ) ;
 
-
-CREATE TABLE IF NOT EXISTS payment_mode (
-id bigint NOT NULL AUTO_INCREMENT,
-name varchar(20) NOT NULL,
-created_date timestamp DEFAULT CURRENT_TIMESTAMP,
-last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
-created_by varchar(50) DEFAULT NULL,
-last_modified_by varchar(50) DEFAULT NULL,
-PRIMARY KEY (id)
-);
-
-
 CREATE TABLE IF NOT EXISTS product_catalog (
   id bigint NOT NULL AUTO_INCREMENT,
   item_name varchar(255) NOT NULL ,
@@ -211,6 +199,7 @@ CREATE TABLE IF NOT EXISTS product_catalog (
   description varchar(255) DEFAULT NULL,
   tag varchar(10) NOT NULL, -- BOY | GIRL
   std_id bigint DEFAULT NULL,
+  type ENUM('STATIONARY', 'UNIFORM','OTHERS') NOT NULL,
   active bit(1) NOT NULL,
   size varchar(20) DEFAULT NULL, -- 22,24,26
   created_by varchar(50) DEFAULT NULL,
@@ -227,7 +216,7 @@ CREATE TABLE IF NOT EXISTS fees_catalog (
   fees_name varchar(255) NOT NULL ,
   price double NOT NULL,
   description varchar(255) DEFAULT NULL,
-  applicableRule varchar(20) NOT NULL, -- Monthly, yearly
+  applicable_rule ENUM('MONTHLY','YEARLY','HALF-YEARLY','OTHERS') NOT NULL,
   std_id bigint DEFAULT NULL,
   active bit(1) NOT NULL,
   created_by varchar(50) DEFAULT NULL,
@@ -240,101 +229,103 @@ CREATE TABLE IF NOT EXISTS fees_catalog (
 );
 
 CREATE TABLE IF NOT EXISTS  fees_order (
-  id bigint NOT NULL AUTO_INCREMENT,
-  amount double NOT NULL,
-  discount int DEFAULT 0,
-  after_discount double NOT NULL,
-  fees_catalog_id bigint NOT NULL,
-  created_by varchar(50) DEFAULT NULL,
-  last_modified_by varchar(50) DEFAULT NULL,
-  created_date timestamp DEFAULT CURRENT_TIMESTAMP,
-  last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  FOREIGN KEY (fees_catalog_id) REFERENCES fees_catalog (id)
+    id bigint NOT NULL AUTO_INCREMENT,
+    student_id bigint NOT NULL,
+    amount double NOT NULL,
+    discount int DEFAULT 0,
+    after_discount double NOT NULL,
+    note text default null,
+    payment_mode varchar(20) NOT NULL,
+    created_by varchar(50) DEFAULT NULL,
+    last_modified_by varchar(50) DEFAULT NULL,
+    created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY (student_id) REFERENCES student (student_id)
 );
 
 -- db.stationery_item definition
 CREATE TABLE IF NOT EXISTS purchase_order (
-  id bigint NOT NULL AUTO_INCREMENT,
-  amount double NOT NULL,
-  created_by varchar(50) DEFAULT NULL,
-  last_modified_by varchar(50) DEFAULT NULL,
-  created_date timestamp DEFAULT CURRENT_TIMESTAMP,
-  last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+    id bigint NOT NULL AUTO_INCREMENT,
+    student_id bigint NOT NULL,
+    amount double NOT NULL,
+    discount int DEFAULT 0,
+    after_discount double NOT NULL,
+    note text default null,
+    payment_mode varchar(20) NOT NULL,
+    created_by varchar(50) DEFAULT NULL,
+    last_modified_by varchar(50) DEFAULT NULL,
+    created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY (student_id) REFERENCES student (student_id)
 );
-
-
-CREATE TABLE IF NOT EXISTS  transaction_history (
-  transaction_id bigint NOT NULL,
-  payment_mode_id bigint NOT NULL,
-  purchase_order_id bigint DEFAULT NULL,
-  fees_order_id bigint DEFAULT NULL,
-  total_amount double NOT NULL,
-  student_id bigint NOT NULL,
-  comments varchar(100) DEFAULT NULL,
-  created_by varchar(50) DEFAULT NULL,
-  last_modified_by varchar(50) DEFAULT NULL,
-  created_date datetime DEFAULT CURRENT_TIMESTAMP,
-  last_modified_date datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (transaction_id),
-  FOREIGN KEY (student_id) REFERENCES student (student_id),
-  FOREIGN KEY (purchase_order_id) REFERENCES purchase_order (id),
-   FOREIGN KEY (fees_order_id) REFERENCES fees_order (id)
-) ;
 
 -- Each fees line item.
 CREATE TABLE IF NOT EXISTS fees_line_item(
-id bigint NOT NULL AUTO_INCREMENT,
-fees_order_id bigint NOT NUll,
-fees_product_id bigint NOT NULL,
-unit_price double NOT NULL,
-  from_month varchar(10) DEFAULT NULL,
-  to_month varchar(10) DEFAULT NULL,
-qty int(11) NOT NULL,
-amount double NOT NULL,
-created_by varchar(50) DEFAULT NULL,
- last_modified_by varchar(50) DEFAULT NULL,
-created_date timestamp DEFAULT CURRENT_TIMESTAMP,
- last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (fees_order_id) REFERENCES fees_order (id),
-  FOREIGN KEY (fees_product_id) REFERENCES fees_catalog (id),
-   PRIMARY KEY (id)
+    id bigint NOT NULL AUTO_INCREMENT,
+    fees_order_id bigint NOT NUll,
+    fees_product_id bigint NOT NULL,
+    unit_price double NOT NULL,
+    from_month varchar(10) DEFAULT NULL,
+    to_month varchar(10) DEFAULT NULL,
+    amount double NOT NULL,
+    created_by varchar(50) DEFAULT NULL,
+    last_modified_by varchar(50) DEFAULT NULL,
+    created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (fees_order_id) REFERENCES fees_order (id),
+    FOREIGN KEY (fees_product_id) REFERENCES fees_catalog (id),
+    PRIMARY KEY (id)
 );
 
 -- each purchase line item.
 CREATE TABLE IF NOT EXISTS purchase_line_item(
-id bigint NOT NULL AUTO_INCREMENT,
- unit_price double NOT NULL,
- qty int(11) NOT NULL,
- amount double NOT NULL,
-purchase_order_id bigint NOT NUll,
-product_id bigint NOT NULL,
-created_by varchar(50) DEFAULT NULL,
- last_modified_by varchar(50) DEFAULT NULL,
-created_date timestamp DEFAULT CURRENT_TIMESTAMP,
- last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (purchase_order_id) REFERENCES purchase_order (id),
-  FOREIGN KEY (product_id) REFERENCES product_catalog (id),
-   PRIMARY KEY (id)
+    id bigint NOT NULL AUTO_INCREMENT,
+    unit_price double NOT NULL,
+    qty int(11) NOT NULL,
+    amount double NOT NULL,
+    purchase_order_id bigint NOT NUll,
+    product_id bigint NOT NULL,
+    created_by varchar(50) DEFAULT NULL,
+    last_modified_by varchar(50) DEFAULT NULL,
+    created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (purchase_order_id) REFERENCES purchase_order (id),
+    FOREIGN KEY (product_id) REFERENCES product_catalog (id),
+    PRIMARY KEY (id)
 );
 
 -- this will store the stock and purchases we have made in history.
 CREATE TABLE IF NOT EXISTS inventory (
-id bigint NOT NULL AUTO_INCREMENT,
-product_id bigint NOT NULL,
-unit_price double NOT NULL,
-qty int NOT NULL,
-discountPercent int DEFAULT NULL,
-vendor varchar(50) DEFAULT NULL,
-created_by varchar(50) DEFAULT NULL,
-last_modified_by varchar(50) DEFAULT NULL,
-created_date timestamp DEFAULT CURRENT_TIMESTAMP,
-last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
-FOREIGN KEY (product_id) REFERENCES product_catalog (id),
-PRIMARY KEY (id)
+    id bigint NOT NULL AUTO_INCREMENT,
+    product_id bigint NOT NULL,
+    unit_price double NOT NULL,
+    qty int NOT NULL,
+    type ENUM('STATIONARY', 'UNIFORM','OTHERS','OFFICE','SCHOOL') NOT NULL,
+    discountPercent int DEFAULT NULL,
+    vendor varchar(50) DEFAULT NULL,
+    created_by varchar(50) DEFAULT NULL,
+    last_modified_by varchar(50) DEFAULT NULL,
+    created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES product_catalog (id),
+    PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS expense (
+    id bigint NOT NULL AUTO_INCREMENT,
+    vendorName varchar(50) DEFAULT NULL,
+    description varchar(500) NOT NULL,
+    category varchar(100) DEFAULT NULL,
+    amount double NOT NULL,
+    qty varchar(10) NOT NULL,
+    created_by varchar(50) DEFAULT NULL,
+    last_modified_by varchar(50) DEFAULT NULL,
+    created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+);
 
 
 

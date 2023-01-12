@@ -23,6 +23,8 @@ public class EmployeeBasicDTO {
     @NotNull
     private String name;
 
+    private int age;
+
     @Size(max = 20)
     @NotNull
     private String phoneNumber;
@@ -32,4 +34,6 @@ public class EmployeeBasicDTO {
 
     @NotNull
     private Boolean active;
+
+    private String address;
 }

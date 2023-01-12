@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -73,5 +74,5 @@ public class Student extends AbstractAuditingEntity {
     private String religion;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "student")
-    private List<Dependent> dependent;
+    private Set<Dependent> dependent;
 }

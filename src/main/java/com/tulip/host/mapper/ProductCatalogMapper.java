@@ -1,15 +1,19 @@
 package com.tulip.host.mapper;
 
 import com.tulip.host.data.CatalogDTO;
+import com.tulip.host.domain.FeesCatalog;
 import com.tulip.host.domain.ProductCatalog;
+import com.tulip.host.repository.impl.ReferenceMapper;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = { ReferenceMapper.class })
 public interface ProductCatalogMapper {
     @Mapping(target = "std", source = "std.std")
-    CatalogDTO getEntityFromModel(ProductCatalog source);
+    CatalogDTO toModel(ProductCatalog source);
 
-    List<CatalogDTO> getBasicEntityListFromModelList(List<ProductCatalog> student);
+    ProductCatalog toEntity(Long id);
+
+    List<CatalogDTO> toModelList(List<ProductCatalog> student);
 }

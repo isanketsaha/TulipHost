@@ -34,7 +34,8 @@ public class StudentService {
     private final StudentMapper studentMapper;
 
     public List<StudentBasicDTO> fetchAllStudent() {
-        return studentRepository.fetchAll();
+        List<Student> all = studentRepository.findAll();
+        return studentMapper.getBasicEntityListFromModelList(all);
     }
 
     @Transactional

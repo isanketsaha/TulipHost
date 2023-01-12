@@ -18,32 +18,6 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
     }
 
     @Override
-    public List<StudentBasicDTO> fetchAll() {
-        return jpaQueryFactory
-            .select(
-                Projections.fields(
-                    StudentBasicDTO.class,
-                    STUDENT.name,
-                    STUDENT.id,
-                    STUDENT.active,
-                    STUDENT.dob,
-                    STUDENT.gender,
-                    STUDENT.bloodGroup,
-                    DEPENDENT.contact,
-                    CLASS_DETAIL.std,
-                    STUDENT.address
-                )
-            )
-            .from(STUDENT)
-            .join(DEPENDENT)
-            .on(DEPENDENT.student().eq(STUDENT))
-            .join(CLASS_DETAIL)
-            .on(CLASS_DETAIL.eq(STUDENT.std()))
-            .orderBy(STUDENT.createdDate.desc())
-            .fetch();
-    }
-
-    @Override
     public List<StudentBasicDTO> fetchAll(boolean isActive) {
         return jpaQueryFactory
             .select(

@@ -1,6 +1,5 @@
 package com.tulip.host.domain;
 
-import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -18,15 +17,16 @@ public class FeesLineItem extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "fees_order_id", nullable = false)
     private FeesOrder feesOrder;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "fees_product_id", nullable = false)
     private FeesCatalog feesProduct;
 
@@ -41,10 +41,6 @@ public class FeesLineItem extends AbstractAuditingEntity {
     @Size(max = 10)
     @Column(name = "to_month", length = 10)
     private String toMonth;
-
-    @NotNull
-    @Column(name = "qty", nullable = false)
-    private Integer qty;
 
     @NotNull
     @Column(name = "amount", nullable = false)

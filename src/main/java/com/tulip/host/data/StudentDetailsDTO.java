@@ -2,7 +2,9 @@ package com.tulip.host.data;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Data;
@@ -17,7 +19,7 @@ public class StudentDetailsDTO {
     private final String name;
 
     @NotNull
-    private final LocalDate dob;
+    private final Date dob;
 
     @NotNull
     private final Instant admissionDate;
@@ -48,7 +50,8 @@ public class StudentDetailsDTO {
     private final LocalDate terminationDate;
 
     private final String religion;
+    private final int age;
 
     @NotNull
-    private List<DependentDTO> dependent;
+    private Set<DependentDTO> dependent;
 }

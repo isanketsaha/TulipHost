@@ -42,6 +42,6 @@ public class CatalogService {
     public List<CatalogDTO> productCatalog(CatalogVM catalogVM) {
         ClassDetail std = classDetailRepository.findBySessionIdAndStd(catalogVM.getSession(), catalogVM.getStd().name());
         List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveAndStdOrStdIsNull(Boolean.TRUE, std);
-        return catalogMapper.getBasicEntityListFromModelList(catalogs);
+        return catalogMapper.toModelList(catalogs);
     }
 }

@@ -27,7 +27,8 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
                     EMPLOYEE.dob,
                     EMPLOYEE.gender,
                     EMPLOYEE.bloodGroup,
-                    EMPLOYEE.phoneNumber
+                    EMPLOYEE.phoneNumber,
+                    EMPLOYEE.address
                 )
             )
             .from(EMPLOYEE)

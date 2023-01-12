@@ -17,6 +17,7 @@ import lombok.*;
 public class PurchaseLineItem extends AbstractAuditingEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -33,12 +34,12 @@ public class PurchaseLineItem extends AbstractAuditingEntity {
     private Double amount;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "purchase_order_id", nullable = false)
     private PurchaseOrder purchaseOrder;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "product_id", nullable = false)
     private ProductCatalog product;
 }
