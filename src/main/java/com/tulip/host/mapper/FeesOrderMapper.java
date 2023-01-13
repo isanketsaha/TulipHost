@@ -1,5 +1,6 @@
 package com.tulip.host.mapper;
 
+import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.domain.FeesLineItem;
 import com.tulip.host.domain.FeesOrder;
 import com.tulip.host.web.rest.vm.PayVM;
@@ -14,7 +15,16 @@ public interface FeesOrderMapper {
     @Mapping(target = "amount", source = "total")
     @Mapping(target = "lineItem", source = "feeItem")
     @Mapping(target = "student", source = "studentId")
-    FeesOrder getModelFromEntity(PayVM lineItem);
+    FeesOrder toModel(PayVM lineItem);
 
-    List<FeesOrder> getModelListFromEntityList(List<PayVM> classDetails);
+    List<FeesOrder> toModelList(List<PayVM> classDetails);
+
+    @Mapping(target = "paymentDateTime", source = "createdDate")
+    @Mapping(target = "total", source = "amount")
+    @Mapping(target = "payType", expression = "java(com.tulip.host.enums.PayTypeEnum.FEES)")
+    @Mapping(target = "studentId", source = "student.id")
+    @Mapping(target = "studentName", source = "student.name")
+    @Mapping(target = "feesItem", source = "lineItem")
+    @Mapping(target = "paymentReceivedBy", source = "createdBy")
+    PaySummaryDTO toEntity(FeesOrder feesOrder);
 }

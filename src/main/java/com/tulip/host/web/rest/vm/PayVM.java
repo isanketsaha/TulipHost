@@ -1,5 +1,6 @@
 package com.tulip.host.web.rest.vm;
 
+import com.tulip.host.enums.PayTypeEnum;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;

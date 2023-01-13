@@ -34,43 +34,43 @@ VALUES (NOW(),'Sanket Saha','9563838313',NOW(),'MALE',(select id from user_group
 
 
 INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
-VALUES('Tution Fees', 700, 'Monthly fees for Student', 'Monthly', (select id from class_details where std='NURSERY' and session_id=1), 0, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+VALUES('Tution Fees', 700, 'Monthly fees for Student', 'Monthly', (select id from class_details where std='NURSERY' and session_id=1), 1, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO fees_catalog (fees_name, price, description, applicable_rule , std_id, active, created_by, last_modified_by, created_date, last_modified_date)
-VALUES('Tution Fees', 900, 'Monthly fees for Student', 'Monthly', (select id from class_details where std='UKG' and session_id=1), 0, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+VALUES('Tution Fees', 900, 'Monthly fees for Student', 'Monthly', (select id from class_details where std='UKG' and session_id=1), 1, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
-VALUES('Tution Fees', 1200, 'Monthly fees for Student', 'Monthly', (select id from class_details where std='I' and session_id=1), 0, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+VALUES('Tution Fees', 1200, 'Monthly fees for Student', 'Monthly', (select id from class_details where std='I' and session_id=1), 1, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
-VALUES('Tution Fees', 1200, 'Monthly fees for Student', 'Monthly', (select id from class_details where std='II' and session_id=1), 0, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+VALUES('Tution Fees', 1200, 'Monthly fees for Student', 'Monthly', (select id from class_details where std='II' and session_id=1), 1, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-
-
-INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
-VALUES('Session Charge', 3000, 'Session fees for Student', 'Yearly', (select id from class_details where std='NURSERY' and session_id=1), 0, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
-INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
-VALUES('Session Charge', 3000, 'Session fees for Student', 'Yearly', (select id from class_details where std='UKG' and session_id=1), 0, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
-INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
-VALUES('Session Charge', 3000, 'Session fees for Student', 'Yearly', (select id from class_details where std='I' and session_id=1), 0, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
-INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
-VALUES('Session Charge', 4000, 'Session fees for Student', 'Yearly', (select id from class_details where std='II' and session_id=1), 0, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 
 INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
-VALUES('Late Fine', 50, 'Late Fine for Student', 'Monthly', (select id from class_details where std='NURSERY' and session_id=1), 0, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+VALUES('Session Charge', 3000, 'Session fees for Student', 'Yearly', (select id from class_details where std='NURSERY' and session_id=1), 1, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
-VALUES('Late Fine', 50, 'Late Fine for Student', 'Monthly', (select id from class_details where std='UKG' and session_id=1), 0, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+VALUES('Session Charge', 3000, 'Session fees for Student', 'Yearly', (select id from class_details where std='UKG' and session_id=1), 1, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
-VALUES('Late Fine', 50, 'Late Fine for Student', 'Monthly', (select id from class_details where std='I' and session_id=1), 0, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+VALUES('Session Charge', 3000, 'Session fees for Student', 'Yearly', (select id from class_details where std='I' and session_id=1), 1, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
-VALUES('Late Fine', 50, 'Late Fine for Student', 'Monthly', (select id from class_details where std='II' and session_id=1), 0, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+VALUES('Session Charge', 4000, 'Session fees for Student', 'Yearly', (select id from class_details where std='II' and session_id=1), 1, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+
+INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
+VALUES('Late Fine', 50, 'Late Fine for Student', 'Monthly', (select id from class_details where std='NURSERY' and session_id=1), 1, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
+VALUES('Late Fine', 50, 'Late Fine for Student', 'Monthly', (select id from class_details where std='UKG' and session_id=1), 1, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
+VALUES('Late Fine', 50, 'Late Fine for Student', 'Monthly', (select id from class_details where std='I' and session_id=1), 1, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO fees_catalog (fees_name, price, description, applicable_rule, std_id, active, created_by, last_modified_by, created_date, last_modified_date)
+VALUES('Late Fine', 50, 'Late Fine for Student', 'Monthly', (select id from class_details where std='II' and session_id=1), 1, 'Sanket', 'Sanket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 
 INSERT INTO product_catalog (item_name, price, description, tag, std_id, active, `size`, created_by, last_modified_by, created_date, last_modified_date)

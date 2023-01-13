@@ -14,7 +14,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "product_catalog")
-public class ProductCatalog {
+public class ProductCatalog extends AbstractAuditingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,19 +51,7 @@ public class ProductCatalog {
     @Column(name = "size", length = 20)
     private String size;
 
-    @Size(max = 50)
-    @Column(name = "created_by", length = 50)
-    private String createdBy;
-
-    @Size(max = 50)
-    @Column(name = "last_modified_by", length = 50)
-    private String lastModifiedBy;
-
-    @NotNull
-    @Column(name = "created_date", nullable = false)
-    private Instant createdDate;
-
-    @NotNull
-    @Column(name = "last_modified_date", nullable = false)
-    private Instant lastModifiedDate;
+    @Size(max = 20)
+    @Column(name = "type", length = 20)
+    private String category;
 }
