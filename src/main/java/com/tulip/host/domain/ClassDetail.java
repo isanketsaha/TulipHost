@@ -27,7 +27,7 @@ public class ClassDetail extends AbstractAuditingEntity {
     @Column(name = "std", length = 10)
     private String std;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "head_teacher_id")
     private Employee headTeacher;
 
@@ -37,5 +37,5 @@ public class ClassDetail extends AbstractAuditingEntity {
     private Session session;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "std")
-    private Set<Student> studentList;
+    private Set<StudentToClass> studentList;
 }

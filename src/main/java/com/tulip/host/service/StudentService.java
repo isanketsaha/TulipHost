@@ -1,23 +1,17 @@
 package com.tulip.host.service;
 
-import com.tulip.host.data.ClassDetailDTO;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
-import com.tulip.host.domain.ClassDetail;
-import com.tulip.host.domain.Dependent;
-import com.tulip.host.domain.Student;
-import com.tulip.host.mapper.ClassMapper;
+import com.tulip.host.domain.*;
 import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.DependentRepository;
 import com.tulip.host.repository.StudentRepository;
-import com.tulip.host.web.rest.vm.DependentVM;
+import com.tulip.host.repository.UserToDependentRepository;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +22,6 @@ public class StudentService {
     private final StudentRepository studentRepository;
 
     private final ClassDetailRepository classDetailRepository;
-
-    private final DependentRepository dependentRepository;
 
     private final StudentMapper studentMapper;
 
@@ -45,7 +37,6 @@ public class StudentService {
             .builder()
             .gender(onboardingVM.getGender().getDisplayType())
             .bloodGroup(onboardingVM.getBloodGroup().getDisplayType())
-            .std(classDetail)
             .phoneNumber(String.valueOf(onboardingVM.getContact()))
             .dob(onboardingVM.getDob())
             .religion(onboardingVM.getReligion().name())
@@ -53,11 +44,11 @@ public class StudentService {
             .address(onboardingVM.getAddress())
             .name(onboardingVM.getName().toUpperCase())
             .build();
-        List<Dependent> dependentList = onboardingVM
+        student.addStd(StudentToClass.builder().std(classDetail).student(student).build());
+        onboardingVM
             .getDependent()
-            .stream()
-            .map(dependent -> {
-                return Dependent
+            .forEach(dependent -> {
+                Dependent item = Dependent
                     .builder()
                     .contact(String.valueOf(dependent.getContact()))
                     .name(dependent.getName().toUpperCase())
@@ -65,12 +56,11 @@ public class StudentService {
                     .qualification(dependent.getQualification())
                     .relationship(dependent.getRelation().name())
                     .aadhaarNo(String.valueOf(dependent.getAadhaar()))
-                    .student(student)
                     .build();
-            })
-            .collect(Collectors.toList());
-        List<Dependent> dependents = dependentRepository.saveAllAndFlush(dependentList);
-        return dependents.stream().findFirst().get().getStudent().getId();
+                student.addDependents(UserToDependent.builder().dependent(item).student(student).build());
+            });
+        Student save = studentRepository.save(student);
+        return save.getId();
     }
 
     public List<StudentBasicDTO> searchStudent(String name) {

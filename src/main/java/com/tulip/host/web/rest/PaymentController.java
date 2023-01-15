@@ -1,10 +1,10 @@
 package com.tulip.host.web.rest;
 
+import com.tulip.host.data.PayMonthSummary;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.service.PaymentService;
 import com.tulip.host.web.rest.vm.PayVM;
-import java.util.Date;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,14 +28,11 @@ public class PaymentController {
 
     @GetMapping("/details/{paymentType}/{paymentId}")
     public PaySummaryDTO paymentDetails(@Valid @PathVariable Long paymentId, @Valid @PathVariable PayTypeEnum paymentType) {
-        if (paymentType == PayTypeEnum.FEES) {
-            return paymentService.feesDetail(paymentId);
-        } else {
-            return paymentService.purchaseDetails(paymentId);
-        }
+        return paymentService.paymentDetails(paymentId);
     }
-    //    @GetMapping("/history/{from}")
-    //    public List<PaySummaryDTO> paymentHistory(@Valid @PathVariable Date from) {
-    //
-    //    }
+
+    @GetMapping("/history/{studentId}")
+    public List<PayMonthSummary> history(@Valid @PathVariable Long studentId) {
+        return paymentService.yearFeesSummary(2L, studentId);
+    }
 }

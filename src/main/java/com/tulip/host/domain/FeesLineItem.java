@@ -22,8 +22,8 @@ public class FeesLineItem extends AbstractAuditingEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "fees_order_id", nullable = false)
-    private FeesOrder feesOrder;
+    @JoinColumn(name = "transaction_id", nullable = false)
+    private Transaction order;
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)

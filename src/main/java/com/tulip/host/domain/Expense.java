@@ -41,4 +41,9 @@ public class Expense extends AbstractAuditingEntity {
     @NotNull
     @Column(name = "qty", nullable = false, length = 10)
     private String qty;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "transaction_id", nullable = false)
+    private Transaction order;
 }

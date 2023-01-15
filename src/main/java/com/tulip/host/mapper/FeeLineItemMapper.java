@@ -1,9 +1,7 @@
 package com.tulip.host.mapper;
 
 import com.tulip.host.data.FeesItemSummaryDTO;
-import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.domain.FeesLineItem;
-import com.tulip.host.domain.FeesOrder;
 import com.tulip.host.web.rest.vm.FeePayVM;
 import java.util.List;
 import java.util.Set;

@@ -1,6 +1,7 @@
 package com.tulip.host.domain;
 
 import java.time.Instant;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -46,11 +47,9 @@ public class Dependent extends AbstractAuditingEntity {
     @Column(name = "aadhaar_no", nullable = false, length = 15)
     private String aadhaarNo;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "student_id")
-    private Student student;
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    Set<UserToDependent> student;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "emp_id")
-    private Employee emp;
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    Set<UserToDependent> employee;
 }

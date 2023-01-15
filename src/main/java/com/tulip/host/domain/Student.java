@@ -1,9 +1,8 @@
 package com.tulip.host.domain;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -21,8 +20,8 @@ import lombok.*;
 public class Student extends AbstractAuditingEntity {
 
     @Id
-    @Column(name = "student_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "student_id", nullable = false)
     private Long id;
 
     @Size(max = 50)
@@ -38,19 +37,14 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "address")
     private String address;
 
-    @NotNull
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "std_id", nullable = false)
-    private ClassDetail std;
-
     @Size(max = 2)
     @NotNull
     @Column(name = "blood_group", nullable = false, length = 2)
     private String bloodGroup;
 
-    @Size(max = 6)
     @NotNull
-    @Column(name = "gender", nullable = false, length = 6)
+    @Lob
+    @Column(name = "gender", nullable = false)
     private String gender;
 
     @Column(name = "active")
@@ -73,6 +67,32 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "religion", length = 20)
     private String religion;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "student")
-    private Set<Dependent> dependent;
+    @OneToMany(mappedBy = "dependent", fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    private Set<UserToDependent> dependents;
+
+    @NotNull
+    @OneToMany(mappedBy = "std", fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    private Set<StudentToClass> std;
+
+    public void addStd(StudentToClass studentToClass) {
+        studentToClass.setStudent(this);
+        if (std == null) {
+            Set<StudentToClass> classList = new HashSet();
+            classList.add(studentToClass);
+            this.setStd(classList);
+        } else {
+            std.add(studentToClass);
+        }
+    }
+
+    public void addDependents(UserToDependent userToDependent) {
+        userToDependent.setStudent(this);
+        if (dependents == null) {
+            Set<UserToDependent> dependentSet = new HashSet();
+            dependentSet.add(userToDependent);
+            this.setDependents(dependentSet);
+        } else {
+            dependents.add(userToDependent);
+        }
+    }
 }

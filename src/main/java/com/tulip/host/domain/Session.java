@@ -1,7 +1,6 @@
 package com.tulip.host.domain;
 
-import java.time.Instant;
-import java.time.LocalDate;
+import java.util.Date;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -29,9 +28,9 @@ public class Session extends AbstractAuditingEntity {
 
     @NotNull
     @Column(name = "from_date", nullable = false)
-    private LocalDate fromDate;
+    private Date fromDate;
 
     @NotNull
     @Column(name = "to_date", nullable = false)
-    private LocalDate toDate;
+    private Date toDate;
 }

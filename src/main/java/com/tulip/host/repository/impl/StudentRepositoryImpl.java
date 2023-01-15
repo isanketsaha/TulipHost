@@ -36,9 +36,9 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             )
             .from(STUDENT)
             .join(DEPENDENT)
-            .on(DEPENDENT.student().eq(STUDENT))
+            .on(STUDENT.dependents.contains(DEPENDENT.student.any()))
             .join(CLASS_DETAIL)
-            .on(CLASS_DETAIL.eq(STUDENT.std()))
+            .on(STUDENT.std.contains(CLASS_DETAIL.studentList.any()))
             .where(STUDENT.active.eq(isActive))
             .fetch();
     }
@@ -67,9 +67,9 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             )
             .from(STUDENT)
             .join(DEPENDENT)
-            .on(DEPENDENT.student().eq(STUDENT))
+            .on(STUDENT.dependents.contains(DEPENDENT.student.any()))
             .join(CLASS_DETAIL)
-            .on(CLASS_DETAIL.eq(STUDENT.std()))
+            .on(STUDENT.std.contains(CLASS_DETAIL.studentList.any()))
             .where(STUDENT.name.likeIgnoreCase(Expressions.asString("%").concat(name).concat("%")))
             .fetch();
     }
@@ -104,9 +104,8 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             .from(STUDENT)
             .join(DEPENDENT)
             .join(CLASS_DETAIL)
-            .on(CLASS_DETAIL.eq(STUDENT.std()))
-            .on(DEPENDENT.student().eq(STUDENT))
-            .where(STUDENT.id.eq(id))
+            .on(STUDENT.dependents.contains(DEPENDENT.student.any()))
+            .on(STUDENT.std.contains(CLASS_DETAIL.studentList.any()))
             .fetchOne();
     }
 }

@@ -27,7 +27,7 @@ public class OnboardingVM {
     BloodGroupEnum bloodGroup;
 
     @NotNull
-    Number contact;
+    String contact;
 
     @NotNull
     List<DependentVM> dependent;

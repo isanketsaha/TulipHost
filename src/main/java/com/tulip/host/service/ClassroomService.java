@@ -8,11 +8,9 @@ import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +33,8 @@ public class ClassroomService {
     public List<StudentBasicDTO> fetchStudentList(Long classroomId) {
         ClassDetail classDetail = classDetailRepository.findById(classroomId).orElse(null);
         if (classDetail != null) {
-            return studentMapper.getBasicEntitySetFromModelList(classDetail.getStudentList());
+            //            return studentMapper.getBasicEntitySetFromModelList(classDetail.getStudentList());
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 }

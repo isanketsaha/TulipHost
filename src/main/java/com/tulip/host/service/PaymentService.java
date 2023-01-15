@@ -1,66 +1,85 @@
 package com.tulip.host.service;
 
+import com.tulip.host.config.ApplicationProperties;
+import com.tulip.host.data.PayMonthSummary;
 import com.tulip.host.data.PaySummaryDTO;
-import com.tulip.host.domain.FeesOrder;
-import com.tulip.host.domain.PurchaseOrder;
-import com.tulip.host.mapper.FeesOrderMapper;
-import com.tulip.host.mapper.PurchaseOrderMapper;
-import com.tulip.host.repository.FeesOrderRepository;
-import com.tulip.host.repository.PurchaseOrderRepository;
+import com.tulip.host.domain.Session;
+import com.tulip.host.domain.Student;
+import com.tulip.host.domain.Transaction;
+import com.tulip.host.mapper.TransactionMapper;
+import com.tulip.host.repository.FeesLineItemRepository;
+import com.tulip.host.repository.SessionRepository;
+import com.tulip.host.repository.StudentRepository;
+import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.web.rest.vm.PayVM;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
 
-    private final FeesOrderRepository feesOrderRepository;
-    private final FeesOrderMapper feesOrderMapper;
+    private TransactionRepository transactionRepository;
 
-    private final PurchaseOrderMapper purchaseOrderMapper;
+    private TransactionMapper transactionMapper;
 
-    private final PurchaseOrderRepository purchaseOrderRepository;
+    private final StudentRepository studentRepository;
+
+    private final SessionRepository sessionRepository;
+
+    private final FeesLineItemRepository feesLineItemRepository;
+
+    private final ApplicationProperties applicationProperties;
 
     public Long payFees(PayVM payVM) {
-        FeesOrder modelFromEntity = feesOrderMapper.toModel(payVM);
-        modelFromEntity
-            .getLineItem()
+        Transaction transaction = transactionMapper.toModel(payVM);
+        transaction
+            .getFeesLineItem()
             .forEach(item -> {
-                item.setFeesOrder(modelFromEntity);
+                item.setOrder(transaction);
             });
-        FeesOrder save = feesOrderRepository.saveAndFlush(modelFromEntity);
+        Transaction save = transactionRepository.save(transaction);
         return save.getId();
     }
 
     public Long payPurchase(PayVM payVM) {
-        PurchaseOrder modelFromEntity = purchaseOrderMapper.toModel(payVM);
-        modelFromEntity
-            .getLineItem()
+        Transaction transaction = transactionMapper.toModel(payVM);
+        transaction
+            .getPurchaseLineItems()
             .forEach(item -> {
-                item.setPurchaseOrder(modelFromEntity);
+                item.setOrder(transaction);
             });
-        PurchaseOrder purchaseOrder = purchaseOrderRepository.saveAndFlush(modelFromEntity);
+        Transaction purchaseOrder = transactionRepository.save(transaction);
         return purchaseOrder.getId();
     }
 
-    public PaySummaryDTO feesDetail(Long paymentId) {
-        FeesOrder feesOrder = feesOrderRepository.findById(paymentId).orElse(null);
+    public PaySummaryDTO paymentDetails(Long paymentId) {
+        Transaction feesOrder = transactionRepository.findById(paymentId).orElse(null);
         if (feesOrder != null) {
-            return feesOrderMapper.toEntity(feesOrder);
+            return transactionMapper.toEntity(feesOrder);
         }
         return null;
     }
 
-    public PaySummaryDTO purchaseDetails(Long paymentId) {
-        PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(paymentId).orElse(null);
-        if (purchaseOrder != null) {
-            return purchaseOrderMapper.toEntity(purchaseOrder);
-        }
-        return null;
+    public List<PayMonthSummary> yearFeesSummary(Long sessionId, Long studentId) {
+        return feesLineItemRepository.fetchTuitionFeesSummary(studentId, sessionId);
     }
-    //    public void fetchHistory(Date from) {
-    //
-    //    }
+
+    public List<PaySummaryDTO> fetchPaymentHistory(Long sessionId, Long studentId, int pageNo) {
+        int size = applicationProperties.getPage().getSize();
+        PageRequest pageRequest = PageRequest.of(((pageNo - 1) * size), pageNo * size);
+        Session session = sessionRepository.findById(sessionId).orElse(null);
+        Student student = studentRepository.findById(studentId).orElse(null);
+        List<PaySummaryDTO> resultSet = new ArrayList<>();
+        if (session != null && student != null) {
+            //            Page<Transaction> purchaseOrders = transactionRepository.findAllByStudentAndCreatedDateBetween(student, from
+            //                    .toInstant(), to.toInstant(), pageRequest);
+            Collections.sort(resultSet, (item1, item2) -> item2.getPaymentDateTime().compareTo(item1.getPaymentDateTime()));
+        }
+        return resultSet;
+    }
 }

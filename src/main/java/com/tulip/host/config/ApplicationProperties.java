@@ -1,5 +1,8 @@
 package com.tulip.host.config;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -9,8 +12,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * See {@link tech.jhipster.config.JHipsterProperties} for a good example.
  */
 @ConfigurationProperties(prefix = "application", ignoreUnknownFields = false)
+@Data
 public class ApplicationProperties {
-    // jhipster-needle-application-properties-property
-    // jhipster-needle-application-properties-property-getter
-    // jhipster-needle-application-properties-property-class
+
+    public final Page page = new Page();
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Page {
+
+        private int size;
+    }
 }

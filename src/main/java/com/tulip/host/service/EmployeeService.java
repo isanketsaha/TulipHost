@@ -4,9 +4,9 @@ import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.domain.*;
 import com.tulip.host.mapper.EmployeeMapper;
-import com.tulip.host.repository.DependentRepository;
 import com.tulip.host.repository.EmployeeRepository;
 import com.tulip.host.repository.UserGroupRepository;
+import com.tulip.host.repository.UserToDependentRepository;
 import com.tulip.host.web.rest.vm.BankVM;
 import com.tulip.host.web.rest.vm.DependentVM;
 import com.tulip.host.web.rest.vm.InterviewVM;
@@ -25,7 +25,7 @@ public class EmployeeService {
 
     private final UserGroupRepository userGroupRepository;
 
-    private final DependentRepository dependentRepository;
+    private final UserToDependentRepository userToDependentRepository;
 
     private final EmployeeMapper employeeMapper;
 
@@ -60,15 +60,20 @@ public class EmployeeService {
                 .bank(bank)
                 .interview(interview)
                 .build();
-            List<Dependent> dependentList = employeeVM
+            List<UserToDependent> userToDependentList = employeeVM
                 .getDependent()
                 .stream()
                 .map(dependentVM -> {
-                    return buildDependentModel(dependentVM, employee);
+                    Dependent dependent = buildDependentModel(dependentVM, employee);
+
+                    UserToDependent userToDependent = new UserToDependent();
+                    userToDependent.setDependent(dependent);
+                    userToDependent.setEmployee(employee);
+                    return userToDependent;
                 })
                 .collect(Collectors.toList());
-            List<Dependent> dependents = dependentRepository.saveAllAndFlush(dependentList);
-            return dependents.stream().findFirst().get().getEmp().getId();
+            List<UserToDependent> dependents = userToDependentRepository.saveAllAndFlush(userToDependentList);
+            return dependents.stream().findFirst().get().getEmployee().getId();
         }
         throw new Exception("Unable to find usergroup");
     }
@@ -117,7 +122,6 @@ public class EmployeeService {
             .qualification(dependent.getQualification())
             .relationship(dependent.getRelation().name())
             .aadhaarNo(String.valueOf(dependent.getAadhaar()))
-            .emp(employee)
             .build();
     }
 }

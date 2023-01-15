@@ -15,7 +15,7 @@ public class DependentVM {
     Number aadhaar;
 
     @NotNull
-    Number contact;
+    String contact;
 
     @NotNull
     String name;

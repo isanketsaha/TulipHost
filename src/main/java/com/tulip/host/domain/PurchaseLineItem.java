@@ -35,8 +35,8 @@ public class PurchaseLineItem extends AbstractAuditingEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "purchase_order_id", nullable = false)
-    private PurchaseOrder purchaseOrder;
+    @JoinColumn(name = "transaction_id", nullable = false)
+    private Transaction order;
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.MERGE)

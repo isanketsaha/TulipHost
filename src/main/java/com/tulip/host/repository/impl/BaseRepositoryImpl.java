@@ -15,15 +15,16 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
     static final QFeesCatalog FEES_CATALOG = QFeesCatalog.feesCatalog;
     static final QClassDetail CLASS_DETAIL = QClassDetail.classDetail;
     static final QCredential CREDENTIAL = QCredential.credential;
-    static final QFeesOrder FEES_ORDER = QFeesOrder.feesOrder;
     static final com.tulip.host.domain.QEmployee EMPLOYEE = QEmployee.employee;
     static final QStudent STUDENT = QStudent.student;
     static final QDependent DEPENDENT = QDependent.dependent;
     static final QUserGroup USER_GROUP = QUserGroup.userGroup;
-    static final QPurchaseOrder PURCHASE_ORDER = QPurchaseOrder.purchaseOrder;
-    static final QPurchaseLineItem LINE_ITEM = QPurchaseLineItem.purchaseLineItem;
+    static final QPurchaseLineItem PURCHASE_LINE_ITEM = QPurchaseLineItem.purchaseLineItem;
     static final QHoliday HOLIDAY = QHoliday.holiday;
+    static final QFeesLineItem FEES_LINE_ITEM = QFeesLineItem.feesLineItem;
     static final QSession SESSION = QSession.session;
+
+    static final QTransaction TRANSACTION = QTransaction.transaction;
 
     @PersistenceContext
     EntityManager em;

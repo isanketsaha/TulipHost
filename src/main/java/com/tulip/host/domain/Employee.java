@@ -1,7 +1,7 @@
 package com.tulip.host.domain;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -18,19 +18,14 @@ import lombok.*;
 public class Employee extends AbstractAuditingEntity {
 
     @Id
-    @Column(name = "emp_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "emp_id", nullable = false)
     private Long id;
 
     @NotNull
     @Column(name = "active", nullable = false)
     @Builder.Default
     private Boolean active = true;
-
-    @NotNull
-    @Column(name = "reset_credential", nullable = false)
-    @Builder.Default
-    private Boolean resetCredential = false;
 
     @Size(max = 255)
     @Column(name = "address")
@@ -47,8 +42,9 @@ public class Employee extends AbstractAuditingEntity {
     @Column(name = "experience")
     private String experience;
 
-    @Size(max = 6)
-    @Column(name = "gender", length = 6)
+    @NotNull
+    @Lob
+    @Column(name = "gender", nullable = false)
     private String gender;
 
     @Column(name = "leave_balance")
@@ -64,7 +60,12 @@ public class Employee extends AbstractAuditingEntity {
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @NotNull
+    @Column(name = "reset_credential", nullable = false)
+    @Builder.Default
+    private Boolean resetCredential = false;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "credential_id")
     private Credential credential;
 
@@ -82,18 +83,18 @@ public class Employee extends AbstractAuditingEntity {
     private String religion;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "group_id", nullable = false)
     private UserGroup group;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "bank_id")
     private Bank bank;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "interview_id")
     private Interview interview;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "emp")
-    private List<Dependent> dependent;
+    @ManyToMany(mappedBy = "dependent", fetch = FetchType.EAGER)
+    Set<UserToDependent> dependents;
 }
