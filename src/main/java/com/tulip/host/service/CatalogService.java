@@ -5,7 +5,6 @@ import com.tulip.host.data.FeesCatalogDTO;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.FeesCatalog;
 import com.tulip.host.domain.ProductCatalog;
-import com.tulip.host.enums.StdEnum;
 import com.tulip.host.mapper.FeesCatalogMapper;
 import com.tulip.host.mapper.ProductCatalogMapper;
 import com.tulip.host.repository.ClassDetailRepository;
@@ -16,7 +15,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 @RequiredArgsConstructor

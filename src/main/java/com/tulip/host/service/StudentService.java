@@ -9,10 +9,13 @@ import com.tulip.host.repository.DependentRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.UserToDependentRepository;
 import com.tulip.host.web.rest.vm.OnboardingVM;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -27,50 +30,27 @@ public class StudentService {
 
     public List<StudentBasicDTO> fetchAllStudent() {
         List<Student> all = studentRepository.findAll();
-        return studentMapper.getBasicEntityListFromModelList(all);
+        return studentMapper.toBasicEntityList(all);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public Long addStudent(OnboardingVM onboardingVM) {
         ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(onboardingVM.getSession(), onboardingVM.getStd().name());
-        Student student = Student
-            .builder()
-            .gender(onboardingVM.getGender().getDisplayType())
-            .bloodGroup(onboardingVM.getBloodGroup().getDisplayType())
-            .phoneNumber(String.valueOf(onboardingVM.getContact()))
-            .dob(onboardingVM.getDob())
-            .religion(onboardingVM.getReligion().name())
-            .previousSchool(onboardingVM.getPreviousSchool())
-            .address(onboardingVM.getAddress())
-            .name(onboardingVM.getName().toUpperCase())
-            .build();
-        student.addStd(StudentToClass.builder().std(classDetail).student(student).build());
-        onboardingVM
-            .getDependent()
-            .forEach(dependent -> {
-                Dependent item = Dependent
-                    .builder()
-                    .contact(String.valueOf(dependent.getContact()))
-                    .name(dependent.getName().toUpperCase())
-                    .occupation(dependent.getOccupation().toUpperCase())
-                    .qualification(dependent.getQualification())
-                    .relationship(dependent.getRelation().name())
-                    .aadhaarNo(String.valueOf(dependent.getAadhaar()))
-                    .build();
-                student.addDependents(UserToDependent.builder().dependent(item).student(student).build());
-            });
+        Student student = studentMapper.toModel(onboardingVM);
+        student.addClass(classDetail);
         Student save = studentRepository.save(student);
         return save.getId();
     }
 
     public List<StudentBasicDTO> searchStudent(String name) {
-        return studentRepository.search(name);
+        List<Student> studentList = studentRepository.search(name);
+        return studentMapper.toBasicEntityList(studentList);
     }
 
     public StudentDetailsDTO searchStudent(long id) {
-        Student byId = studentRepository.findById(id).orElse(null);
+        Student byId = studentRepository.search(id);
         if (byId != null) {
-            return studentMapper.getEntityFromModel(byId);
+            return studentMapper.toDetailEntity(byId);
         }
         return null;
     }
@@ -78,7 +58,7 @@ public class StudentService {
     public StudentBasicDTO basicSearchStudent(long id) {
         Student byId = studentRepository.findById(id).orElse(null);
         if (byId != null) {
-            return studentMapper.getBasicEntityFromModel(byId);
+            return studentMapper.toBasicEntity(byId);
         }
         return null;
     }

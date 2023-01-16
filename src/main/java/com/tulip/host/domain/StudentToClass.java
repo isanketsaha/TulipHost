@@ -4,6 +4,8 @@ import javax.persistence.*;
 import lombok.*;
 
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -12,23 +14,15 @@ import lombok.*;
 public class StudentToClass {
 
     @EmbeddedId
-    private StudentToClassId id = new StudentToClassId();
-
-    public StudentToClass() {}
-
-    public StudentToClass(StudentToClassId id, ClassDetail std, Student student) {
-        this.id = new StudentToClassId(std.getId(), student.getId());
-        this.std = std;
-        this.student = student;
-    }
+    private StudentToClassId id;
 
     @MapsId("classId")
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "class_id", nullable = false)
-    private ClassDetail std;
+    private ClassDetail classField;
 
     @MapsId("studentId")
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 }

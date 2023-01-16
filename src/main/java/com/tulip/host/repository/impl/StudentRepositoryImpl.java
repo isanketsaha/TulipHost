@@ -1,10 +1,6 @@
 package com.tulip.host.repository.impl;
 
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
-import com.tulip.host.data.ClassDetailDTO;
-import com.tulip.host.data.DependentDTO;
-import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.Student;
 import com.tulip.host.repository.StudentRepository;
@@ -18,29 +14,8 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
     }
 
     @Override
-    public List<StudentBasicDTO> fetchAll(boolean isActive) {
-        return jpaQueryFactory
-            .select(
-                Projections.fields(
-                    StudentBasicDTO.class,
-                    STUDENT.name,
-                    STUDENT.id,
-                    STUDENT.active,
-                    STUDENT.dob,
-                    STUDENT.gender,
-                    STUDENT.bloodGroup,
-                    DEPENDENT.contact,
-                    CLASS_DETAIL.std,
-                    STUDENT.address
-                )
-            )
-            .from(STUDENT)
-            .join(DEPENDENT)
-            .on(STUDENT.dependents.contains(DEPENDENT.student.any()))
-            .join(CLASS_DETAIL)
-            .on(STUDENT.std.contains(CLASS_DETAIL.studentList.any()))
-            .where(STUDENT.active.eq(isActive))
-            .fetch();
+    public List<Student> fetchAll(boolean isActive) {
+        return jpaQueryFactory.selectFrom(STUDENT).where(STUDENT.active.eq(isActive)).fetch();
     }
 
     @Override
@@ -49,63 +24,15 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
     }
 
     @Override
-    public List<StudentBasicDTO> search(String name) {
+    public List<Student> search(String name) {
         return jpaQueryFactory
-            .select(
-                Projections.fields(
-                    StudentBasicDTO.class,
-                    STUDENT.name,
-                    STUDENT.id,
-                    STUDENT.active,
-                    STUDENT.dob,
-                    STUDENT.gender,
-                    STUDENT.bloodGroup,
-                    DEPENDENT.contact,
-                    CLASS_DETAIL.std,
-                    STUDENT.address
-                )
-            )
-            .from(STUDENT)
-            .join(DEPENDENT)
-            .on(STUDENT.dependents.contains(DEPENDENT.student.any()))
-            .join(CLASS_DETAIL)
-            .on(STUDENT.std.contains(CLASS_DETAIL.studentList.any()))
+            .selectFrom(STUDENT)
             .where(STUDENT.name.likeIgnoreCase(Expressions.asString("%").concat(name).concat("%")))
             .fetch();
     }
 
     @Override
-    public StudentDetailsDTO search(long id) {
-        return jpaQueryFactory
-            .select(
-                Projections.fields(
-                    StudentDetailsDTO.class,
-                    STUDENT.name,
-                    STUDENT.id,
-                    STUDENT.active,
-                    STUDENT.dob,
-                    STUDENT.gender,
-                    STUDENT.bloodGroup,
-                    DEPENDENT.contact,
-                    STUDENT.previousSchool,
-                    Projections.fields(
-                        DependentDTO.class,
-                        DEPENDENT.contact,
-                        DEPENDENT.name,
-                        DEPENDENT.relationship,
-                        DEPENDENT.aadhaarNo,
-                        DEPENDENT.id,
-                        DEPENDENT.occupation,
-                        DEPENDENT.occupation
-                    ),
-                    Projections.fields(ClassDetailDTO.class, CLASS_DETAIL.headTeacher(), CLASS_DETAIL.std, CLASS_DETAIL.id)
-                )
-            )
-            .from(STUDENT)
-            .join(DEPENDENT)
-            .join(CLASS_DETAIL)
-            .on(STUDENT.dependents.contains(DEPENDENT.student.any()))
-            .on(STUDENT.std.contains(CLASS_DETAIL.studentList.any()))
-            .fetchOne();
+    public Student search(long id) {
+        return jpaQueryFactory.selectFrom(STUDENT).where(STUDENT.id.eq(id)).fetchOne();
     }
 }

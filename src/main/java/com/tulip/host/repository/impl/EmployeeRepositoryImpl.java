@@ -76,24 +76,8 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
     }
 
     @Override
-    public EmployeeDetailsDTO search(long id) {
-        return jpaQueryFactory
-            .select(
-                Projections.fields(
-                    EmployeeDetailsDTO.class,
-                    EMPLOYEE.name,
-                    EMPLOYEE.id,
-                    EMPLOYEE.active,
-                    EMPLOYEE.dob,
-                    EMPLOYEE.gender,
-                    EMPLOYEE.bloodGroup,
-                    EMPLOYEE.phoneNumber,
-                    EMPLOYEE.group().authority
-                )
-            )
-            .from(EMPLOYEE)
-            .where(EMPLOYEE.id.eq(id))
-            .fetchOne();
+    public Employee search(long id) {
+        return jpaQueryFactory.selectFrom(EMPLOYEE).where(EMPLOYEE.id.eq(id)).fetchOne();
     }
 
     @Override

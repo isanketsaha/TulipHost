@@ -20,15 +20,15 @@ public class UserToDependent {
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = { CascadeType.PERSIST })
     @JoinColumn(name = "dependent_id", nullable = false)
     private Dependent dependent;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "student_id")
     private Student student;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "emp_id")
-    private Employee employee;
+    private Employee emp;
 }

@@ -68,12 +68,12 @@ public class EmployeeService {
 
                     UserToDependent userToDependent = new UserToDependent();
                     userToDependent.setDependent(dependent);
-                    userToDependent.setEmployee(employee);
+                    userToDependent.setEmp(employee);
                     return userToDependent;
                 })
                 .collect(Collectors.toList());
             List<UserToDependent> dependents = userToDependentRepository.saveAllAndFlush(userToDependentList);
-            return dependents.stream().findFirst().get().getEmployee().getId();
+            return dependents.stream().findFirst().get().getEmp().getId();
         }
         throw new Exception("Unable to find usergroup");
     }
@@ -83,7 +83,7 @@ public class EmployeeService {
     }
 
     public EmployeeDetailsDTO searchEmployee(long id) {
-        Employee employee = employeeRepository.findById(id).orElse(null);
+        Employee employee = employeeRepository.search(id);
         if (employee != null) {
             return employeeMapper.getEntityFromModel(employee);
         }

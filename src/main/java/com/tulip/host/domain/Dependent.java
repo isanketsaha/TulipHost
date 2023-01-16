@@ -1,6 +1,7 @@
 package com.tulip.host.domain;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -18,8 +19,8 @@ import lombok.*;
 public class Dependent extends AbstractAuditingEntity {
 
     @Id
-    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Size(max = 20)
@@ -47,9 +48,6 @@ public class Dependent extends AbstractAuditingEntity {
     @Column(name = "aadhaar_no", nullable = false, length = 15)
     private String aadhaarNo;
 
-    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    Set<UserToDependent> student;
-
-    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    Set<UserToDependent> employee;
+    @ManyToMany(mappedBy = "dependents", fetch = FetchType.EAGER)
+    private Set<Student> students = new LinkedHashSet<>();
 }

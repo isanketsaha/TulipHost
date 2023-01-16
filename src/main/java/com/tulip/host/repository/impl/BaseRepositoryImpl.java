@@ -26,6 +26,10 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
 
     static final QTransaction TRANSACTION = QTransaction.transaction;
 
+    static final QUserToDependent USER_TO_DEPENDENT = QUserToDependent.userToDependent;
+
+    static final QStudentToClass STUDENT_TO_CLASS = QStudentToClass.studentToClass;
+
     @PersistenceContext
     EntityManager em;
 

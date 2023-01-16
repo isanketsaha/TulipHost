@@ -1,7 +1,6 @@
 package com.tulip.host.domain;
 
 import java.time.Instant;
-import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -15,7 +14,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "employee")
-public class Employee extends AbstractAuditingEntity {
+public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +22,16 @@ public class Employee extends AbstractAuditingEntity {
     private Long id;
 
     @NotNull
+    @Column(name = "created_date", nullable = false)
+    private Instant createdDate;
+
+    @NotNull
+    @Column(name = "last_modified_date", nullable = false)
+    private Instant lastModifiedDate;
+
+    @NotNull
     @Column(name = "active", nullable = false)
-    @Builder.Default
-    private Boolean active = true;
+    private Boolean active = false;
 
     @Size(max = 255)
     @Column(name = "address")
@@ -52,7 +58,6 @@ public class Employee extends AbstractAuditingEntity {
 
     @NotNull
     @Column(name = "locked", nullable = false)
-    @Builder.Default
     private Boolean locked = false;
 
     @Size(max = 50)
@@ -62,10 +67,9 @@ public class Employee extends AbstractAuditingEntity {
 
     @NotNull
     @Column(name = "reset_credential", nullable = false)
-    @Builder.Default
     private Boolean resetCredential = false;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "credential_id")
     private Credential credential;
 
@@ -87,14 +91,19 @@ public class Employee extends AbstractAuditingEntity {
     @JoinColumn(name = "group_id", nullable = false)
     private UserGroup group;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_id")
     private Bank bank;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "interview_id")
     private Interview interview;
 
-    @ManyToMany(mappedBy = "dependent", fetch = FetchType.EAGER)
-    Set<UserToDependent> dependents;
+    @Size(max = 50)
+    @Column(name = "created_by", length = 50)
+    private String createdBy;
+
+    @Size(max = 50)
+    @Column(name = "last_modified_by", length = 50)
+    private String lastModifiedBy;
 }

@@ -1,8 +1,10 @@
 package com.tulip.host.domain;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -49,7 +51,7 @@ public class Student extends AbstractAuditingEntity {
 
     @Column(name = "active")
     @Builder.Default
-    private Boolean active = true;
+    private Boolean active = Boolean.TRUE;
 
     @Size(max = 20)
     @NotNull
@@ -67,32 +69,33 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "religion", length = 20)
     private String religion;
 
-    @OneToMany(mappedBy = "dependent", fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    private Set<UserToDependent> dependents;
+    @OneToMany(mappedBy = "student", fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    private Set<Transaction> transactions = new LinkedHashSet<>();
 
-    @NotNull
-    @OneToMany(mappedBy = "std", fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    private Set<StudentToClass> std;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
+    @JoinTable(
+        name = "student_to_class",
+        joinColumns = @JoinColumn(name = "student_id"),
+        inverseJoinColumns = @JoinColumn(name = "class_id")
+    )
+    private Set<ClassDetail> classDetails = new LinkedHashSet<>();
 
-    public void addStd(StudentToClass studentToClass) {
-        studentToClass.setStudent(this);
-        if (std == null) {
-            Set<StudentToClass> classList = new HashSet();
-            classList.add(studentToClass);
-            this.setStd(classList);
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST })
+    @JoinTable(
+        name = "user_to_dependent",
+        joinColumns = @JoinColumn(name = "student_id"),
+        inverseJoinColumns = @JoinColumn(name = "dependent_id")
+    )
+    private Set<Dependent> dependents = new LinkedHashSet<>();
+
+    public void addClass(ClassDetail classDetail) {
+        classDetail.getStudents().add(this);
+        if (classDetails == null) {
+            Set<ClassDetail> classList = new LinkedHashSet();
+            classList.add(classDetail);
+            this.setClassDetails(classList);
         } else {
-            std.add(studentToClass);
-        }
-    }
-
-    public void addDependents(UserToDependent userToDependent) {
-        userToDependent.setStudent(this);
-        if (dependents == null) {
-            Set<UserToDependent> dependentSet = new HashSet();
-            dependentSet.add(userToDependent);
-            this.setDependents(dependentSet);
-        } else {
-            dependents.add(userToDependent);
+            classDetails.add(classDetail);
         }
     }
 }

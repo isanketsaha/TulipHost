@@ -1,12 +1,9 @@
 package com.tulip.host.mapper;
 
-import com.tulip.host.data.StudentBasicDTO;
-import com.tulip.host.domain.Student;
+import com.tulip.host.data.DependentDTO;
 import com.tulip.host.domain.UserToDependent;
 import com.tulip.host.web.rest.vm.DependentVM;
-import com.tulip.host.web.rest.vm.OnboardingVM;
 import java.util.List;
-import java.util.Set;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -18,4 +15,9 @@ public interface UserToDependentMapper {
     UserToDependent toEntity(Long id);
 
     List<UserToDependent> toModelList(List<DependentVM> list);
+
+    List<DependentDTO> toStudentModel(List<UserToDependent> dependents);
+
+    @Mapping(target = ".", source = "student")
+    DependentDTO map(UserToDependent userToDependent);
 }

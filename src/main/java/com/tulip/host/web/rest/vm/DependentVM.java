@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class DependentVM {
 
     @NotNull
-    Number aadhaar;
+    String aadhaar;
 
     @NotNull
     String contact;

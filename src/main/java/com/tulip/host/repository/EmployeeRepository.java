@@ -15,5 +15,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     public List<EmployeeBasicDTO> searchByName(String name);
 
-    public EmployeeDetailsDTO search(long id);
+    public Employee search(long id);
 }

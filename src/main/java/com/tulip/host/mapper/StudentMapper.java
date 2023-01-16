@@ -13,24 +13,21 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = { ClassMapper.class, DependentMapper.class, ReferenceMapper.class, CommonUtils.class })
 public interface StudentMapper {
-    //    @Mapping(target = "classDetails", source = "std.std")
-    @Mapping(target = "admissionDate", source = "createdDate")
-    @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(student.getDob()))")
-    StudentDetailsDTO getEntityFromModel(Student student);
-
-    @Mapping(target = "isActive", source = "active")
-    @Mapping(target = "std", ignore = true)
-    @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(student.getDob()))")
-    StudentBasicDTO getBasicEntityFromModel(Student student);
+    @Mapping(target = "classDetails", ignore = true)
+    @Mapping(target = "phoneNumber", source = "contact")
+    @Mapping(target = "dependents", source = "dependent")
+    @Mapping(target = "bloodGroup", expression = "java(source.getBloodGroup().getDisplayType())")
+    Student toModel(OnboardingVM source);
 
     Student toEntity(Long id);
 
-    List<StudentBasicDTO> getBasicEntitySetFromModelList(Set<Student> student);
+    List<StudentBasicDTO> toBasicEntityList(List<Student> student);
 
-    List<StudentBasicDTO> getBasicEntityListFromModelList(List<Student> student);
+    @Mapping(target = "admissionDate", source = "createdDate")
+    @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(student.getDob()))")
+    @Mapping(target = "dependent", source = "dependents")
+    @Mapping(target = "classDetails", ignore = true)
+    StudentDetailsDTO toDetailEntity(Student student);
 
-    @Mapping(target = "phoneNumber", source = "contact")
-    //    @Mapping(target = "dependents", defaultValue = "dependent")
-    @Mapping(target = "std", ignore = true)
-    Student getModelFromEntity(OnboardingVM source);
+    StudentBasicDTO toBasicEntity(Student student);
 }

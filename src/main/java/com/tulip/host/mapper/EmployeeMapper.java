@@ -1,13 +1,8 @@
 package com.tulip.host.mapper;
 
 import com.tulip.host.data.EmployeeDetailsDTO;
-import com.tulip.host.domain.AbstractAuditingEntity;
-import com.tulip.host.domain.Bank;
 import com.tulip.host.domain.Employee;
-import com.tulip.host.domain.Interview;
 import com.tulip.host.web.rest.vm.OnboardingVM;
-import java.util.List;
-import org.apache.poi.ss.formula.functions.T;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
