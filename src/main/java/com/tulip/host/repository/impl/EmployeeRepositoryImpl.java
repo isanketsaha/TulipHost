@@ -1,8 +1,6 @@
 package com.tulip.host.repository.impl;
 
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
-import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.domain.Employee;
 import com.tulip.host.repository.EmployeeRepository;
@@ -16,61 +14,19 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
     }
 
     @Override
-    public List<EmployeeBasicDTO> fetchAll(boolean isActive) {
-        return jpaQueryFactory
-            .select(
-                Projections.fields(
-                    EmployeeBasicDTO.class,
-                    EMPLOYEE.name,
-                    EMPLOYEE.id,
-                    EMPLOYEE.active,
-                    EMPLOYEE.dob,
-                    EMPLOYEE.gender,
-                    EMPLOYEE.bloodGroup,
-                    EMPLOYEE.phoneNumber,
-                    EMPLOYEE.address
-                )
-            )
-            .from(EMPLOYEE)
-            .where(EMPLOYEE.active.eq(isActive))
-            .fetch();
+    public List<Employee> fetchAll(boolean isActive) {
+        return jpaQueryFactory.selectFrom(EMPLOYEE).where(EMPLOYEE.active.eq(isActive)).fetch();
     }
 
     @Override
-    public List<EmployeeBasicDTO> fetchAll() {
-        return jpaQueryFactory
-            .select(
-                Projections.fields(
-                    EmployeeBasicDTO.class,
-                    EMPLOYEE.name,
-                    EMPLOYEE.id,
-                    EMPLOYEE.active,
-                    EMPLOYEE.dob,
-                    EMPLOYEE.gender,
-                    EMPLOYEE.bloodGroup,
-                    EMPLOYEE.phoneNumber
-                )
-            )
-            .from(EMPLOYEE)
-            .fetch();
+    public List<Employee> fetchAll() {
+        return jpaQueryFactory.selectFrom(EMPLOYEE).fetch();
     }
 
     @Override
-    public List<EmployeeBasicDTO> searchByName(String name) {
+    public List<Employee> searchByName(String name) {
         return jpaQueryFactory
-            .select(
-                Projections.fields(
-                    EmployeeBasicDTO.class,
-                    EMPLOYEE.name,
-                    EMPLOYEE.id,
-                    EMPLOYEE.active,
-                    EMPLOYEE.dob,
-                    EMPLOYEE.gender,
-                    EMPLOYEE.bloodGroup,
-                    EMPLOYEE.phoneNumber
-                )
-            )
-            .from(EMPLOYEE)
+            .selectFrom(EMPLOYEE)
             .where(EMPLOYEE.name.likeIgnoreCase(Expressions.asString("%").concat(name).concat("%")))
             .fetch();
     }

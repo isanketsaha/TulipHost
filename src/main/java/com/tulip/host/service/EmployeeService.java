@@ -31,11 +31,13 @@ public class EmployeeService {
     private final EmployeeMapper employeeMapper;
 
     public List<EmployeeBasicDTO> fetchAllEmployee(boolean isActive) {
-        return employeeRepository.fetchAll(isActive);
+        List<Employee> employees = employeeRepository.fetchAll(isActive);
+        return employeeMapper.toBasicEntityList(employees);
     }
 
     public List<EmployeeBasicDTO> fetchAllEmployee() {
-        return employeeRepository.fetchAll();
+        List<Employee> employees = employeeRepository.fetchAll();
+        return employeeMapper.toBasicEntityList(employees);
     }
 
     @Transactional
@@ -53,7 +55,8 @@ public class EmployeeService {
     }
 
     public List<EmployeeBasicDTO> searchEmployee(String name) {
-        return employeeRepository.searchByName(name);
+        List<Employee> employees = employeeRepository.searchByName(name);
+        return employeeMapper.toBasicEntityList(employees);
     }
 
     public EmployeeDetailsDTO searchEmployee(long id) {

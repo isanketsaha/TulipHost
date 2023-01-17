@@ -15,7 +15,7 @@ public class EmployeeBasicDTO {
 
     private String bloodGroup;
 
-    private Instant dob;
+    private Date dob;
 
     private Long id;
 

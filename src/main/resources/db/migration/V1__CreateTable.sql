@@ -186,17 +186,21 @@ CREATE TABLE IF NOT EXISTS  dependent (
   UNIQUE KEY(name, contact)
 ) ;
 
-CREATE TABLE IF NOT EXISTS  user_to_dependent(
-    id bigint NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS  student_to_dependent(
     dependent_id bigint NOT NULL,
-    student_id bigint DEFAULT NULL,
-    emp_id bigint DEFAULT  NULL,
-     PRIMARY KEY (id),
-     FOREIGN KEY (dependent_id) REFERENCES dependent (id),
-    FOREIGN KEY (student_id) REFERENCES student (student_id),
-    FOREIGN KEY (emp_id) REFERENCES employee (emp_id)
+    student_id bigint NOT NULL,
+    PRIMARY KEY (dependent_id, student_id),
+    FOREIGN KEY (dependent_id) REFERENCES dependent (id),
+    FOREIGN KEY (student_id) REFERENCES student (student_id)
 );
 
+CREATE TABLE IF NOT EXISTS  employee_to_dependent(
+    dependent_id bigint NOT NULL,
+    emp_id bigint NOT  NULL,
+    PRIMARY KEY (dependent_id,emp_id),
+    FOREIGN KEY (dependent_id) REFERENCES dependent (id),
+    FOREIGN KEY (emp_id) REFERENCES employee (emp_id)
+);
 
 CREATE TABLE IF NOT EXISTS  student_to_class(
     class_id bigint NOT NULL,

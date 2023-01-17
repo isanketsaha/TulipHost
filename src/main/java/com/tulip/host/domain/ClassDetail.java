@@ -39,7 +39,7 @@ public class ClassDetail {
     @OneToMany(mappedBy = "std", fetch = FetchType.EAGER)
     private Set<FeesCatalog> feesCatalogs = new LinkedHashSet<>();
 
-    @ManyToMany(mappedBy = "classDetails")
+    @ManyToMany(mappedBy = "classDetails", fetch = FetchType.EAGER)
     private Set<Student> students = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "std", fetch = FetchType.EAGER)

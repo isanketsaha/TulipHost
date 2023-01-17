@@ -1,19 +1,18 @@
 package com.tulip.host.repository;
 
-import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.domain.Employee;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
-    public List<EmployeeBasicDTO> fetchAll();
+    public List<Employee> fetchAll();
 
-    List<EmployeeBasicDTO> fetchAll(boolean isActive);
+    List<Employee> fetchAll(boolean isActive);
 
     public EmployeeDetailsDTO edit();
 
-    public List<EmployeeBasicDTO> searchByName(String name);
+    public List<Employee> searchByName(String name);
 
     public Employee search(long id);
 }

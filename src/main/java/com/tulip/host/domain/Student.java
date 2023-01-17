@@ -3,7 +3,6 @@ package com.tulip.host.domain;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.persistence.*;
@@ -51,7 +50,7 @@ public class Student extends AbstractAuditingEntity {
 
     @Column(name = "active")
     @Builder.Default
-    private Boolean active = Boolean.TRUE;
+    private Boolean active = true;
 
     @Size(max = 20)
     @NotNull
@@ -69,7 +68,15 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "religion", length = 20)
     private String religion;
 
-    @OneToMany(mappedBy = "student", fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST })
+    @JoinTable(
+        name = "student_to_dependent",
+        joinColumns = @JoinColumn(name = "student_id"),
+        inverseJoinColumns = @JoinColumn(name = "dependent_id")
+    )
+    private Set<Dependent> dependents = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "student", fetch = FetchType.EAGER)
     private Set<Transaction> transactions = new LinkedHashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
@@ -79,14 +86,6 @@ public class Student extends AbstractAuditingEntity {
         inverseJoinColumns = @JoinColumn(name = "class_id")
     )
     private Set<ClassDetail> classDetails = new LinkedHashSet<>();
-
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST })
-    @JoinTable(
-        name = "user_to_dependent",
-        joinColumns = @JoinColumn(name = "student_id"),
-        inverseJoinColumns = @JoinColumn(name = "dependent_id")
-    )
-    private Set<Dependent> dependents = new LinkedHashSet<>();
 
     public void addClass(ClassDetail classDetail) {
         classDetail.getStudents().add(this);

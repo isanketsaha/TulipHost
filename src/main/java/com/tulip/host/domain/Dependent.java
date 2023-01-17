@@ -48,9 +48,19 @@ public class Dependent extends AbstractAuditingEntity {
     @Column(name = "aadhaar_no", nullable = false, length = 15)
     private String aadhaarNo;
 
-    @ManyToMany(mappedBy = "dependents", fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
+    @JoinTable(
+        name = "student_to_dependent",
+        joinColumns = @JoinColumn(name = "dependent_id"),
+        inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
     private Set<Student> students = new LinkedHashSet<>();
 
-    @ManyToMany(mappedBy = "dependents", fetch = FetchType.EAGER)
-    private Set<Employee> employee = new LinkedHashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
+    @JoinTable(
+        name = "employee_to_dependent",
+        joinColumns = @JoinColumn(name = "dependent_id"),
+        inverseJoinColumns = @JoinColumn(name = "emp_id")
+    )
+    private Set<Employee> employees = new LinkedHashSet<>();
 }

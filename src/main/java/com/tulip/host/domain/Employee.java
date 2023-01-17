@@ -1,6 +1,7 @@
 package com.tulip.host.domain;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.persistence.*;
@@ -37,7 +38,7 @@ public class Employee extends AbstractAuditingEntity {
     private String bloodGroup;
 
     @Column(name = "dob")
-    private Instant dob;
+    private Date dob;
 
     @Size(max = 255)
     @Column(name = "experience")
@@ -66,7 +67,7 @@ public class Employee extends AbstractAuditingEntity {
     @Builder.Default
     private Boolean resetCredential = false;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST })
     @JoinColumn(name = "credential_id")
     private Credential credential;
 
@@ -84,26 +85,26 @@ public class Employee extends AbstractAuditingEntity {
     private String religion;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = { CascadeType.MERGE })
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE }, optional = false)
     @JoinColumn(name = "group_id", nullable = false)
     private UserGroup group;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "bank_id")
     private Bank bank;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "interview_id")
     private Interview interview;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinTable(
-        name = "user_to_dependent",
+        name = "employee_to_dependent",
         joinColumns = @JoinColumn(name = "emp_id"),
         inverseJoinColumns = @JoinColumn(name = "dependent_id")
     )
     private Set<Dependent> dependents = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "headTeacher", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "headTeacher", fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
     private Set<ClassDetail> classDetails = new LinkedHashSet<>();
 }

@@ -1,8 +1,10 @@
 package com.tulip.host.mapper;
 
+import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.domain.Employee;
 import com.tulip.host.web.rest.vm.OnboardingVM;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -16,4 +18,10 @@ public interface EmployeeMapper {
     @Mapping(target = "dependents", source = "dependent")
     @Mapping(target = "bloodGroup", expression = "java(source.getBloodGroup().getDisplayType())")
     Employee toModel(OnboardingVM source);
+
+    EmployeeBasicDTO toBasicEntity(Employee source);
+
+    List<EmployeeDetailsDTO> toEntityList(List<Employee> source);
+
+    List<EmployeeBasicDTO> toBasicEntityList(List<Employee> source);
 }
