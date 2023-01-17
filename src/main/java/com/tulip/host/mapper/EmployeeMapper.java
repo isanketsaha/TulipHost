@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = { DependentMapper.class, BankMapper.class, InterviewMapper.class })
 public interface EmployeeMapper {
     @Mapping(target = "authority", source = "group.authority")
+    @Mapping(target = "dependent", source = "dependents")
     EmployeeDetailsDTO toEntity(Employee source);
 
     @Mapping(target = "phoneNumber", source = "contact")

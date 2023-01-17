@@ -27,37 +27,21 @@ public class ClassDetail {
     @Column(name = "std", length = 10)
     private String std;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "head_teacher_id")
     private Employee headTeacher;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "session_id", nullable = false)
     private Session session;
 
-    @NotNull
-    @Column(name = "created_date", nullable = false)
-    private Instant createdDate;
-
-    @NotNull
-    @Column(name = "last_modified_date", nullable = false)
-    private Instant lastModifiedDate;
-
-    @Size(max = 50)
-    @Column(name = "created_by", length = 50)
-    private String createdBy;
-
-    @Size(max = 50)
-    @Column(name = "last_modified_by", length = 50)
-    private String lastModifiedBy;
-
-    @OneToMany(mappedBy = "std")
+    @OneToMany(mappedBy = "std", fetch = FetchType.EAGER)
     private Set<FeesCatalog> feesCatalogs = new LinkedHashSet<>();
 
     @ManyToMany(mappedBy = "classDetails")
     private Set<Student> students = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "std")
+    @OneToMany(mappedBy = "std", fetch = FetchType.EAGER)
     private Set<ProductCatalog> productCatalogs = new LinkedHashSet<>();
 }

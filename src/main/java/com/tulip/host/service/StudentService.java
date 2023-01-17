@@ -1,8 +1,10 @@
 package com.tulip.host.service;
 
+import com.tulip.host.data.ClassDetailDTO;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.*;
+import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.DependentRepository;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +30,8 @@ public class StudentService {
     private final ClassDetailRepository classDetailRepository;
 
     private final StudentMapper studentMapper;
+
+    private final ClassMapper classMapper;
 
     public List<StudentBasicDTO> fetchAllStudent() {
         List<Student> all = studentRepository.findAll();
@@ -49,8 +54,12 @@ public class StudentService {
 
     public StudentDetailsDTO searchStudent(long id) {
         Student byId = studentRepository.search(id);
-        if (byId != null) {
-            return studentMapper.toDetailEntity(byId);
+        if (byId != null && !CollectionUtils.isEmpty(byId.getClassDetails())) {
+            ClassDetail classDetail = byId.getClassDetails().stream().findFirst().orElse(null);
+            ClassDetailDTO classDetailDTO = classMapper.toEntity(classDetail);
+            StudentDetailsDTO studentDetailsDTO = studentMapper.toDetailEntity(byId);
+            studentDetailsDTO.setClassDetails(classDetailDTO);
+            return studentDetailsDTO;
         }
         return null;
     }

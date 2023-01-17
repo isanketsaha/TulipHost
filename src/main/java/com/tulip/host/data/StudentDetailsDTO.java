@@ -7,50 +7,53 @@ import java.util.List;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
 public class StudentDetailsDTO {
 
-    private final Long id;
+    private Long id;
 
     @Size(max = 50)
     @NotNull
-    private final String name;
+    private String name;
 
     @NotNull
-    private final Date dob;
+    private Date dob;
 
     @NotNull
-    private final Instant admissionDate;
+    private Instant admissionDate;
 
     @Size(max = 255)
-    private final String address;
+    private String address;
 
     @NotNull
     private String phoneNumber;
 
     @NotNull
-    private final ClassDetailDTO classDetails;
+    private ClassDetailDTO classDetails;
 
     @Size(max = 2)
     @NotNull
-    private final String bloodGroup;
+    private String bloodGroup;
 
     @Size(max = 6)
     @NotNull
-    private final String gender;
+    private String gender;
 
     @NotNull
-    private final Boolean active;
+    private Boolean active;
 
     @Size(max = 50)
-    private final String previousSchool;
+    private String previousSchool;
 
-    private final LocalDate terminationDate;
+    private LocalDate terminationDate;
 
-    private final String religion;
-    private final int age;
+    private String religion;
+    private int age;
 
     @NotNull
     private Set<DependentDTO> dependent;

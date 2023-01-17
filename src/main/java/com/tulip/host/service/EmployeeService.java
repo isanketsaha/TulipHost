@@ -59,7 +59,8 @@ public class EmployeeService {
     public EmployeeDetailsDTO searchEmployee(long id) {
         Employee employee = employeeRepository.search(id);
         if (employee != null) {
-            return employeeMapper.toEntity(employee);
+            EmployeeDetailsDTO employeeDetailsDTO = employeeMapper.toEntity(employee);
+            return employeeDetailsDTO;
         }
         return null;
     }

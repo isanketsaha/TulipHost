@@ -23,6 +23,8 @@ public interface StudentMapper {
 
     List<StudentBasicDTO> toBasicEntityList(List<Student> student);
 
+    List<StudentBasicDTO> toBasicEntityList(Set<Student> student);
+
     @Mapping(target = "admissionDate", source = "createdDate")
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(student.getDob()))")
     @Mapping(target = "dependent", source = "dependents")

@@ -10,8 +10,8 @@ import org.mapstruct.Mapping;
 public interface ClassMapper {
     @Mapping(target = "headTeacher", source = "headTeacher.name")
     @Mapping(target = "session", source = "session.displayText")
-    @Mapping(target = "studentStrength", expression = "java(classDetail.getStudents() != null ? classDetail.getStudents().size():0)")
-    ClassDetailDTO getEntityFromModel(ClassDetail classDetail);
+    @Mapping(target = "studentStrength", ignore = true)
+    ClassDetailDTO toEntity(ClassDetail classDetail);
 
-    List<ClassDetailDTO> getEntityListFromModelList(List<ClassDetail> classDetails);
+    List<ClassDetailDTO> toEntityList(List<ClassDetail> classDetails);
 }

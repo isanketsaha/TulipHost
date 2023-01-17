@@ -25,7 +25,7 @@ public class ClassroomService {
     public List<ClassDetailDTO> fetchAllClassroom(Long sessionId) {
         List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(sessionId);
         if (!CollectionUtils.isEmpty(allBySessionId)) {
-            return classMapper.getEntityListFromModelList(allBySessionId);
+            return classMapper.toEntityList(allBySessionId);
         }
         return Collections.EMPTY_LIST;
     }
@@ -33,7 +33,7 @@ public class ClassroomService {
     public List<StudentBasicDTO> fetchStudentList(Long classroomId) {
         ClassDetail classDetail = classDetailRepository.findById(classroomId).orElse(null);
         if (classDetail != null) {
-            //            return studentMapper.getBasicEntitySetFromModelList(classDetail.getStudentList());
+            return studentMapper.toBasicEntityList(classDetail.getStudents());
         }
         return Collections.emptyList();
     }
