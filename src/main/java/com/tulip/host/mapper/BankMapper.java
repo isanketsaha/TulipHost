@@ -11,16 +11,8 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface BankMapper {
     @Mapping(target = "accountNumber", source = "accountNo")
-    BankDTO getEntityFromModel(Bank source);
+    BankDTO toEntity(Bank source);
 
-    Bank getModelFromEntity(BankVM source);
-
-    //    Employee toModel(List<BankVM> source);
-
-    default Employee map(List<BankVM> source) {
-        return map(source.get(0));
-    }
-
-    @Mapping(target = "bank", source = ".")
-    Employee map(BankVM source);
+    @Mapping(target = "accountNo", source = "accountNumber")
+    Bank toModel(BankVM source);
 }

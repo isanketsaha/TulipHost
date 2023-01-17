@@ -9,9 +9,10 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = { DependentMapper.class, BankMapper.class, InterviewMapper.class })
 public interface EmployeeMapper {
     @Mapping(target = "authority", source = "group.authority")
-    EmployeeDetailsDTO getEntityFromModel(Employee source);
+    EmployeeDetailsDTO toEntity(Employee source);
 
-    @Mapping(target = "bank", ignore = true)
-    @Mapping(target = "interview", ignore = true)
+    @Mapping(target = "phoneNumber", source = "contact")
+    @Mapping(target = "dependents", source = "dependent")
+    @Mapping(target = "bloodGroup", expression = "java(source.getBloodGroup().getDisplayType())")
     Employee toModel(OnboardingVM source);
 }

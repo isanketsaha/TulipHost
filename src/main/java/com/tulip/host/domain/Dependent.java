@@ -50,4 +50,7 @@ public class Dependent extends AbstractAuditingEntity {
 
     @ManyToMany(mappedBy = "dependents", fetch = FetchType.EAGER)
     private Set<Student> students = new LinkedHashSet<>();
+
+    @ManyToMany(mappedBy = "dependents", fetch = FetchType.EAGER)
+    private Set<Employee> employee = new LinkedHashSet<>();
 }

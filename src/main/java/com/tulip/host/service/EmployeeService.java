@@ -12,6 +12,7 @@ import com.tulip.host.web.rest.vm.DependentVM;
 import com.tulip.host.web.rest.vm.InterviewVM;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,40 +41,13 @@ public class EmployeeService {
     @Transactional
     public Long addEmployee(OnboardingVM employeeVM) throws Exception {
         UserGroup userGroupByAuthority = userGroupRepository.findUserGroupByAuthority(
-            "UG_" + employeeVM.getInterview().stream().findFirst().get().getRole().name().toUpperCase()
+            "UG_" + employeeVM.getInterview().getRole().name().toUpperCase()
         );
         if (userGroupByAuthority != null) {
-            Bank bank = buildBankModel(employeeVM.getBank().stream().findFirst().get());
-            Interview interview = buildInterviewModel(employeeVM.getInterview().stream().findFirst().get());
-
-            Employee employee = Employee
-                .builder()
-                .dob(employeeVM.getDob().toInstant())
-                .qualification(employeeVM.getQualification())
-                .gender(employeeVM.getGender().getDisplayType())
-                .bloodGroup(employeeVM.getBloodGroup().getDisplayType())
-                .religion(employeeVM.getReligion().name())
-                .phoneNumber(String.valueOf(employeeVM.getContact()))
-                .address(employeeVM.getAddress())
-                .name(employeeVM.getName())
-                .group(userGroupByAuthority)
-                .bank(bank)
-                .interview(interview)
-                .build();
-            List<UserToDependent> userToDependentList = employeeVM
-                .getDependent()
-                .stream()
-                .map(dependentVM -> {
-                    Dependent dependent = buildDependentModel(dependentVM, employee);
-
-                    UserToDependent userToDependent = new UserToDependent();
-                    userToDependent.setDependent(dependent);
-                    userToDependent.setEmp(employee);
-                    return userToDependent;
-                })
-                .collect(Collectors.toList());
-            List<UserToDependent> dependents = userToDependentRepository.saveAllAndFlush(userToDependentList);
-            return dependents.stream().findFirst().get().getEmp().getId();
+            Employee employee = employeeMapper.toModel(employeeVM);
+            employee.setGroup(userGroupByAuthority);
+            Employee emp = employeeRepository.saveAndFlush(employee);
+            return emp.getId();
         }
         throw new Exception("Unable to find usergroup");
     }
@@ -85,43 +59,12 @@ public class EmployeeService {
     public EmployeeDetailsDTO searchEmployee(long id) {
         Employee employee = employeeRepository.search(id);
         if (employee != null) {
-            return employeeMapper.getEntityFromModel(employee);
+            return employeeMapper.toEntity(employee);
         }
         return null;
     }
 
     public EmployeeDetailsDTO editEmployee() {
         return employeeRepository.edit();
-    }
-
-    private Interview buildInterviewModel(InterviewVM interviewVM) {
-        return Interview
-            .builder()
-            .doj(interviewVM.getDoj())
-            .interviewDate(interviewVM.getInterviewDate())
-            .salary(interviewVM.getSalary())
-            .comments(interviewVM.getComments())
-            .build();
-    }
-
-    private Bank buildBankModel(BankVM bankVM) {
-        return Bank
-            .builder()
-            .bankName(bankVM.getBankName())
-            .accountNo(Long.valueOf(bankVM.getAccountNumber()))
-            .ifsc(bankVM.getIfsc())
-            .build();
-    }
-
-    Dependent buildDependentModel(DependentVM dependent, Employee employee) {
-        return Dependent
-            .builder()
-            .contact(String.valueOf(dependent.getContact()))
-            .name(dependent.getName())
-            .occupation(dependent.getOccupation())
-            .qualification(dependent.getQualification())
-            .relationship(dependent.getRelation().name())
-            .aadhaarNo(String.valueOf(dependent.getAadhaar()))
-            .build();
     }
 }

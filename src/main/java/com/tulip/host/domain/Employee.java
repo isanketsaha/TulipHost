@@ -1,6 +1,8 @@
 package com.tulip.host.domain;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -14,7 +16,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "employee")
-public class Employee {
+public class Employee extends AbstractAuditingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,16 +24,9 @@ public class Employee {
     private Long id;
 
     @NotNull
-    @Column(name = "created_date", nullable = false)
-    private Instant createdDate;
-
-    @NotNull
-    @Column(name = "last_modified_date", nullable = false)
-    private Instant lastModifiedDate;
-
-    @NotNull
     @Column(name = "active", nullable = false)
-    private Boolean active = false;
+    @Builder.Default
+    private Boolean active = true;
 
     @Size(max = 255)
     @Column(name = "address")
@@ -58,6 +53,7 @@ public class Employee {
 
     @NotNull
     @Column(name = "locked", nullable = false)
+    @Builder.Default
     private Boolean locked = false;
 
     @Size(max = 50)
@@ -67,9 +63,10 @@ public class Employee {
 
     @NotNull
     @Column(name = "reset_credential", nullable = false)
+    @Builder.Default
     private Boolean resetCredential = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "credential_id")
     private Credential credential;
 
@@ -87,23 +84,26 @@ public class Employee {
     private String religion;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = { CascadeType.MERGE })
     @JoinColumn(name = "group_id", nullable = false)
     private UserGroup group;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "bank_id")
     private Bank bank;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "interview_id")
     private Interview interview;
 
-    @Size(max = 50)
-    @Column(name = "created_by", length = 50)
-    private String createdBy;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable(
+        name = "user_to_dependent",
+        joinColumns = @JoinColumn(name = "emp_id"),
+        inverseJoinColumns = @JoinColumn(name = "dependent_id")
+    )
+    private Set<Dependent> dependents = new LinkedHashSet<>();
 
-    @Size(max = 50)
-    @Column(name = "last_modified_by", length = 50)
-    private String lastModifiedBy;
+    @OneToMany(mappedBy = "headTeacher", fetch = FetchType.EAGER)
+    private Set<ClassDetail> classDetails = new LinkedHashSet<>();
 }
