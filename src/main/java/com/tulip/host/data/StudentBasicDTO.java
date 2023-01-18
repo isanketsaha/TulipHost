@@ -32,6 +32,7 @@ public class StudentBasicDTO {
     @NotNull
     private String std;
 
+    private Long classId;
     private String address;
     private int age;
 }

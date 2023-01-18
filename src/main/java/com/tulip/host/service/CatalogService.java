@@ -31,15 +31,13 @@ public class CatalogService {
 
     private final ProductCatalogMapper catalogMapper;
 
-    public List<FeesCatalogDTO> fetchFeesCatalog(CatalogVM catalogVM) {
-        ClassDetail std = classDetailRepository.findBySessionIdAndStd(catalogVM.getSession(), catalogVM.getStd().name());
-        List<FeesCatalog> allByActiveAndStd = feesCatalogRepository.findAllByActiveAndStd(Boolean.TRUE, std);
-        return feesCatalogMapper.getBasicEntityListFromModelList(allByActiveAndStd);
+    public List<FeesCatalogDTO> fetchFeesCatalog(Long id) {
+        ClassDetail std = classDetailRepository.findById(id).orElse(null);
+        return feesCatalogMapper.toEntityList(std.getFeesCatalogs());
     }
 
-    public List<CatalogDTO> productCatalog(CatalogVM catalogVM) {
-        ClassDetail std = classDetailRepository.findBySessionIdAndStd(catalogVM.getSession(), catalogVM.getStd().name());
-        List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveAndStdOrStdIsNull(Boolean.TRUE, std);
+    public List<CatalogDTO> productCatalog(Long classId) {
+        List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveProduct(classId);
         return catalogMapper.toModelList(catalogs);
     }
 }

@@ -15,13 +15,13 @@ public class CatalogController {
 
     private final CatalogService catalogService;
 
-    @PostMapping("/fees")
-    public List<FeesCatalogDTO> feesCatalog(@RequestBody CatalogVM catalogVM) {
-        return catalogService.fetchFeesCatalog(catalogVM);
+    @GetMapping("/fees/{classID}")
+    public List<FeesCatalogDTO> feesCatalog(@PathVariable Long classID) {
+        return catalogService.fetchFeesCatalog(classID);
     }
 
-    @PostMapping("/product")
-    public List<CatalogDTO> productCatalog(@RequestBody CatalogVM catalogVM) {
-        return catalogService.productCatalog(catalogVM);
+    @GetMapping("/product/{classID}")
+    public List<CatalogDTO> productCatalog(@PathVariable Long classID) {
+        return catalogService.productCatalog(classID);
     }
 }

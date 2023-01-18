@@ -31,5 +31,22 @@ public interface StudentMapper {
     @Mapping(target = "classDetails", ignore = true)
     StudentDetailsDTO toDetailEntity(Student student);
 
+    @Mapping(
+        target = "classId",
+        expression = "java(student.getClassDetails()\n" +
+        "                .stream()\n" +
+        "                .findFirst()\n" +
+        "                .orElse(null)\n" +
+        "                .getId())"
+    )
+    @Mapping(
+        target = "std",
+        expression = "java(student.getClassDetails()\n" +
+        "                .stream()\n" +
+        "                .findFirst()\n" +
+        "                .orElse(null)\n" +
+        "                .getStd())"
+    )
+    @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(student.getDob()))")
     StudentBasicDTO toBasicEntity(Student student);
 }

@@ -13,7 +13,7 @@ public class PayVM {
 
     Long studentId;
     String paymentMode;
-    String payType;
+    PayTypeEnum payType;
     List<PurchasePayVM> purchaseItems;
     List<FeePayVM> feeItem;
     double total;

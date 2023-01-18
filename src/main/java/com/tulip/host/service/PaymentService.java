@@ -23,9 +23,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PaymentService {
 
-    private TransactionRepository transactionRepository;
+    private final TransactionRepository transactionRepository;
 
-    private TransactionMapper transactionMapper;
+    private final TransactionMapper transactionMapper;
 
     private final StudentRepository studentRepository;
 

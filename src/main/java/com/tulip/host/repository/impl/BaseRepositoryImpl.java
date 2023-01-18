@@ -23,12 +23,10 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
     static final QHoliday HOLIDAY = QHoliday.holiday;
     static final QFeesLineItem FEES_LINE_ITEM = QFeesLineItem.feesLineItem;
     static final QSession SESSION = QSession.session;
-
     static final QTransaction TRANSACTION = QTransaction.transaction;
-
     static final QUserToDependent USER_TO_DEPENDENT = QUserToDependent.userToDependent;
-
     static final QStudentToClass STUDENT_TO_CLASS = QStudentToClass.studentToClass;
+    static final QProductCatalog PRODUCT_CATALOG = QProductCatalog.productCatalog;
 
     @PersistenceContext
     EntityManager em;

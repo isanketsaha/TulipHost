@@ -42,7 +42,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             .selectFrom(STUDENT)
             .leftJoin(STUDENT.classDetails, CLASS_DETAIL)
             .fetchJoin()
-            .where(STUDENT.id.eq(id).and(CLASS_DETAIL.session().id.eq(2L)))
+            .where(STUDENT.id.eq(id).and(CLASS_DETAIL.session().id.eq(1L)))
             .fetchOne();
     }
 }

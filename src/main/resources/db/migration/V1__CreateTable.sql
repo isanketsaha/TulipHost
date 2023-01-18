@@ -318,7 +318,7 @@ CREATE TABLE IF NOT EXISTS inventory (
 
 CREATE TABLE IF NOT EXISTS expense (
     id bigint NOT NULL AUTO_INCREMENT,
-    vendorName varchar(50) DEFAULT NULL,
+    vendor_name varchar(50) DEFAULT NULL,
     description varchar(500) NOT NULL,
     category varchar(100) DEFAULT NULL, -- FUNCTION, OFFICE,
     amount double NOT NULL,

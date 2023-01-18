@@ -18,16 +18,16 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public Long pay(@RequestBody PayVM payVM) {
-        if (payVM.getPayType().equalsIgnoreCase(PayTypeEnum.FEES.name())) {
+    public Long pay(@Valid @RequestBody PayVM payVM) {
+        if (payVM.getPayType() == PayTypeEnum.FEES) {
             return paymentService.payFees(payVM);
         } else {
             return paymentService.payPurchase(payVM);
         }
     }
 
-    @GetMapping("/details/{paymentType}/{paymentId}")
-    public PaySummaryDTO paymentDetails(@Valid @PathVariable Long paymentId, @Valid @PathVariable PayTypeEnum paymentType) {
+    @GetMapping("/details/{paymentId}")
+    public PaySummaryDTO paymentDetails(@Valid @PathVariable Long paymentId) {
         return paymentService.paymentDetails(paymentId);
     }
 
