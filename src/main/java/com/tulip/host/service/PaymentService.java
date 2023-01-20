@@ -1,5 +1,7 @@
 package com.tulip.host.service;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 import com.querydsl.core.BooleanBuilder;
 import com.tulip.host.config.ApplicationProperties;
 import com.tulip.host.data.PaySummaryDTO;
@@ -73,7 +75,7 @@ public class PaymentService {
         BooleanBuilder booleanBuilder = new BooleanBuilder().and(QTransaction.transaction.student().id.eq(studentId));
         Page<Transaction> transactionPage = transactionRepository.findAll(
             booleanBuilder.getValue(),
-            CommonUtils.getPageRequest(pageNo, pageSize)
+            CommonUtils.getPageRequest(DESC.toString(), "createdDate", pageNo, pageSize)
         );
         List<PaySummaryDTO> paySummaryDTOS = transactionMapper.toEntityList(transactionPage.getContent());
         return new PageImpl<PaySummaryDTO>(paySummaryDTOS, transactionPage.getPageable(), transactionPage.getTotalPages());
