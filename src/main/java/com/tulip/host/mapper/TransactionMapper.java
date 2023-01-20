@@ -27,6 +27,7 @@ public interface TransactionMapper {
     @Mapping(target = "feesItem", source = "feesLineItem")
     @Mapping(target = "purchaseItems", source = "purchaseLineItems")
     @Mapping(target = "paymentReceivedBy", source = "createdBy")
+    @Mapping(target = "paymentId", source = "id")
     PaySummaryDTO toEntity(Transaction feesOrder);
 
     List<PaySummaryDTO> toEntityList(List<Transaction> feesOrder);

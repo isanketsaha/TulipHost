@@ -16,6 +16,7 @@ public class PaySummaryDTO {
     String studentId;
     String studentName;
     String paymentMode;
+    String paymentId;
     PayTypeEnum payType;
     List<PurchaseItemSummaryDTO> purchaseItems;
     List<FeesItemSummaryDTO> feesItem;

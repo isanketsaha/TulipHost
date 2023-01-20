@@ -1,8 +1,9 @@
 package com.tulip.host.service;
 
+import com.querydsl.core.BooleanBuilder;
 import com.tulip.host.config.ApplicationProperties;
-import com.tulip.host.data.PayMonthSummary;
 import com.tulip.host.data.PaySummaryDTO;
+import com.tulip.host.domain.QTransaction;
 import com.tulip.host.domain.Session;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
@@ -11,11 +12,14 @@ import com.tulip.host.repository.FeesLineItemRepository;
 import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionRepository;
+import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.PayVM;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -65,8 +69,14 @@ public class PaymentService {
         return null;
     }
 
-    public List<PayMonthSummary> yearFeesSummary(Long sessionId, Long studentId) {
-        return feesLineItemRepository.fetchTuitionFeesSummary(studentId, sessionId);
+    public PageImpl<PaySummaryDTO> getTransactionHistory(int pageNo, Long studentId, int pageSize) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder().and(QTransaction.transaction.student().id.eq(studentId));
+        Page<Transaction> transactionPage = transactionRepository.findAll(
+            booleanBuilder.getValue(),
+            CommonUtils.getPageRequest(pageNo, pageSize)
+        );
+        List<PaySummaryDTO> paySummaryDTOS = transactionMapper.toEntityList(transactionPage.getContent());
+        return new PageImpl<PaySummaryDTO>(paySummaryDTOS, transactionPage.getPageable(), transactionPage.getTotalPages());
     }
 
     public List<PaySummaryDTO> fetchPaymentHistory(Long sessionId, Long studentId, int pageNo) {

@@ -1,13 +1,12 @@
 package com.tulip.host.web.rest;
 
-import com.tulip.host.data.PayMonthSummary;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.service.PaymentService;
 import com.tulip.host.web.rest.vm.PayVM;
-import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,7 +31,11 @@ public class PaymentController {
     }
 
     @GetMapping("/history/{studentId}")
-    public List<PayMonthSummary> history(@Valid @PathVariable Long studentId) {
-        return paymentService.yearFeesSummary(2L, studentId);
+    public PageImpl<PaySummaryDTO> history(
+        @Valid @PathVariable Long studentId,
+        @RequestParam(value = "page", defaultValue = "0") int pageNo,
+        @RequestParam(name = "size", defaultValue = "10") int pageSize
+    ) {
+        return paymentService.getTransactionHistory(pageNo, studentId, pageSize);
     }
 }
