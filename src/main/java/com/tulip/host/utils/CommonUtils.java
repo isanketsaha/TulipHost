@@ -3,12 +3,19 @@ package com.tulip.host.utils;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.LocalDate;
 import org.joda.time.Years;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+@Slf4j
 public class CommonUtils {
 
     private CommonUtils() {}
@@ -30,5 +37,15 @@ public class CommonUtils {
 
     public static PageRequest getPageRequest(int page, int pageSize) {
         return PageRequest.of(page, pageSize);
+    }
+
+    public static Date formatToDate(String date, String format) {
+        DateFormat dateFormat = new SimpleDateFormat(format);
+        try {
+            return dateFormat.parse(date);
+        } catch (ParseException e) {
+            log.error("Error while parsing string date : {} , formatter : {}", date, format);
+            return null;
+        }
     }
 }

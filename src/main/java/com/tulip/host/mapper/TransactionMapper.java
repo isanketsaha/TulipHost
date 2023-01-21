@@ -1,5 +1,6 @@
 package com.tulip.host.mapper;
 
+import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.web.rest.vm.PayVM;

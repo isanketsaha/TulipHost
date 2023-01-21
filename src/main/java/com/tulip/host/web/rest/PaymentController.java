@@ -1,5 +1,6 @@
 package com.tulip.host.web.rest;
 
+import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.service.PaymentService;
@@ -37,5 +38,10 @@ public class PaymentController {
         @RequestParam(name = "size", defaultValue = "10") int pageSize
     ) {
         return paymentService.getTransactionHistory(pageNo, studentId, pageSize);
+    }
+
+    @GetMapping("/feesgraph/{studentId}/{classId}")
+    public FeesGraphDTO feesGraph(@Valid @PathVariable Long studentId, @Valid @PathVariable Long classId) {
+        return paymentService.getFeesGraph(studentId, classId);
     }
 }

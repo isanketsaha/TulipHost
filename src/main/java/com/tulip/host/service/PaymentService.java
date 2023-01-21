@@ -1,14 +1,14 @@
 package com.tulip.host.service;
 
+import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import com.querydsl.core.BooleanBuilder;
 import com.tulip.host.config.ApplicationProperties;
+import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.PaySummaryDTO;
-import com.tulip.host.domain.QTransaction;
-import com.tulip.host.domain.Session;
-import com.tulip.host.domain.Student;
-import com.tulip.host.domain.Transaction;
+import com.tulip.host.domain.*;
+import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.FeesLineItemRepository;
 import com.tulip.host.repository.SessionRepository;
@@ -16,17 +16,21 @@ import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.PayVM;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.time.Instant;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentService {
 
     private final TransactionRepository transactionRepository;
@@ -41,6 +45,9 @@ public class PaymentService {
 
     private final ApplicationProperties applicationProperties;
 
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT, Locale.ENGLISH);
+
+    @Transactional
     public Long payFees(PayVM payVM) {
         Transaction transaction = transactionMapper.toModel(payVM);
         transaction
@@ -52,6 +59,7 @@ public class PaymentService {
         return save.getId();
     }
 
+    @Transactional
     public Long payPurchase(PayVM payVM) {
         Transaction transaction = transactionMapper.toModel(payVM);
         transaction
@@ -81,17 +89,47 @@ public class PaymentService {
         return new PageImpl<PaySummaryDTO>(paySummaryDTOS, transactionPage.getPageable(), transactionPage.getTotalPages());
     }
 
-    public List<PaySummaryDTO> fetchPaymentHistory(Long sessionId, Long studentId, int pageNo) {
-        int size = applicationProperties.getPage().getSize();
-        PageRequest pageRequest = PageRequest.of(((pageNo - 1) * size), pageNo * size);
-        Session session = sessionRepository.findById(sessionId).orElse(null);
-        Student student = studentRepository.findById(studentId).orElse(null);
-        List<PaySummaryDTO> resultSet = new ArrayList<>();
-        if (session != null && student != null) {
-            //            Page<Transaction> purchaseOrders = transactionRepository.findAllByStudentAndCreatedDateBetween(student, from
-            //                    .toInstant(), to.toInstant(), pageRequest);
-            Collections.sort(resultSet, (item1, item2) -> item2.getPaymentDateTime().compareTo(item1.getPaymentDateTime()));
+    public FeesGraphDTO getFeesGraph(Long studentId, Long classId) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder()
+            .and(
+                QTransaction.transaction
+                    .student()
+                    .id.eq(studentId)
+                    .and(QTransaction.transaction.type.eq(PayTypeEnum.FEES.name()))
+                    .and(
+                        QTransaction.transaction.feesLineItem
+                            .any()
+                            .feesProduct()
+                            .feesName.equalsIgnoreCase("Tution Fees")
+                            .and(QTransaction.transaction.feesLineItem.any().feesProduct().std().id.eq(classId))
+                    )
+            );
+
+        List<Transaction> transactionList = (List<Transaction>) transactionRepository.findAll(booleanBuilder, Sort.by(DESC, "createdDate"));
+        Set<String> months = new LinkedHashSet<>();
+        Student student = null;
+        for (Transaction transaction : transactionList) {
+            student = transaction.getStudent();
+            transaction
+                .getFeesLineItem()
+                .stream()
+                .filter(item -> item.getFeesProduct().getFeesName().equalsIgnoreCase("Tution Fees"))
+                .forEach(item -> {
+                    months.addAll(findMonthsBetweenDates(item.getFromMonth(), item.getToMonth()));
+                });
         }
-        return resultSet;
+        return FeesGraphDTO.builder().admissionDate(student.getCreatedDate()).paidMonths(months).build();
+    }
+
+    private List<String> findMonthsBetweenDates(String from, String to) {
+        List<String> allMonths = new ArrayList<>();
+        YearMonth startDate = YearMonth.parse(from, formatter);
+        YearMonth endDate = YearMonth.parse(to, formatter);
+        while (startDate.isBefore(endDate)) {
+            allMonths.add(startDate.format(formatter).split("/")[0]);
+            startDate = startDate.plusMonths(1);
+        }
+        allMonths.add(endDate.format(formatter).split("/")[0]);
+        return allMonths;
     }
 }
