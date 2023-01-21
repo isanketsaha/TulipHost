@@ -23,6 +23,7 @@ import java.util.*;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
@@ -106,19 +107,22 @@ public class PaymentService {
             );
 
         List<Transaction> transactionList = (List<Transaction>) transactionRepository.findAll(booleanBuilder, Sort.by(DESC, "createdDate"));
-        Set<String> months = new LinkedHashSet<>();
-        Student student = null;
-        for (Transaction transaction : transactionList) {
-            student = transaction.getStudent();
-            transaction
-                .getFeesLineItem()
-                .stream()
-                .filter(item -> item.getFeesProduct().getFeesName().equalsIgnoreCase("Tution Fees"))
-                .forEach(item -> {
-                    months.addAll(findMonthsBetweenDates(item.getFromMonth(), item.getToMonth()));
-                });
+        if (CollectionUtils.isNotEmpty(transactionList)) {
+            Set<String> months = new LinkedHashSet<>();
+            Student student = null;
+            for (Transaction transaction : transactionList) {
+                student = transaction.getStudent();
+                transaction
+                    .getFeesLineItem()
+                    .stream()
+                    .filter(item -> item.getFeesProduct().getFeesName().equalsIgnoreCase("Tution Fees"))
+                    .forEach(item -> {
+                        months.addAll(findMonthsBetweenDates(item.getFromMonth(), item.getToMonth()));
+                    });
+            }
+            return FeesGraphDTO.builder().admissionDate(student.getCreatedDate()).paidMonths(months).build();
         }
-        return FeesGraphDTO.builder().admissionDate(student.getCreatedDate()).paidMonths(months).build();
+        return null;
     }
 
     private List<String> findMonthsBetweenDates(String from, String to) {
