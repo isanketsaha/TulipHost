@@ -53,8 +53,6 @@ public class DashboardService {
         Instant thisWeek = LocalDate.now().minus(7, ChronoUnit.DAYS).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
         Instant thisMonth = LocalDate.now().minus(1, ChronoUnit.MONTHS).atStartOfDay(ZoneId.systemDefault()).toInstant();
-        List<String> stringList = new ArrayList<>();
-        stringList.get(0);
         BooleanBuilder weekCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisWeek));
         BooleanBuilder monthCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisMonth));
 
