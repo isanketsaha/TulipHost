@@ -1,9 +1,19 @@
 package com.tulip.host.repository.impl;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.tulip.host.data.DashBoardStaffDTO;
+import com.tulip.host.data.DashBoardStudentDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.Student;
 import com.tulip.host.repository.StudentRepository;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 import javax.persistence.EntityManager;
 
@@ -42,7 +52,14 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             .selectFrom(STUDENT)
             .leftJoin(STUDENT.classDetails, CLASS_DETAIL)
             .fetchJoin()
-            .where(STUDENT.id.eq(id).and(CLASS_DETAIL.session().id.eq(1L)))
+            .where(STUDENT.id.eq(id))
             .fetchOne();
+    }
+
+    @Override
+    public long fetchStudentCount(boolean active, BooleanBuilder condition) {
+        return condition != null
+            ? jpaQueryFactory.selectFrom(STUDENT).where(STUDENT.active.eq(active).and(condition)).fetchCount()
+            : jpaQueryFactory.selectFrom(STUDENT).where(STUDENT.active.eq(active)).fetchCount();
     }
 }
