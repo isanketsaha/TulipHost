@@ -84,10 +84,10 @@ public class PaymentService {
         BooleanBuilder booleanBuilder = new BooleanBuilder().and(QTransaction.transaction.student().id.eq(studentId));
         Page<Transaction> transactionPage = transactionRepository.findAll(
             booleanBuilder.getValue(),
-            CommonUtils.getPageRequest(DESC.toString(), "createdDate", pageNo, pageSize)
+            CommonUtils.getPageRequest(DESC, "createdDate", pageNo, pageSize)
         );
         List<PaySummaryDTO> paySummaryDTOS = transactionMapper.toEntityList(transactionPage.getContent());
-        return new PageImpl<PaySummaryDTO>(paySummaryDTOS, transactionPage.getPageable(), transactionPage.getTotalPages());
+        return new PageImpl<PaySummaryDTO>(paySummaryDTOS, transactionPage.getPageable(), transactionPage.getTotalElements());
     }
 
     public FeesGraphDTO getFeesGraph(Long studentId, Long classId) {

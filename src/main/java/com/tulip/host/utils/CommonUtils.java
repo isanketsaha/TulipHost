@@ -25,10 +25,8 @@ public class CommonUtils {
         return age.getYears();
     }
 
-    public static PageRequest getPageRequest(String sortType, String sortProperty, int page, int pageSize) {
-        Sort.Direction direction = ASC.toString().equalsIgnoreCase(sortType) ? ASC : DESC;
-
-        return PageRequest.of(page, pageSize, Sort.by(direction, sortProperty));
+    public static PageRequest getPageRequest(Sort.Direction sortType, String sortProperty, int page, int pageSize) {
+        return PageRequest.of(page, pageSize, Sort.by(sortType, sortProperty));
     }
 
     public static PageRequest getPageRequest(int page) {

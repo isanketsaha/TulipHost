@@ -1,11 +1,14 @@
 package com.tulip.host.web.rest.errors;
 
+import com.tulip.host.domain.Audit;
+import com.tulip.host.repository.AuditRepository;
 import com.tulip.host.web.rest.util.HeaderUtil;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -30,6 +33,9 @@ public class ExceptionTranslator implements ProblemHandling {
     /**
      * Post-process Problem payload to add the message key for front-end if needed
      */
+    @Autowired
+    AuditRepository auditRepository;
+
     @Override
     public ResponseEntity<Problem> process(@Nullable ResponseEntity<Problem> entity, NativeWebRequest request) {
         if (entity == null || entity.getBody() == null) {
@@ -57,6 +63,12 @@ public class ExceptionTranslator implements ProblemHandling {
             if (!problem.getParameters().containsKey("message") && problem.getStatus() != null) {
                 builder.with("message", "error.http." + problem.getStatus().getStatusCode());
             }
+            String metadata =
+                String.valueOf(problem.getStatus().getStatusCode()) +
+                " - " +
+                request.getNativeRequest(HttpServletRequest.class).getRequestURI();
+            Audit error = Audit.builder().type("ERROR").description(problem.getDetail()).metadata(metadata).build();
+            auditRepository.save(error);
             return new ResponseEntity<>(builder.build(), entity.getHeaders(), entity.getStatusCode());
         }
     }
