@@ -11,6 +11,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = { ReferenceMapper.class })
 public interface ProductCatalogMapper {
     @Mapping(target = "std", source = "std.std")
+    @Mapping(target = "type", source = "category")
     CatalogDTO toModel(ProductCatalog source);
 
     ProductCatalog toEntity(Long id);

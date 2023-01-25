@@ -9,14 +9,17 @@ import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.domain.*;
 import com.tulip.host.enums.PayTypeEnum;
+import com.tulip.host.enums.PaymentOptionEnum;
+import com.tulip.host.mapper.ExpenseMapper;
 import com.tulip.host.mapper.TransactionMapper;
+import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.repository.FeesLineItemRepository;
 import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
+import com.tulip.host.web.rest.vm.ExpenseItemVM;
 import com.tulip.host.web.rest.vm.PayVM;
-import java.time.Instant;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -45,6 +48,9 @@ public class PaymentService {
     private final FeesLineItemRepository feesLineItemRepository;
 
     private final ApplicationProperties applicationProperties;
+
+    private final ExpenseRepository expenseRepository;
+    private final ExpenseMapper expenseMapper;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT, Locale.ENGLISH);
 
@@ -135,5 +141,20 @@ public class PaymentService {
         }
         allMonths.add(endDate.format(formatter).split("/")[0]);
         return allMonths;
+    }
+
+    public Long registerExpense(List<ExpenseItemVM> expenseItems) {
+        Set<Expense> expenses = expenseMapper.toModelList(expenseItems);
+        Transaction transaction = Transaction
+            .builder()
+            .expenseItems(expenses)
+            .paymentMode(PaymentOptionEnum.CASH.name())
+            .amount(expenses.stream().mapToDouble(item -> item.getAmount()).sum() * (-1))
+            .type(PayTypeEnum.EXPENSE.name())
+            .build();
+        transaction.setAfterDiscount(transaction.getAmount());
+        expenses.stream().forEach(item -> item.setOrder(transaction));
+        List<Expense> expensesList = expenseRepository.saveAllAndFlush(expenses);
+        return expensesList.stream().findFirst().get().getOrder().getId();
     }
 }

@@ -63,7 +63,7 @@ public class TokenProvider {
         this.securityMetersService = securityMetersService;
     }
 
-    public String createToken(Authentication authentication, boolean rememberMe, HttpServletRequest request) {
+    public String createToken(Authentication authentication, boolean rememberMe) {
         String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();

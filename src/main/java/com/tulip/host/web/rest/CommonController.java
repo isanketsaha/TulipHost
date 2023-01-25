@@ -84,4 +84,12 @@ public class CommonController {
             .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
             .collect(Collectors.toList());
     }
+
+    @RequestMapping("/expenseCategory")
+    public List<DropDownOptionsDto> expenseCategoryList() {
+        return Arrays
+            .stream(ExpenseTypeEnum.values())
+            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
+            .collect(Collectors.toList());
+    }
 }

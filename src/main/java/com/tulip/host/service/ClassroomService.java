@@ -27,7 +27,7 @@ public class ClassroomService {
         if (!CollectionUtils.isEmpty(allBySessionId)) {
             return classMapper.toEntityList(allBySessionId);
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     public List<StudentBasicDTO> fetchStudentList(Long classroomId) {

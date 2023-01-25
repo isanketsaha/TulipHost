@@ -42,7 +42,7 @@ public class UserJWTController {
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.createToken(authentication, loginVM.getRememberMe() == null ? false : loginVM.getRememberMe(), request);
+        String jwt = tokenProvider.createToken(authentication, loginVM.getRememberMe() == null ? false : loginVM.getRememberMe());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
         List<String> authorities = authentication

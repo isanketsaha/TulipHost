@@ -1,0 +1,13 @@
+package com.tulip.host.enums;
+
+public enum ExpenseTypeEnum {
+    OFFICE_MAINTENANCE,
+    BILLS,
+    ANNUAL_FUNCTION,
+    ANNUAL_SPORTS,
+    SCHOOL_CELEBRATION,
+    EXAM_BILLS,
+    SCHOOL_INFRASTRUCTURE,
+    PRINCIPAL_OFFICE,
+    SCHOOL_UPGRADE,
+}

@@ -305,8 +305,7 @@ CREATE TABLE IF NOT EXISTS inventory (
     product_id bigint NOT NULL,
     unit_price double NOT NULL,
     qty int NOT NULL,
-    type varchar(20) NOT NULL,
-    discountPercent int DEFAULT NULL,
+    discount_percent int DEFAULT 0,
     vendor varchar(50) DEFAULT NULL,
     created_by varchar(50) DEFAULT NULL,
     last_modified_by varchar(50) DEFAULT NULL,
@@ -318,11 +317,11 @@ CREATE TABLE IF NOT EXISTS inventory (
 
 CREATE TABLE IF NOT EXISTS expense (
     id bigint NOT NULL AUTO_INCREMENT,
-    vendor_name varchar(50) DEFAULT NULL,
-    description varchar(500) NOT NULL,
+    item_name varchar(100) DEFAULT NULL,
     category varchar(100) DEFAULT NULL, -- FUNCTION, OFFICE,
     amount double NOT NULL,
     qty varchar(10) NOT NULL,
+    received_by varchar(100) DEFAULT NULL,
     transaction_id bigint NOT NUll,
     created_by varchar(50) DEFAULT NULL,
     last_modified_by varchar(50) DEFAULT NULL,

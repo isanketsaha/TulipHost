@@ -13,9 +13,9 @@ import org.mapstruct.factory.Mappers;
 public interface InterviewMapper {
     InterviewMapper INSTANCE = Mappers.getMapper(InterviewMapper.class);
 
-    InterviewDTO getEntityFromModel(Interview source);
+    InterviewDTO toEntity(Interview source);
 
-    Interview getModelFromEntity(InterviewVM source);
+    Interview fromEntity(InterviewVM source);
 
     default Employee map(List<InterviewVM> source) {
         return map(source.get(0));

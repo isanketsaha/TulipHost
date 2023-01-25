@@ -4,7 +4,9 @@ import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.service.PaymentService;
+import com.tulip.host.web.rest.vm.ExpenseItemVM;
 import com.tulip.host.web.rest.vm.PayVM;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
@@ -43,5 +45,10 @@ public class PaymentController {
     @GetMapping("/feesgraph/{studentId}/{classId}")
     public FeesGraphDTO feesGraph(@Valid @PathVariable Long studentId, @Valid @PathVariable Long classId) {
         return paymentService.getFeesGraph(studentId, classId);
+    }
+
+    @PostMapping("/expense")
+    public Long registerExpense(@Valid @RequestBody List<ExpenseItemVM> expenseItems) {
+        return paymentService.registerExpense(expenseItems);
     }
 }

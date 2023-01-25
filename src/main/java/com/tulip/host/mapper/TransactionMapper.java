@@ -8,7 +8,10 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = { FeeLineItemMapper.class, StudentMapper.class, PurchaseLineItemMapper.class })
+@Mapper(
+    componentModel = "spring",
+    uses = { FeeLineItemMapper.class, StudentMapper.class, PurchaseLineItemMapper.class, ExpenseMapper.class }
+)
 public interface TransactionMapper {
     @Mapping(target = "afterDiscount", source = "total")
     @Mapping(target = "amount", source = "total")
@@ -29,6 +32,7 @@ public interface TransactionMapper {
     @Mapping(target = "purchaseItems", source = "purchaseLineItems")
     @Mapping(target = "paymentReceivedBy", source = "createdBy")
     @Mapping(target = "paymentId", source = "id")
+    @Mapping(target = "expenseItems", source = "expenseItems")
     PaySummaryDTO toEntity(Transaction feesOrder);
 
     List<PaySummaryDTO> toEntityList(List<Transaction> feesOrder);

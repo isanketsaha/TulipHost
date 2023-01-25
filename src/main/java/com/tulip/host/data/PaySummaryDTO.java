@@ -20,6 +20,7 @@ public class PaySummaryDTO {
     PayTypeEnum payType;
     List<PurchaseItemSummaryDTO> purchaseItems;
     List<FeesItemSummaryDTO> feesItem;
+    List<ExpenseItemDTO> expenseItems;
     double total;
     Date paymentDateTime;
     String paymentReceivedBy;

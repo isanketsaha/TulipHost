@@ -21,13 +21,13 @@ public class Expense extends AbstractAuditingEntity {
     private Long id;
 
     @Size(max = 50)
-    @Column(name = "vendorName", length = 50)
-    private String vendorName;
+    @Column(name = "itemName", length = 50)
+    private String itemName;
 
     @Size(max = 500)
     @NotNull
-    @Column(name = "description", nullable = false, length = 500)
-    private String description;
+    @Column(name = "receivedBy", nullable = false, length = 500)
+    private String receivedBy;
 
     @Size(max = 100)
     @Column(name = "category", length = 100)
@@ -43,7 +43,7 @@ public class Expense extends AbstractAuditingEntity {
     private String qty;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "transaction_id", nullable = false)
     private Transaction order;
 }

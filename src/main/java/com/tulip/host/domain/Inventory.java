@@ -33,11 +33,6 @@ public class Inventory extends AbstractAuditingEntity {
     @Column(name = "qty", nullable = false)
     private Integer qty;
 
-    @NotNull
-    @Lob
-    @Column(name = "type", nullable = false)
-    private String type;
-
     @Column(name = "discountPercent")
     private Integer discountPercent;
 
