@@ -5,10 +5,12 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.domain.Employee;
 import com.tulip.host.repository.EmployeeRepository;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
+import org.apache.commons.collections4.CollectionUtils;
 
 public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> implements EmployeeRepository {
 
@@ -47,7 +49,7 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
             .where(EMPLOYEE.active.eq(true))
             .groupBy(EMPLOYEE.group())
             .fetch();
-        Map<String, Long> collect = tupleList
+        return tupleList
             .stream()
             .collect(
                 Collectors.toMap(
@@ -55,7 +57,6 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
                     item -> item.get(EMPLOYEE.group().count())
                 )
             );
-        return collect;
     }
 
     @Override

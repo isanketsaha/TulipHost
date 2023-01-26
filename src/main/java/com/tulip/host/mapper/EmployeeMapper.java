@@ -8,7 +8,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = { DependentMapper.class, BankMapper.class, InterviewMapper.class })
+@Mapper(componentModel = "spring", uses = { DependentMapper.class, BankMapper.class, InterviewMapper.class, CredentialMapper.class })
 public interface EmployeeMapper {
     @Mapping(target = "authority", source = "group.authority")
     @Mapping(target = "dependent", source = "dependents")

@@ -36,6 +36,7 @@ public class OnboardingVM {
     Date dob;
 
     GenderEnum gender;
+    CredentialVM credential;
 
     @NotNull
     String name;

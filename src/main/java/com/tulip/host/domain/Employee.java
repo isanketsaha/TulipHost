@@ -67,7 +67,7 @@ public class Employee extends AbstractAuditingEntity {
     @Builder.Default
     private Boolean resetCredential = false;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST })
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "credential_id")
     private Credential credential;
 
