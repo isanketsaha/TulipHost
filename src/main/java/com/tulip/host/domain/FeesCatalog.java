@@ -43,7 +43,7 @@ public class FeesCatalog extends AbstractAuditingEntity {
     @Column(name = "applicable_rule", nullable = false, length = 20)
     private String applicableRule;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "std_id")
     private ClassDetail std;
 }

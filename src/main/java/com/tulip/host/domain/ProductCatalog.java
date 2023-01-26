@@ -53,7 +53,7 @@ public class ProductCatalog extends AbstractAuditingEntity {
     @Column(name = "tag", nullable = false, length = 10)
     private String tag;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "std_id")
     private ClassDetail std;
 
@@ -70,6 +70,6 @@ public class ProductCatalog extends AbstractAuditingEntity {
     @Column(name = "type", length = 20)
     private String category;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private Set<PurchaseLineItem> purchaseLineItems;
 }

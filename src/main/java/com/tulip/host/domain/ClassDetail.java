@@ -27,21 +27,21 @@ public class ClassDetail {
     @Column(name = "std", length = 10)
     private String std;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "head_teacher_id")
     private Employee headTeacher;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "session_id", nullable = false)
     private Session session;
 
-    @OneToMany(mappedBy = "std", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "std", fetch = FetchType.LAZY)
     private Set<FeesCatalog> feesCatalogs = new LinkedHashSet<>();
 
-    @ManyToMany(mappedBy = "classDetails", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "classDetails", fetch = FetchType.LAZY)
     private Set<Student> students = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "std", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "std", fetch = FetchType.LAZY)
     private Set<ProductCatalog> productCatalogs = new LinkedHashSet<>();
 }

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class AuditService {
 
     private final AuditRepository auditRepository;
 
+    @Transactional
     public Page<AuditDTO> fetchAudit(int pageNo, int pageSize) {
         Instant thisWeek = LocalDate.now().minus(7, ChronoUnit.DAYS).atStartOfDay(ZoneId.systemDefault()).toInstant();
         BooleanBuilder builder = new BooleanBuilder().and(QAudit.audit.createdDate.after(thisWeek));

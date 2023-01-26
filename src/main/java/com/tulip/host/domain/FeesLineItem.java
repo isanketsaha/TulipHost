@@ -21,12 +21,12 @@ public class FeesLineItem extends AbstractAuditingEntity {
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "transaction_id", nullable = false)
     private Transaction order;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "fees_product_id", nullable = false)
     private FeesCatalog feesProduct;
 

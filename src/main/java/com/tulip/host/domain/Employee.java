@@ -67,7 +67,7 @@ public class Employee extends AbstractAuditingEntity {
     @Builder.Default
     private Boolean resetCredential = false;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "credential_id")
     private Credential credential;
 
@@ -85,19 +85,19 @@ public class Employee extends AbstractAuditingEntity {
     private String religion;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE }, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE }, optional = false)
     @JoinColumn(name = "group_id", nullable = false)
     private UserGroup group;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "bank_id")
     private Bank bank;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "interview_id")
     private Interview interview;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinTable(
         name = "employee_to_dependent",
         joinColumns = @JoinColumn(name = "emp_id"),
@@ -105,6 +105,6 @@ public class Employee extends AbstractAuditingEntity {
     )
     private Set<Dependent> dependents = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "headTeacher", fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
+    @OneToMany(mappedBy = "headTeacher", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
     private Set<ClassDetail> classDetails = new LinkedHashSet<>();
 }

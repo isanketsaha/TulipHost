@@ -5,6 +5,7 @@ import com.tulip.host.data.SessionDTO;
 import com.tulip.host.repository.SessionRepository;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class FinancialYearService {
         return null;
     }
 
+    @Transactional
     public List<DropDownOptionsDto> fetchAllFinancialYear() {
         return sessionRepository
             .listAllFinancialYears()

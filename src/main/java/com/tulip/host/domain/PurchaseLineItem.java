@@ -34,12 +34,12 @@ public class PurchaseLineItem extends AbstractAuditingEntity {
     private Double amount;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "transaction_id", nullable = false)
     private Transaction order;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "product_id", nullable = false)
     private ProductCatalog product;
 }

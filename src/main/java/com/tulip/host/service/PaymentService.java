@@ -78,6 +78,7 @@ public class PaymentService {
         return purchaseOrder.getId();
     }
 
+    @Transactional
     public PaySummaryDTO paymentDetails(Long paymentId) {
         Transaction feesOrder = transactionRepository.findById(paymentId).orElse(null);
         if (feesOrder != null) {
@@ -86,6 +87,7 @@ public class PaymentService {
         return null;
     }
 
+    @Transactional
     public PageImpl<PaySummaryDTO> getTransactionHistory(int pageNo, Long studentId, int pageSize) {
         BooleanBuilder booleanBuilder = new BooleanBuilder().and(QTransaction.transaction.student().id.eq(studentId));
         Page<Transaction> transactionPage = transactionRepository.findAll(
@@ -96,6 +98,7 @@ public class PaymentService {
         return new PageImpl<PaySummaryDTO>(paySummaryDTOS, transactionPage.getPageable(), transactionPage.getTotalElements());
     }
 
+    @Transactional
     public FeesGraphDTO getFeesGraph(Long studentId, Long classId) {
         BooleanBuilder booleanBuilder = new BooleanBuilder()
             .and(
@@ -131,6 +134,7 @@ public class PaymentService {
         return null;
     }
 
+    @Transactional
     private List<String> findMonthsBetweenDates(String from, String to) {
         List<String> allMonths = new ArrayList<>();
         YearMonth startDate = YearMonth.parse(from, formatter);
@@ -143,6 +147,7 @@ public class PaymentService {
         return allMonths;
     }
 
+    @Transactional
     public Long registerExpense(List<ExpenseItemVM> expenseItems) {
         Set<Expense> expenses = expenseMapper.toModelList(expenseItems);
         Transaction transaction = Transaction

@@ -15,6 +15,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,11 +32,13 @@ public class CatalogService {
 
     private final ProductCatalogMapper catalogMapper;
 
+    @Transactional
     public List<FeesCatalogDTO> fetchFeesCatalog(Long id) {
         ClassDetail std = classDetailRepository.findById(id).orElse(null);
         return feesCatalogMapper.toEntityList(std.getFeesCatalogs());
     }
 
+    @Transactional
     public List<CatalogDTO> productCatalog(Long classId) {
         List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveProduct(classId);
         return catalogMapper.toModelList(catalogs);

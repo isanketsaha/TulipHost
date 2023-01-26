@@ -68,7 +68,7 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "religion", length = 20)
     private String religion;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST })
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
     @JoinTable(
         name = "student_to_dependent",
         joinColumns = @JoinColumn(name = "student_id"),
@@ -76,10 +76,10 @@ public class Student extends AbstractAuditingEntity {
     )
     private Set<Dependent> dependents = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "student", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
     private Set<Transaction> transactions = new LinkedHashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
     @JoinTable(
         name = "student_to_class",
         joinColumns = @JoinColumn(name = "student_id"),

@@ -32,7 +32,7 @@ public class Transaction extends AbstractAuditingEntity {
     @Column(name = "type", nullable = false, length = 20)
     private String type;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
     @JoinColumn(name = "student_id")
     private Student student;
 
@@ -51,12 +51,12 @@ public class Transaction extends AbstractAuditingEntity {
     @Column(name = "comments", length = 100)
     private String comments;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<FeesLineItem> feesLineItem;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<PurchaseLineItem> purchaseLineItems;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<Expense> expenseItems;
 }

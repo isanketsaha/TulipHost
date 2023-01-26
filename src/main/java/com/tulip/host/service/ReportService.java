@@ -51,6 +51,7 @@ public class ReportService {
 
     private final InventoryMapper inventoryMapper;
 
+    @org.springframework.transaction.annotation.Transactional
     public Page<PaySummaryDTO> fetchTransactionHistory(int pageNo, int pageSize) {
         Instant now = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant();
         BooleanBuilder query = new BooleanBuilder().and(QTransaction.transaction.createdDate.goe(now));
@@ -62,6 +63,7 @@ public class ReportService {
         return new PageImpl<PaySummaryDTO>(toEntityList, transactionPage.getPageable(), transactionPage.getTotalElements());
     }
 
+    @Transactional
     public DashBoardStudentDTO studentReport() {
         Instant thisWeek = LocalDate.now().minus(7, ChronoUnit.DAYS).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
@@ -77,6 +79,7 @@ public class ReportService {
             .build();
     }
 
+    @Transactional
     public DashBoardStaffDTO staffReport() {
         Map<String, Long> fetchStaffReport = employeeRepository.fetchStaffReport();
 
@@ -95,6 +98,7 @@ public class ReportService {
         return inventoryItemDTOS;
     }
 
+    @Transactional
     public double getTransactionTotal(Instant from, Instant to) {
         return transactionRepository.fetchTransactionTotal(from, to);
     }

@@ -33,12 +33,13 @@ public class StudentService {
 
     private final ClassMapper classMapper;
 
+    @Transactional
     public List<StudentBasicDTO> fetchAllStudent() {
         List<Student> all = studentRepository.findAll();
         return studentMapper.toBasicEntityList(all);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public Long addStudent(OnboardingVM onboardingVM) {
         ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(onboardingVM.getSession(), onboardingVM.getStd().name());
         Student student = studentMapper.toModel(onboardingVM);
@@ -47,11 +48,13 @@ public class StudentService {
         return save.getId();
     }
 
+    @Transactional
     public List<StudentBasicDTO> searchStudent(String name) {
         List<Student> studentList = studentRepository.search(name);
         return studentMapper.toBasicEntityList(studentList);
     }
 
+    @Transactional
     public StudentDetailsDTO searchStudent(long id) {
         Student byId = studentRepository.search(id);
         if (byId != null && !CollectionUtils.isEmpty(byId.getClassDetails())) {
@@ -64,6 +67,7 @@ public class StudentService {
         return null;
     }
 
+    @Transactional
     public StudentBasicDTO basicSearchStudent(long id) {
         Student byId = studentRepository.findById(id).orElse(null);
         if (byId != null) {

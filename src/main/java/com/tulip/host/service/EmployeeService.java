@@ -30,11 +30,13 @@ public class EmployeeService {
 
     private final EmployeeMapper employeeMapper;
 
+    @Transactional
     public List<EmployeeBasicDTO> fetchAllEmployee(boolean isActive) {
         List<Employee> employees = employeeRepository.fetchAll(isActive);
         return employeeMapper.toBasicEntityList(employees);
     }
 
+    @Transactional
     public List<EmployeeBasicDTO> fetchAllEmployee() {
         List<Employee> employees = employeeRepository.fetchAll();
         return employeeMapper.toBasicEntityList(employees);
@@ -54,11 +56,13 @@ public class EmployeeService {
         throw new Exception("Unable to find usergroup");
     }
 
+    @Transactional
     public List<EmployeeBasicDTO> searchEmployee(String name) {
         List<Employee> employees = employeeRepository.searchByName(name);
         return employeeMapper.toBasicEntityList(employees);
     }
 
+    @javax.transaction.Transactional
     public EmployeeDetailsDTO searchEmployee(long id) {
         Employee employee = employeeRepository.search(id);
         if (employee != null) {
@@ -68,6 +72,7 @@ public class EmployeeService {
         return null;
     }
 
+    @Transactional
     public EmployeeDetailsDTO editEmployee() {
         return employeeRepository.edit();
     }

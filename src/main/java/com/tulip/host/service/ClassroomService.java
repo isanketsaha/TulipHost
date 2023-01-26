@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 @Service
@@ -22,6 +23,7 @@ public class ClassroomService {
 
     private final StudentMapper studentMapper;
 
+    @Transactional
     public List<ClassDetailDTO> fetchAllClassroom(Long sessionId) {
         List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(sessionId);
         if (!CollectionUtils.isEmpty(allBySessionId)) {
@@ -30,6 +32,7 @@ public class ClassroomService {
         return Collections.emptyList();
     }
 
+    @Transactional
     public List<StudentBasicDTO> fetchStudentList(Long classroomId) {
         ClassDetail classDetail = classDetailRepository.findById(classroomId).orElse(null);
         if (classDetail != null) {
