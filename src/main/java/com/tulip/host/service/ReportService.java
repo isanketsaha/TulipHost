@@ -8,7 +8,6 @@ import com.tulip.host.data.DashBoardStudentDTO;
 import com.tulip.host.data.InventoryItemDTO;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.domain.Inventory;
-import com.tulip.host.domain.PurchaseLineItem;
 import com.tulip.host.domain.QStudent;
 import com.tulip.host.domain.QTransaction;
 import com.tulip.host.domain.Transaction;
@@ -17,6 +16,7 @@ import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.EmployeeRepository;
 import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.repository.StudentRepository;
+import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
 import java.time.Instant;
@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,7 +35,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class DashboardService {
+public class ReportService {
+
+    private final TransactionPagedRepository transactionPagedRepository;
 
     private final TransactionRepository transactionRepository;
 
@@ -53,7 +54,7 @@ public class DashboardService {
     public Page<PaySummaryDTO> fetchTransactionHistory(int pageNo, int pageSize) {
         Instant now = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant();
         BooleanBuilder query = new BooleanBuilder().and(QTransaction.transaction.createdDate.goe(now));
-        Page<Transaction> transactionPage = transactionRepository.findAll(
+        Page<Transaction> transactionPage = transactionPagedRepository.findAll(
             query,
             CommonUtils.getPageRequest(DESC, "createdDate", pageNo, pageSize)
         );
@@ -92,5 +93,9 @@ public class DashboardService {
         List<InventoryItemDTO> inventoryItemDTOS = inventoryMapper.toEntityList(stockReport);
         Collections.sort(inventoryItemDTOS, Comparator.comparing(InventoryItemDTO::getAvailableQty));
         return inventoryItemDTOS;
+    }
+
+    public double getTransactionTotal(Instant from, Instant to) {
+        return transactionRepository.fetchTransactionTotal(from, to);
     }
 }

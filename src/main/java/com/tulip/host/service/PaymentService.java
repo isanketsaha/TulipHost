@@ -16,7 +16,7 @@ import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.repository.FeesLineItemRepository;
 import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
-import com.tulip.host.repository.TransactionRepository;
+import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.ExpenseItemVM;
 import com.tulip.host.web.rest.vm.PayVM;
@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class PaymentService {
 
-    private final TransactionRepository transactionRepository;
+    private final TransactionPagedRepository transactionRepository;
 
     private final TransactionMapper transactionMapper;
 

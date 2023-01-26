@@ -4,7 +4,7 @@ import com.tulip.host.data.DashBoardStaffDTO;
 import com.tulip.host.data.DashBoardStudentDTO;
 import com.tulip.host.data.InventoryItemDTO;
 import com.tulip.host.data.PaySummaryDTO;
-import com.tulip.host.service.DashboardService;
+import com.tulip.host.service.ReportService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ReportController {
 
-    private final DashboardService dashboardService;
+    private final ReportService dashboardService;
 
     @GetMapping("/transaction")
     public Page<PaySummaryDTO> transactionHistory(
