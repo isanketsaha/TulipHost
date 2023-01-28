@@ -1,6 +1,7 @@
 package com.tulip.host.service;
 
 import com.tulip.host.data.ClassDetailDTO;
+import com.tulip.host.data.ClassListDTO;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.mapper.ClassMapper;
@@ -24,20 +25,14 @@ public class ClassroomService {
     private final StudentMapper studentMapper;
 
     @Transactional
-    public List<ClassDetailDTO> fetchAllClassroom(Long sessionId) {
-        List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(sessionId);
-        if (!CollectionUtils.isEmpty(allBySessionId)) {
-            return classMapper.toEntityList(allBySessionId);
-        }
-        return Collections.emptyList();
+    public ClassDetailDTO fetchClassDetails(Long classroomId) {
+        ClassDetail classDetail = classDetailRepository.findById(classroomId).orElse(null);
+        return classMapper.toEntity(classDetail);
     }
 
     @Transactional
-    public List<StudentBasicDTO> fetchStudentList(Long classroomId) {
-        ClassDetail classDetail = classDetailRepository.findById(classroomId).orElse(null);
-        if (classDetail != null) {
-            return studentMapper.toBasicEntityList(classDetail.getStudents());
-        }
-        return Collections.emptyList();
+    public List<ClassListDTO> fetchAllClasses(Long sessionId) {
+        List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(sessionId);
+        return classMapper.toClassListEntityList(allBySessionId);
     }
 }
