@@ -6,6 +6,7 @@ import com.tulip.host.domain.Student;
 import com.tulip.host.repository.impl.ReferenceMapper;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
+import com.tulip.host.web.rest.vm.StudentLoadVm;
 import java.util.List;
 import java.util.Set;
 import org.mapstruct.Mapper;
@@ -49,4 +50,9 @@ public interface StudentMapper {
     )
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(student.getDob()))")
     StudentBasicDTO toBasicEntity(Student student);
+
+    @Mapping(target = "dob", dateFormat = "MM/dd/yyyy")
+    Student toModel(StudentLoadVm studentLoadVms);
+
+    List<Student> toModelList(List<StudentLoadVm> studentLoadVms);
 }

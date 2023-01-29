@@ -38,9 +38,9 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "address")
     private String address;
 
-    @Size(max = 2)
+    @Size(max = 6)
     @NotNull
-    @Column(name = "blood_group", nullable = false, length = 2)
+    @Column(name = "blood_group", nullable = false, length = 6)
     private String bloodGroup;
 
     @NotNull
@@ -68,7 +68,7 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "religion", length = 20)
     private String religion;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(
         name = "student_to_dependent",
         joinColumns = @JoinColumn(name = "student_id"),
@@ -88,13 +88,22 @@ public class Student extends AbstractAuditingEntity {
     private Set<ClassDetail> classDetails = new LinkedHashSet<>();
 
     public void addClass(ClassDetail classDetail) {
-        classDetail.getStudents().add(this);
         if (classDetails == null) {
             Set<ClassDetail> classList = new LinkedHashSet();
             classList.add(classDetail);
             this.setClassDetails(classList);
         } else {
             classDetails.add(classDetail);
+        }
+    }
+
+    public void addDependent(Dependent dependent) {
+        if (dependents == null) {
+            Set<Dependent> dependents = new LinkedHashSet<>();
+            dependents.add(dependent);
+            this.setDependents(dependents);
+        } else {
+            dependents.add(dependent);
         }
     }
 }

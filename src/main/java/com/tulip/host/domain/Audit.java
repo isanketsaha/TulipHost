@@ -35,4 +35,8 @@ public class Audit extends AbstractAuditingEntity {
     @NotNull
     @Column(name = "type", nullable = false, length = 30)
     private String type;
+
+    @Column(name = "resolved")
+    @Builder.Default
+    private boolean resolved = false;
 }

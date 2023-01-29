@@ -27,7 +27,9 @@ public class ClassroomService {
     @Transactional
     public ClassDetailDTO fetchClassDetails(Long classroomId) {
         ClassDetail classDetail = classDetailRepository.findById(classroomId).orElse(null);
-        return classMapper.toEntity(classDetail);
+        ClassDetailDTO classDetailDTO = classMapper.toEntity(classDetail);
+        classDetailDTO.getStudents().sort((s1, s2) -> s1.getName().toUpperCase().compareTo(s2.getName().toUpperCase()));
+        return classDetailDTO;
     }
 
     @Transactional

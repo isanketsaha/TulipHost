@@ -3,22 +3,22 @@ package com.tulip.host.service;
 import com.tulip.host.data.ClassDetailDTO;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
-import com.tulip.host.domain.*;
+import com.tulip.host.domain.ClassDetail;
+import com.tulip.host.domain.Student;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.repository.ClassDetailRepository;
-import com.tulip.host.repository.DependentRepository;
+import com.tulip.host.repository.StudentPagedRepository;
 import com.tulip.host.repository.StudentRepository;
-import com.tulip.host.repository.UserToDependentRepository;
+import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -33,10 +33,15 @@ public class StudentService {
 
     private final ClassMapper classMapper;
 
+    private final StudentPagedRepository studentPagedRepository;
+
     @Transactional
-    public List<StudentBasicDTO> fetchAllStudent() {
-        List<Student> all = studentRepository.findAll();
-        return studentMapper.toBasicEntityList(all);
+    public Page<StudentBasicDTO> fetchAllStudent(int pageNo, int pageSize) {
+        Page<Student> students = studentPagedRepository.findAll(
+            CommonUtils.getPageRequest(Sort.Direction.DESC, "createdDate", pageNo, pageSize)
+        );
+        List<StudentBasicDTO> studentBasicDTOS = studentMapper.toBasicEntityList(students.getContent());
+        return new PageImpl<>(studentBasicDTOS, students.getPageable(), students.getTotalElements());
     }
 
     @Transactional

@@ -22,6 +22,7 @@ import org.zalando.problem.ProblemBuilder;
 import org.zalando.problem.Status;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
 import org.zalando.problem.violations.ConstraintViolationProblem;
+import org.zalando.problem.violations.Violation;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
@@ -51,7 +52,18 @@ public class ExceptionTranslator implements ProblemHandling {
             .withStatus(problem.getStatus())
             .withTitle(problem.getTitle())
             .with("path", request.getNativeRequest(HttpServletRequest.class).getRequestURI());
-
+        StringBuilder stringBuilder = new StringBuilder("");
+        if (problem instanceof ConstraintViolationProblem && ((ConstraintViolationProblem) problem).getViolations() != null) {
+            for (Violation violation : ((ConstraintViolationProblem) problem).getViolations()) {
+                stringBuilder.append(" { " + violation.getField() + " - " + violation.getMessage() + " } ");
+            }
+        }
+        String metadata =
+            String.valueOf(problem.getStatus().getStatusCode()) +
+            " - " +
+            request.getNativeRequest(HttpServletRequest.class).getRequestURI();
+        Audit error = Audit.builder().type("ERROR").description(problem.getDetail() + stringBuilder.toString()).metadata(metadata).build();
+        auditRepository.save(error);
         if (problem instanceof ConstraintViolationProblem) {
             builder
                 .with("violations", ((ConstraintViolationProblem) problem).getViolations())
@@ -63,12 +75,7 @@ public class ExceptionTranslator implements ProblemHandling {
             if (!problem.getParameters().containsKey("message") && problem.getStatus() != null) {
                 builder.with("message", "error.http." + problem.getStatus().getStatusCode());
             }
-            String metadata =
-                String.valueOf(problem.getStatus().getStatusCode()) +
-                " - " +
-                request.getNativeRequest(HttpServletRequest.class).getRequestURI();
-            Audit error = Audit.builder().type("ERROR").description(problem.getDetail()).metadata(metadata).build();
-            auditRepository.save(error);
+
             return new ResponseEntity<>(builder.build(), entity.getHeaders(), entity.getStatusCode());
         }
     }

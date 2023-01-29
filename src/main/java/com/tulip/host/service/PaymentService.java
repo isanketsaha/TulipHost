@@ -110,7 +110,7 @@ public class PaymentService {
                         QTransaction.transaction.feesLineItem
                             .any()
                             .feesProduct()
-                            .feesName.equalsIgnoreCase("Tution Fees")
+                            .feesName.startsWithIgnoreCase("Tuition")
                             .and(QTransaction.transaction.feesLineItem.any().feesProduct().std().id.eq(classId))
                     )
             );

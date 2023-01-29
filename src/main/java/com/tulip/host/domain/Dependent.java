@@ -31,12 +31,12 @@ public class Dependent extends AbstractAuditingEntity {
     @Column(name = "name", length = 50)
     private String name;
 
-    @Size(max = 20)
-    @Column(name = "occupation", length = 20)
+    @Size(max = 50)
+    @Column(name = "occupation", length = 50)
     private String occupation;
 
-    @Size(max = 20)
-    @Column(name = "qualification", length = 20)
+    @Size(max = 50)
+    @Column(name = "qualification", length = 50)
     private String qualification;
 
     @Size(max = 20)

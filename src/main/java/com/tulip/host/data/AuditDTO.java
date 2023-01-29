@@ -10,6 +10,7 @@ public class AuditDTO {
 
     String status;
     String type;
+    String description;
     String endpoint;
     Instant dateTime;
 }

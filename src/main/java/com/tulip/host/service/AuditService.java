@@ -42,6 +42,7 @@ public class AuditService {
                     .builder()
                     .dateTime(item.getCreatedDate())
                     .type(item.getType())
+                    .description(item.getDescription())
                     .status(item.getMetadata().split(" - ")[0])
                     .endpoint(item.getMetadata().split(" - ")[1])
                     .build()
