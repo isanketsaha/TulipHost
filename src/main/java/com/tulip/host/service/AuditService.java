@@ -51,4 +51,8 @@ public class AuditService {
 
         return new PageImpl<>(auditDTOList, audits.getPageable(), audits.getTotalElements());
     }
+
+    public void auditResolved(long auditId) {
+        int i = auditRepository.updateResolvedById(auditId);
+    }
 }

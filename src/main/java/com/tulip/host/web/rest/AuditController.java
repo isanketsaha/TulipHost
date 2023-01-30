@@ -25,4 +25,9 @@ public class AuditController {
     ) {
         return auditService.fetchAudit(pageNo, pageSize);
     }
+
+    @GetMapping("/resolved")
+    public void auditResolved(@RequestParam(value = "id", defaultValue = "0") int auditId) {
+        auditService.auditResolved(auditId);
+    }
 }

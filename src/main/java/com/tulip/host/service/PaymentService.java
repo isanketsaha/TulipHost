@@ -124,7 +124,7 @@ public class PaymentService {
                 transaction
                     .getFeesLineItem()
                     .stream()
-                    .filter(item -> item.getFeesProduct().getFeesName().equalsIgnoreCase("Tution Fees"))
+                    .filter(item -> item.getFeesProduct().getFeesName().startsWith("Tuition"))
                     .forEach(item -> {
                         months.addAll(findMonthsBetweenDates(item.getFromMonth(), item.getToMonth()));
                     });

@@ -215,7 +215,6 @@ CREATE TABLE IF NOT EXISTS product_catalog (
   id bigint NOT NULL AUTO_INCREMENT,
   item_name varchar(255) NOT NULL ,
   price double NOT NULL,
-  description varchar(255) DEFAULT NULL,
   tag varchar(10) NOT NULL, -- BOY | GIRL
   std_id bigint DEFAULT NULL,
   type varchar(20) NOT NULL,
@@ -234,7 +233,6 @@ CREATE TABLE IF NOT EXISTS fees_catalog (
   id bigint NOT NULL AUTO_INCREMENT,
   fees_name varchar(255) NOT NULL ,
   price double NOT NULL,
-  description varchar(255) DEFAULT NULL,
   applicable_rule ENUM('MONTHLY','YEARLY','HALF-YEARLY','OTHERS') NOT NULL,
   std_id bigint DEFAULT NULL,
   active bit(1) DEFAULT 1,

@@ -35,10 +35,6 @@ public class FeesCatalog extends AbstractAuditingEntity {
     @Builder.Default
     private Boolean active = true;
 
-    @Size(max = 255)
-    @Column(name = "description")
-    private String description;
-
     @Size(max = 20)
     @NotNull
     @Column(name = "applicable_rule", nullable = false, length = 20)

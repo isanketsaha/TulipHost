@@ -16,5 +16,8 @@ public class FeesLoadVM {
     private String applicableRule;
 
     @FieldName("Class")
-    private Long std;
+    private String classDetail;
+
+    @FieldName("Session")
+    private String session;
 }

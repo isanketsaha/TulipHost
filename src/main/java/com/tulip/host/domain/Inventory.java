@@ -21,7 +21,7 @@ public class Inventory extends AbstractAuditingEntity {
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "product_id", nullable = false)
     private ProductCatalog product;
 

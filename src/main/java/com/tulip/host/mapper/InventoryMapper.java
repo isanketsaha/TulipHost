@@ -2,6 +2,7 @@ package com.tulip.host.mapper;
 
 import com.tulip.host.data.InventoryItemDTO;
 import com.tulip.host.domain.Inventory;
+import com.tulip.host.web.rest.vm.ProductLoadVM;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -28,4 +29,6 @@ public interface InventoryMapper {
     InventoryItemDTO toEntity(Inventory source);
 
     List<InventoryItemDTO> toEntityList(List<Inventory> source);
+
+    Inventory toModel(ProductLoadVM source);
 }

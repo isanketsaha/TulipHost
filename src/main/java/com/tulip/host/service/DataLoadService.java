@@ -3,13 +3,20 @@ package com.tulip.host.service;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Dependent;
 import com.tulip.host.domain.FeesCatalog;
+import com.tulip.host.domain.Inventory;
+import com.tulip.host.domain.ProductCatalog;
 import com.tulip.host.domain.Student;
 import com.tulip.host.mapper.FeesCatalogMapper;
+import com.tulip.host.mapper.InventoryMapper;
+import com.tulip.host.mapper.ProductCatalogMapper;
 import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.FeesCatalogRepository;
+import com.tulip.host.repository.InventoryRepository;
+import com.tulip.host.repository.ProductCatalogRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.web.rest.vm.FeesLoadVM;
+import com.tulip.host.web.rest.vm.ProductLoadVM;
 import com.tulip.host.web.rest.vm.StudentLoadVm;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,6 +40,11 @@ public class DataLoadService {
 
     private final FeesCatalogMapper feesCatalogMapper;
     private final FeesCatalogRepository feesCatalogRepository;
+
+    private final ProductCatalogMapper productCatalogMapper;
+    private final InventoryMapper inventoryMapper;
+
+    private final InventoryRepository inventoryRepository;
 
     @Transactional
     public void loadStudents(List<StudentLoadVm> list) {
@@ -65,7 +77,36 @@ public class DataLoadService {
 
     @Transactional
     public void loadFees(List<FeesLoadVM> fees) {
-        List<FeesCatalog> feesCatalogs = feesCatalogMapper.toModelList(fees);
-        feesCatalogRepository.saveAllAndFlush(feesCatalogs);
+        List<FeesCatalog> feesCatalogList = fees
+            .stream()
+            .map(item -> {
+                ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(
+                    Long.valueOf(item.getSession()),
+                    item.getClassDetail()
+                );
+                FeesCatalog feesCatalog = feesCatalogMapper.toModel(item);
+                feesCatalog.setStd(classDetail);
+                return feesCatalog;
+            })
+            .collect(Collectors.toList());
+        feesCatalogRepository.saveAllAndFlush(feesCatalogList);
+    }
+
+    @Transactional
+    public void loadProducts(List<ProductLoadVM> products) {
+        List<Inventory> inventoryList = products
+            .stream()
+            .map(item -> {
+                ProductCatalog productCatalog = productCatalogMapper.toModel(item);
+                if (item.getSession() != null && item.getClassDetail() != null) {
+                    ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(item.getSession(), item.getClassDetail());
+                    productCatalog.setStd(classDetail);
+                }
+                Inventory inventory = inventoryMapper.toModel(item);
+                inventory.setProduct(productCatalog);
+                return inventory;
+            })
+            .collect(Collectors.toList());
+        inventoryRepository.saveAllAndFlush(inventoryList);
     }
 }
