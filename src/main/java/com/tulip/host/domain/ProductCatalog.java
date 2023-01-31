@@ -45,7 +45,6 @@ public class ProductCatalog extends AbstractAuditingEntity {
     private Double price;
 
     @Size(max = 10)
-    @NotNull
     @Column(name = "tag", nullable = false, length = 10)
     private String tag;
 
@@ -63,7 +62,7 @@ public class ProductCatalog extends AbstractAuditingEntity {
     private String size;
 
     @Size(max = 20)
-    @Column(name = "type", length = 20)
+    @Column(name = "category", length = 20)
     private String category;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)

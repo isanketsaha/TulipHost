@@ -6,6 +6,7 @@ import com.tulip.host.domain.FeesCatalog;
 import com.tulip.host.domain.Inventory;
 import com.tulip.host.domain.ProductCatalog;
 import com.tulip.host.domain.Student;
+import com.tulip.host.enums.RelationEnum;
 import com.tulip.host.mapper.FeesCatalogMapper;
 import com.tulip.host.mapper.InventoryMapper;
 import com.tulip.host.mapper.ProductCatalogMapper;
@@ -58,7 +59,7 @@ public class DataLoadService {
                     .builder()
                     .name(item.getFatherName())
                     .aadhaarNo(item.getFatherAadhaar())
-                    .relationship(item.getFatherRelation().name())
+                    .relationship(RelationEnum.FATHER.name())
                     .qualification(item.getFatherQualification().substring(0, Math.min(item.getFatherQualification().length(), 50)))
                     .contact(item.getFatherContact())
                     .occupation(item.getFatherOccupation().substring(0, Math.min(item.getFatherOccupation().length(), 50)))

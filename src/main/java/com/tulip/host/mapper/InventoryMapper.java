@@ -30,5 +30,6 @@ public interface InventoryMapper {
 
     List<InventoryItemDTO> toEntityList(List<Inventory> source);
 
+    @Mapping(target = "unitPrice", source = "purchasePrice")
     Inventory toModel(ProductLoadVM source);
 }

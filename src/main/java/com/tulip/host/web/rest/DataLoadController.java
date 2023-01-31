@@ -68,7 +68,7 @@ public class DataLoadController {
         try (Document document = new DocumentOOXML()) {
             document.fromStream(file.getInputStream());
 
-            List<ProductLoadVM> products = document.getSheet("products", ProductLoadVM.class);
+            List<ProductLoadVM> products = document.getSheet("product", ProductLoadVM.class);
             if (CollectionUtils.isNotEmpty(products)) {
                 dataLoadService.loadProducts(products);
             }

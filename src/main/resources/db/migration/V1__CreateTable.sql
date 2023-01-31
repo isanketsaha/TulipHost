@@ -215,9 +215,9 @@ CREATE TABLE IF NOT EXISTS product_catalog (
   id bigint NOT NULL AUTO_INCREMENT,
   item_name varchar(255) NOT NULL ,
   price double NOT NULL,
-  tag varchar(10) NOT NULL, -- BOY | GIRL
+  tag varchar(10) DEFAULT NULL, -- BOY | GIRL
   std_id bigint DEFAULT NULL,
-  type varchar(20) NOT NULL,
+  category varchar(20) NOT NULL,
   active bit(1) DEFAULT 1,
   size varchar(20) DEFAULT NULL, -- 22,24,26
   created_by varchar(50) DEFAULT NULL,

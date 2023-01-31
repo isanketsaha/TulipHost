@@ -6,13 +6,13 @@ import lombok.Data;
 @Data
 public class FeesLoadVM {
 
-    @FieldName("FeesName")
+    @FieldName("Fees Name")
     private String feesName;
 
     @FieldName("Price")
     private Double price;
 
-    @FieldName("applicableRule")
+    @FieldName("Applicable Rule")
     private String applicableRule;
 
     @FieldName("Class")

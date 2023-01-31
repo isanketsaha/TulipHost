@@ -1,6 +1,5 @@
 package com.tulip.host.web.rest.vm;
 
-import com.tulip.host.enums.RelationEnum;
 import io.github.rushuat.ocell.annotation.FieldFormat;
 import io.github.rushuat.ocell.annotation.FieldName;
 import lombok.AllArgsConstructor;
@@ -12,52 +11,49 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StudentLoadVm {
 
-    @FieldName("studentName")
+    @FieldName("Student Name")
     private String name;
 
-    @FieldName("birthday")
+    @FieldName("Birthday")
     @FieldFormat("mm/dd/yyyy")
     private String dob;
 
-    @FieldName("phoneNumber")
+    @FieldName("Phone Number")
     String phoneNumber;
 
-    @FieldName("address")
+    @FieldName("Address")
     String address;
 
-    @FieldName("gender")
+    @FieldName("Gender")
     String gender;
 
-    @FieldName("blood_group")
+    @FieldName("Blood Group")
     String bloodGroup;
 
-    @FieldName("religion")
+    @FieldName("Religion")
     String religion;
 
-    @FieldName("previous_school")
+    @FieldName("Previous School")
     String previousSchool;
 
-    @FieldName("std")
+    @FieldName("Class")
     String std;
 
-    @FieldName("session")
+    @FieldName("Session")
     Long session;
 
-    @FieldName("father_Name")
+    @FieldName("Father Name")
     String fatherName;
 
-    @FieldName("father_contact")
+    @FieldName("Father Contact")
     String fatherContact;
 
-    @FieldName("father_aadhaar")
+    @FieldName("Father Aadhaar")
     String fatherAadhaar;
 
-    @FieldName("father_relation")
-    RelationEnum fatherRelation;
-
-    @FieldName("father_qualification")
+    @FieldName("Father Qualification")
     String fatherQualification;
 
-    @FieldName("father_occupation")
+    @FieldName("Father Occupation")
     String fatherOccupation;
 }
