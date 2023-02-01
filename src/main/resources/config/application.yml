@@ -134,6 +134,15 @@ spring:
         - dev
         - api-docs
         - no-liquibase
+      test:
+        - test
+        - api-docs
+        - no-liquibase
+        - tls
+      prod:
+        - test
+        - no-liquibase
+        - tls
         # Uncomment to activate TLS for the dev profile
         #- tls
   jmx:
@@ -212,7 +221,7 @@ jhipster:
     name: 'tulipHostApp'
   # By default CORS is disabled. Uncomment to enable.
   cors:
-    allowed-origins: 'http://localhost:5173,http://localhost:9000'
+    allowed-origins: 'http://localhost:5173,http://localhost:9000,http://localhost:4173'
     allowed-methods: '*'
     allowed-headers: '*'
     exposed-headers: 'Authorization,Link,X-Total-Count,X-${jhipster.clientApp.name}-alert,X-${jhipster.clientApp.name}-error,X-${jhipster.clientApp.name}-params'
