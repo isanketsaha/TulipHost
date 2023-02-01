@@ -138,7 +138,6 @@ spring:
         - test
         - api-docs
         - no-liquibase
-        - tls
       prod:
         - test
         - no-liquibase
