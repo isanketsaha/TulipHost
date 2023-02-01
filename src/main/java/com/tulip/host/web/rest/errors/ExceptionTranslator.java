@@ -62,7 +62,12 @@ public class ExceptionTranslator implements ProblemHandling {
             String.valueOf(problem.getStatus().getStatusCode()) +
             " - " +
             request.getNativeRequest(HttpServletRequest.class).getRequestURI();
-        Audit error = Audit.builder().type("ERROR").description(problem.getDetail() + stringBuilder.toString()).metadata(metadata).build();
+        Audit error = Audit
+            .builder()
+            .type("ERROR")
+            .description(problem.getDetail() != null ? problem.getDetail() : "" + stringBuilder.toString())
+            .metadata(metadata)
+            .build();
         auditRepository.save(error);
         if (problem instanceof ConstraintViolationProblem) {
             builder
