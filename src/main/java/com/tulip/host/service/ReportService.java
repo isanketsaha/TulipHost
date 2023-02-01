@@ -51,6 +51,8 @@ public class ReportService {
 
     private final InventoryMapper inventoryMapper;
 
+    private final SessionService sessionService;
+
     @org.springframework.transaction.annotation.Transactional
     public Page<PaySummaryDTO> fetchTransactionHistory(int pageNo, int pageSize) {
         Instant now = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant();
@@ -66,7 +68,6 @@ public class ReportService {
     @Transactional
     public DashBoardStudentDTO studentReport() {
         Instant thisWeek = LocalDate.now().minus(7, ChronoUnit.DAYS).atStartOfDay(ZoneId.systemDefault()).toInstant();
-
         Instant thisMonth = LocalDate.now().minus(1, ChronoUnit.MONTHS).atStartOfDay(ZoneId.systemDefault()).toInstant();
         BooleanBuilder weekCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisWeek));
         BooleanBuilder monthCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisMonth));
@@ -92,7 +93,7 @@ public class ReportService {
 
     @Transactional
     public List<InventoryItemDTO> inventoryReport() {
-        List<Inventory> stockReport = inventoryRepository.stockReport();
+        List<Inventory> stockReport = inventoryRepository.stockReport(sessionService.fetchCurrentSession().getId());
         List<InventoryItemDTO> inventoryItemDTOS = inventoryMapper.toEntityList(stockReport);
         Collections.sort(inventoryItemDTOS, Comparator.comparing(InventoryItemDTO::getAvailableQty));
         return inventoryItemDTOS;

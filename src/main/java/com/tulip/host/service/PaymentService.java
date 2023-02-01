@@ -13,11 +13,14 @@ import com.tulip.host.enums.PaymentOptionEnum;
 import com.tulip.host.mapper.ExpenseMapper;
 import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.ExpenseRepository;
+import com.tulip.host.repository.FeesCatalogRepository;
 import com.tulip.host.repository.FeesLineItemRepository;
+import com.tulip.host.repository.ProductCatalogRepository;
 import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.utils.CommonUtils;
+import com.tulip.host.web.rest.errors.BadRequestAlertException;
 import com.tulip.host.web.rest.vm.ExpenseItemVM;
 import com.tulip.host.web.rest.vm.PayVM;
 import java.time.YearMonth;
@@ -37,6 +40,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class PaymentService {
 
+    private final ProductCatalogRepository productCatalogRepository;
+    private final FeesCatalogRepository feesCatalogRepository;
+
     private final TransactionPagedRepository transactionRepository;
 
     private final TransactionMapper transactionMapper;
@@ -52,10 +58,13 @@ public class PaymentService {
     private final ExpenseRepository expenseRepository;
     private final ExpenseMapper expenseMapper;
 
+    private final SessionService sessionService;
+
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT, Locale.ENGLISH);
 
     @Transactional
     public Long payFees(PayVM payVM) {
+        validate(payVM);
         Transaction transaction = transactionMapper.toModel(payVM);
         transaction
             .getFeesLineItem()
@@ -64,6 +73,60 @@ public class PaymentService {
             });
         Transaction save = transactionRepository.save(transaction);
         return save.getId();
+    }
+
+    private void validate(PayVM payVM) {
+        if (payVM.getPayType() == PayTypeEnum.PURCHASE) {
+            if (CollectionUtils.isEmpty(payVM.getPurchaseItems())) {
+                throw new BadRequestAlertException("Failed to validate pay request", payVM.getClass().getName(), "Purchase Items");
+            } else {
+                double sum = payVM
+                    .getPurchaseItems()
+                    .stream()
+                    .map(item -> {
+                        double amount = item.getQty() * item.getUnitPrice();
+                        ProductCatalog productCatalog = productCatalogRepository.findById(item.getProductTitle()).orElse(null);
+                        if (productCatalog.getPrice() == item.getUnitPrice() && amount == item.getAmount()) {
+                            return item;
+                        }
+                        throw new BadRequestAlertException("Failed to validate pay request", payVM.getClass().getName(), "LineItem Error");
+                    })
+                    .mapToDouble(lineItem -> lineItem.getAmount())
+                    .sum();
+                if (sum != payVM.getTotal()) throw new BadRequestAlertException(
+                    "Failed to validate pay request total",
+                    payVM.getClass().getName(),
+                    "Total Amount"
+                );
+            }
+        }
+        if (payVM.getPayType() == PayTypeEnum.FEES) {
+            if (CollectionUtils.isEmpty(payVM.getFeeItem())) {
+                throw new BadRequestAlertException("Failed to validate pay request", payVM.getClass().getName(), "Fees Items");
+            } else {
+                double sum = payVM
+                    .getFeeItem()
+                    .stream()
+                    .map(item -> {
+                        FeesCatalog feesCatalog = feesCatalogRepository.findById(item.getFeesId()).orElse(null);
+                        Student student = studentRepository.checkIfFeesPaid(payVM.getStudentId(), item.getFeesId());
+                        if (
+                            feesCatalog.getPrice() == item.getUnitPrice() &&
+                            (student == null || feesCatalog.getApplicableRule().equalsIgnoreCase("MONTHLY"))
+                        ) {
+                            return item;
+                        }
+                        throw new BadRequestAlertException("Failed to validate pay request", payVM.getClass().getName(), "LineItem Error");
+                    })
+                    .mapToDouble(lineItem -> lineItem.getAmount())
+                    .sum();
+                if (sum != payVM.getTotal()) throw new BadRequestAlertException(
+                    "Failed to validate pay request total",
+                    payVM.getClass().getName(),
+                    "Total Amount"
+                );
+            }
+        }
     }
 
     @Transactional

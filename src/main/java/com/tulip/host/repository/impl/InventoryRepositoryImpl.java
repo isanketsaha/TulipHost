@@ -13,12 +13,12 @@ public class InventoryRepositoryImpl extends BaseRepositoryImpl<Inventory, Long>
     }
 
     @Override
-    public List<Inventory> stockReport() {
+    public List<Inventory> stockReport(Long sessionId) {
         List<Inventory> inventoryList = jpaQueryFactory
             .selectFrom(INVENTORY)
             .innerJoin(INVENTORY.product(), PRODUCT_CATALOG)
             .leftJoin(PRODUCT_CATALOG.std(), CLASS_DETAIL)
-            .where(PRODUCT_CATALOG.active.eq(true).and(PRODUCT_CATALOG.std().isNull()).or(PRODUCT_CATALOG.std().session().id.eq(2L)))
+            .where(PRODUCT_CATALOG.active.eq(true).and(PRODUCT_CATALOG.std().isNull()).or(PRODUCT_CATALOG.std().session().id.eq(sessionId)))
             .fetch();
         return inventoryList;
     }
