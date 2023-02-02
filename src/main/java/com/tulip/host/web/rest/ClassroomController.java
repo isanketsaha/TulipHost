@@ -19,9 +19,8 @@ public class ClassroomController {
     private final ClassroomService classroomService;
 
     @GetMapping("/all")
-    List<ClassListDTO> fetch(HttpSession session) {
-        Long sessionId = Long.valueOf((String) session.getAttribute("current_session"));
-        return classroomService.fetchAllClasses(sessionId);
+    List<ClassListDTO> fetch() {
+        return classroomService.fetchAllClasses();
     }
 
     @GetMapping("/details/{classroomId}")
