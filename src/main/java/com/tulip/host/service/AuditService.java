@@ -28,7 +28,7 @@ public class AuditService {
     @Transactional
     public Page<AuditDTO> fetchAudit(int pageNo, int pageSize) {
         Instant thisWeek = LocalDate.now().minus(7, ChronoUnit.DAYS).atStartOfDay(ZoneId.systemDefault()).toInstant();
-        BooleanBuilder builder = new BooleanBuilder().and(QAudit.audit.createdDate.after(thisWeek));
+        BooleanBuilder builder = new BooleanBuilder().and(QAudit.audit.createdDate.after(thisWeek)).and(QAudit.audit.resolved.eq(false));
         Page<Audit> audits = auditRepository.findAll(
             builder,
             CommonUtils.getPageRequest(Sort.Direction.DESC, "createdDate", pageNo, pageSize)
@@ -40,6 +40,7 @@ public class AuditService {
             .map(item ->
                 AuditDTO
                     .builder()
+                    .id(item.getId())
                     .dateTime(item.getCreatedDate())
                     .type(item.getType())
                     .description(item.getDescription())

@@ -8,6 +8,7 @@ import lombok.Data;
 @Builder
 public class AuditDTO {
 
+    Long id;
     String status;
     String type;
     String description;
