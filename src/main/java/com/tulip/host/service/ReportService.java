@@ -22,13 +22,16 @@ import com.tulip.host.utils.CommonUtils;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
@@ -54,9 +57,10 @@ public class ReportService {
     private final SessionService sessionService;
 
     @org.springframework.transaction.annotation.Transactional
-    public Page<PaySummaryDTO> fetchTransactionHistory(int pageNo, int pageSize) {
-        Instant now = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant();
-        BooleanBuilder query = new BooleanBuilder().and(QTransaction.transaction.createdDate.goe(now));
+    public Page<PaySummaryDTO> fetchTransactionHistory(Date date, int pageNo, int pageSize) {
+        Date plus = DateUtils.addDays(date, 1);
+        BooleanBuilder query = new BooleanBuilder()
+            .and(QTransaction.transaction.createdDate.gt(date).and(QTransaction.transaction.createdDate.lt(plus)));
         Page<Transaction> transactionPage = transactionPagedRepository.findAll(
             query,
             CommonUtils.getPageRequest(DESC, "createdDate", pageNo, pageSize)
@@ -67,8 +71,8 @@ public class ReportService {
 
     @Transactional
     public DashBoardStudentDTO studentReport() {
-        Instant thisWeek = LocalDate.now().minus(7, ChronoUnit.DAYS).atStartOfDay(ZoneId.systemDefault()).toInstant();
-        Instant thisMonth = LocalDate.now().minus(1, ChronoUnit.MONTHS).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Date thisWeek = DateUtils.addDays(new Date(), -7);
+        Date thisMonth = DateUtils.addMonths(new Date(), -1);
         BooleanBuilder weekCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisWeek));
         BooleanBuilder monthCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisMonth));
 
@@ -100,7 +104,7 @@ public class ReportService {
     }
 
     @Transactional
-    public double getTransactionTotal(Instant from, Instant to) {
+    public double getTransactionTotal(Date from, Date to) {
         return transactionRepository.fetchTransactionTotal(from, to);
     }
 }

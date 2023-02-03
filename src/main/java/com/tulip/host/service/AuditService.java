@@ -10,9 +10,11 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
@@ -27,7 +29,8 @@ public class AuditService {
 
     @Transactional
     public Page<AuditDTO> fetchAudit(int pageNo, int pageSize) {
-        Instant thisWeek = LocalDate.now().minus(7, ChronoUnit.DAYS).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        //        Instant thisWeek = LocalDate.now().minus(7, ChronoUnit.DAYS).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Date thisWeek = DateUtils.addDays(new Date(), -15);
         BooleanBuilder builder = new BooleanBuilder().and(QAudit.audit.createdDate.after(thisWeek)).and(QAudit.audit.resolved.eq(false));
         Page<Audit> audits = auditRepository.findAll(
             builder,

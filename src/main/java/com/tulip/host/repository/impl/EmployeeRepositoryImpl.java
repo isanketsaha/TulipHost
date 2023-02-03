@@ -46,7 +46,7 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
         List<Tuple> tupleList = jpaQueryFactory
             .select(EMPLOYEE.group().authority, EMPLOYEE.group().count())
             .from(EMPLOYEE)
-            .where(EMPLOYEE.active.eq(true))
+            .where(EMPLOYEE.active.eq(true).and(EMPLOYEE.group().authority.in("UG_STAFF", "UG_TEACHER")))
             .groupBy(EMPLOYEE.group())
             .fetch();
         return tupleList

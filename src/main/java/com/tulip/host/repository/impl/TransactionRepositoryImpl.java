@@ -4,6 +4,7 @@ import com.querydsl.core.Tuple;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.repository.TransactionRepository;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,7 +17,7 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
     }
 
     @Override
-    public Double fetchTransactionTotal(Instant from, Instant to) {
+    public Double fetchTransactionTotal(Date from, Date to) {
         return jpaQueryFactory
             .selectFrom(TRANSACTION)
             .where(TRANSACTION.createdDate.between(from, to))
@@ -25,7 +26,7 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
     }
 
     @Override
-    public Map<String, Long> fetchTransactionGroupBy(Instant from, Instant to) {
+    public Map<String, Long> fetchTransactionGroupBy(Date from, Date to) {
         List<Tuple> fetch = jpaQueryFactory
             .selectFrom(TRANSACTION)
             .where(TRANSACTION.createdDate.between(from, to))

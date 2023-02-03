@@ -10,6 +10,6 @@ import lombok.Data;
 @Builder
 public class FeesGraphDTO {
 
-    Instant admissionDate;
+    Date admissionDate;
     Set<String> paidMonths;
 }
