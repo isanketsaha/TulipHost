@@ -4,6 +4,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.Expressions;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.domain.Employee;
+import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.repository.EmployeeRepository;
 import java.util.Collections;
 import java.util.List;
@@ -20,12 +21,23 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
 
     @Override
     public List<Employee> fetchAll(boolean isActive) {
-        return jpaQueryFactory.selectFrom(EMPLOYEE).where(EMPLOYEE.active.eq(isActive)).distinct().fetch();
+        return jpaQueryFactory
+            .selectFrom(EMPLOYEE)
+            .where(
+                EMPLOYEE.active
+                    .eq(isActive)
+                    .and(EMPLOYEE.group().authority.in(UserRoleEnum.STAFF.getValue(), UserRoleEnum.TEACHER.getValue()))
+            )
+            .distinct()
+            .fetch();
     }
 
     @Override
     public List<Employee> fetchAll() {
-        return jpaQueryFactory.selectFrom(EMPLOYEE).fetch();
+        return jpaQueryFactory
+            .selectFrom(EMPLOYEE)
+            .where(EMPLOYEE.group().authority.in(UserRoleEnum.STAFF.getValue(), UserRoleEnum.TEACHER.getValue()))
+            .fetch();
     }
 
     @Override
@@ -46,7 +58,9 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
         List<Tuple> tupleList = jpaQueryFactory
             .select(EMPLOYEE.group().authority, EMPLOYEE.group().count())
             .from(EMPLOYEE)
-            .where(EMPLOYEE.active.eq(true).and(EMPLOYEE.group().authority.in("UG_STAFF", "UG_TEACHER")))
+            .where(
+                EMPLOYEE.active.eq(true).and(EMPLOYEE.group().authority.in(UserRoleEnum.STAFF.getValue(), UserRoleEnum.TEACHER.getValue()))
+            )
             .groupBy(EMPLOYEE.group())
             .fetch();
         return tupleList
