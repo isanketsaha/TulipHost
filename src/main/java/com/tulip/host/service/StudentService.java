@@ -1,6 +1,7 @@
 package com.tulip.host.service;
 
 import com.tulip.host.data.ClassDetailDTO;
+import com.tulip.host.data.ClassListDTO;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.ClassDetail;
@@ -65,10 +66,10 @@ public class StudentService {
     public StudentDetailsDTO searchStudent(long id) {
         Student byId = studentRepository.search(id);
         if (byId != null && !CollectionUtils.isEmpty(byId.getClassDetails())) {
-            ClassDetail classDetail = byId.getClassDetails().stream().findFirst().orElse(null);
-            ClassDetailDTO classDetailDTO = classMapper.toEntity(classDetail);
+            //            ClassDetail classDetail = byId.getClassDetails().stream().findFirst().orElse(null);
+            List<ClassDetailDTO> classDetailDTOS = classMapper.toClassDetailList(byId.getClassDetails());
             StudentDetailsDTO studentDetailsDTO = studentMapper.toDetailEntity(byId);
-            studentDetailsDTO.setClassDetails(classDetailDTO);
+            studentDetailsDTO.setClassDetails(classDetailDTOS);
             return studentDetailsDTO;
         }
         return null;

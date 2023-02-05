@@ -16,7 +16,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "class_details")
-public class ClassDetail {
+public class ClassDetail extends AbstractAuditingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

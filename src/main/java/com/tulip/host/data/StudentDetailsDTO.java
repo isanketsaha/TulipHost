@@ -34,7 +34,7 @@ public class StudentDetailsDTO {
     private String phoneNumber;
 
     @NotNull
-    private ClassDetailDTO classDetails;
+    private List<ClassDetailDTO> classDetails;
 
     @Size(max = 2)
     @NotNull
