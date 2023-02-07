@@ -12,7 +12,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = { ProductCatalogMapper.class })
 public interface PurchaseLineItemMapper {
-    @Mapping(target = "product", source = "productTitle")
+    @Mapping(target = "product", source = "productId")
     PurchaseLineItem toModel(PurchasePayVM lineItem);
 
     Set<PurchaseLineItem> toModelList(List<PurchasePayVM> classDetails);

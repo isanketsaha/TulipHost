@@ -1,5 +1,6 @@
 package com.tulip.host.web.rest.vm;
 
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,9 +10,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FeePayVM {
 
+    @NotNull
     Long feesId;
+
+    @NotNull
     double unitPrice;
+
+    @NotNull
     double amount;
+
     String from;
     String to;
 }

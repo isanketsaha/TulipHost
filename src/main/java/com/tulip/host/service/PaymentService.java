@@ -85,7 +85,7 @@ public class PaymentService {
                     .stream()
                     .map(item -> {
                         double amount = item.getQty() * item.getUnitPrice();
-                        ProductCatalog productCatalog = productCatalogRepository.findById(item.getProductTitle()).orElse(null);
+                        ProductCatalog productCatalog = productCatalogRepository.findById(item.getProductId()).orElse(null);
                         if (productCatalog.getPrice() == item.getUnitPrice() && amount == item.getAmount()) {
                             return item;
                         }
