@@ -13,7 +13,9 @@ import com.tulip.host.repository.StudentPagedRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
+import com.tulip.host.web.rest.vm.PromoteStudentVM;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -78,6 +80,15 @@ public class StudentService {
     @Transactional
     public StudentBasicDTO basicSearchStudent(long id) {
         Student byId = studentRepository.findById(id).orElse(null);
+        if (byId != null) {
+            return studentMapper.toBasicEntity(byId);
+        }
+        return null;
+    }
+
+    @Transactional
+    public StudentBasicDTO basicSearchStudent(long id, long classId) {
+        Student byId = studentRepository.searchByClassId(id, classId);
         if (byId != null) {
             return studentMapper.toBasicEntity(byId);
         }

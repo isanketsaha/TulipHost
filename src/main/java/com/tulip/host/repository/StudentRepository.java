@@ -15,6 +15,8 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     public Student search(long id);
 
+    public Student searchByClassId(long studentId, long classId);
+
     public long fetchStudentCount(boolean active, BooleanBuilder condition);
 
     public Student checkIfFeesPaid(Long studentId, Long feesId);

@@ -45,6 +45,16 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
     }
 
     @Override
+    public Student searchByClassId(long studentId, long classId) {
+        return jpaQueryFactory
+            .selectFrom(STUDENT)
+            .innerJoin(STUDENT.classDetails, CLASS_DETAIL)
+            .where((STUDENT.id.eq(studentId).and(CLASS_DETAIL.id.eq(classId))))
+            .fetchJoin()
+            .fetchOne();
+    }
+
+    @Override
     public long fetchStudentCount(boolean active, BooleanBuilder condition) {
         return condition != null
             ? jpaQueryFactory.selectFrom(STUDENT).where(STUDENT.active.eq(active).and(condition)).fetchCount()

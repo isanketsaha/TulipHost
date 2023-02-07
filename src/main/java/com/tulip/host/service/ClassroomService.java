@@ -5,9 +5,12 @@ import com.tulip.host.data.ClassListDTO;
 import com.tulip.host.data.SessionDTO;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.domain.ClassDetail;
+import com.tulip.host.domain.Student;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.repository.ClassDetailRepository;
+import com.tulip.host.repository.StudentRepository;
+import com.tulip.host.web.rest.vm.PromoteStudentVM;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +23,7 @@ import org.springframework.util.CollectionUtils;
 public class ClassroomService {
 
     private final ClassDetailRepository classDetailRepository;
-
+    private final StudentRepository studentRepository;
     private final ClassMapper classMapper;
 
     private final StudentMapper studentMapper;
@@ -40,5 +43,25 @@ public class ClassroomService {
         SessionDTO sessionDTO = sessionService.fetchCurrentSession();
         List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(sessionDTO.getId());
         return classMapper.toClassListEntityList(allBySessionId);
+    }
+
+    @Transactional
+    public void promoteStudents(PromoteStudentVM promoteStudentVM) {
+        ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(
+            promoteStudentVM.getSessionId(),
+            promoteStudentVM.getStd().name()
+        );
+        if (classDetail != null) {
+            promoteStudentVM
+                .getStudentId()
+                .stream()
+                .forEach(item -> {
+                    Student student = studentRepository.findById(item).orElse(null);
+                    if (student != null) {
+                        student.addClass(classDetail);
+                        studentRepository.save(student);
+                    }
+                });
+        }
     }
 }
