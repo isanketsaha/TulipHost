@@ -9,6 +9,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -57,5 +58,11 @@ public class StudentController {
     @RequestMapping("/edit")
     public StudentDetailsDTO edit() {
         return studentService.editStudent();
+    }
+
+    @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")
+    @RequestMapping("/deactivate")
+    public void deactivate(@Valid @RequestParam(value = "studentId") long id) {
+        studentService.deactivate(id);
     }
 }

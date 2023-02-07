@@ -55,7 +55,7 @@ public class UserJWTController {
             .idToken(jwt)
             .userId(loginVM.getUsername())
             .userName(authentication.getName())
-            .authority(authorities)
+            .authority(authorities.get(0))
             .build();
         return new ResponseEntity<>(build, httpHeaders, HttpStatus.OK);
     }
