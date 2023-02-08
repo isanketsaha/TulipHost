@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,5 +36,10 @@ public class ClassroomController {
     @PostMapping("/student-promote")
     public void promoteStudents(@Valid @RequestBody PromoteStudentVM promoteStudentVM) {
         classroomService.promoteStudents(promoteStudentVM);
+    }
+
+    @GetMapping("/id")
+    public Long fetchClassId(@RequestParam(value = "std") String std, @RequestParam(name = "sessionId") Long sessionId) {
+        return classroomService.fetchClassDetails(std, sessionId);
     }
 }

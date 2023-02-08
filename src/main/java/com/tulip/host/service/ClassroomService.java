@@ -64,4 +64,9 @@ public class ClassroomService {
                 });
         }
     }
+
+    public Long fetchClassDetails(String std, Long sessionId) {
+        ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(sessionId, std);
+        return classDetail.getId();
+    }
 }

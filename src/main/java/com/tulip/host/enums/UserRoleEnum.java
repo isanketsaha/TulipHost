@@ -7,7 +7,9 @@ import lombok.ToString;
 @ToString
 public enum UserRoleEnum {
     TEACHER("UG_TEACHER"),
-    STAFF("UG_STAFF");
+    STAFF("UG_STAFF"),
+
+    PRINCIPAL("UG_PRINCIPAL");
 
     private final String value;
 
