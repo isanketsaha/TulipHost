@@ -73,14 +73,20 @@ public class ReportService {
     public DashBoardStudentDTO studentReport() {
         Date thisWeek = DateUtils.addDays(new Date(), -7);
         Date thisMonth = DateUtils.addMonths(new Date(), -1);
-        BooleanBuilder weekCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisWeek));
-        BooleanBuilder monthCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisMonth));
+        BooleanBuilder admissionWeekCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisWeek));
+        BooleanBuilder admissionMonthCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisMonth));
+        BooleanBuilder withdrawnWeekCondition = new BooleanBuilder()
+            .and(QStudent.student.terminationDate.isNotNull().and(QStudent.student.terminationDate.goe(thisWeek)));
+        BooleanBuilder withdrawnMonthCondition = new BooleanBuilder()
+            .and(QStudent.student.terminationDate.isNotNull().and(QStudent.student.terminationDate.goe(thisMonth)));
 
         return DashBoardStudentDTO
             .builder()
             .schoolStrength(studentRepository.fetchStudentCount(true, null))
-            .studentAdmissionCountThisWeek(studentRepository.fetchStudentCount(true, weekCondition))
-            .studentAdmissionCountThisMonth(studentRepository.fetchStudentCount(true, monthCondition))
+            .admissionThisWeek(studentRepository.fetchStudentCount(true, admissionWeekCondition))
+            .admissionThisMonth(studentRepository.fetchStudentCount(true, admissionMonthCondition))
+            .withdrawnThisWeek(studentRepository.fetchStudentCount(false, withdrawnWeekCondition))
+            .withdrawnThisMonth(studentRepository.fetchStudentCount(false, withdrawnMonthCondition))
             .build();
     }
 
