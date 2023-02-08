@@ -1,14 +1,29 @@
 package com.tulip.host.domain;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Builder
 @AllArgsConstructor
@@ -52,6 +67,10 @@ public class Student extends AbstractAuditingEntity {
     @Builder.Default
     private Boolean active = true;
 
+    //    @Column(name = "whatsappEnabled")
+    //    @Builder.Default
+    //    private Boolean whatsappEnabled = true;
+
     @Size(max = 20)
     @NotNull
     @Column(name = "phone_number", nullable = false, length = 20)
@@ -62,7 +81,7 @@ public class Student extends AbstractAuditingEntity {
     private String previousSchool;
 
     @Column(name = "termination_date")
-    private LocalDate terminationDate;
+    private Date terminationDate;
 
     @Size(max = 20)
     @Column(name = "religion", length = 20)
