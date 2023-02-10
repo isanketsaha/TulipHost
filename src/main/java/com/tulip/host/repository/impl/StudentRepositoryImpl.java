@@ -66,7 +66,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             .selectFrom(STUDENT)
             .innerJoin(STUDENT.transactions, TRANSACTION)
             .innerJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
-            .where(STUDENT.active.eq(true).and(FEES_LINE_ITEM.feesProduct().id.eq(feesId)))
+            .where(STUDENT.active.eq(true).and(STUDENT.id.eq(studentId)).and(FEES_LINE_ITEM.feesProduct().id.eq(feesId)))
             .fetchOne();
     }
 }
