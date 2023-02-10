@@ -67,9 +67,9 @@ public class Student extends AbstractAuditingEntity {
     @Builder.Default
     private Boolean active = true;
 
-    //    @Column(name = "whatsappEnabled")
-    //    @Builder.Default
-    //    private Boolean whatsappEnabled = true;
+    @Column(name = "whatsapp_available")
+    @Builder.Default
+    private Boolean whatsappAvailable = false;
 
     @Size(max = 20)
     @NotNull

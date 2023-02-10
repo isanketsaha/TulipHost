@@ -47,6 +47,8 @@ public class StudentDetailsDTO {
     @NotNull
     private Boolean active;
 
+    private Boolean whatsappAvailable;
+
     @Size(max = 50)
     private String previousSchool;
 

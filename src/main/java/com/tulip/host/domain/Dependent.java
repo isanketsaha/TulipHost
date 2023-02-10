@@ -43,6 +43,10 @@ public class Dependent extends AbstractAuditingEntity {
     @Column(name = "relationship", length = 20)
     private String relationship;
 
+    @Column(name = "whatsapp_available")
+    @Builder.Default
+    private Boolean whatsappAvailable = false;
+
     @Size(max = 15)
     @NotNull
     @Column(name = "aadhaar_no", nullable = false, length = 15)
