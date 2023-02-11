@@ -187,13 +187,7 @@ public class PaymentService {
                     .student()
                     .id.eq(studentId)
                     .and(QTransaction.transaction.type.eq(PayTypeEnum.FEES.name()))
-                    .and(
-                        QTransaction.transaction.feesLineItem
-                            .any()
-                            .feesProduct()
-                            .feesName.startsWithIgnoreCase("Tuition")
-                            .and(QTransaction.transaction.feesLineItem.any().feesProduct().std().id.eq(classId))
-                    )
+                    .and(QTransaction.transaction.feesLineItem.any().feesProduct().std().id.eq(classId))
             );
 
         List<Transaction> transactionList = (List<Transaction>) transactionRepository.findAll(booleanBuilder, Sort.by(DESC, "createdDate"));
