@@ -26,6 +26,8 @@ public class ClassDetailDTO implements Serializable {
 
     private String session;
 
+    private double pendingFees;
+
     private List<StudentBasicDTO> students;
 
     private List<FeesCatalogDTO> feesCatalogs;

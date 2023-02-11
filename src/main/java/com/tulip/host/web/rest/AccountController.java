@@ -22,8 +22,8 @@ public class AccountController {
 
     @GetMapping("/finance")
     public List<TransactionReportDTO> transactionReport(
-        @RequestParam(value = "from") @DateTimeFormat(pattern = "dd/MMM/yyyy") Date from,
-        @DateTimeFormat(pattern = "dd/MMM/yyyy") @RequestParam(name = "to") Date to
+        @RequestParam(value = "from") @DateTimeFormat(pattern = "dd-MM-yyyy") Date from,
+        @DateTimeFormat(pattern = "dd-MM-yyyy") @RequestParam(name = "to") Date to
     ) {
         return monitorService.transactionReport(from, to);
     }

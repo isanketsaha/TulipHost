@@ -19,6 +19,5 @@ public class FeePayVM {
     @NotNull
     double amount;
 
-    String from;
-    String to;
+    String month;
 }

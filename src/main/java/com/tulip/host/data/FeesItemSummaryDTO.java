@@ -14,6 +14,5 @@ public class FeesItemSummaryDTO {
     double unitPrice;
     double amount;
     String applicableRule;
-    String from;
-    String to;
+    String month;
 }

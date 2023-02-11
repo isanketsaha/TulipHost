@@ -1,12 +1,14 @@
 package com.tulip.host.repository.impl;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.Student;
 import com.tulip.host.repository.StudentRepository;
 import java.util.List;
 import javax.persistence.EntityManager;
+import org.apache.commons.lang3.StringUtils;
 
 public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> implements StudentRepository {
 
@@ -61,12 +63,15 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
     }
 
     @Override
-    public Student checkIfFeesPaid(Long studentId, Long feesId) {
+    public Student checkIfFeesPaid(Long studentId, Long feesId, String month) {
+        BooleanExpression monthCondition = StringUtils.isEmpty(month) ? FEES_LINE_ITEM.month.isNotNull() : FEES_LINE_ITEM.month.eq(month);
         return jpaQueryFactory
             .selectFrom(STUDENT)
             .innerJoin(STUDENT.transactions, TRANSACTION)
             .innerJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
-            .where(STUDENT.active.eq(true).and(STUDENT.id.eq(studentId)).and(FEES_LINE_ITEM.feesProduct().id.eq(feesId)))
+            .where(
+                STUDENT.active.eq(true).and(STUDENT.id.eq(studentId)).and(FEES_LINE_ITEM.feesProduct().id.eq(feesId)).and(monthCondition)
+            )
             .fetchOne();
     }
 }

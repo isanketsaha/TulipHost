@@ -1,5 +1,6 @@
 package com.tulip.host.domain;
 
+import com.tulip.host.enums.FeesRuleType;
 import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -38,7 +39,8 @@ public class FeesCatalog extends AbstractAuditingEntity {
     @Size(max = 20)
     @NotNull
     @Column(name = "applicable_rule", nullable = false, length = 20)
-    private String applicableRule;
+    @Enumerated(EnumType.STRING)
+    private FeesRuleType applicableRule;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "std_id")

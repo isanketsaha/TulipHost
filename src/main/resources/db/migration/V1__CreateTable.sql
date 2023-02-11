@@ -94,7 +94,6 @@ CREATE TABLE IF NOT EXISTS  user_group (
   UNIQUE KEY (authority)
 ) ;
 
-
 -- db.employee definition
 
 CREATE TABLE IF NOT EXISTS  employee (
@@ -105,6 +104,7 @@ CREATE TABLE IF NOT EXISTS  employee (
   address varchar(255) DEFAULT NULL,
   blood_group varchar(6) DEFAULT NULL,
   dob datetime DEFAULT NULL,
+  whatsapp_available bit(1)  DEFAULT 0,
   experience varchar(255) DEFAULT NULL,
   gender ENUM('MALE', 'FEMALE','OTHERS') NOT NULL,
   leave_balance double(3,2) DEFAULT '1.00',
@@ -157,6 +157,8 @@ CREATE TABLE IF NOT EXISTS  student (
   gender ENUM('MALE', 'FEMALE','OTHERS') NOT NULL,
   active bit(1) DEFAULT 1,
   phone_number varchar(20) NOT NULL,
+  whatsapp_available bit(1)  DEFAULT 0,
+  evening_classes bit(1)  DEFAULT 0,
   previous_school varchar(50) DEFAULT NULL,
   termination_date date DEFAULT NULL,
   created_by varchar(50) DEFAULT NULL,
@@ -179,6 +181,7 @@ CREATE TABLE IF NOT EXISTS  dependent (
   qualification varchar(50) DEFAULT NULL,
   relationship varchar(20) DEFAULT NULL,
   aadhaar_no varchar(15) NOT NULL,
+  whatsapp_available bit(1)  DEFAULT 0,
   created_by varchar(50) DEFAULT NULL,
   last_modified_by varchar(50) DEFAULT NULL,
   created_date timestamp DEFAULT CURRENT_TIMESTAMP,
@@ -269,8 +272,7 @@ CREATE TABLE IF NOT EXISTS fees_line_item(
     transaction_id bigint NOT NUll,
     fees_product_id bigint NOT NULL,
     unit_price double NOT NULL,
-    from_month varchar(10) DEFAULT NULL,
-    to_month varchar(10) DEFAULT NULL,
+    month varchar(10) DEFAULT NULL,
     amount double NOT NULL,
     created_by varchar(50) DEFAULT NULL,
     last_modified_by varchar(50) DEFAULT NULL,

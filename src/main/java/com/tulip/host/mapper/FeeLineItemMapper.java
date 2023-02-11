@@ -10,15 +10,13 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = { FeesCatalogMapper.class })
 public interface FeeLineItemMapper {
-    @Mapping(target = "fromMonth", source = "from")
-    @Mapping(target = "toMonth", source = "to")
     @Mapping(target = "feesProduct", source = "feesId")
     FeesLineItem toModel(FeePayVM lineItem);
 
     Set<FeesLineItem> toModelList(List<FeePayVM> classDetails);
 
-    @Mapping(source = "fromMonth", target = "from")
-    @Mapping(source = "toMonth", target = "to")
+    //    @Mapping(source = "fromMonth", target = "from")
+    //    @Mapping(source = "toMonth", target = "to")
     @Mapping(target = "feesTitle", source = "feesProduct.feesName")
     @Mapping(target = "feesId", source = "feesProduct.id")
     @Mapping(target = "applicableRule", source = "feesProduct.applicableRule")

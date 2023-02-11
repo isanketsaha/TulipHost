@@ -35,6 +35,7 @@ public class ClassroomService {
         ClassDetail classDetail = classDetailRepository.findById(classroomId).orElse(null);
         ClassDetailDTO classDetailDTO = classMapper.toEntity(classDetail);
         classDetailDTO.getStudents().sort((s1, s2) -> s1.getName().toUpperCase().compareTo(s2.getName().toUpperCase()));
+
         return classDetailDTO;
     }
 
