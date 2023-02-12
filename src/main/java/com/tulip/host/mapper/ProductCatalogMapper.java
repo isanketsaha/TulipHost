@@ -17,6 +17,7 @@ public interface ProductCatalogMapper {
 
     ProductCatalog toModel(Long id);
 
+    @Mapping(expression = "java(productLoadVM.getItemName().toUpperCase())", target = "itemName")
     ProductCatalog toModel(ProductLoadVM productLoadVM);
 
     List<CatalogDTO> toModelList(List<ProductCatalog> student);

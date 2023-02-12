@@ -17,6 +17,7 @@ public interface EmployeeMapper {
     @Mapping(target = "phoneNumber", source = "contact")
     @Mapping(target = "dependents", source = "dependent")
     @Mapping(target = "bloodGroup", expression = "java(source.getBloodGroup().getDisplayType())")
+    @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(source.getName()))")
     Employee toModel(OnboardingVM source);
 
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(source.getDob()))")

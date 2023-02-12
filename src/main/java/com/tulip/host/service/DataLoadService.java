@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.WordUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,7 @@ public class DataLoadService {
             .stream()
             .map(item -> {
                 ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(item.getSession(), item.getStd());
+
                 Student student = studentMapper.toModel(item);
                 student.addClass(classDetail);
                 Dependent dependent = Dependent
@@ -81,10 +83,8 @@ public class DataLoadService {
         List<FeesCatalog> feesCatalogList = fees
             .stream()
             .map(item -> {
-                ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(
-                    Long.valueOf(item.getSession()),
-                    item.getClassDetail()
-                );
+                item.setApplicableRule(item.getApplicableRule().toUpperCase());
+                ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(item.getSession(), item.getClassDetail());
                 FeesCatalog feesCatalog = feesCatalogMapper.toModel(item);
                 feesCatalog.setStd(classDetail);
                 return feesCatalog;
