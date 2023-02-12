@@ -8,6 +8,8 @@ import lombok.Data;
 public class DashBoardStudentDTO {
 
     long schoolStrength;
-    long studentAdmissionCountThisWeek;
-    long studentAdmissionCountThisMonth;
+    long admissionThisWeek;
+    long admissionThisMonth;
+    long withdrawnThisWeek;
+    long withdrawnThisMonth;
 }

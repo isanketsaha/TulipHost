@@ -29,8 +29,12 @@ public class OnboardingVM {
     @NotNull
     String contact;
 
+    boolean whatsappAvailable;
+
     @NotNull
     List<DependentVM> dependent;
+
+    String experience;
 
     @NotNull
     Date dob;

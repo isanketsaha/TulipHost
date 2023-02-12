@@ -52,17 +52,22 @@ public class ExceptionTranslator implements ProblemHandling {
             .withStatus(problem.getStatus())
             .withTitle(problem.getTitle())
             .with("path", request.getNativeRequest(HttpServletRequest.class).getRequestURI());
-        StringBuilder stringBuilder = new StringBuilder("");
+        StringBuilder stringBuilder = new StringBuilder();
         if (problem instanceof ConstraintViolationProblem && ((ConstraintViolationProblem) problem).getViolations() != null) {
             for (Violation violation : ((ConstraintViolationProblem) problem).getViolations()) {
                 stringBuilder.append(" { " + violation.getField() + " - " + violation.getMessage() + " } ");
             }
         }
         String metadata =
-            String.valueOf(problem.getStatus().getStatusCode()) +
+            String.valueOf(problem.getStatus().getReasonPhrase()) +
             " - " +
             request.getNativeRequest(HttpServletRequest.class).getRequestURI();
-        Audit error = Audit.builder().type("ERROR").description(problem.getDetail() + stringBuilder.toString()).metadata(metadata).build();
+        Audit error = Audit
+            .builder()
+            .type("ERROR")
+            .description(problem.getDetail() != null ? problem.getDetail() : "" + stringBuilder.toString())
+            .metadata(metadata)
+            .build();
         auditRepository.save(error);
         if (problem instanceof ConstraintViolationProblem) {
             builder

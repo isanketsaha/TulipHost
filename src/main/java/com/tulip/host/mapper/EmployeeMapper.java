@@ -19,6 +19,7 @@ public interface EmployeeMapper {
     @Mapping(target = "bloodGroup", expression = "java(source.getBloodGroup().getDisplayType())")
     Employee toModel(OnboardingVM source);
 
+    @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(source.getDob()))")
     EmployeeBasicDTO toBasicEntity(Employee source);
 
     List<EmployeeDetailsDTO> toEntityList(List<Employee> source);

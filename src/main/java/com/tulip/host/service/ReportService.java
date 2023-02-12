@@ -22,13 +22,16 @@ import com.tulip.host.utils.CommonUtils;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
@@ -51,10 +54,13 @@ public class ReportService {
 
     private final InventoryMapper inventoryMapper;
 
+    private final SessionService sessionService;
+
     @org.springframework.transaction.annotation.Transactional
-    public Page<PaySummaryDTO> fetchTransactionHistory(int pageNo, int pageSize) {
-        Instant now = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant();
-        BooleanBuilder query = new BooleanBuilder().and(QTransaction.transaction.createdDate.goe(now));
+    public Page<PaySummaryDTO> fetchTransactionHistory(Date date, int pageNo, int pageSize) {
+        Date plus = DateUtils.addDays(date, 1);
+        BooleanBuilder query = new BooleanBuilder()
+            .and(QTransaction.transaction.createdDate.gt(date).and(QTransaction.transaction.createdDate.lt(plus)));
         Page<Transaction> transactionPage = transactionPagedRepository.findAll(
             query,
             CommonUtils.getPageRequest(DESC, "createdDate", pageNo, pageSize)
@@ -65,17 +71,22 @@ public class ReportService {
 
     @Transactional
     public DashBoardStudentDTO studentReport() {
-        Instant thisWeek = LocalDate.now().minus(7, ChronoUnit.DAYS).atStartOfDay(ZoneId.systemDefault()).toInstant();
-
-        Instant thisMonth = LocalDate.now().minus(1, ChronoUnit.MONTHS).atStartOfDay(ZoneId.systemDefault()).toInstant();
-        BooleanBuilder weekCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisWeek));
-        BooleanBuilder monthCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisMonth));
+        Date thisWeek = DateUtils.addDays(new Date(), -7);
+        Date thisMonth = DateUtils.addMonths(new Date(), -1);
+        BooleanBuilder admissionWeekCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisWeek));
+        BooleanBuilder admissionMonthCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisMonth));
+        BooleanBuilder withdrawnWeekCondition = new BooleanBuilder()
+            .and(QStudent.student.terminationDate.isNotNull().and(QStudent.student.terminationDate.goe(thisWeek)));
+        BooleanBuilder withdrawnMonthCondition = new BooleanBuilder()
+            .and(QStudent.student.terminationDate.isNotNull().and(QStudent.student.terminationDate.goe(thisMonth)));
 
         return DashBoardStudentDTO
             .builder()
             .schoolStrength(studentRepository.fetchStudentCount(true, null))
-            .studentAdmissionCountThisWeek(studentRepository.fetchStudentCount(true, weekCondition))
-            .studentAdmissionCountThisMonth(studentRepository.fetchStudentCount(true, monthCondition))
+            .admissionThisWeek(studentRepository.fetchStudentCount(true, admissionWeekCondition))
+            .admissionThisMonth(studentRepository.fetchStudentCount(true, admissionMonthCondition))
+            .withdrawnThisWeek(studentRepository.fetchStudentCount(false, withdrawnWeekCondition))
+            .withdrawnThisMonth(studentRepository.fetchStudentCount(false, withdrawnMonthCondition))
             .build();
     }
 
@@ -92,14 +103,14 @@ public class ReportService {
 
     @Transactional
     public List<InventoryItemDTO> inventoryReport() {
-        List<Inventory> stockReport = inventoryRepository.stockReport();
+        List<Inventory> stockReport = inventoryRepository.stockReport(sessionService.fetchCurrentSession().getId());
         List<InventoryItemDTO> inventoryItemDTOS = inventoryMapper.toEntityList(stockReport);
         Collections.sort(inventoryItemDTOS, Comparator.comparing(InventoryItemDTO::getAvailableQty));
         return inventoryItemDTOS;
     }
 
     @Transactional
-    public double getTransactionTotal(Instant from, Instant to) {
+    public double getTransactionTotal(Date from, Date to) {
         return transactionRepository.fetchTransactionTotal(from, to);
     }
 }

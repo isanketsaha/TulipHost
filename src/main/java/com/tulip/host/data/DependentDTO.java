@@ -35,4 +35,6 @@ public class DependentDTO implements Serializable {
     @Size(max = 15)
     @NotNull
     private String aadhaarNo;
+
+    private Boolean whatsappAvailable;
 }

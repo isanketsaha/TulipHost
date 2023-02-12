@@ -18,5 +18,5 @@ public class LoggedUserDTO {
 
     private String userId;
 
-    private List<String> authority;
+    private String authority;
 }

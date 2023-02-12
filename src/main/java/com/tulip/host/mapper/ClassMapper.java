@@ -6,6 +6,7 @@ import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.FeesCatalog;
 import com.tulip.host.repository.impl.ReferenceMapper;
 import java.util.List;
+import java.util.Set;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -21,6 +22,8 @@ public interface ClassMapper {
     ClassListDTO toClassListEntity(ClassDetail classDetail);
 
     List<ClassListDTO> toClassListEntityList(List<ClassDetail> classDetails);
+
+    List<ClassDetailDTO> toClassDetailList(Set<ClassDetail> classDetails);
 
     ClassDetail toModel(Long id);
 }

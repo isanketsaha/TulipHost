@@ -44,12 +44,11 @@ public class EmployeeService {
 
     @Transactional
     public Long addEmployee(OnboardingVM employeeVM) throws Exception {
-        UserGroup userGroupByAuthority = userGroupRepository.findUserGroupByAuthority(
-            "UG_" + employeeVM.getInterview().getRole().name().toUpperCase()
-        );
+        UserGroup userGroupByAuthority = userGroupRepository.findUserGroupByAuthority(employeeVM.getInterview().getRole().getValue());
         if (userGroupByAuthority != null) {
             Employee employee = employeeMapper.toModel(employeeVM);
             employee.setGroup(userGroupByAuthority);
+            employee.setName(employee.getName().toUpperCase());
             Employee emp = employeeRepository.saveAndFlush(employee);
             return emp.getId();
         }

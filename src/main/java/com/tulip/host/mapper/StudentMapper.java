@@ -12,7 +12,7 @@ import java.util.Set;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = { ClassMapper.class, DependentMapper.class, ReferenceMapper.class, CommonUtils.class })
+@Mapper(componentModel = "spring", uses = { DependentMapper.class, ReferenceMapper.class, CommonUtils.class })
 public interface StudentMapper {
     @Mapping(target = "classDetails", ignore = true)
     @Mapping(target = "phoneNumber", source = "contact")

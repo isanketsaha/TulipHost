@@ -3,12 +3,16 @@ package com.tulip.host.web.rest;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.service.StudentService;
+import com.tulip.host.web.rest.vm.PromoteStudentVM;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,9 +37,16 @@ public class StudentController {
         return studentService.searchStudent(id);
     }
 
-    @RequestMapping("/basicSearch/{id}")
-    public StudentBasicDTO basicSearch(@Valid @PathVariable int id) {
-        return studentService.basicSearchStudent(id);
+    @RequestMapping("/basicSearch")
+    public StudentBasicDTO basicSearch(
+        @Valid @RequestParam(value = "id", defaultValue = "0") long id,
+        @Valid @RequestParam(value = "classId", defaultValue = "0") long classId
+    ) {
+        if (classId < 1) {
+            return studentService.basicSearchStudent(id);
+        } else {
+            return studentService.basicSearchStudent(id, classId);
+        }
     }
 
     @RequestMapping("/searchByName/{name}")
@@ -47,5 +58,11 @@ public class StudentController {
     @RequestMapping("/edit")
     public StudentDetailsDTO edit() {
         return studentService.editStudent();
+    }
+
+    @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")
+    @RequestMapping("/deactivate")
+    public void deactivate(@Valid @RequestParam(value = "studentId") long id) {
+        studentService.deactivate(id);
     }
 }

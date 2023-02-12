@@ -25,7 +25,7 @@ public class StudentDetailsDTO {
     private Date dob;
 
     @NotNull
-    private Instant admissionDate;
+    private Date admissionDate;
 
     @Size(max = 255)
     private String address;
@@ -34,7 +34,7 @@ public class StudentDetailsDTO {
     private String phoneNumber;
 
     @NotNull
-    private ClassDetailDTO classDetails;
+    private List<ClassDetailDTO> classDetails;
 
     @Size(max = 2)
     @NotNull
@@ -47,10 +47,12 @@ public class StudentDetailsDTO {
     @NotNull
     private Boolean active;
 
+    private Boolean whatsappAvailable;
+
     @Size(max = 50)
     private String previousSchool;
 
-    private LocalDate terminationDate;
+    private Date terminationDate;
 
     private String religion;
     private int age;

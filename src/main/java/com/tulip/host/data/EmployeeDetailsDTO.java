@@ -42,6 +42,8 @@ public class EmployeeDetailsDTO implements Serializable {
     @NotNull
     private String name;
 
+    private Boolean whatsappAvailable;
+
     @NotNull
     private String phoneNumber;
 

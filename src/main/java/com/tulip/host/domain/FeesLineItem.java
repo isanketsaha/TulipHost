@@ -35,12 +35,8 @@ public class FeesLineItem extends AbstractAuditingEntity {
     private Double unitPrice;
 
     @Size(max = 10)
-    @Column(name = "from_month", length = 10)
-    private String fromMonth;
-
-    @Size(max = 10)
-    @Column(name = "to_month", length = 10)
-    private String toMonth;
+    @Column(name = "month", length = 10)
+    private String month;
 
     @NotNull
     @Column(name = "amount", nullable = false)

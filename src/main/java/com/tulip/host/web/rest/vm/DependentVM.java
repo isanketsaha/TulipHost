@@ -25,4 +25,6 @@ public class DependentVM {
 
     @NotNull
     RelationEnum relation;
+
+    boolean whatsappAvailable;
 }

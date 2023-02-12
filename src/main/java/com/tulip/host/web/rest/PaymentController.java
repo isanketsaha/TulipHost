@@ -8,6 +8,7 @@ import com.tulip.host.web.rest.vm.ExpenseItemVM;
 import com.tulip.host.web.rest.vm.PayVM;
 import java.util.List;
 import javax.validation.Valid;
+import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public Long pay(@Valid @RequestBody PayVM payVM) {
+    public Long pay(@Valid @RequestBody PayVM payVM) throws ValidationException {
         if (payVM.getPayType() == PayTypeEnum.FEES) {
             return paymentService.payFees(payVM);
         } else {

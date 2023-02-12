@@ -44,6 +44,10 @@ public class Employee extends AbstractAuditingEntity {
     @Column(name = "experience")
     private String experience;
 
+    @Column(name = "whatsapp_available")
+    @Builder.Default
+    private Boolean whatsappAvailable = false;
+
     @NotNull
     @Lob
     @Column(name = "gender", nullable = false)
