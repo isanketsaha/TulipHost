@@ -18,6 +18,7 @@ public interface StudentMapper {
     @Mapping(target = "phoneNumber", source = "contact")
     @Mapping(target = "dependents", source = "dependent")
     @Mapping(target = "bloodGroup", expression = "java(source.getBloodGroup().getDisplayType())")
+    @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(source.getName()))")
     Student toModel(OnboardingVM source);
 
     Student toEntity(Long id);
@@ -52,6 +53,7 @@ public interface StudentMapper {
     StudentBasicDTO toBasicEntity(Student student);
 
     @Mapping(target = "dob", dateFormat = "MM/dd/yyyy")
+    @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(studentLoadVms.getName()))")
     Student toModel(StudentLoadVm studentLoadVms);
 
     List<Student> toModelList(List<StudentLoadVm> studentLoadVms);

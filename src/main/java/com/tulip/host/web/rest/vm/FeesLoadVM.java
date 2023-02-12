@@ -19,5 +19,5 @@ public class FeesLoadVM {
     private String classDetail;
 
     @FieldName("Session")
-    private String session;
+    private Long session;
 }

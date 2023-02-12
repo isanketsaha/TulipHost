@@ -24,6 +24,7 @@ public interface FeesCatalogMapper {
 
     List<FeesCatalogDTO> toEntityList(Set<FeesCatalog> catalogs);
 
+    @Mapping(expression = "java(feesLoadVM.getFeesName().toUpperCase())", target = "feesName")
     FeesCatalog toModel(FeesLoadVM feesLoadVM);
 
     List<FeesCatalog> toModelList(List<FeesLoadVM> feesLoadVM);
