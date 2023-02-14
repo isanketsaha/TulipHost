@@ -67,4 +67,7 @@ public class ProductCatalog extends AbstractAuditingEntity {
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private Set<PurchaseLineItem> purchaseLineItems;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private Set<Inventory> inventories;
 }

@@ -54,7 +54,6 @@ public class DataLoadService {
             .stream()
             .map(item -> {
                 ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(item.getSession(), item.getStd());
-
                 Student student = studentMapper.toModel(item);
                 student.addClass(classDetail);
                 Dependent dependent = Dependent
@@ -62,9 +61,9 @@ public class DataLoadService {
                     .name(item.getFatherName())
                     .aadhaarNo(item.getFatherAadhaar())
                     .relationship(RelationEnum.FATHER.name())
-                    .qualification(item.getFatherQualification().substring(0, Math.min(item.getFatherQualification().length(), 50)))
+                    .qualification(item.getFatherQualification())
                     .contact(item.getFatherContact())
-                    .occupation(item.getFatherOccupation().substring(0, Math.min(item.getFatherOccupation().length(), 50)))
+                    .occupation(item.getFatherOccupation())
                     .build();
                 student.addDependent(dependent);
                 return student;
