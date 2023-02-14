@@ -2,6 +2,7 @@ package com.tulip.host.web.rest.vm;
 
 import io.github.rushuat.ocell.annotation.FieldFormat;
 import io.github.rushuat.ocell.annotation.FieldName;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,8 +16,8 @@ public class StudentLoadVm {
     private String name;
 
     @FieldName("Birthday")
-    @FieldFormat("mm/dd/yyyy")
-    private String dob;
+    @FieldFormat("dd/mm/yyyy")
+    private Date dob;
 
     @FieldName("Phone Number")
     String phoneNumber;

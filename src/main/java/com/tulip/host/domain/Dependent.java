@@ -47,9 +47,8 @@ public class Dependent extends AbstractAuditingEntity {
     @Builder.Default
     private Boolean whatsappAvailable = false;
 
-    @Size(max = 15)
-    @NotNull
-    @Column(name = "aadhaar_no", nullable = false, length = 15)
+    @Size(max = 16)
+    @Column(name = "aadhaar_no", nullable = false, length = 16)
     private String aadhaarNo;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })

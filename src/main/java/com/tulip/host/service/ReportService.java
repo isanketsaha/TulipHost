@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.time.DateUtils;
@@ -105,8 +106,12 @@ public class ReportService {
     public List<InventoryItemDTO> inventoryReport() {
         List<Inventory> stockReport = inventoryRepository.stockReport(sessionService.fetchCurrentSession().getId());
         List<InventoryItemDTO> inventoryItemDTOS = inventoryMapper.toEntityList(stockReport);
-        Collections.sort(inventoryItemDTOS, Comparator.comparing(InventoryItemDTO::getAvailableQty));
-        return inventoryItemDTOS;
+        List<InventoryItemDTO> itemDTOS = inventoryItemDTOS
+            .stream()
+            .filter(item -> item.getAvailableQty() > 0)
+            .collect(Collectors.toList());
+        Collections.sort(itemDTOS, Comparator.comparing(InventoryItemDTO::getAvailableQty));
+        return itemDTOS;
     }
 
     @Transactional

@@ -12,6 +12,7 @@ import com.tulip.host.repository.FeesCatalogRepository;
 import com.tulip.host.repository.ProductCatalogRepository;
 import com.tulip.host.web.rest.vm.CatalogVM;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,14 @@ public class CatalogService {
     @Transactional
     public List<CatalogDTO> productCatalog(Long classId) {
         List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveProduct(classId);
-        return catalogMapper.toModelList(catalogs);
+        List<ProductCatalog> collect = catalogs
+            .stream()
+            .filter(item -> {
+                int soldQuantity = item.getPurchaseLineItems().stream().mapToInt(lineItem -> lineItem.getQty()).sum();
+                int purchaseQuantity = item.getInventories().stream().mapToInt(lineItem -> lineItem.getQty()).sum();
+                return soldQuantity < purchaseQuantity;
+            })
+            .collect(Collectors.toList());
+        return catalogMapper.toModelList(collect);
     }
 }

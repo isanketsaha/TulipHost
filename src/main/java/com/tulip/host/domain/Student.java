@@ -54,7 +54,6 @@ public class Student extends AbstractAuditingEntity {
     private String address;
 
     @Size(max = 6)
-    @NotNull
     @Column(name = "blood_group", nullable = false, length = 6)
     private String bloodGroup;
 

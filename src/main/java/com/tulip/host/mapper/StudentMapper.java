@@ -52,7 +52,7 @@ public interface StudentMapper {
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(student.getDob()))")
     StudentBasicDTO toBasicEntity(Student student);
 
-    @Mapping(target = "dob", dateFormat = "MM/dd/yyyy")
+    //    @Mapping(target = "dob", dateFormat = "MM/dd/yyyy")
     @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(studentLoadVms.getName()))")
     Student toModel(StudentLoadVm studentLoadVms);
 

@@ -27,8 +27,6 @@ public class ProductLoadVM {
     private Long session;
 
     @FieldName("Size")
-    @StringValue("")
-    @FieldConverter(DoubleConverter.class)
     private String size;
 
     @FieldName("Category")
