@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -57,7 +58,6 @@ public class StudentService {
         ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(onboardingVM.getSession(), onboardingVM.getStd().name());
         Student student = studentMapper.toModel(onboardingVM);
         student.addClass(classDetail);
-        student.setName(student.getName().toUpperCase());
         Student save = studentRepository.save(student);
         return save.getId();
     }
