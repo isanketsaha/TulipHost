@@ -48,7 +48,6 @@ public class EmployeeService {
         if (userGroupByAuthority != null) {
             Employee employee = employeeMapper.toModel(employeeVM);
             employee.setGroup(userGroupByAuthority);
-            employee.setName(employee.getName().toUpperCase());
             Employee emp = employeeRepository.saveAndFlush(employee);
             return emp.getId();
         }
