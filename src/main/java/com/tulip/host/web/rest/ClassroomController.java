@@ -5,7 +5,6 @@ import com.tulip.host.data.ClassListDTO;
 import com.tulip.host.service.ClassroomService;
 import com.tulip.host.web.rest.vm.PromoteStudentVM;
 import java.util.List;
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +28,7 @@ public class ClassroomController {
     }
 
     @GetMapping("/details/{classroomId}")
-    public ClassDetailDTO fetchStudentList(@PathVariable Long classroomId, HttpSession session) {
+    public ClassDetailDTO fetchStudentList(@PathVariable Long classroomId) {
         return classroomService.fetchClassDetails(classroomId);
     }
 
