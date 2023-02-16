@@ -27,7 +27,7 @@ public class ReportController {
     public Page<PaySummaryDTO> transactionHistory(
         @Valid @PathVariable Date date,
         @RequestParam(value = "page", defaultValue = "0") int pageNo,
-        @RequestParam(name = "size", defaultValue = "5") int pageSize
+        @RequestParam(name = "size", defaultValue = "15") int pageSize
     ) {
         return dashboardService.fetchTransactionHistory(date, pageNo, pageSize);
     }
