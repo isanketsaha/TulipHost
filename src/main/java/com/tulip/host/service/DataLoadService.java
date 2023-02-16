@@ -58,7 +58,7 @@ public class DataLoadService {
                 student.addClass(classDetail);
                 Dependent dependent = Dependent
                     .builder()
-                    .name(item.getFatherName())
+                    .name(WordUtils.capitalizeFully(item.getFatherName()))
                     .aadhaarNo(item.getFatherAadhaar())
                     .relationship(RelationEnum.FATHER.name())
                     .qualification(item.getFatherQualification())

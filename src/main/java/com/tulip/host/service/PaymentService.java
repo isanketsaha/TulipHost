@@ -68,6 +68,8 @@ public class PaymentService {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT, Locale.ENGLISH);
 
+    private static final String TUITION_FEES = "TUITION";
+
     @Transactional
     public Long payFees(PayVM payVM) throws ValidationException {
         validate(payVM);
@@ -203,7 +205,8 @@ public class PaymentService {
                     .forEach(item -> {
                         FeesCatalog feesProduct = item.getFeesProduct();
                         if (
-                            feesProduct.getApplicableRule().equals(FeesRuleType.MONTHLY) && feesProduct.getFeesName().startsWith("Tuition")
+                            feesProduct.getApplicableRule().equals(FeesRuleType.MONTHLY) &&
+                            feesProduct.getFeesName().startsWith(TUITION_FEES)
                         ) {
                             months.add(item.getMonth());
                         } else if (feesProduct.getApplicableRule().equals(FeesRuleType.YEARLY)) {
