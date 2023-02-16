@@ -21,7 +21,7 @@ public class AuditController {
     @GetMapping
     public Page<AuditDTO> audit(
         @RequestParam(value = "page", defaultValue = "0") int pageNo,
-        @RequestParam(name = "size", defaultValue = "6") int pageSize
+        @RequestParam(name = "size", defaultValue = "15") int pageSize
     ) {
         return auditService.fetchAudit(pageNo, pageSize);
     }
