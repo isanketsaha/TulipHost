@@ -24,8 +24,8 @@ public class ClassroomController {
     private final ClassroomService classroomService;
 
     @GetMapping("/all")
-    List<ClassListDTO> fetch() {
-        return classroomService.fetchAllClasses();
+    List<ClassListDTO> fetch(@RequestParam(value = "sessionId") int session) {
+        return classroomService.fetchAllClasses(session);
     }
 
     @GetMapping("/details/{classroomId}")
