@@ -40,9 +40,12 @@ public class ClassroomService {
     }
 
     @Transactional
-    public List<ClassListDTO> fetchAllClasses() {
-        SessionDTO sessionDTO = sessionService.fetchCurrentSession();
-        List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(sessionDTO.getId());
+    public List<ClassListDTO> fetchAllClasses(long sessionId) {
+        if (sessionId == 0) {
+            SessionDTO sessionDTO = sessionService.fetchCurrentSession();
+            sessionId = sessionDTO.getId();
+        }
+        List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(sessionId);
         return classMapper.toClassListEntityList(allBySessionId);
     }
 
