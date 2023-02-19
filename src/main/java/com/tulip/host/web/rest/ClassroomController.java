@@ -5,6 +5,7 @@ import com.tulip.host.data.ClassListDTO;
 import com.tulip.host.service.ClassroomService;
 import com.tulip.host.web.rest.vm.PromoteStudentVM;
 import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,8 +24,8 @@ public class ClassroomController {
     private final ClassroomService classroomService;
 
     @GetMapping("/all")
-    List<ClassListDTO> fetch(@RequestParam(value = "sessionId") int session) {
-        return classroomService.fetchAllClasses(session);
+    List<ClassListDTO> fetch(@RequestParam Optional<Integer> sessionId) {
+        return classroomService.fetchAllClasses(sessionId.orElseGet(() -> 0));
     }
 
     @GetMapping("/details/{classroomId}")
