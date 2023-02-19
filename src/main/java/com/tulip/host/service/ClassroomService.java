@@ -2,6 +2,7 @@ package com.tulip.host.service;
 
 import com.tulip.host.data.ClassDetailDTO;
 import com.tulip.host.data.ClassListDTO;
+import com.tulip.host.data.InventoryItemDTO;
 import com.tulip.host.data.SessionDTO;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.domain.ClassDetail;
@@ -12,6 +13,7 @@ import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.web.rest.vm.PromoteStudentVM;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -46,6 +48,7 @@ public class ClassroomService {
             sessionId = sessionDTO.getId();
         }
         List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(sessionId);
+        Collections.sort(allBySessionId, Comparator.comparing(ClassDetail::getStd));
         return classMapper.toClassListEntityList(allBySessionId);
     }
 
