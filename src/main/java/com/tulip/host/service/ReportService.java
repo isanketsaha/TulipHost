@@ -106,12 +106,8 @@ public class ReportService {
     public List<InventoryItemDTO> inventoryReport() {
         List<Inventory> stockReport = inventoryRepository.stockReport(sessionService.fetchCurrentSession().getId());
         List<InventoryItemDTO> inventoryItemDTOS = inventoryMapper.toEntityList(stockReport);
-        List<InventoryItemDTO> itemDTOS = inventoryItemDTOS
-            .stream()
-            .filter(item -> item.getAvailableQty() > 0)
-            .collect(Collectors.toList());
-        Collections.sort(itemDTOS, Comparator.comparing(InventoryItemDTO::getAvailableQty));
-        return itemDTOS;
+        Collections.sort(inventoryItemDTOS, (a, b) -> a.getProduct().getItemName().compareTo(b.getProduct().getItemName()));
+        return inventoryItemDTOS;
     }
 
     @Transactional
