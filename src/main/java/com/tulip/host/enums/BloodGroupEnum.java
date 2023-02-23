@@ -6,6 +6,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public enum BloodGroupEnum {
+    Others("N/A"),
     aPositive("A+"),
     aNegative("A-"),
     bPositive("B+"),
