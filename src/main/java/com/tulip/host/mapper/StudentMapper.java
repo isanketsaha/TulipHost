@@ -7,12 +7,19 @@ import com.tulip.host.repository.impl.ReferenceMapper;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import com.tulip.host.web.rest.vm.StudentLoadVm;
+import com.tulip.host.web.rest.vm.UserEditVM;
 import java.util.List;
 import java.util.Set;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring", uses = { DependentMapper.class, ReferenceMapper.class, CommonUtils.class })
+@Mapper(
+    componentModel = "spring",
+    uses = { DependentMapper.class, ReferenceMapper.class, CommonUtils.class },
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface StudentMapper {
     @Mapping(target = "classDetails", ignore = true)
     @Mapping(target = "phoneNumber", source = "contact")
@@ -50,11 +57,27 @@ public interface StudentMapper {
         "                .getStd())"
     )
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(student.getDob()))")
+    @Mapping(
+        target = "pendingFees",
+        expression = "java(com.tulip.host.utils.CommonUtils.calculatePendingMonthFees(student, student.getClassDetails().stream().findFirst().get().getSession().getFromDate()))"
+    )
     StudentBasicDTO toBasicEntity(Student student);
 
-    //    @Mapping(target = "dob", dateFormat = "MM/dd/yyyy")
     @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(studentLoadVms.getName()))")
     Student toModel(StudentLoadVm studentLoadVms);
 
     List<Student> toModelList(List<StudentLoadVm> studentLoadVms);
+
+    @Mapping(target = "classDetails", ignore = true)
+    @Mapping(target = "phoneNumber", source = "contact")
+    @Mapping(target = "dependents", ignore = true)
+    @Mapping(
+        target = "bloodGroup",
+        expression = "java(editVM.getBloodGroup() != null ? editVM.getBloodGroup().getDisplayType() : student.getBloodGroup())"
+    )
+    @Mapping(
+        target = "name",
+        expression = "java(editVM.getName() != null ? org.apache.commons.lang.WordUtils.capitalizeFully(editVM.getName()): student.getName())"
+    )
+    void toUpdateModel(UserEditVM editVM, @MappingTarget Student student);
 }

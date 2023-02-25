@@ -22,11 +22,6 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
     }
 
     @Override
-    public StudentDetailsDTO edit() {
-        return null;
-    }
-
-    @Override
     public List<Student> search(String name) {
         return jpaQueryFactory
             .selectFrom(STUDENT)

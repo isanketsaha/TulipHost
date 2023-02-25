@@ -23,4 +23,15 @@ public class ClassDetailRepositoryImpl extends BaseRepositoryImpl<ClassDetail, L
             .where(CLASS_DETAIL.session().id.eq(sessionId).and(CLASS_DETAIL.std.eq(std)))
             .fetchOne();
     }
+
+    @Override
+    public ClassDetail findByClass(Long classId) {
+        return jpaQueryFactory
+            .selectFrom(CLASS_DETAIL)
+            .innerJoin(CLASS_DETAIL.students, STUDENT)
+            .leftJoin(STUDENT.transactions, TRANSACTION)
+            .leftJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
+            .where(CLASS_DETAIL.id.eq(classId).and(FEES_LINE_ITEM.feesProduct().std().eq(CLASS_DETAIL)))
+            .fetchOne();
+    }
 }

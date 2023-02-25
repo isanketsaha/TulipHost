@@ -29,6 +29,8 @@ public class StudentBasicDTO {
     @NotNull
     private String phoneNumber;
 
+    private long pendingFees;
+
     @NotNull
     private String std;
 
