@@ -35,14 +35,14 @@ public class JWTFilter extends GenericFilterBean {
         if (StringUtils.hasText(jwt) && this.tokenProvider.validateToken(jwt)) {
             Authentication authentication = this.tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } else if (StringUtils.hasText(jwt)) {
+            filterChain.doFilter(servletRequest, servletResponse);
+        } else {
             logger.error("Unable to get JWT Token or JWT Token has expired");
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("anonymous", "anonymous", null);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             ((HttpServletResponse) servletResponse).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        filterChain.doFilter(servletRequest, servletResponse);
     }
 
     private String resolveToken(HttpServletRequest request) {

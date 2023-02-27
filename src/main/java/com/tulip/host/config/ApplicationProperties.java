@@ -16,12 +16,33 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ApplicationProperties {
 
     public final Page page = new Page();
+    public final Aws aws = new Aws();
 
     @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
     public static class Page {
 
         private int size;
+    }
+
+    @Data
+    public static class Aws {
+
+        public final Credential credential = new Credential();
+        public final Region region = new Region();
+
+        @Data
+        public static class Credential {
+
+            private String accessKey;
+            private String secret;
+            private String profileName;
+            private String bucketName;
+        }
+
+        @Data
+        public static class Region {
+
+            private String value;
+        }
     }
 }

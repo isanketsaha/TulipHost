@@ -15,6 +15,10 @@
 
 logging:
   level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error
     ROOT: DEBUG
     tech.jhipster: DEBUG
     org.hibernate.SQL: DEBUG
@@ -82,7 +86,7 @@ spring:
         enabled: true
 
 server:
-  port: 8081
+  port: 8082
 
 # ===================================================================
 # JHipster specific properties
@@ -126,5 +130,10 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
-
+application:
+  aws:
+    credential:
+      accessKey: 'AKIAVHI7JUOUCRMTYOKK'
+      secret: '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'
+      profile-name: dev
+      bucket-name: tulip-docs-test
