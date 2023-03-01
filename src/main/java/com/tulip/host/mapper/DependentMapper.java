@@ -2,9 +2,7 @@ package com.tulip.host.mapper;
 
 import com.tulip.host.data.DependentDTO;
 import com.tulip.host.domain.Dependent;
-import com.tulip.host.domain.Student;
 import com.tulip.host.web.rest.vm.DependentVM;
-import com.tulip.host.web.rest.vm.UserEditVM;
 import java.util.List;
 import java.util.Set;
 import org.mapstruct.Mapper;
@@ -14,6 +12,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface DependentMapper {
+    @Mapping(target = "aadhaarCard", source = "uploadedDocuments")
     DependentDTO toEntity(Dependent dependent);
 
     @Mapping(target = "aadhaarNo", source = "aadhaar")
@@ -30,5 +29,6 @@ public interface DependentMapper {
         target = "name",
         expression = "java(dependent.getName() != null ? org.apache.commons.lang.WordUtils.capitalizeFully(dependent.getName()) : dependent.getName())"
     )
+    @Mapping(target = "uploadedDocuments", source = "aadhaarCard")
     void toUpdateModel(DependentVM dependentVM, @MappingTarget Dependent dependent);
 }

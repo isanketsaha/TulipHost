@@ -1,5 +1,9 @@
 package com.tulip.host.web.rest.vm;
 
+import static com.tulip.host.config.Constants.AADHAAR_CARD;
+import static com.tulip.host.config.Constants.BIRTH_CERTIFICATE;
+import static com.tulip.host.config.Constants.PAN_CARD;
+
 import com.tulip.host.enums.BloodGroupEnum;
 import com.tulip.host.enums.GenderEnum;
 import com.tulip.host.enums.ReligionEnum;
@@ -45,7 +49,7 @@ public class UserEditVM {
             aadhaarCard
                 .stream()
                 .map(item -> {
-                    item.setDocumentType("AADHAAR CARD");
+                    item.setDocumentType(AADHAAR_CARD);
                     return item;
                 })
                 .collect(Collectors.toList());
@@ -56,7 +60,7 @@ public class UserEditVM {
             panCard
                 .stream()
                 .map(item -> {
-                    item.setDocumentType("PAN CARD");
+                    item.setDocumentType(PAN_CARD);
                     return item;
                 })
                 .collect(Collectors.toList());
@@ -67,7 +71,7 @@ public class UserEditVM {
             birthCertificate
                 .stream()
                 .map(item -> {
-                    item.setDocumentType("PAN CARD");
+                    item.setDocumentType(BIRTH_CERTIFICATE);
                     return item;
                 })
                 .collect(Collectors.toList());

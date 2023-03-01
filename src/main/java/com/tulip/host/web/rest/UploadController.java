@@ -50,9 +50,6 @@ public class UploadController {
     public void download(@RequestParam String uuid, HttpServletResponse response) throws FileUploadException, IOException {
         byte[] download = uploadService.download(uuid);
         ByteArrayInputStream output = new ByteArrayInputStream(download);
-        response.setContentType("text/png; charset=utf-8");
-        response.setHeader("Content-Disposition", "attachment; filename=" + "Sanket");
-        response.setHeader("filename", "Sanket");
         IOUtils.copy(output, response.getOutputStream());
         IOUtils.closeQuietly(output);
     }

@@ -137,7 +137,11 @@ public class StudentService {
                     .getDependent()
                     .forEach(dependentVM -> {
                         Dependent dependent = dependentRepository.findById(dependentVM.getId()).orElse(null);
+
                         dependentMapper.toUpdateModel(dependentVM, dependent);
+                        if (dependentVM.getAadhaarCard() != null) {
+                            dependent.getUploadedDocuments().forEach(item -> item.setDependent(dependent));
+                        }
                         dependentRepository.saveAndFlush(dependent);
                     });
             }
