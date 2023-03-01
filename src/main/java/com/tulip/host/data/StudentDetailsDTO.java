@@ -1,5 +1,6 @@
 package com.tulip.host.data;
 
+import com.tulip.host.web.rest.vm.UploadVM;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Date;
@@ -56,6 +57,12 @@ public class StudentDetailsDTO {
 
     private String religion;
     private int age;
+
+    List<UploadVM> aadhaarCard;
+
+    List<UploadVM> panCard;
+
+    List<UploadVM> birthCertificate;
 
     @NotNull
     private Set<DependentDTO> dependent;

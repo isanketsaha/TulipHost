@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class FeesItemSummaryDTO {
 
     Long feesId;
+    Long itemId;
     String feesTitle;
     double unitPrice;
     double amount;

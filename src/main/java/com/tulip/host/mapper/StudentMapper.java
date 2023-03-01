@@ -3,6 +3,7 @@ package com.tulip.host.mapper;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.Student;
+import com.tulip.host.domain.Upload;
 import com.tulip.host.repository.impl.ReferenceMapper;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
@@ -10,6 +11,8 @@ import com.tulip.host.web.rest.vm.StudentLoadVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -17,13 +20,14 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(
     componentModel = "spring",
-    uses = { DependentMapper.class, ReferenceMapper.class, CommonUtils.class },
+    uses = { DependentMapper.class, ReferenceMapper.class, CommonUtils.class, UploadMapper.class },
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
 public interface StudentMapper {
     @Mapping(target = "classDetails", ignore = true)
     @Mapping(target = "phoneNumber", source = "contact")
     @Mapping(target = "dependents", source = "dependent")
+    @Mapping(target = "uploadedDocuments", source = "aadhaarCard")
     @Mapping(target = "bloodGroup", expression = "java(source.getBloodGroup().getDisplayType())")
     @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(source.getName()))")
     Student toModel(OnboardingVM source);
@@ -38,6 +42,9 @@ public interface StudentMapper {
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(student.getDob()))")
     @Mapping(target = "dependent", source = "dependents")
     @Mapping(target = "classDetails", ignore = true)
+    @Mapping(target = "aadhaarCard", expression = "java(new ArrayList<>())")
+    @Mapping(target = "panCard", expression = "java(new ArrayList<>())")
+    @Mapping(target = "birthCertificate", expression = "java(new ArrayList<>())")
     StudentDetailsDTO toDetailEntity(Student student);
 
     @Mapping(
@@ -80,4 +87,13 @@ public interface StudentMapper {
         expression = "java(editVM.getName() != null ? org.apache.commons.lang.WordUtils.capitalizeFully(editVM.getName()): student.getName())"
     )
     void toUpdateModel(UserEditVM editVM, @MappingTarget Student student);
+
+    @AfterMapping
+    default void setUpload(@MappingTarget Student student, Set<Upload> upload) {
+        if (CollectionUtils.isEmpty(student.getUploadedDocuments())) {
+            student.setUploadedDocuments(upload);
+        } else {
+            student.getUploadedDocuments().addAll(upload);
+        }
+    }
 }

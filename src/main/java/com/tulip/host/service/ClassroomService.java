@@ -35,9 +35,13 @@ public class ClassroomService {
     @Transactional
     public ClassDetailDTO fetchClassDetails(Long classroomId) {
         ClassDetail classDetail = classDetailRepository.findByClass(classroomId);
-        ClassDetailDTO classDetailDTO = classMapper.toEntity(classDetail);
-        classDetailDTO.getStudents().sort((s1, s2) -> s1.getName().toUpperCase().compareTo(s2.getName().toUpperCase()));
-        return classDetailDTO;
+        if (classDetail != null) {
+            ClassDetailDTO classDetailDTO = classMapper.toEntity(classDetail);
+
+            classDetailDTO.getStudents().sort((s1, s2) -> s1.getName().toUpperCase().compareTo(s2.getName().toUpperCase()));
+            return classDetailDTO;
+        }
+        return null;
     }
 
     @Transactional

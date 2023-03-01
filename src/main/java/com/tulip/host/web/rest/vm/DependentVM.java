@@ -1,6 +1,7 @@
 package com.tulip.host.web.rest.vm;
 
 import com.tulip.host.enums.RelationEnum;
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,5 +21,5 @@ public class DependentVM {
     String qualification;
     RelationEnum relation;
     boolean whatsappAvailable;
-    MultipartFile[] documents;
+    List<UploadVM> aadhaarCard;
 }

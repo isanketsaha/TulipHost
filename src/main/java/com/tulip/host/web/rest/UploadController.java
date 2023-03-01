@@ -1,9 +1,14 @@
 package com.tulip.host.web.rest;
 
 import com.tulip.host.service.UploadService;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,18 +37,23 @@ public class UploadController {
     }
 
     @GetMapping
-    public String preSignedURL(@RequestParam String uuid) throws FileUploadException {
+    public String preSignedURL(@RequestParam String uuid) {
         return uploadService.preSignedURL(uuid);
     }
 
     @DeleteMapping
-    public void delete(@RequestParam String uuid) throws FileUploadException {
+    public void delete(@RequestParam String uuid) {
         uploadService.delete(uuid);
     }
 
     @GetMapping("/download")
-    public ResponseEntity<byte[]> download(@RequestParam String uuid) throws FileUploadException {
+    public void download(@RequestParam String uuid, HttpServletResponse response) throws FileUploadException, IOException {
         byte[] download = uploadService.download(uuid);
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "Sanket" + "\"").body(download);
+        ByteArrayInputStream output = new ByteArrayInputStream(download);
+        response.setContentType("text/png; charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment; filename=" + "Sanket");
+        response.setHeader("filename", "Sanket");
+        IOUtils.copy(output, response.getOutputStream());
+        IOUtils.closeQuietly(output);
     }
 }

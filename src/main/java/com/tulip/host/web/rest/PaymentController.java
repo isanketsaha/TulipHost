@@ -4,6 +4,7 @@ import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.service.PaymentService;
+import com.tulip.host.web.rest.vm.EditOrderVm;
 import com.tulip.host.web.rest.vm.ExpenseItemVM;
 import com.tulip.host.web.rest.vm.PayVM;
 import java.util.List;
@@ -11,6 +12,7 @@ import javax.validation.Valid;
 import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -51,5 +53,11 @@ public class PaymentController {
     @PostMapping("/expense")
     public Long registerExpense(@Valid @RequestBody List<ExpenseItemVM> expenseItems) {
         return paymentService.registerExpense(expenseItems);
+    }
+
+    @PostMapping("/edit")
+    @PreAuthorize("hasAuthority('UG_ADMIN')")
+    public void editOrder(@Valid @RequestBody EditOrderVm editOrderVm) {
+        paymentService.edit(editOrderVm);
     }
 }

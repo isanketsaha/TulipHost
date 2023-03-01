@@ -18,6 +18,7 @@ public interface DependentMapper {
 
     @Mapping(target = "aadhaarNo", source = "aadhaar")
     @Mapping(target = "relationship", source = "relation")
+    @Mapping(target = "uploadedDocuments", source = "aadhaarCard")
     @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(dependent.getName()))")
     Dependent toModel(DependentVM dependent);
 

@@ -1,5 +1,9 @@
 package com.tulip.host.service;
 
+import static com.tulip.host.config.Constants.AADHAAR_CARD;
+import static com.tulip.host.config.Constants.BIRTH_CERTIFICATE;
+import static com.tulip.host.config.Constants.PAN_CARD;
+
 import com.querydsl.core.BooleanBuilder;
 import com.tulip.host.data.ClassDetailDTO;
 import com.tulip.host.data.StudentBasicDTO;
@@ -11,6 +15,7 @@ import com.tulip.host.domain.Student;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.DependentMapper;
 import com.tulip.host.mapper.StudentMapper;
+import com.tulip.host.mapper.UploadMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.DependentRepository;
 import com.tulip.host.repository.StudentPagedRepository;
@@ -37,6 +42,7 @@ public class StudentService {
     private final StudentMapper studentMapper;
     private final ClassMapper classMapper;
     private final DependentMapper dependentMapper;
+    private final UploadMapper uploadMapper;
     private final StudentPagedRepository studentPagedRepository;
     private final DependentRepository dependentRepository;
 
@@ -55,6 +61,7 @@ public class StudentService {
         ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(onboardingVM.getSession(), onboardingVM.getStd().name());
         Student student = studentMapper.toModel(onboardingVM);
         student.addClass(classDetail);
+        addUpload(student, onboardingVM);
         Student save = studentRepository.save(student);
         return save.getId();
     }
@@ -71,10 +78,25 @@ public class StudentService {
         if (byId != null && !CollectionUtils.isEmpty(byId.getClassDetails())) {
             List<ClassDetailDTO> classDetailDTOS = classMapper.toClassDetailList(byId.getClassDetails());
             StudentDetailsDTO studentDetailsDTO = studentMapper.toDetailEntity(byId);
+            mapUpload(studentDetailsDTO, byId);
             studentDetailsDTO.setClassDetails(classDetailDTOS);
             return studentDetailsDTO;
         }
         return null;
+    }
+
+    private void mapUpload(StudentDetailsDTO studentDetailsDTO, Student byId) {
+        byId
+            .getUploadedDocuments()
+            .forEach(item -> {
+                if (item.getDocumentType().equals(AADHAAR_CARD)) {
+                    studentDetailsDTO.getAadhaarCard().add(uploadMapper.toEntity(item));
+                } else if (item.getDocumentType().equals(BIRTH_CERTIFICATE)) {
+                    studentDetailsDTO.getBirthCertificate().add(uploadMapper.toEntity(item));
+                } else if (item.getDocumentType().equals(PAN_CARD)) {
+                    studentDetailsDTO.getPanCard().add(uploadMapper.toEntity(item));
+                }
+            });
     }
 
     @Transactional
@@ -95,20 +117,31 @@ public class StudentService {
         return null;
     }
 
-    public UserEditVM editStudentDetails(UserEditVM editVM) {
+    @Transactional
+    public void editStudentDetails(UserEditVM editVM) {
         Student byId = studentRepository.findById(editVM.getId()).orElse(null);
         if (byId != null) {
             studentMapper.toUpdateModel(editVM, byId);
+            if (editVM.getAadhaarCard() != null) {
+                byId.addUpload(uploadMapper.toModelList(editVM.getAadhaarCard()));
+            }
+            if (editVM.getPanCard() != null) {
+                byId.addUpload(uploadMapper.toModelList(editVM.getPanCard()));
+            }
+            if (editVM.getBirthCertificate() != null) {
+                byId.addUpload(uploadMapper.toModelList(editVM.getBirthCertificate()));
+            }
             studentRepository.saveAndFlush(byId);
-            editVM
-                .getDependent()
-                .forEach(dependentVM -> {
-                    Dependent dependent = dependentRepository.findById(dependentVM.getId()).orElse(null);
-                    dependentMapper.toUpdateModel(dependentVM, dependent);
-                    dependentRepository.saveAndFlush(dependent);
-                });
+            if (editVM.getDependent() != null) {
+                editVM
+                    .getDependent()
+                    .forEach(dependentVM -> {
+                        Dependent dependent = dependentRepository.findById(dependentVM.getId()).orElse(null);
+                        dependentMapper.toUpdateModel(dependentVM, dependent);
+                        dependentRepository.saveAndFlush(dependent);
+                    });
+            }
         }
-        return null;
     }
 
     public void deactivate(long id) {
@@ -118,5 +151,12 @@ public class StudentService {
             byId.setTerminationDate(new Date());
             studentRepository.save(byId);
         }
+    }
+
+    public void addUpload(Student student, OnboardingVM onboardingVM) {
+        student.addUpload(uploadMapper.toModelList(onboardingVM.getAadhaarCard()));
+        student.addUpload(uploadMapper.toModelList(onboardingVM.getPanCard()));
+        student.addUpload(uploadMapper.toModelList(onboardingVM.getBirthCertificate()));
+        student.getDependents().forEach(item -> item.getUploadedDocuments().forEach(upload -> upload.setDependent(item)));
     }
 }

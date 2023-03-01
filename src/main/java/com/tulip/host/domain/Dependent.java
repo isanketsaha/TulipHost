@@ -66,4 +66,7 @@ public class Dependent extends AbstractAuditingEntity {
         inverseJoinColumns = @JoinColumn(name = "emp_id")
     )
     private Set<Employee> employees = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "dependent", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    private Set<Upload> uploadedDocuments;
 }

@@ -19,6 +19,7 @@ public interface PurchaseLineItemMapper {
 
     @Mapping(target = "productTitle", source = "product.itemName")
     @Mapping(target = "productId", source = "product.id")
+    @Mapping(target = "itemId", source = "id")
     @Mapping(target = "productCategory", source = "product.category")
     @Mapping(target = "productTag", source = "product.tag")
     @Mapping(target = "productSize", source = "product.size")

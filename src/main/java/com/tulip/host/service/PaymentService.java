@@ -7,9 +7,15 @@ import com.querydsl.core.BooleanBuilder;
 import com.tulip.host.config.ApplicationProperties;
 import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.FeesItemSummaryDTO;
-import com.tulip.host.data.InventoryItemDTO;
 import com.tulip.host.data.PaySummaryDTO;
-import com.tulip.host.domain.*;
+import com.tulip.host.domain.Expense;
+import com.tulip.host.domain.FeesCatalog;
+import com.tulip.host.domain.FeesLineItem;
+import com.tulip.host.domain.ProductCatalog;
+import com.tulip.host.domain.PurchaseLineItem;
+import com.tulip.host.domain.QTransaction;
+import com.tulip.host.domain.Student;
+import com.tulip.host.domain.Transaction;
 import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.enums.PaymentOptionEnum;
@@ -19,18 +25,27 @@ import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.repository.FeesCatalogRepository;
 import com.tulip.host.repository.FeesLineItemRepository;
 import com.tulip.host.repository.ProductCatalogRepository;
+import com.tulip.host.repository.PurchaseLineItemRepository;
 import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionPagedRepository;
+import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
-import com.tulip.host.web.rest.errors.BadRequestAlertException;
+import com.tulip.host.web.rest.vm.EditOrderVm;
 import com.tulip.host.web.rest.vm.ExpenseItemVM;
 import com.tulip.host.web.rest.vm.PayVM;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +54,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -46,10 +62,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class PaymentService {
 
+    private final PurchaseLineItemRepository purchaseLineItemRepository;
+    private final TransactionRepository transactionRepository;
+
     private final ProductCatalogRepository productCatalogRepository;
     private final FeesCatalogRepository feesCatalogRepository;
 
-    private final TransactionPagedRepository transactionRepository;
+    private final TransactionPagedRepository transactionPagedRepository;
 
     private final TransactionMapper transactionMapper;
 
@@ -173,7 +192,7 @@ public class PaymentService {
     @Transactional
     public PageImpl<PaySummaryDTO> getTransactionHistory(int pageNo, Long studentId, int pageSize) {
         BooleanBuilder booleanBuilder = new BooleanBuilder().and(QTransaction.transaction.student().id.eq(studentId));
-        Page<Transaction> transactionPage = transactionRepository.findAll(
+        Page<Transaction> transactionPage = transactionPagedRepository.findAll(
             booleanBuilder.getValue(),
             CommonUtils.getPageRequest(DESC, "createdDate", pageNo, pageSize)
         );
@@ -192,7 +211,10 @@ public class PaymentService {
                     .and(QTransaction.transaction.feesLineItem.any().feesProduct().std().id.eq(classId))
             );
 
-        List<Transaction> transactionList = (List<Transaction>) transactionRepository.findAll(booleanBuilder, Sort.by(DESC, "createdDate"));
+        List<Transaction> transactionList = (List<Transaction>) transactionPagedRepository.findAll(
+            booleanBuilder,
+            Sort.by(DESC, "createdDate")
+        );
         if (CollectionUtils.isNotEmpty(transactionList)) {
             Set<String> months = new LinkedHashSet<>();
             Set<Long> annual = new LinkedHashSet<>();
@@ -226,12 +248,45 @@ public class PaymentService {
             .builder()
             .expenseItems(expenses)
             .paymentMode(PaymentOptionEnum.CASH.name())
-            .amount(expenses.stream().mapToDouble(item -> item.getAmount()).sum() * (-1))
+            .amount(expenses.stream().mapToDouble(Expense::getAmount).sum() * (-1))
             .type(PayTypeEnum.EXPENSE.name())
             .build();
         transaction.setAfterDiscount(transaction.getAmount());
-        expenses.stream().forEach(item -> item.setOrder(transaction));
+        expenses.forEach(item -> item.setOrder(transaction));
         List<Expense> expensesList = expenseRepository.saveAllAndFlush(expenses);
         return expensesList.stream().findFirst().get().getOrder().getId();
+    }
+
+    @Transactional
+    public void edit(EditOrderVm editOrderVm) {
+        Transaction transaction = transactionRepository.findById(editOrderVm.getPaymentId()).orElse(null);
+        double sum = 0;
+        if (editOrderVm.getPayTypeEnum() == PayTypeEnum.FEES) {
+            FeesLineItem feesLineItem = feesLineItemRepository.findById(editOrderVm.getItemId()).orElse(null);
+            assert transaction != null;
+            transaction.removeFeesLineItem(feesLineItem);
+            if (!transaction.getFeesLineItem().isEmpty()) {
+                sum = transaction.getFeesLineItem().stream().mapToDouble(FeesLineItem::getAmount).sum();
+                transaction.setAmount(sum);
+                transactionRepository.saveAndFlush(transaction);
+            } else {
+                transactionRepository.delete(transaction);
+            }
+            assert feesLineItem != null;
+            feesLineItemRepository.delete(feesLineItem);
+        } else if (editOrderVm.getPayTypeEnum() == PayTypeEnum.PURCHASE) {
+            PurchaseLineItem purchaseLineItem = purchaseLineItemRepository.findById(editOrderVm.getItemId()).orElse(null);
+            assert transaction != null;
+            transaction.removePurchaseLineItems(purchaseLineItem);
+            if (!transaction.getPurchaseLineItems().isEmpty()) {
+                sum = transaction.getPurchaseLineItems().stream().mapToDouble(PurchaseLineItem::getAmount).sum();
+                transaction.setAmount(sum);
+                transactionRepository.saveAndFlush(transaction);
+            } else {
+                transactionRepository.delete(transaction);
+            }
+            assert purchaseLineItem != null;
+            purchaseLineItemRepository.delete(purchaseLineItem);
+        }
     }
 }
