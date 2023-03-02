@@ -59,7 +59,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
 
     @Override
     public Student checkIfFeesPaid(Long studentId, Long feesId, String month) {
-        BooleanExpression monthCondition = StringUtils.isEmpty(month) ? FEES_LINE_ITEM.month.isNotNull() : FEES_LINE_ITEM.month.eq(month);
+        BooleanExpression monthCondition = StringUtils.isEmpty(month) ? FEES_LINE_ITEM.month.isNull() : FEES_LINE_ITEM.month.eq(month);
         return jpaQueryFactory
             .selectFrom(STUDENT)
             .innerJoin(STUDENT.transactions, TRANSACTION)
