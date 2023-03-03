@@ -2,6 +2,7 @@ package com.tulip.host.mapper;
 
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
+import com.tulip.host.data.StudentExportDTO;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Upload;
 import com.tulip.host.repository.impl.ReferenceMapper;
@@ -88,12 +89,21 @@ public interface StudentMapper {
     )
     void toUpdateModel(UserEditVM editVM, @MappingTarget Student student);
 
-    @AfterMapping
-    default void setUpload(@MappingTarget Student student, Set<Upload> upload) {
-        if (CollectionUtils.isEmpty(student.getUploadedDocuments())) {
-            student.setUploadedDocuments(upload);
-        } else {
-            student.getUploadedDocuments().addAll(upload);
-        }
-    }
+    @Mapping(target = "studentId", source = "id")
+    @Mapping(target = "birthday", source = "dob")
+    @Mapping(
+        target = "std",
+        expression = "java(student.getClassDetails()\n" +
+        "                .stream()\n" +
+        "                .findFirst()\n" +
+        "                .orElse(null)\n" +
+        "                .getStd())"
+    )
+    @Mapping(
+        target = "pendingFees",
+        expression = "java(com.tulip.host.utils.CommonUtils.calculatePendingMonthFees(student, student.getClassDetails().stream().findFirst().get().getSession().getFromDate()))"
+    )
+    StudentExportDTO toBasicEntityExport(Student student);
+
+    List<StudentExportDTO> toBasicEntityExportList(List<Student> student);
 }

@@ -84,4 +84,9 @@ public class CommonUtils {
             return null;
         }
     }
+
+    public static String formatFromDate(Date date, String format) {
+        DateFormat dateFormat = new SimpleDateFormat(format);
+        return dateFormat.format(date);
+    }
 }
