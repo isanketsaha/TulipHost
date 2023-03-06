@@ -46,4 +46,14 @@ public class ExportController {
         sheets.close();
         response.getOutputStream().close();
     }
+
+    @PostMapping("/receipt")
+    public void paymentReceipt(@RequestParam Long paymentId, HttpServletResponse response) throws IOException {
+        byte[] bytes = exportService.paymentReceipt(paymentId);
+        HttpHeaders header = new HttpHeaders();
+        response.setContentType(MediaType.APPLICATION_PDF.toString());
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=citiesreport.pdf");
+        response.getOutputStream().write(bytes);
+        response.getOutputStream().close();
+    }
 }

@@ -7,10 +7,14 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -26,15 +30,17 @@ public class ExcelExporterService {
         Object o = objectList.get(0);
         Class<? extends Object> c = o.getClass();
         Field[] declaredFields = c.getDeclaredFields();
-        sheet = workbook.createSheet(c.getSimpleName().replaceAll("DTO", ""));
+        sheet = workbook.createSheet(c.getSimpleName().replace("DTO", StringUtils.EMPTY));
         Row row = sheet.createRow(0);
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         font.setBold(true);
-        font.setFontHeight(18);
+        font.setFontHeight(16);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setBorderBottom(BorderStyle.THICK);
         style.setFont(font);
         style.setLocked(true);
-        style.setFillForegroundColor(IndexedColors.GREY_80_PERCENT.getIndex());
+        style.setFillBackgroundColor(IndexedColors.BLUE.getIndex());
         int index = 0;
         createCell(row, index++, "SL", style);
         for (Field field : declaredFields) {
@@ -71,6 +77,7 @@ public class ExcelExporterService {
         XSSFFont font = workbook.createFont();
         font.setFontHeight(14);
         style.setFont(font);
+        style.setWrapText(true);
 
         for (Object o : objectList) {
             Row row = sheet.createRow(rowCount++);

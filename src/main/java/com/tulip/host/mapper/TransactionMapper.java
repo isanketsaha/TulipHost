@@ -33,6 +33,7 @@ public interface TransactionMapper {
     @Mapping(target = "paymentReceivedBy", source = "createdBy")
     @Mapping(target = "paymentId", source = "id")
     @Mapping(target = "expenseItems", source = "expenseItems")
+    @Mapping(target = "formattedPaymentDateTime", source = "createdDate", dateFormat = "dd-MMM-yyyy")
     PaySummaryDTO toEntity(Transaction feesOrder);
 
     List<PaySummaryDTO> toEntityList(List<Transaction> feesOrder);
