@@ -111,14 +111,14 @@
         <band splitType="Stretch"/>
     </background>
     <title>
-        <band height="95">
+        <band height="101">
             <staticText>
-                <reportElement x="0" y="0" width="560" height="30" uuid="ff13abcc-7e9f-4454-839a-070cccb6c4ab"/>
+                <reportElement x="0" y="-10" width="555" height="40" uuid="ff13abcc-7e9f-4454-839a-070cccb6c4ab"/>
                 <box>
                     <pen lineWidth="0.0"/>
                 </box>
-                <textElement textAlignment="Center" markup="styled">
-                    <font fontName="Times New Roman" size="24" isBold="true" isUnderline="false"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+                    <font fontName="Times New Roman" size="31" isBold="true" isUnderline="false"/>
                 </textElement>
                 <text><![CDATA[Tulip English School]]></text>
             </staticText>
@@ -127,62 +127,68 @@
                 <imageExpression><![CDATA["/Users/sanketsaha/Work/School/TulipHost/src/main/resources/static/logo.jpg"]]></imageExpression>
             </image>
             <staticText>
-                <reportElement x="0" y="30" width="560" height="20" forecolor="#8F8D8D" uuid="f5862568-2e83-46f9-bc69-9a29d5fa0907"/>
-                <textElement textAlignment="Center">
-                    <font fontName="AkayaKanadaka"/>
+                <reportElement x="0" y="30" width="552" height="20" forecolor="#8F8D8D" uuid="f5862568-2e83-46f9-bc69-9a29d5fa0907"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="AkayaKanadaka" isItalic="false"/>
                 </textElement>
                 <text><![CDATA[Shaping the lives of those, who will shape the Nation.]]></text>
             </staticText>
             <staticText>
-                <reportElement x="0" y="40" width="560" height="20" forecolor="#8C8C8C" uuid="02d04486-87c0-4be7-a9a3-b94b38ce89bd"/>
-                <textElement textAlignment="Center">
+                <reportElement x="0" y="40" width="552" height="20" forecolor="#8C8C8C" uuid="02d04486-87c0-4be7-a9a3-b94b38ce89bd"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="Adelle Sans Devanagari"/>
                 </textElement>
                 <text><![CDATA[(03513) - 2652652]]></text>
             </staticText>
             <staticText>
-                <reportElement x="403" y="60" width="37" height="20" uuid="47a93afe-a597-4a00-b657-a06e5696af10"/>
+                <reportElement x="400" y="67" width="37" height="20" uuid="47a93afe-a597-4a00-b657-a06e5696af10"/>
                 <textElement textAlignment="Center"/>
                 <text><![CDATA[Date -]]></text>
             </staticText>
             <staticText>
-                <reportElement x="0" y="80" width="80" height="13" uuid="4b461e40-5d0c-44ed-99dc-e0abcea8aa0c"/>
+                <reportElement x="10" y="87" width="80" height="13" uuid="4b461e40-5d0c-44ed-99dc-e0abcea8aa0c"/>
                 <textElement textAlignment="Center"/>
                 <text><![CDATA[Student Name -]]></text>
             </staticText>
             <textField textAdjust="StretchHeight">
-                <reportElement x="80" y="80" width="140" height="13" uuid="df7603d8-a69a-4c99-86df-cf4be42ac5ed"/>
+                <reportElement x="90" y="87" width="150" height="13" uuid="df7603d8-a69a-4c99-86df-cf4be42ac5ed"/>
                 <textFieldExpression><![CDATA[$F{studentName}.toUpperCase()]]></textFieldExpression>
             </textField>
             <staticText>
-                <reportElement x="0" y="60" width="80" height="12" uuid="93796a42-e2a1-4433-a4f4-44437914260e"/>
+                <reportElement x="12" y="67" width="80" height="12" uuid="93796a42-e2a1-4433-a4f4-44437914260e"/>
                 <text><![CDATA[Receipt Number -]]></text>
             </staticText>
             <textField textAdjust="StretchHeight">
-                <reportElement x="80" y="60" width="110" height="12" uuid="763322ef-dee1-43da-9ff8-f4219c3cbef1"/>
+                <reportElement x="92" y="67" width="110" height="12" uuid="763322ef-dee1-43da-9ff8-f4219c3cbef1"/>
                 <textFieldExpression><![CDATA[$F{paymentId}]]></textFieldExpression>
             </textField>
             <staticText>
-                <reportElement x="403" y="79" width="88" height="15" uuid="73a18773-0a52-4f4c-bfcc-7273ef2dd0e0"/>
+                <reportElement x="400" y="86" width="88" height="15" uuid="73a18773-0a52-4f4c-bfcc-7273ef2dd0e0"/>
                 <textElement textAlignment="Center"/>
                 <text><![CDATA[Payment Mode -]]></text>
             </staticText>
             <textField>
-                <reportElement x="490" y="79" width="65" height="15" uuid="3a31f33f-4c03-42f3-98c8-ff2f94029c68"/>
+                <reportElement x="487" y="86" width="65" height="15" uuid="3a31f33f-4c03-42f3-98c8-ff2f94029c68"/>
                 <textFieldExpression><![CDATA[$F{paymentMode}]]></textFieldExpression>
             </textField>
             <staticText>
-                <reportElement x="230" y="80" width="40" height="13" uuid="0ef2ba37-d23f-4d15-90d6-dbc11c752523"/>
+                <reportElement x="240" y="87" width="40" height="13" uuid="0ef2ba37-d23f-4d15-90d6-dbc11c752523"/>
                 <text><![CDATA[Class -]]></text>
             </staticText>
             <textField textAdjust="StretchHeight">
-                <reportElement x="270" y="80" width="100" height="13" uuid="8bb64ef0-9a8c-4e19-9b6e-d61eb464db74"/>
+                <reportElement x="280" y="87" width="100" height="13" uuid="8bb64ef0-9a8c-4e19-9b6e-d61eb464db74"/>
                 <textFieldExpression><![CDATA[$F{studentId}]]></textFieldExpression>
             </textField>
             <textField pattern="MMMMM dd, yyyy">
-                <reportElement x="440" y="60" width="115" height="19" uuid="563af93f-4b79-4f7b-93cb-3c74793f6357"/>
+                <reportElement x="437" y="67" width="115" height="19" uuid="563af93f-4b79-4f7b-93cb-3c74793f6357"/>
                 <textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
             </textField>
+            <line>
+                <reportElement x="-1" y="60" width="556" height="1" uuid="255fd886-ac24-4582-a797-88fa0e611061"/>
+                <graphicElement>
+                    <pen lineStyle="Double"/>
+                </graphicElement>
+            </line>
         </band>
     </title>
     <detail>
@@ -325,8 +331,8 @@
                                     <bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
                                     <rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
                                 </box>
-                                <textElement textAlignment="Center" verticalAlignment="Middle">
-                                    <font isBold="true"/>
+                                <textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+                                    <font size="12" isBold="true"/>
                                 </textElement>
                                 <textFieldExpression><![CDATA[$V{total}]]></textFieldExpression>
                             </textField>
