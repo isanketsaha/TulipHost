@@ -9,6 +9,7 @@ import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Inventory;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
+import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.InventoryMapper;
 import com.tulip.host.mapper.StudentMapper;
@@ -77,11 +78,17 @@ public class ExportService {
     }
 
     public byte[] paymentReceipt(Long paymentId) throws FileNotFoundException {
-        File file = ResourceUtils.getFile("classpath:jasper/Payment_Receipt.jrxml");
         PaySummaryDTO transaction = paymentService.paymentDetails(paymentId);
         if (transaction != null && transaction.getFeesItem() != null) {
+            File file = ResourceUtils.getFile(
+                "classpath:jasper/" + (transaction.getPayType().equals(PayTypeEnum.FEES) ? "Fees_Receipt.jrxml" : "Purchase_Receipt.jrxml")
+            );
             Map<String, Object> map = new HashMap<>();
-            map.put("feesLineItem", new JRBeanCollectionDataSource(transaction.getFeesItem()));
+            if (transaction.getPayType().equals(PayTypeEnum.FEES)) {
+                map.put("feesLineItem", new JRBeanCollectionDataSource(transaction.getFeesItem()));
+            } else {
+                map.put("purchaseLineItems", new JRBeanCollectionDataSource(transaction.getPurchaseItems()));
+            }
             return jasperService.generatePdf(file, map, Arrays.asList(transaction));
         }
         return null;
