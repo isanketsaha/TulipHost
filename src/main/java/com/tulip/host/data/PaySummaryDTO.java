@@ -23,6 +23,5 @@ public class PaySummaryDTO {
     List<ExpenseItemDTO> expenseItems;
     double total;
     Date paymentDateTime;
-    String formattedPaymentDateTime;
     String paymentReceivedBy;
 }

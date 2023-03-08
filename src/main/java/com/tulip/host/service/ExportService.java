@@ -1,7 +1,7 @@
 package com.tulip.host.service;
 
-import com.tulip.host.data.ClassDetailDTO;
 import com.tulip.host.data.PaySummaryDTO;
+import com.tulip.host.data.PrintTransactionDTO;
 import com.tulip.host.data.StockExportDTO;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentExportDTO;
@@ -10,18 +10,15 @@ import com.tulip.host.domain.Inventory;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.enums.PayTypeEnum;
-import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.InventoryMapper;
 import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.InventoryRepository;
-import com.tulip.host.repository.TransactionRepository;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -31,8 +28,6 @@ import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
@@ -51,9 +46,13 @@ public class ExportService {
 
     private final StudentMapper studentMapper;
 
+    private final StudentService studentService;
+
     private final PaymentService paymentService;
 
     private final JasperService jasperService;
+
+    private final TransactionMapper transactionMapper;
 
     @Transactional
     public XSSFWorkbook exportStock() {
@@ -77,12 +76,16 @@ public class ExportService {
         return null;
     }
 
+    @Transactional
     public byte[] paymentReceipt(Long paymentId) throws FileNotFoundException {
-        PaySummaryDTO transaction = paymentService.paymentDetails(paymentId);
+        Transaction transactionRecord = paymentService.getTransactionRecord(paymentId);
+        PrintTransactionDTO transaction = transactionMapper.toPrintEntity(transactionRecord);
         if (transaction != null && transaction.getFeesItem() != null) {
             File file = ResourceUtils.getFile(
                 "classpath:jasper/" + (transaction.getPayType().equals(PayTypeEnum.FEES) ? "Fees_Receipt.jrxml" : "Purchase_Receipt.jrxml")
             );
+            StudentBasicDTO basicDTO = studentService.basicSearchStudent(transaction.getStudentId());
+            transaction.setStd(basicDTO.getStd());
             Map<String, Object> map = new HashMap<>();
             if (transaction.getPayType().equals(PayTypeEnum.FEES)) {
                 map.put("feesLineItem", new JRBeanCollectionDataSource(transaction.getFeesItem()));

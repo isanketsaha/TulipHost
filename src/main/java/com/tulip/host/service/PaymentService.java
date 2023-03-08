@@ -43,9 +43,7 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +52,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -166,9 +163,13 @@ public class PaymentService {
         return purchaseOrder.getId();
     }
 
+    public Transaction getTransactionRecord(Long paymentId) {
+        return transactionRepository.findById(paymentId).orElse(null);
+    }
+
     @Transactional
     public PaySummaryDTO paymentDetails(Long paymentId) {
-        Transaction feesOrder = transactionRepository.findById(paymentId).orElse(null);
+        Transaction feesOrder = getTransactionRecord(paymentId);
         if (feesOrder != null) {
             PaySummaryDTO paySummaryDTO = transactionMapper.toEntity(feesOrder);
             Collections.sort(
