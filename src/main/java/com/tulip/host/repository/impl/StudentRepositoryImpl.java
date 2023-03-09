@@ -35,7 +35,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
         return jpaQueryFactory
             .selectFrom(STUDENT)
             .leftJoin(STUDENT.classDetails, CLASS_DETAIL)
-            .orderBy(CLASS_DETAIL.createdDate.desc())
+            .orderBy(CLASS_DETAIL.session().fromDate.desc())
             .where(STUDENT.id.eq(id))
             .fetchOne();
     }

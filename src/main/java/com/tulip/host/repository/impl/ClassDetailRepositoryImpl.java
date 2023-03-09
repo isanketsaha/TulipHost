@@ -31,7 +31,8 @@ public class ClassDetailRepositoryImpl extends BaseRepositoryImpl<ClassDetail, L
             .innerJoin(CLASS_DETAIL.students, STUDENT)
             .leftJoin(STUDENT.transactions, TRANSACTION)
             .leftJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
-            .where(CLASS_DETAIL.id.eq(classId).and(FEES_LINE_ITEM.feesProduct().std().eq(CLASS_DETAIL)))
+            .on(FEES_LINE_ITEM.feesProduct().std().eq(CLASS_DETAIL))
+            .where(CLASS_DETAIL.id.eq(classId))
             .fetchOne();
     }
 }

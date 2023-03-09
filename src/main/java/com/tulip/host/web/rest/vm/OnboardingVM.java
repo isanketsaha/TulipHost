@@ -47,6 +47,8 @@ public class OnboardingVM {
     @NotNull
     Date dob;
 
+    Boolean eveningClass;
+
     GenderEnum gender;
     CredentialVM credential;
     List<UploadVM> aadhaarCard;
