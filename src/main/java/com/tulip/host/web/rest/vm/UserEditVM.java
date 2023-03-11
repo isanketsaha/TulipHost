@@ -30,6 +30,7 @@ public class UserEditVM {
     BloodGroupEnum bloodGroup;
     String contact;
     boolean whatsappAvailable;
+    boolean eveningClass;
     List<DependentVM> dependent;
     String experience;
 

@@ -71,6 +71,10 @@ public class Student extends AbstractAuditingEntity {
     @Builder.Default
     private Boolean whatsappAvailable = false;
 
+    @Column(name = "evening_classes")
+    @Builder.Default
+    private Boolean eveningClass = false;
+
     @Size(max = 20)
     @NotNull
     @Column(name = "phone_number", nullable = false, length = 20)

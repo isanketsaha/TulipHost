@@ -28,7 +28,6 @@ public interface StudentMapper {
     @Mapping(target = "classDetails", ignore = true)
     @Mapping(target = "phoneNumber", source = "contact")
     @Mapping(target = "dependents", source = "dependent")
-    @Mapping(target = "uploadedDocuments", source = "aadhaarCard")
     @Mapping(target = "bloodGroup", expression = "java(source.getBloodGroup().getDisplayType())")
     @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(source.getName()))")
     Student toModel(OnboardingVM source);

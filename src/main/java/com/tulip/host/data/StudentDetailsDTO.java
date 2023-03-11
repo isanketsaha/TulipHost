@@ -50,6 +50,8 @@ public class StudentDetailsDTO {
 
     private Boolean whatsappAvailable;
 
+    boolean eveningClass;
+
     @Size(max = 50)
     private String previousSchool;
 

@@ -158,9 +158,19 @@ public class StudentService {
     }
 
     public void addUpload(Student student, OnboardingVM onboardingVM) {
-        student.addUpload(uploadMapper.toModelList(onboardingVM.getAadhaarCard()));
-        student.addUpload(uploadMapper.toModelList(onboardingVM.getPanCard()));
-        student.addUpload(uploadMapper.toModelList(onboardingVM.getBirthCertificate()));
-        student.getDependents().forEach(item -> item.getUploadedDocuments().forEach(upload -> upload.setDependent(item)));
+        if (onboardingVM.getAadhaarCard() != null) {
+            student.addUpload(uploadMapper.toModelList(onboardingVM.getAadhaarCard()));
+        }
+        if (onboardingVM.getPanCard() != null) {
+            student.addUpload(uploadMapper.toModelList(onboardingVM.getPanCard()));
+        }
+        if (onboardingVM.getBirthCertificate() != null) {
+            student.addUpload(uploadMapper.toModelList(onboardingVM.getBirthCertificate()));
+        }
+        student
+            .getDependents()
+            .stream()
+            .filter(item -> !CollectionUtils.isEmpty(item.getUploadedDocuments()))
+            .forEach(item -> item.getUploadedDocuments().forEach(upload -> upload.setDependent(item)));
     }
 }
