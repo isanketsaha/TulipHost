@@ -17,6 +17,7 @@ import org.mapstruct.Mapping;
 public interface ClassMapper {
     @Mapping(target = "headTeacher", source = "headTeacher.name")
     @Mapping(target = "session", source = "session.displayText")
+    @Mapping(target = "sessionId", source = "session.id")
     ClassDetailDTO toEntity(ClassDetail classDetail);
 
     ClassListDTO toClassListEntity(ClassDetail classDetail);

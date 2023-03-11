@@ -1,6 +1,7 @@
 package com.tulip.host.mapper;
 
 import com.tulip.host.data.InventoryItemDTO;
+import com.tulip.host.data.StockExportDTO;
 import com.tulip.host.domain.Inventory;
 import com.tulip.host.web.rest.vm.ProductLoadVM;
 import java.util.List;
@@ -32,4 +33,23 @@ public interface InventoryMapper {
 
     @Mapping(target = "unitPrice", source = "purchasePrice")
     Inventory toModel(ProductLoadVM source);
+
+    @Mapping(target = "purchasedQty", source = "qty")
+    @Mapping(
+        target = "availableQty",
+        expression = "java(source.getQty() - source.getProduct()\n" +
+        "            .getPurchaseLineItems()\n" +
+        "            .stream()\n" +
+        "            .mapToInt(lineItem -> lineItem.getQty())\n" +
+        "            .sum())"
+    )
+    @Mapping(target = "productID", source = "product.id")
+    @Mapping(target = "productName", source = "product.itemName")
+    @Mapping(target = "price", source = "product.price")
+    @Mapping(target = "tag", source = "product.tag")
+    @Mapping(target = "std", source = "product.std.std")
+    @Mapping(target = "size", source = "product.size")
+    StockExportDTO toExportEntity(Inventory source);
+
+    List<StockExportDTO> toExportEntityList(List<Inventory> source);
 }

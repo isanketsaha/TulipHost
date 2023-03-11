@@ -7,6 +7,7 @@ import com.tulip.host.web.rest.vm.PromoteStudentVM;
 import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
+import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +35,7 @@ public class ClassroomController {
     }
 
     @PostMapping("/student-promote")
-    public void promoteStudents(@Valid @RequestBody PromoteStudentVM promoteStudentVM) {
+    public void promoteStudents(@Valid @RequestBody PromoteStudentVM promoteStudentVM) throws ValidationException {
         classroomService.promoteStudents(promoteStudentVM);
     }
 

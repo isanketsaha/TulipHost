@@ -1,6 +1,7 @@
 package com.tulip.host.service;
 
 import com.tulip.host.data.TransactionReportDTO;
+import com.tulip.host.data.TransactionSummary;
 import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionRepository;
@@ -23,10 +24,16 @@ public class MonitorService {
 
     private final TransactionMapper transactionMapper;
 
-    public List<TransactionReportDTO> transactionReport(Date from, Date to) {
-        //        Pageable pageable = CommonUtils.getPageRequest( Sort.Direction.ASC,"createdDate",pageNo, pageSize);
+    public TransactionSummary transactionReport(Date from, Date to) {
         List<TransactionReportDTO> fetchTransactionGroupBy = transactionRepository.fetchTransactionGroupBy(from, to);
         Collections.sort(fetchTransactionGroupBy, (a, b) -> a.getTransactionDate().compareTo(b.getTransactionDate()));
-        return fetchTransactionGroupBy;
+        TransactionSummary transactionSummary = TransactionSummary.builder().reportList(fetchTransactionGroupBy).build();
+        fetchTransactionGroupBy.forEach(item -> {
+            transactionSummary.setAmountTotal(transactionSummary.getAmountTotal() + item.getTotal());
+            transactionSummary.setFeesTotal(transactionSummary.getFeesTotal() + item.getFees());
+            transactionSummary.setExpenseTotal(transactionSummary.getExpenseTotal() + item.getExpense());
+            transactionSummary.setPurchaseTotal(transactionSummary.getPurchaseTotal() + item.getPurchase());
+        });
+        return transactionSummary;
     }
 }

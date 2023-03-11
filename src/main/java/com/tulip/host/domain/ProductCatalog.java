@@ -44,8 +44,8 @@ public class ProductCatalog extends AbstractAuditingEntity {
     @Column(name = "price", nullable = false)
     private Double price;
 
-    @Size(max = 10)
-    @Column(name = "tag", nullable = false, length = 10)
+    @Size(max = 100)
+    @Column(name = "tag", nullable = false, length = 100)
     private String tag;
 
     @ManyToOne(fetch = FetchType.LAZY)

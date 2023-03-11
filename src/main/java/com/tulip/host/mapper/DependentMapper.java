@@ -7,15 +7,28 @@ import java.util.List;
 import java.util.Set;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface DependentMapper {
+    @Mapping(target = "aadhaarCard", source = "uploadedDocuments")
     DependentDTO toEntity(Dependent dependent);
 
     @Mapping(target = "aadhaarNo", source = "aadhaar")
     @Mapping(target = "relationship", source = "relation")
+    @Mapping(target = "uploadedDocuments", source = "aadhaarCard")
     @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(dependent.getName()))")
     Dependent toModel(DependentVM dependent);
 
     Set<Dependent> toModel(List<DependentVM> dependent);
+
+    @Mapping(target = "aadhaarNo", source = "aadhaar")
+    @Mapping(target = "relationship", source = "relation")
+    @Mapping(
+        target = "name",
+        expression = "java(dependent.getName() != null ? org.apache.commons.lang.WordUtils.capitalizeFully(dependent.getName()) : dependent.getName())"
+    )
+    @Mapping(target = "uploadedDocuments", source = "aadhaarCard")
+    void toUpdateModel(DependentVM dependentVM, @MappingTarget Dependent dependent);
 }

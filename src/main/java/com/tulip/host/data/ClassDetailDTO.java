@@ -23,8 +23,8 @@ public class ClassDetailDTO implements Serializable {
     private String std;
 
     private String headTeacher;
-
     private String session;
+    private String sessionId;
 
     private double pendingFees;
 

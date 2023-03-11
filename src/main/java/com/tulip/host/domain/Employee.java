@@ -111,4 +111,7 @@ public class Employee extends AbstractAuditingEntity {
 
     @OneToMany(mappedBy = "headTeacher", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
     private Set<ClassDetail> classDetails = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    private Set<Upload> uploadedDocuments;
 }

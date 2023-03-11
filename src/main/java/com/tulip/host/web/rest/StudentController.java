@@ -3,13 +3,13 @@ package com.tulip.host.web.rest;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.service.StudentService;
-import com.tulip.host.web.rest.vm.PromoteStudentVM;
+import com.tulip.host.web.rest.vm.UserEditVM;
 import java.util.List;
-import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,10 +54,9 @@ public class StudentController {
         return studentService.searchStudent(name);
     }
 
-    @RolesAllowed("UG_ADMIN")
-    @RequestMapping("/edit")
-    public StudentDetailsDTO edit() {
-        return studentService.editStudent();
+    @PostMapping("/editStudentDetails")
+    public void editDetails(@RequestBody UserEditVM editVM) {
+        studentService.editStudentDetails(editVM);
     }
 
     @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")

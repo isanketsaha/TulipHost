@@ -19,6 +19,7 @@ public interface FeeLineItemMapper {
     //    @Mapping(source = "toMonth", target = "to")
     @Mapping(target = "feesTitle", source = "feesProduct.feesName")
     @Mapping(target = "feesId", source = "feesProduct.id")
+    @Mapping(target = "itemId", source = "id")
     @Mapping(target = "applicableRule", source = "feesProduct.applicableRule")
     FeesItemSummaryDTO toEntity(FeesLineItem feesOrder);
 

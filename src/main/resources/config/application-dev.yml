@@ -15,6 +15,10 @@
 
 logging:
   level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error
     ROOT: DEBUG
     tech.jhipster: DEBUG
     org.hibernate.SQL: DEBUG
@@ -126,5 +130,10 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
-
+application:
+  aws:
+    credential:
+      accessKey: ${s3.key}
+      secret: ${s3.secret}
+      profile-name: ${s3.profile}
+      bucket-name: ${s3.bucket}

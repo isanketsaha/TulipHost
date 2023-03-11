@@ -2,6 +2,7 @@ package com.tulip.host.domain;
 
 import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -70,6 +71,10 @@ public class Student extends AbstractAuditingEntity {
     @Builder.Default
     private Boolean whatsappAvailable = false;
 
+    @Column(name = "evening_classes")
+    @Builder.Default
+    private Boolean eveningClass = false;
+
     @Size(max = 20)
     @NotNull
     @Column(name = "phone_number", nullable = false, length = 20)
@@ -85,6 +90,9 @@ public class Student extends AbstractAuditingEntity {
     @Size(max = 20)
     @Column(name = "religion", length = 20)
     private String religion;
+
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    private Set<Upload> uploadedDocuments;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(
@@ -123,5 +131,16 @@ public class Student extends AbstractAuditingEntity {
         } else {
             dependents.add(dependent);
         }
+    }
+
+    public void addUpload(Set<Upload> upload) {
+        if (uploadedDocuments == null) {
+            Set<Upload> uploadSet = new LinkedHashSet<>();
+            uploadSet.addAll(upload);
+            this.setUploadedDocuments(uploadSet);
+        } else {
+            this.uploadedDocuments.addAll(upload);
+        }
+        upload.forEach(item -> item.setStudent(this));
     }
 }

@@ -51,12 +51,30 @@ public class Transaction extends AbstractAuditingEntity {
     @Column(name = "comments", length = 100)
     private String comments;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @OneToMany(
+        mappedBy = "order",
+        fetch = FetchType.LAZY,
+        cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH },
+        orphanRemoval = true
+    )
     private Set<FeesLineItem> feesLineItem;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @OneToMany(
+        mappedBy = "order",
+        fetch = FetchType.LAZY,
+        cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH },
+        orphanRemoval = true
+    )
     private Set<PurchaseLineItem> purchaseLineItems;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<Expense> expenseItems;
+
+    public void removeFeesLineItem(FeesLineItem lineItem) {
+        this.feesLineItem.remove(lineItem);
+    }
+
+    public void removePurchaseLineItems(PurchaseLineItem lineItem) {
+        this.purchaseLineItems.remove(lineItem);
+    }
 }

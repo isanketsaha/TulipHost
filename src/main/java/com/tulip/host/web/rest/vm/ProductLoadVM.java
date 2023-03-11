@@ -1,10 +1,7 @@
 package com.tulip.host.web.rest.vm;
 
-import com.tulip.host.mapper.DoubleConverter;
-import io.github.rushuat.ocell.annotation.FieldConverter;
 import io.github.rushuat.ocell.annotation.FieldFormat;
 import io.github.rushuat.ocell.annotation.FieldName;
-import io.github.rushuat.ocell.annotation.StringValue;
 import lombok.Data;
 
 @Data
@@ -33,13 +30,13 @@ public class ProductLoadVM {
     private String category;
 
     @FieldName("Cost Price")
-    private Double purchasePrice;
+    private int purchasePrice;
 
     @FieldName("Quantity")
     private int qty;
 
     @FieldName("Discount Percent")
-    private Integer discountPercent;
+    private String discountPercent;
 
     @FieldName("Vendor")
     private String vendor;

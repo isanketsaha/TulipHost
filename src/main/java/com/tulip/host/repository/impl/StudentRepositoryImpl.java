@@ -22,11 +22,6 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
     }
 
     @Override
-    public StudentDetailsDTO edit() {
-        return null;
-    }
-
-    @Override
     public List<Student> search(String name) {
         return jpaQueryFactory
             .selectFrom(STUDENT)
@@ -40,7 +35,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
         return jpaQueryFactory
             .selectFrom(STUDENT)
             .leftJoin(STUDENT.classDetails, CLASS_DETAIL)
-            .orderBy(CLASS_DETAIL.createdDate.desc())
+            .orderBy(CLASS_DETAIL.session().fromDate.desc())
             .where(STUDENT.id.eq(id))
             .fetchOne();
     }

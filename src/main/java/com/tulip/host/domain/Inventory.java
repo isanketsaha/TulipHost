@@ -34,7 +34,7 @@ public class Inventory extends AbstractAuditingEntity {
     private Integer qty;
 
     @Column(name = "discountPercent")
-    private Integer discountPercent;
+    private String discountPercent;
 
     @Size(max = 50)
     @Column(name = "vendor", length = 50)

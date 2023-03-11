@@ -40,17 +40,18 @@ public class AuditService {
         List<AuditDTO> auditDTOList = audits
             .getContent()
             .stream()
-            .map(item ->
-                AuditDTO
+            .map(item -> {
+                String[] split = item.getMetadata().split(" - ");
+                return AuditDTO
                     .builder()
                     .id(item.getId())
                     .dateTime(item.getCreatedDate())
                     .type(item.getType())
                     .description(item.getDescription())
-                    .status(item.getMetadata().split(" - ")[0])
-                    .endpoint(item.getMetadata().split(" - ")[1])
-                    .build()
-            )
+                    .status(split.length == 2 ? split[0] : null)
+                    .endpoint(split.length == 2 ? split[1] : split[0])
+                    .build();
+            })
             .collect(Collectors.toList());
 
         return new PageImpl<>(auditDTOList, audits.getPageable(), audits.getTotalElements());

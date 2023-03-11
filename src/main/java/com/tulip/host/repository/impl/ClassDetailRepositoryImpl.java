@@ -28,7 +28,7 @@ public class ClassDetailRepositoryImpl extends BaseRepositoryImpl<ClassDetail, L
     public ClassDetail findByClass(Long classId) {
         return jpaQueryFactory
             .selectFrom(CLASS_DETAIL)
-            .leftJoin(CLASS_DETAIL.students, STUDENT)
+            .innerJoin(CLASS_DETAIL.students, STUDENT)
             .leftJoin(STUDENT.transactions, TRANSACTION)
             .leftJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
             .on(FEES_LINE_ITEM.feesProduct().std().eq(CLASS_DETAIL))
