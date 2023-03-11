@@ -133,7 +133,7 @@ jhipster:
 application:
   aws:
     credential:
-      accessKey: 'AKIAVHI7JUOUCRMTYOKK'
-      secret: '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'
-      profile-name: dev
-      bucket-name: tulip-docs-test
+      accessKey: ${s3.key}
+      secret: ${s3.secret}
+      profile-name: ${s3.profile}
+      bucket-name: ${s3.bucket}

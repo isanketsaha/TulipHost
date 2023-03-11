@@ -52,7 +52,7 @@ spring:
       # it can be set to any label, branch or commit of the configuration source Git repository
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    #    url: jdbc:mysql://root:io4Xthmx7s4c8gwf3Qge@containers-us-west-173.railway.app:7975/tulip?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+    url: jdbc:mysql://${MYSQLUSER}:${MYSQLPASSWORD}@${MYSQLHOST}:${MYSQLPORT}/tulip?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
     username: root
     password:
     hikari:
@@ -151,4 +151,10 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
+  aws:
+    credential:
+      accessKey: ${s3.key}
+      secret: ${s3.secret}
+      profile-name: ${s3.profile}
+      bucket-name: ${s3.bucket}
