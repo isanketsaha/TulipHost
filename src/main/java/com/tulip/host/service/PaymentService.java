@@ -178,7 +178,7 @@ public class PaymentService {
                     .comparing(FeesItemSummaryDTO::getFeesTitle)
                     .thenComparing((o1, o2) -> {
                         try {
-                            SimpleDateFormat fmt = new SimpleDateFormat("MMM/YYYY", Locale.US);
+                            SimpleDateFormat fmt = new SimpleDateFormat(MONTH_YEAR_FORMAT, Locale.US);
                             return fmt.parse(o1.getMonth()).compareTo(fmt.parse(o2.getMonth()));
                         } catch (ParseException ex) {
                             return o1.getMonth().compareTo(o2.getMonth());
