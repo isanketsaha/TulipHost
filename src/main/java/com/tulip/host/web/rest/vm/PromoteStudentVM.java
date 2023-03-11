@@ -14,4 +14,5 @@ public class PromoteStudentVM {
     List<Long> studentId;
     Long sessionId;
     StdEnum std;
+    boolean forceUpdate;
 }

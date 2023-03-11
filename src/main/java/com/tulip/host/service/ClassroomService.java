@@ -11,10 +11,15 @@ import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.StudentRepository;
+import com.tulip.host.web.rest.errors.BadRequestAlertException;
+import com.tulip.host.web.rest.errors.BusinessValidationException;
 import com.tulip.host.web.rest.vm.PromoteStudentVM;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +61,7 @@ public class ClassroomService {
     }
 
     @Transactional
-    public void promoteStudents(PromoteStudentVM promoteStudentVM) {
+    public void promoteStudents(PromoteStudentVM promoteStudentVM) throws ValidationException {
         ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(
             promoteStudentVM.getSessionId(),
             promoteStudentVM.getStd().name()
@@ -68,7 +73,23 @@ public class ClassroomService {
                 .forEach(item -> {
                     Student student = studentRepository.findById(item).orElse(null);
                     if (student != null) {
-                        student.addClass(classDetail);
+                        Set<ClassDetail> classDetails = student
+                            .getClassDetails()
+                            .stream()
+                            .filter(classDetail1 -> classDetail1.getSession().getId() != promoteStudentVM.getSessionId())
+                            .collect(Collectors.toSet());
+                        if (classDetails.size() != student.getClassDetails().size() && promoteStudentVM.isForceUpdate()) {
+                            classDetails.add(classDetail);
+                            student.setClassDetails(classDetails);
+                        } else if (classDetails.size() == student.getClassDetails().size()) {
+                            student.addClass(classDetail);
+                        } else {
+                            throw new BusinessValidationException(
+                                "Multiple Promote",
+                                "Student Already registered in the session " +
+                                sessionService.fetchSession(promoteStudentVM.getSessionId()).getDisplayText()
+                            );
+                        }
                         studentRepository.save(student);
                     }
                 });

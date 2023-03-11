@@ -3,7 +3,9 @@ package com.tulip.host.web.rest.errors;
 import com.tulip.host.domain.Audit;
 import com.tulip.host.repository.AuditRepository;
 import com.tulip.host.web.rest.util.HeaderUtil;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,6 +22,7 @@ import org.zalando.problem.DefaultProblem;
 import org.zalando.problem.Problem;
 import org.zalando.problem.ProblemBuilder;
 import org.zalando.problem.Status;
+import org.zalando.problem.ThrowableProblem;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 import org.zalando.problem.violations.Violation;
@@ -44,6 +47,7 @@ public class ExceptionTranslator implements ProblemHandling {
         }
         Problem problem = entity.getBody();
         if (!(problem instanceof ConstraintViolationProblem || problem instanceof DefaultProblem)) {
+            auditError(problem, request.getNativeRequest(HttpServletRequest.class).getRequestURI());
             return entity;
         }
         ProblemBuilder builder = Problem
@@ -52,37 +56,21 @@ public class ExceptionTranslator implements ProblemHandling {
             .withStatus(problem.getStatus())
             .withTitle(problem.getTitle())
             .with("path", request.getNativeRequest(HttpServletRequest.class).getRequestURI());
-        StringBuilder stringBuilder = new StringBuilder();
-        if (problem instanceof ConstraintViolationProblem && ((ConstraintViolationProblem) problem).getViolations() != null) {
-            for (Violation violation : ((ConstraintViolationProblem) problem).getViolations()) {
-                stringBuilder.append(" { " + violation.getField() + " - " + violation.getMessage() + " } ");
-            }
-        }
-        String metadata =
-            String.valueOf(problem.getStatus().getReasonPhrase()) +
-            " - " +
-            request.getNativeRequest(HttpServletRequest.class).getRequestURI();
-        Audit error = Audit
-            .builder()
-            .type("ERROR")
-            .description(problem.getDetail() != null ? problem.getDetail() : "" + stringBuilder.toString())
-            .metadata(metadata)
-            .build();
-        auditRepository.save(error);
+
         if (problem instanceof ConstraintViolationProblem) {
             builder
                 .with("violations", ((ConstraintViolationProblem) problem).getViolations())
                 .with("message", ErrorConstants.ERR_VALIDATION);
-            return new ResponseEntity<>(builder.build(), entity.getHeaders(), entity.getStatusCode());
         } else {
             builder.withCause(((DefaultProblem) problem).getCause()).withDetail(problem.getDetail()).withInstance(problem.getInstance());
             problem.getParameters().forEach(builder::with);
             if (!problem.getParameters().containsKey("message") && problem.getStatus() != null) {
                 builder.with("message", "error.http." + problem.getStatus().getStatusCode());
             }
-
-            return new ResponseEntity<>(builder.build(), entity.getHeaders(), entity.getStatusCode());
         }
+        ThrowableProblem throwableProblem = builder.build();
+        auditError(throwableProblem);
+        return new ResponseEntity<>(throwableProblem, entity.getHeaders(), entity.getStatusCode());
     }
 
     @Override
@@ -102,17 +90,50 @@ public class ExceptionTranslator implements ProblemHandling {
             .with("message", ErrorConstants.ERR_VALIDATION)
             .with("fieldErrors", fieldErrors)
             .build();
+        auditError(problem);
         return create(ex, problem, request);
     }
 
     @ExceptionHandler(BadRequestAlertException.class)
     public ResponseEntity<Problem> handleBadRequestAlertException(BadRequestAlertException ex, NativeWebRequest request) {
-        return create(ex, request, HeaderUtil.createFailureAlert(ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
+        ResponseEntity<Problem> problemResponseEntity = create(
+            ex,
+            request,
+            HeaderUtil.createFailureAlert(ex.getEntityName(), ex.getErrorKey(), ex.getMessage())
+        );
+        auditError(Objects.requireNonNull(problemResponseEntity.getBody()));
+        return problemResponseEntity;
     }
 
     @ExceptionHandler(ConcurrencyFailureException.class)
     public ResponseEntity<Problem> handleConcurrencyFailure(ConcurrencyFailureException ex, NativeWebRequest request) {
         Problem problem = Problem.builder().withStatus(Status.CONFLICT).with("message", ErrorConstants.ERR_CONCURRENCY_FAILURE).build();
-        return create(ex, problem, request);
+        ResponseEntity<Problem> problemResponseEntity = create(ex, problem, request);
+        auditError(Objects.requireNonNull(problemResponseEntity.getBody()));
+        return problemResponseEntity;
+    }
+
+    private void auditError(Problem problem, String path) {
+        String metadata =
+            String.valueOf(Objects.requireNonNull(problem.getStatus()).getReasonPhrase()) +
+            " - " +
+            (path != null ? path : problem.getParameters().get("path").toString());
+        StringBuilder stringBuilder = new StringBuilder();
+        if (problem instanceof ConstraintViolationProblem && ((ConstraintViolationProblem) problem).getViolations() != null) {
+            for (Violation violation : ((ConstraintViolationProblem) problem).getViolations()) {
+                stringBuilder.append(" { ").append(violation.getField()).append(" - ").append(violation.getMessage()).append(" } ");
+            }
+        }
+        Audit error = Audit
+            .builder()
+            .type("ERROR")
+            .description(problem.getDetail() != null ? problem.getDetail() : "" + stringBuilder.toString())
+            .metadata(metadata)
+            .build();
+        auditRepository.save(error);
+    }
+
+    private void auditError(Problem problem) {
+        auditError(problem, null);
     }
 }
