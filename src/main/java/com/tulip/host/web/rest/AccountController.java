@@ -1,6 +1,7 @@
 package com.tulip.host.web.rest;
 
 import com.tulip.host.data.TransactionReportDTO;
+import com.tulip.host.data.TransactionSummary;
 import com.tulip.host.service.MonitorService;
 import com.tulip.host.service.ReportService;
 import java.util.Date;
@@ -21,7 +22,7 @@ public class AccountController {
     private final MonitorService monitorService;
 
     @GetMapping("/finance")
-    public List<TransactionReportDTO> transactionReport(
+    public TransactionSummary transactionReport(
         @RequestParam(value = "from") @DateTimeFormat(pattern = "dd-MM-yyyy") Date from,
         @DateTimeFormat(pattern = "dd-MM-yyyy") @RequestParam(name = "to") Date to
     ) {

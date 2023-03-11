@@ -44,4 +44,7 @@ public class ClassDetail extends AbstractAuditingEntity {
 
     @OneToMany(mappedBy = "std", fetch = FetchType.LAZY)
     private Set<ProductCatalog> productCatalogs = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "classDetail", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    private Set<Upload> uploadedDocuments;
 }

@@ -3,10 +3,10 @@ package com.tulip.host.mapper;
 import io.github.rushuat.ocell.field.ValueConverter;
 import org.apache.commons.lang3.StringUtils;
 
-public class DoubleConverter implements ValueConverter<String, Integer> {
+public class PriceConverter implements ValueConverter<String, Double> {
 
     @Override
-    public String convertInput(Integer value) {
+    public String convertInput(Double value) {
         if (value != null) {
             return String.valueOf(value);
         }
@@ -14,10 +14,10 @@ public class DoubleConverter implements ValueConverter<String, Integer> {
     }
 
     @Override
-    public Integer convertOutput(String value) {
+    public Double convertOutput(String value) {
         if (value != null) {
-            return Integer.parseInt(value);
+            return 0.0;
         }
-        return 0;
+        return 0.0;
     }
 }
