@@ -253,3 +253,6 @@ jhipster:
 application:
   page:
     size: 5
+  aws:
+    region:
+      value: ap-northeast-1
