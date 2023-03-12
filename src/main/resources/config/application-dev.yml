@@ -132,8 +132,9 @@ jhipster:
 
 application:
   aws:
+    region:
+      value: ${s3.region}
     credential:
       accessKey: ${s3.key}
       secret: ${s3.secret}
-      profile-name: ${s3.profile}
       bucket-name: ${s3.bucket}
