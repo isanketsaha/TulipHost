@@ -86,7 +86,7 @@ public class ExportService {
         PrintTransactionDTO transaction = transactionMapper.toPrintEntity(transactionRecord);
         if (transaction != null && transaction.getFeesItem() != null) {
             Resource sourceFile = new ClassPathResource(
-                JASPER_FOLDER + (transaction.getPayType().equals(PayTypeEnum.FEES) ? "Fees_Receipt.jrxml" : "Purchase_Receipt.jrxml")
+                transaction.getPayType().equals(PayTypeEnum.FEES) ? "/Fees_Receipt.jrxml" : "/Purchase_Receipt.jrxml"
             );
             StudentBasicDTO basicDTO = studentService.basicSearchStudent(transaction.getStudentId());
             transaction.setStd(basicDTO.getStd());
