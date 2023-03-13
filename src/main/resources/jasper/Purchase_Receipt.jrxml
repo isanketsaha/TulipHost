@@ -125,7 +125,7 @@
             </staticText>
             <image>
                 <reportElement x="60" y="-10" width="60" height="60" uuid="c581ccc5-13c2-4356-9f7d-d66046086186"/>
-                <imageExpression><![CDATA["/Users/sanketsaha/Work/School/TulipHost/src/main/resources/static/logo.jpg"]]></imageExpression>
+                <imageExpression><![CDATA[this.getClass().getResourceAsStream("/static/logo.jpg")]]></imageExpression>
             </image>
             <staticText>
                 <reportElement x="0" y="30" width="552" height="20" forecolor="#8F8D8D" uuid="f5862568-2e83-46f9-bc69-9a29d5fa0907"/>
