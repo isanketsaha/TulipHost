@@ -3,6 +3,7 @@ package com.tulip.host.service;
 import com.tulip.host.web.rest.errors.InternalServerErrorException;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +23,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class JasperService {
 
-    public byte[] generatePdf(Resource file, Map<String, Object> parameters, List<Object> list) {
+    public byte[] generatePdf(InputStream file, Map<String, Object> parameters, List<Object> list) {
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(list);
         try {
-            JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getFile()));
+            JasperReport compileReport = JasperCompileManager.compileReport(file);
             JasperPrint jasperPrint = JasperFillManager.fillReport(compileReport, parameters, beanCollectionDataSource);
             return JasperExportManager.exportReportToPdf(jasperPrint);
-        } catch (JRException | IOException e) {
+        } catch (JRException e) {
             log.error(e.getMessage());
             throw new InternalServerErrorException("Failed to create excel : " + e.getMessage());
         }

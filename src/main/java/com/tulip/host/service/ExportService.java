@@ -56,7 +56,7 @@ public class ExportService {
 
     private final TransactionMapper transactionMapper;
 
-    private static final String JASPER_FOLDER = "jasper/";
+    private static final String JASPER_FOLDER = "/jasper/";
 
     @Transactional
     public XSSFWorkbook exportStock() {
@@ -85,18 +85,24 @@ public class ExportService {
         Transaction transactionRecord = paymentService.getTransactionRecord(paymentId);
         PrintTransactionDTO transaction = transactionMapper.toPrintEntity(transactionRecord);
         if (transaction != null && transaction.getFeesItem() != null) {
-            Resource sourceFile = new ClassPathResource(
-                transaction.getPayType().equals(PayTypeEnum.FEES) ? "/Fees_Receipt.jrxml" : "/Purchase_Receipt.jrxml"
-            );
-            StudentBasicDTO basicDTO = studentService.basicSearchStudent(transaction.getStudentId());
-            transaction.setStd(basicDTO.getStd());
-            Map<String, Object> map = new HashMap<>();
-            if (transaction.getPayType().equals(PayTypeEnum.FEES)) {
-                map.put("feesLineItem", new JRBeanCollectionDataSource(transaction.getFeesItem()));
-            } else {
-                map.put("purchaseLineItems", new JRBeanCollectionDataSource(transaction.getPurchaseItems()));
+            try (
+                InputStream inputStream = getClass()
+                    .getResourceAsStream(
+                        transaction.getPayType().equals(PayTypeEnum.FEES)
+                            ? JASPER_FOLDER + "Fees_Receipt.jrxml"
+                            : JASPER_FOLDER + "Purchase_Receipt.jrxml"
+                    )
+            ) {
+                StudentBasicDTO basicDTO = studentService.basicSearchStudent(transaction.getStudentId());
+                transaction.setStd(basicDTO.getStd());
+                Map<String, Object> map = new HashMap<>();
+                if (transaction.getPayType().equals(PayTypeEnum.FEES)) {
+                    map.put("feesLineItem", new JRBeanCollectionDataSource(transaction.getFeesItem()));
+                } else {
+                    map.put("purchaseLineItems", new JRBeanCollectionDataSource(transaction.getPurchaseItems()));
+                }
+                return jasperService.generatePdf(inputStream, map, Arrays.asList(transaction));
             }
-            return jasperService.generatePdf(sourceFile, map, Arrays.asList(transaction));
         }
         return null;
     }
