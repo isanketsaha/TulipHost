@@ -1,6 +1,5 @@
 package com.tulip.host.service;
 
-import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.data.PrintTransactionDTO;
 import com.tulip.host.data.StockExportDTO;
 import com.tulip.host.data.StudentBasicDTO;
@@ -15,7 +14,6 @@ import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.InventoryRepository;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,8 +26,9 @@ import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +52,8 @@ public class ExportService {
     private final JasperService jasperService;
 
     private final TransactionMapper transactionMapper;
+
+    private static final String JASPER_FOLDER = "jasper/";
 
     @Transactional
     public XSSFWorkbook exportStock() {
@@ -81,8 +82,8 @@ public class ExportService {
         Transaction transactionRecord = paymentService.getTransactionRecord(paymentId);
         PrintTransactionDTO transaction = transactionMapper.toPrintEntity(transactionRecord);
         if (transaction != null && transaction.getFeesItem() != null) {
-            File file = ResourceUtils.getFile(
-                "classpath:jasper/" + (transaction.getPayType().equals(PayTypeEnum.FEES) ? "Fees_Receipt.jrxml" : "Purchase_Receipt.jrxml")
+            Resource sourceFile = new ClassPathResource(
+                JASPER_FOLDER + (transaction.getPayType().equals(PayTypeEnum.FEES) ? "Fees_Receipt.jrxml" : "Purchase_Receipt.jrxml")
             );
             StudentBasicDTO basicDTO = studentService.basicSearchStudent(transaction.getStudentId());
             transaction.setStd(basicDTO.getStd());
@@ -92,7 +93,7 @@ public class ExportService {
             } else {
                 map.put("purchaseLineItems", new JRBeanCollectionDataSource(transaction.getPurchaseItems()));
             }
-            return jasperService.generatePdf(file, map, Arrays.asList(transaction));
+            return jasperService.generatePdf(sourceFile, map, Arrays.asList(transaction));
         }
         return null;
     }
