@@ -124,10 +124,15 @@ public class ExceptionTranslator implements ProblemHandling {
                 stringBuilder.append(" { ").append(violation.getField()).append(" - ").append(violation.getMessage()).append(" } ");
             }
         }
+
         Audit error = Audit
             .builder()
             .type("ERROR")
-            .description(problem.getDetail() != null ? problem.getDetail() : "" + stringBuilder.toString())
+            .description(
+                problem.getDetail() != null
+                    ? problem.getDetail()
+                    : stringBuilder.toString() != null ? stringBuilder.toString() : problem.getTitle()
+            )
             .metadata(metadata)
             .build();
         auditRepository.save(error);

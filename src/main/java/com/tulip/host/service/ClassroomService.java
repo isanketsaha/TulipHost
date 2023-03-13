@@ -78,18 +78,8 @@ public class ClassroomService {
                             .stream()
                             .filter(classDetail1 -> classDetail1.getSession().getId() != promoteStudentVM.getSessionId())
                             .collect(Collectors.toSet());
-                        if (classDetails.size() != student.getClassDetails().size() && promoteStudentVM.isForceUpdate()) {
-                            classDetails.add(classDetail);
-                            student.setClassDetails(classDetails);
-                        } else if (classDetails.size() == student.getClassDetails().size()) {
-                            student.addClass(classDetail);
-                        } else {
-                            throw new BusinessValidationException(
-                                "Multiple Promote",
-                                "Student Already registered in the session " +
-                                sessionService.fetchSession(promoteStudentVM.getSessionId()).getDisplayText()
-                            );
-                        }
+                        classDetails.add(classDetail);
+                        student.setClassDetails(classDetails);
                         studentRepository.save(student);
                     }
                 });

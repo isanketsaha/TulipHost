@@ -15,6 +15,9 @@ import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.InventoryRepository;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -78,12 +81,12 @@ public class ExportService {
     }
 
     @Transactional
-    public byte[] paymentReceipt(Long paymentId) throws FileNotFoundException {
+    public byte[] paymentReceipt(Long paymentId) throws IOException {
         Transaction transactionRecord = paymentService.getTransactionRecord(paymentId);
         PrintTransactionDTO transaction = transactionMapper.toPrintEntity(transactionRecord);
         if (transaction != null && transaction.getFeesItem() != null) {
             Resource sourceFile = new ClassPathResource(
-                JASPER_FOLDER + (transaction.getPayType().equals(PayTypeEnum.FEES) ? "Fees_Receipt.jrxml" : "Purchase_Receipt.jrxml")
+                transaction.getPayType().equals(PayTypeEnum.FEES) ? "/Fees_Receipt.jrxml" : "/Purchase_Receipt.jrxml"
             );
             StudentBasicDTO basicDTO = studentService.basicSearchStudent(transaction.getStudentId());
             transaction.setStd(basicDTO.getStd());
