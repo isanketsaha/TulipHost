@@ -1,9 +1,8 @@
 package com.tulip.host.service;
 
-import java.io.File;
+import com.tulip.host.web.rest.errors.InternalServerErrorException;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +14,7 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,14 +22,15 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class JasperService {
 
-    public byte[] generatePdf(File file, Map<String, Object> parameters, List<Object> list) {
+    public byte[] generatePdf(Resource file, Map<String, Object> parameters, List<Object> list) {
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(list);
         try {
-            JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file));
+            JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getFile()));
             JasperPrint jasperPrint = JasperFillManager.fillReport(compileReport, parameters, beanCollectionDataSource);
             return JasperExportManager.exportReportToPdf(jasperPrint);
-        } catch (JRException | FileNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (JRException | IOException e) {
+            log.error(e.getMessage());
+            throw new InternalServerErrorException("Failed to create excel : " + e.getMessage());
         }
     }
 }
