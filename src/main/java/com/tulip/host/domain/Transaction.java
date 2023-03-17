@@ -6,6 +6,10 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.FilterJoinTable;
+import org.hibernate.annotations.ParamDef;
 
 @Builder
 @AllArgsConstructor
@@ -15,6 +19,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "transactions")
+@FilterDef(name = "filterTransactionOnType", parameters = @ParamDef(name = "type", type = "string"))
 public class Transaction extends AbstractAuditingEntity {
 
     @Id

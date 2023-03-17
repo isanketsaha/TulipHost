@@ -36,6 +36,11 @@ public class CommonUtils {
         return age.getYears();
     }
 
+    public static String calculateDiscountPercent(double purchasePrice, double sellPrice) {
+        double v = ((sellPrice - purchasePrice) / purchasePrice) * 100;
+        return null;
+    }
+
     public static int calculatePendingMonthFees(Student student, Date sessionFrom) {
         Set<Transaction> transactions = student.getTransactions();
         Transaction transaction = transactions.stream().findFirst().orElse(null);
@@ -54,12 +59,16 @@ public class CommonUtils {
                     )
                     .getMonths();
             } else {
-                Date date = student.getCreatedDate().after(sessionFrom) ? sessionFrom : student.getCreatedDate();
-                return Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths();
+                Date date = student.getCreatedDate().before(sessionFrom) ? sessionFrom : student.getCreatedDate();
+                return new LocalDate(date).withDayOfMonth(1).isAfter(new LocalDate(new Date()).withDayOfMonth(1))
+                    ? Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths()
+                    : 0;
             }
         } else {
-            Date date = student.getCreatedDate().after(sessionFrom) ? sessionFrom : student.getCreatedDate();
-            return Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths();
+            Date date = student.getCreatedDate().before(sessionFrom) ? sessionFrom : student.getCreatedDate();
+            return new LocalDate(date).withDayOfMonth(1).isAfter(new LocalDate(new Date()).withDayOfMonth(1))
+                ? Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths()
+                : 0;
         }
     }
 
