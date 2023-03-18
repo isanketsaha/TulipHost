@@ -115,6 +115,7 @@ public class Student extends AbstractAuditingEntity {
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
     @Filter(name = "filterTransactionOnType", condition = "type = :type")
+    @OrderBy("created_date DESC")
     private Set<Transaction> transactions = new LinkedHashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
