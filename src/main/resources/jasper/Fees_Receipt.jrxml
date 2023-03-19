@@ -202,6 +202,7 @@
                     <property name="com.jaspersoft.studio.table.style.detail" value="Table 2_TD"/>
                     <property name="com.jaspersoft.studio.components.autoresize.next" value="true"/>
                     <property name="com.jaspersoft.studio.components.autoresize.proportional" value="true"/>
+                    <property name="net.sf.jasperreports.awt.ignore.missing.font" value="true"/>
                 </reportElement>
                 <jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" whenNoDataType="Blank">
                     <datasetRun subDataset="feesItem" uuid="20c7fe08-8fb6-46a4-a8f6-b406d9a39e23">
