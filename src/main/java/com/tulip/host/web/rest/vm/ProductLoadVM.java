@@ -30,13 +30,13 @@ public class ProductLoadVM {
     private String category;
 
     @FieldName("Cost Price")
-    private int purchasePrice;
+    private Double purchasePrice;
 
     @FieldName("Quantity")
     private int qty;
 
     @FieldName("Discount Percent")
-    private String discountPercent;
+    private Integer discountPercent;
 
     @FieldName("Vendor")
     private String vendor;

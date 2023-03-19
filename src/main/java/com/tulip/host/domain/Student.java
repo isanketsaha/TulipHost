@@ -1,5 +1,6 @@
 package com.tulip.host.domain;
 
+import com.tulip.host.utils.ClassComparatorBySession;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -25,6 +27,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.FilterJoinTable;
+import org.hibernate.annotations.Filters;
+import org.hibernate.annotations.ParamDef;
+import org.hibernate.annotations.SortComparator;
+import org.hibernate.annotations.Where;
 
 @Builder
 @AllArgsConstructor
@@ -103,6 +114,8 @@ public class Student extends AbstractAuditingEntity {
     private Set<Dependent> dependents = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
+    @Filter(name = "filterTransactionOnType", condition = "type = :type")
+    @OrderBy("created_date DESC")
     private Set<Transaction> transactions = new LinkedHashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
@@ -111,6 +124,9 @@ public class Student extends AbstractAuditingEntity {
         joinColumns = @JoinColumn(name = "student_id"),
         inverseJoinColumns = @JoinColumn(name = "class_id")
     )
+    @Filter(name = "filterClass", condition = "id = :classId")
+    //    @OrderBy("created_date DESC")
+    @SortComparator(ClassComparatorBySession.class)
     private Set<ClassDetail> classDetails = new LinkedHashSet<>();
 
     public void addClass(ClassDetail classDetail) {

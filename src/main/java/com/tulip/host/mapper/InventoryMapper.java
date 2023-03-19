@@ -31,7 +31,16 @@ public interface InventoryMapper {
 
     List<InventoryItemDTO> toEntityList(List<Inventory> source);
 
-    @Mapping(target = "unitPrice", source = "purchasePrice")
+    @Mapping(
+        target = "discountPercent",
+        expression = "java(source.getDiscountPercent() == null ? com.tulip.host.utils" +
+        ".CommonUtils.calculateDiscountPercent(source.getPurchasePrice(),source.getPrice()) : String.valueOf(source.getDiscountPercent()))"
+    )
+    @Mapping(
+        target = "unitPrice",
+        expression = "java(source.getPurchasePrice() == null ? com.tulip.host.utils" +
+        ".CommonUtils.calculatePurchasePrice(source.getDiscountPercent(), source.getPrice()) : source.getPurchasePrice())"
+    )
     Inventory toModel(ProductLoadVM source);
 
     @Mapping(target = "purchasedQty", source = "qty")

@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.math3.util.Precision;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
 import org.joda.time.Years;
@@ -34,6 +35,16 @@ public class CommonUtils {
     public static Integer calculateAge(Date birthday) {
         Years age = Years.yearsBetween(new LocalDate(birthday), new LocalDate());
         return age.getYears();
+    }
+
+    public static String calculateDiscountPercent(double purchasePrice, double sellPrice) {
+        double v = ((sellPrice - purchasePrice) / purchasePrice) * 100;
+        return String.valueOf(Math.floor(v));
+    }
+
+    public static double calculatePurchasePrice(double discountPercent, double sellPrice) {
+        Double v = sellPrice * (1 - (discountPercent / 100));
+        return Math.ceil(v);
     }
 
     public static int calculatePendingMonthFees(Student student, Date sessionFrom) {
@@ -54,12 +65,16 @@ public class CommonUtils {
                     )
                     .getMonths();
             } else {
-                Date date = student.getCreatedDate().after(sessionFrom) ? sessionFrom : student.getCreatedDate();
-                return Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths();
+                Date date = student.getCreatedDate().before(sessionFrom) ? sessionFrom : student.getCreatedDate();
+                return new LocalDate(date).withDayOfMonth(1).isAfter(new LocalDate(new Date()).withDayOfMonth(1))
+                    ? Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths()
+                    : 0;
             }
         } else {
-            Date date = student.getCreatedDate().after(sessionFrom) ? sessionFrom : student.getCreatedDate();
-            return Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths();
+            Date date = student.getCreatedDate().before(sessionFrom) ? sessionFrom : student.getCreatedDate();
+            return new LocalDate(date).withDayOfMonth(1).isAfter(new LocalDate(new Date()).withDayOfMonth(1))
+                ? Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths()
+                : 0;
         }
     }
 

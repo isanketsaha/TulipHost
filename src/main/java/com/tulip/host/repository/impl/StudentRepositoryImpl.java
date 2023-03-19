@@ -3,9 +3,12 @@ package com.tulip.host.repository.impl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.tulip.host.data.StudentDetailsDTO;
+import com.tulip.host.domain.Session;
 import com.tulip.host.domain.Student;
 import com.tulip.host.repository.StudentRepository;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.apache.commons.lang3.StringUtils;
@@ -32,12 +35,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
 
     @Override
     public Student search(long id) {
-        return jpaQueryFactory
-            .selectFrom(STUDENT)
-            .leftJoin(STUDENT.classDetails, CLASS_DETAIL)
-            .orderBy(CLASS_DETAIL.session().fromDate.desc())
-            .where(STUDENT.id.eq(id))
-            .fetchOne();
+        return jpaQueryFactory.selectFrom(STUDENT).where(STUDENT.id.eq(id)).fetchOne();
     }
 
     @Override
