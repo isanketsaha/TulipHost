@@ -368,6 +368,13 @@
             <artifactId>jasperreports-fonts</artifactId>
             <version>6.20.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.mpobjects.jasperreports.font/jasperreports-fonts-liberation -->
+        <dependency>
+            <groupId>com.mpobjects.jasperreports.font</groupId>
+            <artifactId>jasperreports-fonts-liberation</artifactId>
+            <version>2.1.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>
