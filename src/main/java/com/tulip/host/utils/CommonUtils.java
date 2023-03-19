@@ -39,12 +39,12 @@ public class CommonUtils {
 
     public static String calculateDiscountPercent(double purchasePrice, double sellPrice) {
         double v = ((sellPrice - purchasePrice) / purchasePrice) * 100;
-        return String.valueOf(v);
+        return String.valueOf(Math.floor(v));
     }
 
     public static double calculatePurchasePrice(double discountPercent, double sellPrice) {
         Double v = sellPrice * (1 - (discountPercent / 100));
-        return Precision.round(v, 2);
+        return Math.ceil(v);
     }
 
     public static int calculatePendingMonthFees(Student student, Date sessionFrom) {
