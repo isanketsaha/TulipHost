@@ -130,14 +130,14 @@
             <staticText>
                 <reportElement x="0" y="30" width="552" height="20" forecolor="#8F8D8D" uuid="f5862568-2e83-46f9-bc69-9a29d5fa0907"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
-                    <font fontName="AkayaKanadaka" isItalic="false"/>
+                    <font fontName="Times New Roman" isItalic="false"/>
                 </textElement>
                 <text><![CDATA[Shaping the lives of those, who will shape the Nation.]]></text>
             </staticText>
             <staticText>
                 <reportElement x="0" y="40" width="552" height="20" forecolor="#8C8C8C" uuid="02d04486-87c0-4be7-a9a3-b94b38ce89bd"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
-                    <font fontName="Adelle Sans Devanagari"/>
+                    <font fontName="Times New Roman"/>
                 </textElement>
                 <text><![CDATA[(03513) - 2652652]]></text>
             </staticText>
