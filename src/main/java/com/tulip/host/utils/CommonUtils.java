@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.math3.util.Precision;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
 import org.joda.time.Years;
@@ -38,7 +39,12 @@ public class CommonUtils {
 
     public static String calculateDiscountPercent(double purchasePrice, double sellPrice) {
         double v = ((sellPrice - purchasePrice) / purchasePrice) * 100;
-        return null;
+        return String.valueOf(v);
+    }
+
+    public static double calculatePurchasePrice(double discountPercent, double sellPrice) {
+        Double v = sellPrice * (1 - (discountPercent / 100));
+        return Precision.round(v, 2);
     }
 
     public static int calculatePendingMonthFees(Student student, Date sessionFrom) {
