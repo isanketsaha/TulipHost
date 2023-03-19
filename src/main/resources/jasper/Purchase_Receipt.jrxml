@@ -126,18 +126,18 @@
             <image>
                 <reportElement x="60" y="-10" width="60" height="60" uuid="c581ccc5-13c2-4356-9f7d-d66046086186"/>
                 <imageExpression><![CDATA[this.getClass().getResourceAsStream("/static/logo.jpg")]]></imageExpression>
-            </image>
+             </image>
             <staticText>
-                <reportElement x="0" y="30" width="552" height="20" forecolor="#8F8D8D" uuid="f5862568-2e83-46f9-bc69-9a29d5fa0907"/>
+                <reportElement x="-1" y="30" width="552" height="20" forecolor="#8F8D8D" uuid="f5862568-2e83-46f9-bc69-9a29d5fa0907"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
-                    <font fontName="Times New Roman" isItalic="false"/>
+                    <font fontName="Arial" isItalic="false"/>
                 </textElement>
                 <text><![CDATA[Shaping the lives of those, who will shape the Nation.]]></text>
             </staticText>
             <staticText>
                 <reportElement x="0" y="40" width="552" height="20" forecolor="#8C8C8C" uuid="02d04486-87c0-4be7-a9a3-b94b38ce89bd"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
-                    <font fontName="Times New Roman"/>
+                    <font fontName="Arial"/>
                 </textElement>
                 <text><![CDATA[(03513) - 2652652]]></text>
             </staticText>
@@ -160,7 +160,7 @@
                 <text><![CDATA[Receipt Number -]]></text>
             </staticText>
             <textField textAdjust="StretchHeight">
-                <reportElement x="92" y="67" width="110" height="12" uuid="763322ef-dee1-43da-9ff8-f4219c3cbef1"/>
+                <reportElement x="100" y="67" width="110" height="12" uuid="763322ef-dee1-43da-9ff8-f4219c3cbef1"/>
                 <textFieldExpression><![CDATA[$F{transactionId}]]></textFieldExpression>
             </textField>
             <staticText>
@@ -366,7 +366,7 @@
                 <text><![CDATA[Please retain this receipt for your records.]]></text>
             </staticText>
             <staticText>
-                <reportElement x="330" y="-20" width="225" height="40" uuid="804c6cbe-a461-4804-8ef4-d18b18e35d45"/>
+                <reportElement x="360" y="-10" width="225" height="40" uuid="804c6cbe-a461-4804-8ef4-d18b18e35d45"/>
                 <textElement textAlignment="Center" verticalAlignment="Bottom"/>
                 <text><![CDATA[_________________________________
 Signature]]></text>
