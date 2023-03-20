@@ -18,6 +18,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,8 +34,9 @@ import org.hibernate.annotations.ParamDef;
 @ToString
 @Entity
 @Table(name = "class_details")
+@EqualsAndHashCode
 @FilterDef(name = "filterClass", parameters = @ParamDef(name = "classId", type = "long"))
-public class ClassDetail extends AbstractAuditingEntity {
+public class ClassDetail extends AbstractAuditingEntity implements Comparable<ClassDetail> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,4 +67,9 @@ public class ClassDetail extends AbstractAuditingEntity {
 
     @OneToMany(mappedBy = "classDetail", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<Upload> uploadedDocuments;
+
+    @Override
+    public int compareTo(ClassDetail o) {
+        return this.getCreatedDate().compareTo(o.getCreatedDate());
+    }
 }

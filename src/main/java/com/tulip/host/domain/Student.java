@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -127,11 +129,11 @@ public class Student extends AbstractAuditingEntity {
     @Filter(name = "filterClass", condition = "id = :classId")
     //    @OrderBy("created_date DESC")
     @SortComparator(ClassComparatorBySession.class)
-    private Set<ClassDetail> classDetails = new LinkedHashSet<>();
+    private SortedSet<ClassDetail> classDetails = new TreeSet<>();
 
     public void addClass(ClassDetail classDetail) {
         if (classDetails == null) {
-            Set<ClassDetail> classList = new LinkedHashSet();
+            SortedSet<ClassDetail> classList = new TreeSet();
             classList.add(classDetail);
             this.setClassDetails(classList);
         } else {
