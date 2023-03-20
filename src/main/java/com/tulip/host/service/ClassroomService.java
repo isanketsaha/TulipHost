@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -84,11 +86,11 @@ public class ClassroomService {
                 .forEach(item -> {
                     Student student = studentRepository.findById(item).orElse(null);
                     if (student != null) {
-                        Set<ClassDetail> classDetails = student
+                        SortedSet<ClassDetail> classDetails = student
                             .getClassDetails()
                             .stream()
                             .filter(classDetail1 -> classDetail1.getSession().getId() != promoteStudentVM.getSessionId())
-                            .collect(Collectors.toSet());
+                            .collect(Collectors.toCollection(TreeSet::new));
                         classDetails.add(classDetail);
                         student.setClassDetails(classDetails);
                         studentRepository.save(student);
