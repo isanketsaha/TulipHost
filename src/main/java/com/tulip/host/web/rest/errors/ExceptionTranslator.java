@@ -117,7 +117,7 @@ public class ExceptionTranslator implements ProblemHandling {
         String metadata =
             String.valueOf(Objects.requireNonNull(problem.getStatus()).getReasonPhrase()) +
             " - " +
-            (path != null ? path : problem.getParameters().get("path").toString());
+            (path != null ? path : problem.getParameters().get("path") != null ? problem.getParameters().get("path").toString() : "");
         StringBuilder stringBuilder = new StringBuilder();
         if (problem instanceof ConstraintViolationProblem && ((ConstraintViolationProblem) problem).getViolations() != null) {
             for (Violation violation : ((ConstraintViolationProblem) problem).getViolations()) {

@@ -10,4 +10,5 @@ public enum ExpenseTypeEnum {
     SCHOOL_INFRASTRUCTURE,
     PRINCIPAL_OFFICE,
     SCHOOL_UPGRADE,
+    OTHERS,
 }
