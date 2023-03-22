@@ -254,8 +254,8 @@ public class PaymentService {
             .build();
         transaction.setAfterDiscount(transaction.getAmount());
         expenses.forEach(item -> item.setOrder(transaction));
-        List<Expense> expensesList = expenseRepository.saveAllAndFlush(expenses);
-        return expensesList.stream().findFirst().get().getOrder().getId();
+        transactionRepository.saveAndFlush(transaction);
+        return transaction.getId();
     }
 
     @Transactional

@@ -72,7 +72,7 @@ public class Transaction extends AbstractAuditingEntity {
     )
     private Set<PurchaseLineItem> purchaseLineItems;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH })
     private Set<Expense> expenseItems;
 
     public void removeFeesLineItem(FeesLineItem lineItem) {
