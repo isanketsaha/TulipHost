@@ -60,7 +60,7 @@ public class ExportService {
 
     @Transactional
     public XSSFWorkbook exportStock() {
-        List<Inventory> stockReport = inventoryRepository.stockReport(sessionService.fetchCurrentSession().getId());
+        List<Inventory> stockReport = inventoryRepository.stockReport();
         List<StockExportDTO> stockExportDTOS = inventoryMapper.toExportEntityList(stockReport);
         List<Object> list = new ArrayList<>(stockExportDTOS);
         return excelExporterService.export(list);

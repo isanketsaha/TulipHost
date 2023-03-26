@@ -290,4 +290,8 @@ public class PaymentService {
             purchaseLineItemRepository.delete(purchaseLineItem);
         }
     }
+
+    public void deleteTransaction(long transactionId) {
+        transactionRepository.delete(transactionRepository.findById(transactionId).orElse(null));
+    }
 }
