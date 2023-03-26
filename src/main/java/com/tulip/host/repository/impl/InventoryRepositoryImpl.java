@@ -5,7 +5,6 @@ import static com.tulip.host.config.Constants.CATEGORY_PLACEHOLDER;
 
 import com.tulip.host.domain.Inventory;
 import com.tulip.host.repository.InventoryRepository;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 
