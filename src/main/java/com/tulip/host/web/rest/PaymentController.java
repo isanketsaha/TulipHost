@@ -60,4 +60,10 @@ public class PaymentController {
     public void editOrder(@Valid @RequestBody EditOrderVm editOrderVm) {
         paymentService.edit(editOrderVm);
     }
+
+    @PostMapping("/delete")
+    @PreAuthorize("hasAuthority('UG_ADMIN')")
+    public void deleteTransaction(@Valid @RequestParam long transactionId) {
+        paymentService.deleteTransaction(transactionId);
+    }
 }

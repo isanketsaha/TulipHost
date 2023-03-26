@@ -100,7 +100,7 @@ public class ReportService {
 
     @Transactional
     public List<InventoryItemDTO> inventoryReport() {
-        List<Inventory> stockReport = inventoryRepository.stockReport(sessionService.fetchCurrentSession().getId());
+        List<Inventory> stockReport = inventoryRepository.stockReport();
         List<InventoryItemDTO> inventoryItemDTOS = inventoryMapper.toEntityList(stockReport);
         Collections.sort(inventoryItemDTOS, (a, b) -> a.getProduct().getItemName().compareTo(b.getProduct().getItemName()));
         return inventoryItemDTOS;

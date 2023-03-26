@@ -14,5 +14,9 @@ public final class Constants {
 
     public static final String BIRTH_CERTIFICATE = "BIRTH CERTIFICATE";
 
+    public static final String CATEGORY_PLACEHOLDER = "PLACEHOLDER";
+
+    public static final String CATEGORY_BOOK = "BOOK";
+
     private Constants() {}
 }
