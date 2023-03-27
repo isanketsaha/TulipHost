@@ -9,6 +9,7 @@ import lombok.*;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.FilterJoinTable;
+import org.hibernate.annotations.FilterJoinTables;
 import org.hibernate.annotations.ParamDef;
 
 @Builder
@@ -19,7 +20,7 @@ import org.hibernate.annotations.ParamDef;
 @ToString
 @Entity
 @Table(name = "transactions")
-@FilterDef(name = "filterTransactionOnType", parameters = @ParamDef(name = "type", type = "string"))
+@FilterDef(name = "filterTransactionOnType", defaultCondition = "type = :type", parameters = @ParamDef(name = "type", type = "string"))
 public class Transaction extends AbstractAuditingEntity {
 
     @Id
@@ -72,7 +73,12 @@ public class Transaction extends AbstractAuditingEntity {
     )
     private Set<PurchaseLineItem> purchaseLineItems;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH })
+    @OneToMany(
+        mappedBy = "order",
+        fetch = FetchType.LAZY,
+        cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH },
+        orphanRemoval = true
+    )
     private Set<Expense> expenseItems;
 
     public void removeFeesLineItem(FeesLineItem lineItem) {
@@ -81,5 +87,9 @@ public class Transaction extends AbstractAuditingEntity {
 
     public void removePurchaseLineItems(PurchaseLineItem lineItem) {
         this.purchaseLineItems.remove(lineItem);
+    }
+
+    public void removeExpenseLineItems(Expense lineItem) {
+        this.expenseItems.remove(lineItem);
     }
 }
