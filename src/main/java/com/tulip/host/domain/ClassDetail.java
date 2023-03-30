@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.ParamDef;
 
@@ -35,7 +36,7 @@ import org.hibernate.annotations.ParamDef;
 @Entity
 @Table(name = "class_details")
 @EqualsAndHashCode
-@FilterDef(name = "filterClass", parameters = @ParamDef(name = "classId", type = "long"))
+@FilterDef(name = "filterClass", defaultCondition = "id = :classId", parameters = @ParamDef(name = "classId", type = "long"))
 public class ClassDetail extends AbstractAuditingEntity implements Comparable<ClassDetail> {
 
     @Id
@@ -59,9 +60,10 @@ public class ClassDetail extends AbstractAuditingEntity implements Comparable<Cl
     @OneToMany(mappedBy = "std", fetch = FetchType.LAZY)
     private Set<FeesCatalog> feesCatalogs = new LinkedHashSet<>();
 
-    @ManyToMany(mappedBy = "classDetails", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "classDetails", fetch = FetchType.EAGER)
     private Set<Student> students = new LinkedHashSet<>();
 
+    @Filter(name = "filterCatalogNEPlaceholder")
     @OneToMany(mappedBy = "std", fetch = FetchType.LAZY)
     private Set<ProductCatalog> productCatalogs = new LinkedHashSet<>();
 

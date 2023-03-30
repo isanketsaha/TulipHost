@@ -1,10 +1,12 @@
 package com.tulip.host.repository.impl;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.tulip.host.data.TransactionReportDTO;
 import com.tulip.host.domain.Transaction;
+import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.enums.PaymentOptionEnum;
 import com.tulip.host.repository.TransactionRepository;
@@ -58,6 +60,41 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
             }
         }
         return MapUtils.isNotEmpty(transactionReportMap) ? new ArrayList<>(transactionReportMap.values()) : Collections.emptyList();
+    }
+
+    @Override
+    public List<String> fetchAnnualFeesByClass(long studentId, long classId) {
+        return jpaQueryFactory
+            .select(FEES_CATALOG.feesName)
+            .from(TRANSACTION)
+            .innerJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
+            .innerJoin(FEES_LINE_ITEM.feesProduct(), FEES_CATALOG)
+            .where(
+                TRANSACTION
+                    .student()
+                    .id.eq(studentId)
+                    .and(FEES_CATALOG.std().id.eq(classId))
+                    .and(FEES_CATALOG.applicableRule.eq(FeesRuleType.YEARLY))
+            )
+            .fetch();
+    }
+
+    @Override
+    public List<Transaction> fetchStudentFeesTransactionByClassId(long studentId, long classId) {
+        return jpaQueryFactory
+            .selectFrom(TRANSACTION)
+            .innerJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
+            .innerJoin(FEES_LINE_ITEM.feesProduct(), FEES_CATALOG)
+            .where(
+                TRANSACTION
+                    .student()
+                    .id.eq(studentId)
+                    .and(TRANSACTION.type.eq(PayTypeEnum.FEES.name()))
+                    .and(FEES_CATALOG.std().id.eq(classId))
+                    .and(FEES_CATALOG.applicableRule.eq(FeesRuleType.MONTHLY))
+            )
+            .orderBy(new OrderSpecifier[] { TRANSACTION.createdDate.desc() })
+            .fetch();
     }
 
     private void mapTransactionType(TransactionReportDTO reportDTO, Tuple tuple) {

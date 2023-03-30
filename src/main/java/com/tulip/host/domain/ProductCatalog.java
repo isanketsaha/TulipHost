@@ -19,6 +19,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.aspectj.apache.bcel.classfile.Constant;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 @Builder
 @AllArgsConstructor
@@ -28,6 +31,7 @@ import lombok.ToString;
 @ToString
 @Entity
 @Table(name = "product_catalog")
+@FilterDef(name = "filterCatalogNEPlaceholder", defaultCondition = "category != 'PLACEHOLDER'")
 public class ProductCatalog extends AbstractAuditingEntity {
 
     @Id

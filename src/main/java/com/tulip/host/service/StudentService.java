@@ -2,7 +2,9 @@ package com.tulip.host.service;
 
 import static com.tulip.host.config.Constants.AADHAAR_CARD;
 import static com.tulip.host.config.Constants.BIRTH_CERTIFICATE;
+import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
 import static com.tulip.host.config.Constants.PAN_CARD;
+import static com.tulip.host.utils.CommonUtils.formatToDate;
 
 import com.querydsl.core.BooleanBuilder;
 import com.tulip.host.data.ClassDetailDTO;
@@ -12,6 +14,7 @@ import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Dependent;
 import com.tulip.host.domain.QStudent;
 import com.tulip.host.domain.Student;
+import com.tulip.host.domain.Transaction;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.DependentMapper;
 import com.tulip.host.mapper.StudentMapper;
@@ -20,13 +23,18 @@ import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.DependentRepository;
 import com.tulip.host.repository.StudentPagedRepository;
 import com.tulip.host.repository.StudentRepository;
+import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.joda.time.LocalDate;
+import org.joda.time.Months;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
@@ -34,6 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class StudentService {
 
@@ -45,6 +54,8 @@ public class StudentService {
     private final UploadMapper uploadMapper;
     private final StudentPagedRepository studentPagedRepository;
     private final DependentRepository dependentRepository;
+
+    private final TransactionRepository transactionRepository;
 
     @Transactional
     public Page<StudentBasicDTO> fetchAllStudent(int pageNo, int pageSize) {
@@ -172,5 +183,37 @@ public class StudentService {
             .stream()
             .filter(item -> !CollectionUtils.isEmpty(item.getUploadedDocuments()))
             .forEach(item -> item.getUploadedDocuments().forEach(upload -> upload.setDependent(item)));
+    }
+
+    @Transactional
+    public int calculatePendingMonthFees(StudentBasicDTO student, Long classId, Date sessionFrom) {
+        List<Transaction> transactionList = transactionRepository.fetchStudentFeesTransactionByClassId(student.getId(), classId);
+        if (!CollectionUtils.isEmpty(transactionList)) {
+            for (Transaction transaction : transactionList) {
+                Optional<Date> lastPaidDate = transaction
+                    .getFeesLineItem()
+                    .stream()
+                    .filter(fees -> fees.getFeesProduct().getFeesName().equals("TUITION FEES"))
+                    .map(u -> formatToDate(u.getMonth(), MONTH_YEAR_FORMAT))
+                    .max(Date::compareTo);
+                if (lastPaidDate.isPresent()) {
+                    return Months
+                        .monthsBetween(
+                            new LocalDate(lastPaidDate.get()).dayOfMonth().withMaximumValue(),
+                            new LocalDate(new Date()).withDayOfMonth(1)
+                        )
+                        .getMonths();
+                }
+            }
+        } else {
+            Date date = student.getCreatedDate().before(sessionFrom) ? sessionFrom : student.getCreatedDate();
+            return new LocalDate(date).withDayOfMonth(1).isAfter(new LocalDate(new Date()).withDayOfMonth(1))
+                ? Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths()
+                : 0;
+        }
+        Date date = student.getCreatedDate().before(sessionFrom) ? sessionFrom : student.getCreatedDate();
+        return new LocalDate(date).withDayOfMonth(1).isAfter(new LocalDate(new Date()).withDayOfMonth(1))
+            ? Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths()
+            : 0;
     }
 }

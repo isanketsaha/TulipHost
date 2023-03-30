@@ -20,7 +20,7 @@ import org.hibernate.annotations.ParamDef;
 @ToString
 @Entity
 @Table(name = "transactions")
-@FilterDef(name = "filterTransactionOnType", defaultCondition = "type = :type", parameters = @ParamDef(name = "type", type = "string"))
+@FilterDef(name = "filterTransactionOnType", defaultCondition = "type = :type ", parameters = @ParamDef(name = "type", type = "string"))
 public class Transaction extends AbstractAuditingEntity {
 
     @Id

@@ -2,6 +2,7 @@ package com.tulip.host.data;
 
 import com.tulip.host.enums.StdEnum;
 import java.util.Date;
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -37,4 +38,6 @@ public class StudentBasicDTO {
     private Long classId;
     private String address;
     private int age;
+    private List<String> annualPaidFees;
+    private Date createdDate;
 }
