@@ -18,5 +18,7 @@ public final class Constants {
 
     public static final String CATEGORY_BOOK = "BOOK";
 
+    public static final String JASPER_FOLDER = "/jasper/";
+
     private Constants() {}
 }

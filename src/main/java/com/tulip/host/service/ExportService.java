@@ -1,5 +1,7 @@
 package com.tulip.host.service;
 
+import static com.tulip.host.config.Constants.JASPER_FOLDER;
+
 import com.tulip.host.data.PrintTransactionDTO;
 import com.tulip.host.data.StockExportDTO;
 import com.tulip.host.data.StudentBasicDTO;
@@ -55,8 +57,6 @@ public class ExportService {
     private final JasperService jasperService;
 
     private final TransactionMapper transactionMapper;
-
-    private static final String JASPER_FOLDER = "/jasper/";
 
     @Transactional
     public XSSFWorkbook exportStock() {
