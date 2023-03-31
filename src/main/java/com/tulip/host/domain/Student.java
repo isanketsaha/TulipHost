@@ -3,7 +3,6 @@ package com.tulip.host.domain;
 import com.tulip.host.utils.ClassComparatorBySession;
 import java.util.Date;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -29,15 +28,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.FilterJoinTable;
+import org.hibernate.annotations.FilterJoinTables;
 import org.hibernate.annotations.Filters;
 import org.hibernate.annotations.ParamDef;
 import org.hibernate.annotations.SortComparator;
-import org.hibernate.annotations.Where;
 
 @Builder
 @AllArgsConstructor
@@ -115,8 +112,8 @@ public class Student extends AbstractAuditingEntity {
     )
     private Set<Dependent> dependents = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
-    @Filter(name = "filterTransactionOnType", condition = "type = :type")
+    @OneToMany(mappedBy = "student", fetch = FetchType.EAGER)
+    @Filter(name = "filterTransactionOnType")
     @OrderBy("created_date DESC")
     private Set<Transaction> transactions = new LinkedHashSet<>();
 
@@ -126,8 +123,7 @@ public class Student extends AbstractAuditingEntity {
         joinColumns = @JoinColumn(name = "student_id"),
         inverseJoinColumns = @JoinColumn(name = "class_id")
     )
-    @Filter(name = "filterClass", condition = "id = :classId")
-    //    @OrderBy("created_date DESC")
+    @Filter(name = "filterClass")
     @SortComparator(ClassComparatorBySession.class)
     private SortedSet<ClassDetail> classDetails = new TreeSet<>();
 

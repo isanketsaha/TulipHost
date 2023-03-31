@@ -64,10 +64,8 @@ public interface StudentMapper {
         "                .getStd())"
     )
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(student.getDob()))")
-    @Mapping(
-        target = "pendingFees",
-        expression = "java(com.tulip.host.utils.CommonUtils.calculatePendingMonthFees(student, student.getClassDetails().stream().findFirst().get().getSession().getFromDate()))"
-    )
+    @Mapping(target = "pendingFees", ignore = true)
+    @Mapping(target = "annualPaidFees", ignore = true)
     StudentBasicDTO toBasicEntity(Student student);
 
     @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(studentLoadVms.getName()))")
@@ -98,10 +96,7 @@ public interface StudentMapper {
         "                .orElse(null)\n" +
         "                .getStd())"
     )
-    @Mapping(
-        target = "pendingFees",
-        expression = "java(com.tulip.host.utils.CommonUtils.calculatePendingMonthFees(student, student.getClassDetails().stream().findFirst().get().getSession().getFromDate()))"
-    )
+    @Mapping(target = "pendingFees", ignore = true)
     StudentExportDTO toBasicEntityExport(Student student);
 
     List<StudentExportDTO> toBasicEntityExportList(List<Student> student);

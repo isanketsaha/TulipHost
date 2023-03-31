@@ -1,11 +1,9 @@
 package com.tulip.host.repository.impl;
 
 import com.tulip.host.domain.ClassDetail;
-import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.repository.ClassDetailRepository;
 import java.util.List;
 import javax.persistence.EntityManager;
-import org.hibernate.Session;
 
 public class ClassDetailRepositoryImpl extends BaseRepositoryImpl<ClassDetail, Long> implements ClassDetailRepository {
 
@@ -28,7 +26,6 @@ public class ClassDetailRepositoryImpl extends BaseRepositoryImpl<ClassDetail, L
 
     @Override
     public ClassDetail findByClass(Long classId) {
-        ClassDetail classDetail = jpaQueryFactory.selectFrom(CLASS_DETAIL).distinct().where(CLASS_DETAIL.id.eq(classId)).fetchOne();
-        return classDetail;
+        return jpaQueryFactory.selectFrom(CLASS_DETAIL).distinct().where(CLASS_DETAIL.id.eq(classId)).fetchOne();
     }
 }

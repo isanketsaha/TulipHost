@@ -20,6 +20,7 @@ public interface ClassMapper {
     @Mapping(target = "sessionId", source = "session.id")
     ClassDetailDTO toEntity(ClassDetail classDetail);
 
+    @Mapping(target = "studentStrength", expression = "java(classDetail.getStudents().size())")
     ClassListDTO toClassListEntity(ClassDetail classDetail);
 
     List<ClassListDTO> toClassListEntityList(List<ClassDetail> classDetails);

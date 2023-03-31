@@ -6,6 +6,9 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 @Builder
 @AllArgsConstructor
@@ -42,6 +45,7 @@ public class FeesCatalog extends AbstractAuditingEntity {
     private FeesRuleType applicableRule;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @Filter(name = "filterClass")
     @JoinColumn(name = "std_id")
     private ClassDetail std;
 }

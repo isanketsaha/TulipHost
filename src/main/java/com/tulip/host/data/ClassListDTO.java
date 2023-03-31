@@ -9,4 +9,6 @@ public class ClassListDTO {
     private Long id;
 
     private String std;
+
+    private int studentStrength;
 }
