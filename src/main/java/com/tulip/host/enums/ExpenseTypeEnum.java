@@ -2,6 +2,7 @@ package com.tulip.host.enums;
 
 public enum ExpenseTypeEnum {
     OFFICE_MAINTENANCE,
+    STUDENT_DISCOUNT,
     BILLS,
     ANNUAL_FUNCTION,
     ANNUAL_SPORTS,

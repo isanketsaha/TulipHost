@@ -1,0 +1,8 @@
+--ALTER TABLE upload
+--ADD transaction_id bigint,
+--ADD FOREIGN KEY (transaction_id) REFERENCES transactions (transaction_id);
+--
+--
+--ALTER TABLE expense
+--ADD unit_price double NOT NULL;
+--

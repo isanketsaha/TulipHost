@@ -6,6 +6,7 @@ import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.service.PaymentService;
 import com.tulip.host.web.rest.vm.EditOrderVm;
 import com.tulip.host.web.rest.vm.ExpenseItemVM;
+import com.tulip.host.web.rest.vm.ExpenseVm;
 import com.tulip.host.web.rest.vm.PayVM;
 import java.util.List;
 import javax.validation.Valid;
@@ -51,8 +52,8 @@ public class PaymentController {
     }
 
     @PostMapping("/expense")
-    public Long registerExpense(@Valid @RequestBody List<ExpenseItemVM> expenseItems) {
-        return paymentService.registerExpense(expenseItems);
+    public Long registerExpense(@Valid @RequestBody ExpenseVm item) {
+        return paymentService.registerExpense(item);
     }
 
     @PostMapping("/edit")

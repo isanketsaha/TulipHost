@@ -1,15 +1,26 @@
 package com.tulip.host.domain;
 
-import java.time.Instant;
 import java.util.Set;
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import lombok.*;
-import org.hibernate.annotations.Filter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.FilterJoinTable;
-import org.hibernate.annotations.FilterJoinTables;
 import org.hibernate.annotations.ParamDef;
 
 @Builder
@@ -80,6 +91,9 @@ public class Transaction extends AbstractAuditingEntity {
         orphanRemoval = true
     )
     private Set<Expense> expenseItems;
+
+    @OneToMany(mappedBy = "transaction", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST }, orphanRemoval = true)
+    private Set<Upload> uploadList;
 
     public void removeFeesLineItem(FeesLineItem lineItem) {
         this.feesLineItem.remove(lineItem);

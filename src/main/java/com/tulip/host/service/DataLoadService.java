@@ -91,22 +91,4 @@ public class DataLoadService {
             .collect(Collectors.toList());
         feesCatalogRepository.saveAllAndFlush(feesCatalogList);
     }
-
-    @Transactional
-    public void loadProducts(List<ProductLoadVM> products) {
-        List<Inventory> inventoryList = products
-            .stream()
-            .map(item -> {
-                ProductCatalog productCatalog = productCatalogMapper.toModel(item);
-                if (item.getSession() != null && item.getClassDetail() != null) {
-                    ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(item.getSession(), item.getClassDetail());
-                    productCatalog.setStd(classDetail);
-                }
-                Inventory inventory = inventoryMapper.toModel(item);
-                inventory.setProduct(productCatalog);
-                return inventory;
-            })
-            .collect(Collectors.toList());
-        inventoryRepository.saveAllAndFlush(inventoryList);
-    }
 }

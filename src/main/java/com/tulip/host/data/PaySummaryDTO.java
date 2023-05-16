@@ -22,6 +22,7 @@ public class PaySummaryDTO {
     List<FeesItemSummaryDTO> feesItem;
     List<ExpenseItemDTO> expenseItems;
     double total;
+    String comments;
     Date paymentDateTime;
     String paymentReceivedBy;
 }

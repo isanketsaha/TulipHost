@@ -60,6 +60,7 @@ public class ClassDetail extends AbstractAuditingEntity implements Comparable<Cl
     @OneToMany(mappedBy = "std", fetch = FetchType.LAZY)
     private Set<FeesCatalog> feesCatalogs = new LinkedHashSet<>();
 
+    @Filter(name = "activeStudent")
     @ManyToMany(mappedBy = "classDetails", fetch = FetchType.EAGER)
     private Set<Student> students = new LinkedHashSet<>();
 

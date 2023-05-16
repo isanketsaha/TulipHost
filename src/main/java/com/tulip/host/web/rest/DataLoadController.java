@@ -2,6 +2,7 @@ package com.tulip.host.web.rest;
 
 import com.tulip.host.service.DataLoadService;
 import com.tulip.host.service.FileUploaderService;
+import com.tulip.host.service.ProductService;
 import com.tulip.host.web.rest.vm.FeesLoadVM;
 import com.tulip.host.web.rest.vm.ProductLoadVM;
 import com.tulip.host.web.rest.vm.StudentLoadVm;
@@ -29,6 +30,8 @@ public class DataLoadController {
     private final DataLoadService dataLoadService;
 
     private final FileUploaderService fileUploaderService;
+
+    private final ProductService productService;
 
     @PostMapping(value = "/student", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<String> uploadStudent(@RequestBody MultipartFile file) {
@@ -70,7 +73,7 @@ public class DataLoadController {
 
             List<ProductLoadVM> products = document.getSheet("product", ProductLoadVM.class);
             if (CollectionUtils.isNotEmpty(products)) {
-                dataLoadService.loadProducts(products);
+                productService.loadProducts(products);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

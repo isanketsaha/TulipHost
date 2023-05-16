@@ -3,6 +3,7 @@ package com.tulip.host.web.rest;
 import com.tulip.host.data.TransactionReportDTO;
 import com.tulip.host.data.TransactionSummary;
 import com.tulip.host.service.MonitorService;
+import com.tulip.host.service.ProductService;
 import com.tulip.host.service.ReportService;
 import java.util.Date;
 import java.util.List;

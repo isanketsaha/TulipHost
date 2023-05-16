@@ -1,5 +1,6 @@
 package com.tulip.host.domain;
 
+import java.util.Date;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

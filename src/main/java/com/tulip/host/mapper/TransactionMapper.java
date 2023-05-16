@@ -36,7 +36,7 @@ public interface TransactionMapper {
     @Mapping(target = "expenseItems", source = "expenseItems")
     PaySummaryDTO toEntity(Transaction feesOrder);
 
-    List<PaySummaryDTO> toEntityList(List<Transaction> feesOrder);
+    List<PaySummaryDTO> toEntityList(Iterable<Transaction> feesOrder);
 
     @Mapping(target = "studentName", source = "student.name")
     @Mapping(target = "feesItem", source = "feesLineItem")

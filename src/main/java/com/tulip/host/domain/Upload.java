@@ -69,4 +69,8 @@ public class Upload extends AbstractAuditingEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "class_id", nullable = false)
     private ClassDetail classDetail;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinColumn(name = "transaction_id", nullable = false)
+    private Transaction transaction;
 }

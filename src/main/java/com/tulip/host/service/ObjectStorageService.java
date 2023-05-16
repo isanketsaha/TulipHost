@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.tulip.host.config.ApplicationProperties;
+import com.tulip.host.utils.CommonUtils;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
@@ -56,13 +57,19 @@ public class ObjectStorageService {
     }
 
     public String save(MultipartFile file) throws FileUploadException {
+        final String FOLDER = CommonUtils.formatFromDate(new Date(), "MMM-yyyy") + "/";
         try {
-            String uuid = UUID.randomUUID().toString();
+            String uuid = UUID.randomUUID().toString().replace("-", "");
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentType(file.getContentType());
             objectMetadata.setContentLength(file.getSize());
-            amazonS3Client.putObject(properties.getAws().getCredential().getBucketName(), uuid, file.getInputStream(), objectMetadata);
-            return uuid;
+            amazonS3Client.putObject(
+                properties.getAws().getCredential().getBucketName(),
+                FOLDER + uuid,
+                file.getInputStream(),
+                objectMetadata
+            );
+            return FOLDER + uuid;
         } catch (IOException e) {
             e.printStackTrace();
             throw new FileUploadException();

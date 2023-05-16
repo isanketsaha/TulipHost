@@ -31,6 +31,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -54,16 +55,12 @@ public class ReportService {
     private final SessionService sessionService;
 
     @org.springframework.transaction.annotation.Transactional
-    public Page<PaySummaryDTO> fetchTransactionHistory(Date date, int pageNo, int pageSize) {
+    public List<PaySummaryDTO> fetchTransactionHistory(Date date) {
         Date plus = DateUtils.addDays(date, 1);
         BooleanBuilder query = new BooleanBuilder()
             .and(QTransaction.transaction.createdDate.gt(date).and(QTransaction.transaction.createdDate.lt(plus)));
-        Page<Transaction> transactionPage = transactionPagedRepository.findAll(
-            query,
-            CommonUtils.getPageRequest(DESC, "createdDate", pageNo, pageSize)
-        );
-        List<PaySummaryDTO> toEntityList = transactionMapper.toEntityList(transactionPage.getContent());
-        return new PageImpl<PaySummaryDTO>(toEntityList, transactionPage.getPageable(), transactionPage.getTotalElements());
+        Iterable<Transaction> transactions = transactionPagedRepository.findAll(query, Sort.by(DESC, "createdDate"));
+        return transactionMapper.toEntityList(transactions);
     }
 
     @Transactional

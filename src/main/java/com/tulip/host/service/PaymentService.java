@@ -16,11 +16,13 @@ import com.tulip.host.domain.PurchaseLineItem;
 import com.tulip.host.domain.QTransaction;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
+import com.tulip.host.domain.Upload;
 import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.enums.PaymentOptionEnum;
 import com.tulip.host.mapper.ExpenseMapper;
 import com.tulip.host.mapper.TransactionMapper;
+import com.tulip.host.mapper.UploadMapper;
 import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.repository.FeesCatalogRepository;
 import com.tulip.host.repository.FeesLineItemRepository;
@@ -33,6 +35,7 @@ import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.EditOrderVm;
 import com.tulip.host.web.rest.vm.ExpenseItemVM;
+import com.tulip.host.web.rest.vm.ExpenseVm;
 import com.tulip.host.web.rest.vm.PayVM;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -81,6 +84,8 @@ public class PaymentService {
     private final ExpenseMapper expenseMapper;
 
     private final SessionService sessionService;
+
+    private final UploadMapper uploadMapper;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT, Locale.ENGLISH);
 
@@ -243,19 +248,29 @@ public class PaymentService {
     }
 
     @Transactional
-    public Long registerExpense(List<ExpenseItemVM> expenseItems) {
-        Set<Expense> expenses = expenseMapper.toModelList(expenseItems);
-        Transaction transaction = Transaction
-            .builder()
-            .expenseItems(expenses)
-            .paymentMode(PaymentOptionEnum.CASH.name())
-            .amount(expenses.stream().mapToDouble(Expense::getAmount).sum() * (-1))
-            .type(PayTypeEnum.EXPENSE.name())
-            .build();
-        transaction.setAfterDiscount(transaction.getAmount());
-        expenses.forEach(item -> item.setOrder(transaction));
-        transactionRepository.saveAndFlush(transaction);
-        return transaction.getId();
+    public Long registerExpense(ExpenseVm expenseItems) {
+        Set<Expense> expenses = expenseMapper.toModelList(expenseItems.getExpenseItem());
+        if (expenses.stream().mapToDouble(Expense::getAmount).sum() == expenseItems.getTotal()) {
+            Transaction transaction = Transaction
+                .builder()
+                .expenseItems(expenses)
+                .paymentMode(expenseItems.getPaymentMode())
+                .amount(expenses.stream().mapToDouble(Expense::getAmount).sum() * (-1))
+                .type(PayTypeEnum.EXPENSE.name())
+                .build();
+            expenses.forEach(item -> item.setReceivedBy(expenseItems.getReceivedBy().toUpperCase()));
+            if (CollectionUtils.isNotEmpty(expenseItems.getExpenseDocs())) {
+                Set<Upload> uploadSet = uploadMapper.toModelList(expenseItems.getExpenseDocs());
+                transaction.setUploadList(uploadSet);
+            }
+            transaction.setComments(expenseItems.getComments());
+            transaction.setAfterDiscount(transaction.getAmount());
+            expenses.forEach(item -> item.setOrder(transaction));
+            transactionRepository.saveAndFlush(transaction);
+            return transaction.getId();
+        } else {
+            throw new RuntimeException("Error in calculating amount");
+        }
     }
 
     @Transactional
