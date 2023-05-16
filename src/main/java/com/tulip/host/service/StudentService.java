@@ -188,6 +188,7 @@ public class StudentService {
     @Transactional
     public int calculatePendingMonthFees(StudentBasicDTO student, Long classId, Date sessionFrom) {
         List<Transaction> transactionList = transactionRepository.fetchStudentFeesTransactionByClassId(student.getId(), classId);
+        Date date = student.getCreatedDate().before(sessionFrom) ? sessionFrom : student.getCreatedDate();
         if (!CollectionUtils.isEmpty(transactionList)) {
             for (Transaction transaction : transactionList) {
                 Optional<Date> lastPaidDate = transaction
@@ -205,15 +206,7 @@ public class StudentService {
                         .getMonths();
                 }
             }
-        } else {
-            Date date = student.getCreatedDate().before(sessionFrom) ? sessionFrom : student.getCreatedDate();
-            return new LocalDate(date).withDayOfMonth(1).isAfter(new LocalDate(new Date()).withDayOfMonth(1))
-                ? Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths()
-                : 0;
         }
-        Date date = student.getCreatedDate().before(sessionFrom) ? sessionFrom : student.getCreatedDate();
-        return new LocalDate(date).withDayOfMonth(1).isAfter(new LocalDate(new Date()).withDayOfMonth(1))
-            ? Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths()
-            : 0;
+        return Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths();
     }
 }
