@@ -53,6 +53,7 @@ public class ClassroomService {
         Session unwrap = em.unwrap(Session.class);
         unwrap.enableFilter("filterClass").setParameter("classId", classroomId);
         unwrap.enableFilter("filterCatalogNEPlaceholder");
+        unwrap.enableFilter("activeStudent").setParameter("flag", true);
 
         ClassDetail classDetail = classDetailRepository.findByClass(classroomId);
         if (classDetail != null) {

@@ -44,6 +44,7 @@ import org.hibernate.annotations.SortComparator;
 @ToString
 @Entity
 @Table(name = "student")
+@FilterDef(name = "activeStudent", defaultCondition = "active = :flag", parameters = @ParamDef(name = "flag", type = "boolean"))
 public class Student extends AbstractAuditingEntity {
 
     @Id
