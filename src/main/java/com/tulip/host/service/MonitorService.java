@@ -24,8 +24,8 @@ public class MonitorService {
 
     private final TransactionMapper transactionMapper;
 
-    public TransactionSummary transactionReport(Date from, Date to) {
-        List<TransactionReportDTO> fetchTransactionGroupBy = transactionRepository.fetchTransactionGroupBy(from, to);
+    public TransactionSummary transactionReport(Date from, Date to, String groupByFormat) {
+        List<TransactionReportDTO> fetchTransactionGroupBy = transactionRepository.fetchTransactionGroupBy(from, to, groupByFormat);
         Collections.sort(fetchTransactionGroupBy, (a, b) -> a.getTransactionDate().compareTo(b.getTransactionDate()));
         TransactionSummary transactionSummary = TransactionSummary.builder().reportList(fetchTransactionGroupBy).build();
         fetchTransactionGroupBy.forEach(item -> {

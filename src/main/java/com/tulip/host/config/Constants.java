@@ -15,10 +15,11 @@ public final class Constants {
     public static final String BIRTH_CERTIFICATE = "BIRTH CERTIFICATE";
 
     public static final String CATEGORY_PLACEHOLDER = "PLACEHOLDER";
-
     public static final String CATEGORY_BOOK = "BOOK";
-
     public static final String JASPER_FOLDER = "/jasper/";
+    public static final String GROUP_BY_DATE_FORMAT = "%d/%m/%Y";
+    public static final String GROUP_BY_MONTH_FORMAT = "%m/%Y";
+    public static final String GROUP_BY_YEAR_FORMAT = "%Y";
 
     private Constants() {}
 }
