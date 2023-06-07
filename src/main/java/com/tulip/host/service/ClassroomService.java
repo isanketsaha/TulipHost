@@ -69,6 +69,7 @@ public class ClassroomService {
             classDetailDTO.getStudents().sort((s1, s2) -> s1.getName().toUpperCase().compareTo(s2.getName().toUpperCase()));
             unwrap.disableFilter("filterClass");
             unwrap.disableFilter("filterCatalogNEPlaceholder");
+            unwrap.disableFilter("activeStudent");
             return classDetailDTO;
         }
         return null;
@@ -80,8 +81,11 @@ public class ClassroomService {
             SessionDTO sessionDTO = sessionService.fetchCurrentSession();
             sessionId = sessionDTO.getId();
         }
+        Session unwrap = em.unwrap(Session.class);
+        unwrap.enableFilter("activeStudent").setParameter("flag", true);
         List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(sessionId);
         Collections.sort(allBySessionId, Comparator.comparing(ClassDetail::getStd));
+        unwrap.disableFilter("activeStudent");
         return classMapper.toClassListEntityList(allBySessionId);
     }
 

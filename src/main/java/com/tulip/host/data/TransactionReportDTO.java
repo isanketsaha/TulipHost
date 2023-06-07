@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TransactionReportDTO {
 
+    String id;
     Date transactionDate;
     double expense;
     double fees;

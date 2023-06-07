@@ -1,5 +1,6 @@
 package com.tulip.host.web.rest;
 
+import com.tulip.host.config.Constants;
 import com.tulip.host.data.TransactionReportDTO;
 import com.tulip.host.data.TransactionSummary;
 import com.tulip.host.service.MonitorService;
@@ -24,9 +25,14 @@ public class AccountController {
 
     @GetMapping("/finance")
     public TransactionSummary transactionReport(
-        @RequestParam(value = "from") @DateTimeFormat(pattern = "dd-MM-yyyy") Date from,
-        @DateTimeFormat(pattern = "dd-MM-yyyy") @RequestParam(name = "to") Date to
+        @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") Date from,
+        @DateTimeFormat(pattern = "dd-MM-yyyy") @RequestParam Date to,
+        @RequestParam(defaultValue = "MONTHLY") String groupByType
     ) {
-        return monitorService.transactionReport(from, to);
+        return monitorService.transactionReport(
+            from,
+            to,
+            groupByType.equalsIgnoreCase("MONTHLY") ? Constants.GROUP_BY_MONTH_FORMAT : Constants.GROUP_BY_DATE_FORMAT
+        );
     }
 }
