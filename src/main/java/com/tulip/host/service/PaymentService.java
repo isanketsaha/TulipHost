@@ -19,7 +19,6 @@ import com.tulip.host.domain.Transaction;
 import com.tulip.host.domain.Upload;
 import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.enums.PayTypeEnum;
-import com.tulip.host.enums.PaymentOptionEnum;
 import com.tulip.host.mapper.ExpenseMapper;
 import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.mapper.UploadMapper;
@@ -34,18 +33,23 @@ import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.EditOrderVm;
-import com.tulip.host.web.rest.vm.ExpenseItemVM;
 import com.tulip.host.web.rest.vm.ExpenseVm;
 import com.tulip.host.web.rest.vm.PayVM;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import javax.transaction.Transactional;
 import javax.xml.bind.ValidationException;
@@ -173,6 +177,35 @@ public class PaymentService {
     }
 
     @Transactional
+    public List<PaySummaryDTO> getTransactionRecordByDate(Date date, String condition) {
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDateTime startDateTime;
+        LocalDateTime endDateTime;
+        if (condition.equalsIgnoreCase("MONTH")) {
+            LocalDate startDate = localDate.withDayOfMonth(1);
+            LocalDate endDate = localDate.withDayOfMonth(localDate.lengthOfMonth());
+            startDateTime = LocalDateTime.of(startDate, LocalTime.MIN);
+            endDateTime = LocalDateTime.of(endDate, LocalTime.MAX);
+        } else if (condition.equalsIgnoreCase("YEAR")) {
+            LocalDate startDate = localDate.withDayOfYear(1);
+            LocalDate endDate = localDate.withDayOfYear(localDate.lengthOfYear());
+            startDateTime = LocalDateTime.of(startDate, LocalTime.MIN);
+            endDateTime = LocalDateTime.of(endDate, LocalTime.MAX);
+        } else {
+            startDateTime = LocalDateTime.of(localDate, LocalTime.MIN);
+            endDateTime = LocalDateTime.of(localDate, LocalTime.MAX);
+        }
+
+        Date startDate = Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+        BooleanBuilder query = new BooleanBuilder().and(QTransaction.transaction.createdDate.between(startDate, endDate));
+
+        Iterable<Transaction> transactions = transactionPagedRepository.findAll(query, Sort.by(Sort.Direction.DESC, "createdDate"));
+        return transactionMapper.toEntityList(transactions);
+    }
+
+    @Transactional
     public PaySummaryDTO paymentDetails(Long paymentId) {
         Transaction feesOrder = getTransactionRecord(paymentId);
         if (feesOrder != null) {
@@ -262,6 +295,10 @@ public class PaymentService {
             if (CollectionUtils.isNotEmpty(expenseItems.getExpenseDocs())) {
                 Set<Upload> uploadSet = uploadMapper.toModelList(expenseItems.getExpenseDocs());
                 transaction.setUploadList(uploadSet);
+                uploadSet.forEach(upload -> {
+                    upload.setTransaction(transaction);
+                    upload.setDocumentType("EXPENSE");
+                });
             }
             transaction.setComments(expenseItems.getComments());
             transaction.setAfterDiscount(transaction.getAmount());

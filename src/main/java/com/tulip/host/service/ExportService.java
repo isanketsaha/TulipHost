@@ -2,6 +2,7 @@ package com.tulip.host.service;
 
 import static com.tulip.host.config.Constants.JASPER_FOLDER;
 
+import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.data.PrintTransactionDTO;
 import com.tulip.host.data.StockExportDTO;
 import com.tulip.host.data.StudentBasicDTO;
@@ -16,13 +17,13 @@ import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.InventoryRepository;
-import java.io.FileNotFoundException;
+import com.tulip.host.utils.CommonUtils;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +32,6 @@ import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -63,7 +62,7 @@ public class ExportService {
         List<Inventory> stockReport = inventoryRepository.stockReport();
         List<StockExportDTO> stockExportDTOS = inventoryMapper.toExportEntityList(stockReport);
         List<Object> list = new ArrayList<>(stockExportDTOS);
-        return excelExporterService.export(list);
+        return excelExporterService.export(list, "Inventory");
     }
 
     @Transactional
@@ -75,7 +74,7 @@ public class ExportService {
             studentList.sort(Comparator.comparing(Student::getName));
             List<StudentExportDTO> studentExportDTOS = studentMapper.toBasicEntityExportList(studentList);
             List<Object> list = new ArrayList<>(studentExportDTOS);
-            return excelExporterService.export(list);
+            return excelExporterService.export(list, "ClassDetail");
         }
         return null;
     }
@@ -105,5 +104,18 @@ public class ExportService {
             }
         }
         return null;
+    }
+
+    public XSSFWorkbook transactionHistory(List<Date> transactionMonths) {
+        XSSFWorkbook export = null;
+        for (Date months : transactionMonths) {
+            List<PaySummaryDTO> month = paymentService.getTransactionRecordByDate(months, "MONTH");
+            List<Object> list = new ArrayList<>(month);
+            export =
+                export == null
+                    ? excelExporterService.export(list, CommonUtils.formatFromDate(months, "MMM-yyyy"))
+                    : excelExporterService.export(export, CommonUtils.formatFromDate(months, "MMM-yyyy"), list);
+        }
+        return export;
     }
 }

@@ -11,7 +11,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(
     componentModel = "spring",
-    uses = { FeeLineItemMapper.class, StudentMapper.class, PurchaseLineItemMapper.class, ExpenseMapper.class }
+    uses = { FeeLineItemMapper.class, StudentMapper.class, PurchaseLineItemMapper.class, ExpenseMapper.class, UploadMapper.class }
 )
 public interface TransactionMapper {
     @Mapping(target = "afterDiscount", source = "total")
@@ -31,9 +31,9 @@ public interface TransactionMapper {
     @Mapping(target = "studentName", source = "student.name")
     @Mapping(target = "feesItem", source = "feesLineItem")
     @Mapping(target = "purchaseItems", source = "purchaseLineItems")
-    @Mapping(target = "paymentReceivedBy", source = "createdBy")
     @Mapping(target = "paymentId", source = "id")
     @Mapping(target = "expenseItems", source = "expenseItems")
+    @Mapping(target = "expenseDocs", source = "uploadList")
     PaySummaryDTO toEntity(Transaction feesOrder);
 
     List<PaySummaryDTO> toEntityList(Iterable<Transaction> feesOrder);
