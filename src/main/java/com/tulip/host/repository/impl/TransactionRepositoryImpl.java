@@ -5,27 +5,20 @@ import static com.tulip.host.utils.CommonUtils.formatToDate;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.DateExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.tulip.host.data.TransactionReportDTO;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.enums.PayTypeEnum;
-import com.tulip.host.enums.PaymentOptionEnum;
 import com.tulip.host.repository.TransactionRepository;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.springframework.data.domain.Pageable;
 
 public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, Long> implements TransactionRepository {
 
@@ -118,5 +111,14 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
             }
             reportDTO.setTotal(reportDTO.getTotal() + amount);
         }
+    }
+
+    public List<Transaction> fetchAllTransactionByDues() {
+        return jpaQueryFactory
+            .selectFrom(TRANSACTION)
+            .innerJoin(TRANSACTION.dues(), DUES)
+            .where(DUES.status.eq("ACTIVE"))
+            .orderBy(new OrderSpecifier[] { TRANSACTION.createdDate.desc() })
+            .fetch();
     }
 }

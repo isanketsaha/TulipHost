@@ -1,15 +1,13 @@
 package com.tulip.host.data;
 
 import java.io.Serializable;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.Data;
 
 /**
  * A DTO for the {@link Catalog} entity
  */
 @Data
-public class CatalogDTO implements Serializable {
+public class ProductDTO implements Serializable {
 
     private final Long id;
 

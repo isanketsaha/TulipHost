@@ -1,16 +1,17 @@
 package com.tulip.host.service;
 
-import com.tulip.host.data.CatalogDTO;
 import com.tulip.host.data.FeesCatalogDTO;
+import com.tulip.host.data.ProductDTO;
 import com.tulip.host.domain.ClassDetail;
-import com.tulip.host.domain.FeesCatalog;
+import com.tulip.host.domain.Inventory;
 import com.tulip.host.domain.ProductCatalog;
 import com.tulip.host.mapper.FeesCatalogMapper;
 import com.tulip.host.mapper.ProductCatalogMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.FeesCatalogRepository;
+import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.repository.ProductCatalogRepository;
-import com.tulip.host.web.rest.vm.CatalogVM;
+import com.tulip.host.web.rest.vm.StockUpdateVM;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,8 @@ public class CatalogService {
 
     private final ProductCatalogMapper catalogMapper;
 
+    private final InventoryRepository inventoryRepository;
+
     @Transactional
     public List<FeesCatalogDTO> fetchFeesCatalog(Long id) {
         ClassDetail std = classDetailRepository.findById(id).orElse(null);
@@ -40,7 +43,7 @@ public class CatalogService {
     }
 
     @Transactional
-    public List<CatalogDTO> productCatalog(Long classId) {
+    public List<ProductDTO> productCatalog(Long classId) {
         List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveProduct(classId);
         List<ProductCatalog> collect = catalogs
             .stream()
@@ -51,5 +54,15 @@ public class CatalogService {
             })
             .collect(Collectors.toList());
         return catalogMapper.toModelList(collect);
+    }
+
+    public void updateProduct(StockUpdateVM stockUpdateVM) {
+        Inventory stockReport = inventoryRepository.findById(stockUpdateVM.getStockId()).orElse(null);
+        if (stockReport != null) {
+            stockReport.getProduct().setItemName(stockUpdateVM.getProduct().getItemName());
+            stockReport.getProduct().setPrice(stockUpdateVM.getProduct().getPrice());
+            stockReport.setQty(stockUpdateVM.getPurchasedQty());
+            inventoryRepository.saveAndFlush(stockReport);
+        }
     }
 }

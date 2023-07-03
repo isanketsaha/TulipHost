@@ -6,7 +6,7 @@ import lombok.Data;
 public class InventoryItemDTO {
 
     Long id;
-    CatalogDTO product;
+    ProductDTO product;
     int purchasedQty;
     int availableQty;
     Boolean lowStock;

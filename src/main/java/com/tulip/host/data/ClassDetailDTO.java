@@ -1,9 +1,7 @@
 package com.tulip.host.data;
 
-import com.tulip.host.domain.ProductCatalog;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,5 +30,5 @@ public class ClassDetailDTO implements Serializable {
 
     private List<FeesCatalogDTO> feesCatalogs;
 
-    private List<CatalogDTO> productCatalogs;
+    private List<ProductDTO> productCatalogs;
 }

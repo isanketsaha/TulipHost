@@ -1,5 +1,6 @@
 package com.tulip.host.domain;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -68,6 +70,13 @@ public class Transaction extends AbstractAuditingEntity {
     @Column(name = "comments", length = 100)
     private String comments;
 
+    @Builder.Default
+    @Column(name = "due_opted", nullable = false)
+    private Boolean dueOpted = false;
+
+    @OneToOne(mappedBy = "transaction", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    private Dues dues;
+
     @OneToMany(
         mappedBy = "order",
         fetch = FetchType.LAZY,
@@ -105,5 +114,15 @@ public class Transaction extends AbstractAuditingEntity {
 
     public void removeExpenseLineItems(Expense lineItem) {
         this.expenseItems.remove(lineItem);
+    }
+
+    public void addToUploadList(Upload upload) {
+        if (uploadList == null) {
+            Set<Upload> uploads = new LinkedHashSet<>();
+            uploads.add(upload);
+            this.setUploadList(uploads);
+        } else {
+            this.uploadList.add(upload);
+        }
     }
 }

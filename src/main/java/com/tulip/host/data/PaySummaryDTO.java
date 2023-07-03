@@ -26,5 +26,7 @@ public class PaySummaryDTO {
     String comments;
     Date paymentDateTime;
     String createdBy;
-    List<UploadVM> expenseDocs;
+    List<UploadVM> docs;
+    boolean dueOpted;
+    DuesDTO dues;
 }

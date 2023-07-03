@@ -1,7 +1,6 @@
 package com.tulip.host.mapper;
 
-import com.tulip.host.data.CatalogDTO;
-import com.tulip.host.domain.FeesCatalog;
+import com.tulip.host.data.ProductDTO;
 import com.tulip.host.domain.ProductCatalog;
 import com.tulip.host.repository.impl.ReferenceMapper;
 import com.tulip.host.web.rest.vm.ProductLoadVM;
@@ -13,12 +12,12 @@ import org.mapstruct.Mapping;
 public interface ProductCatalogMapper {
     @Mapping(target = "std", source = "std.std")
     @Mapping(target = "type", source = "category")
-    CatalogDTO toEntity(ProductCatalog source);
+    ProductDTO toEntity(ProductCatalog source);
 
     ProductCatalog toModel(Long id);
 
     @Mapping(expression = "java(productLoadVM.getItemName().toUpperCase())", target = "itemName")
     ProductCatalog toModel(ProductLoadVM productLoadVM);
 
-    List<CatalogDTO> toModelList(List<ProductCatalog> student);
+    List<ProductDTO> toModelList(List<ProductCatalog> student);
 }

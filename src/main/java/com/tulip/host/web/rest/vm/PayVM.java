@@ -26,4 +26,9 @@ public class PayVM {
 
     @NotNull
     double total;
+
+    @NotNull
+    boolean dueOpted;
+
+    DueVM dueInfo;
 }

@@ -29,6 +29,9 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
     static final QProductCatalog PRODUCT_CATALOG = QProductCatalog.productCatalog;
     static final QInventory INVENTORY = QInventory.inventory;
 
+    static final QDues DUES = QDues.dues;
+    static final QDuesPayment DUES_PAYMENT = QDuesPayment.duesPayment;
+
     @PersistenceContext
     EntityManager em;
 
