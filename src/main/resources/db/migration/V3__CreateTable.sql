@@ -1,4 +1,4 @@
-ALTER TABLE IF NOT EXISTS upload
+ALTER TABLE upload
 ADD transaction_id bigint,
 ADD FOREIGN KEY (transaction_id) REFERENCES transactions (transaction_id);
 
