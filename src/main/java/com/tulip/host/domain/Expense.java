@@ -48,6 +48,10 @@ public class Expense extends AbstractAuditingEntity {
     private String category;
 
     @NotNull
+    @Column(name = "unit_price", nullable = false)
+    private Double unitPrice;
+
+    @NotNull
     @Column(name = "amount", nullable = false)
     private Double amount;
 

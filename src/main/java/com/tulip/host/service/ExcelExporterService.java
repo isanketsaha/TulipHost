@@ -1,6 +1,7 @@
 package com.tulip.host.service;
 
 import com.tulip.host.config.Constants;
+import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.utils.CommonUtils;
 import java.lang.reflect.Field;
 import java.util.Date;
@@ -26,11 +27,11 @@ public class ExcelExporterService {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
 
-    private void writeHeaderLine(List<Object> objectList) {
+    private void writeHeaderLine(List<Object> objectList, String sheetName) {
         Object o = objectList.get(0);
         Class<? extends Object> c = o.getClass();
         Field[] declaredFields = c.getDeclaredFields();
-        sheet = workbook.createSheet(c.getSimpleName().replace("DTO", StringUtils.EMPTY));
+        sheet = workbook.createSheet(StringUtils.isNotEmpty(sheetName) ? sheetName : c.getSimpleName().replace("DTO", StringUtils.EMPTY));
         Row row = sheet.createRow(0);
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
@@ -64,6 +65,8 @@ public class ExcelExporterService {
             cell.setCellValue((Double) value);
         } else if (value instanceof Date) {
             cell.setCellValue(CommonUtils.formatFromDate((Date) value, "dd-MM-yyyy"));
+        } else if (value instanceof PayTypeEnum) {
+            cell.setCellValue(((PayTypeEnum) value).toString());
         } else {
             cell.setCellValue((String) value);
         }
@@ -96,9 +99,16 @@ public class ExcelExporterService {
         }
     }
 
-    public XSSFWorkbook export(List<Object> objectList) {
+    public XSSFWorkbook export(List<Object> objectList, String sheetName) {
         this.workbook = new XSSFWorkbook();
-        writeHeaderLine(objectList);
+        writeHeaderLine(objectList, sheetName);
+        writeDataLines(objectList);
+        return workbook;
+    }
+
+    public XSSFWorkbook export(XSSFWorkbook workbook, String sheetName, List<Object> objectList) {
+        this.workbook = workbook;
+        writeHeaderLine(objectList, sheetName);
         writeDataLines(objectList);
         return workbook;
     }

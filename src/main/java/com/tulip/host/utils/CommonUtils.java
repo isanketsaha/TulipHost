@@ -1,30 +1,13 @@
 package com.tulip.host.utils;
 
-import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.data.domain.Sort.Direction.DESC;
-
-import com.tulip.host.domain.ClassDetail;
-import com.tulip.host.domain.FeesLineItem;
-import com.tulip.host.domain.Session;
-import com.tulip.host.domain.Student;
-import com.tulip.host.domain.Transaction;
-import com.tulip.host.enums.FeesRuleType;
-import com.tulip.host.repository.TransactionRepository;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.math3.util.Precision;
 import org.joda.time.LocalDate;
-import org.joda.time.Months;
 import org.joda.time.Years;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;

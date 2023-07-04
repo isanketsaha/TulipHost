@@ -15,4 +15,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<String> fetchAnnualFeesByClass(long studentId, long classId);
 
     List<Transaction> fetchStudentFeesTransactionByClassId(long studentId, long classId);
+
+    List<Transaction> fetchAllTransactionByDues();
 }

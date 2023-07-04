@@ -12,6 +12,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ExpenseMapper {
+    @Mapping(expression = "java(source.getItemName().toUpperCase())", target = "itemName")
     Expense toModel(ExpenseItemVM source);
 
     Set<Expense> toModelList(List<ExpenseItemVM> expenseItem);

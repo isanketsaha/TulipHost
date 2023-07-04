@@ -20,6 +20,7 @@ public final class Constants {
     public static final String GROUP_BY_DATE_FORMAT = "%d/%m/%Y";
     public static final String GROUP_BY_MONTH_FORMAT = "%m/%Y";
     public static final String GROUP_BY_YEAR_FORMAT = "%Y";
+    public static final String DUES = "DUES";
 
     private Constants() {}
 }

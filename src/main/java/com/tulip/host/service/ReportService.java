@@ -7,7 +7,6 @@ import com.tulip.host.data.DashBoardStaffDTO;
 import com.tulip.host.data.DashBoardStudentDTO;
 import com.tulip.host.data.InventoryItemDTO;
 import com.tulip.host.data.PaySummaryDTO;
-import com.tulip.host.data.StockExportDTO;
 import com.tulip.host.domain.Inventory;
 import com.tulip.host.domain.QStudent;
 import com.tulip.host.domain.QTransaction;
@@ -19,8 +18,6 @@ import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.repository.TransactionRepository;
-import com.tulip.host.utils.CommonUtils;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -28,9 +25,7 @@ import java.util.Map;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -54,16 +49,12 @@ public class ReportService {
     private final SessionService sessionService;
 
     @org.springframework.transaction.annotation.Transactional
-    public Page<PaySummaryDTO> fetchTransactionHistory(Date date, int pageNo, int pageSize) {
+    public List<PaySummaryDTO> fetchTransactionHistory(Date date) {
         Date plus = DateUtils.addDays(date, 1);
         BooleanBuilder query = new BooleanBuilder()
             .and(QTransaction.transaction.createdDate.gt(date).and(QTransaction.transaction.createdDate.lt(plus)));
-        Page<Transaction> transactionPage = transactionPagedRepository.findAll(
-            query,
-            CommonUtils.getPageRequest(DESC, "createdDate", pageNo, pageSize)
-        );
-        List<PaySummaryDTO> toEntityList = transactionMapper.toEntityList(transactionPage.getContent());
-        return new PageImpl<PaySummaryDTO>(toEntityList, transactionPage.getPageable(), transactionPage.getTotalElements());
+        Iterable<Transaction> transactions = transactionPagedRepository.findAll(query, Sort.by(DESC, "createdDate"));
+        return transactionMapper.toEntityList(transactions);
     }
 
     @Transactional

@@ -6,6 +6,7 @@ import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.ProductCatalogRepository;
 import java.util.List;
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 
 public class ProductCatalogRepositoryImpl extends BaseRepositoryImpl<ProductCatalog, Long> implements ProductCatalogRepository {
 

@@ -1,5 +1,6 @@
 package com.tulip.host.service;
 
+import static com.tulip.host.config.Constants.DUES;
 import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -8,6 +9,8 @@ import com.tulip.host.config.ApplicationProperties;
 import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.FeesItemSummaryDTO;
 import com.tulip.host.data.PaySummaryDTO;
+import com.tulip.host.domain.Dues;
+import com.tulip.host.domain.DuesPayment;
 import com.tulip.host.domain.Expense;
 import com.tulip.host.domain.FeesCatalog;
 import com.tulip.host.domain.FeesLineItem;
@@ -16,11 +19,17 @@ import com.tulip.host.domain.PurchaseLineItem;
 import com.tulip.host.domain.QTransaction;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
+import com.tulip.host.domain.Upload;
+import com.tulip.host.enums.DueStatusEnum;
 import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.enums.PayTypeEnum;
-import com.tulip.host.enums.PaymentOptionEnum;
+import com.tulip.host.mapper.DuesMapper;
+import com.tulip.host.mapper.DuesPaymentMapper;
 import com.tulip.host.mapper.ExpenseMapper;
 import com.tulip.host.mapper.TransactionMapper;
+import com.tulip.host.mapper.UploadMapper;
+import com.tulip.host.repository.DuesPaymentRepository;
+import com.tulip.host.repository.DuesRepository;
 import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.repository.FeesCatalogRepository;
 import com.tulip.host.repository.FeesLineItemRepository;
@@ -31,15 +40,23 @@ import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
+import com.tulip.host.web.rest.vm.DuePaymentVm;
+import com.tulip.host.web.rest.vm.DueVM;
 import com.tulip.host.web.rest.vm.EditOrderVm;
-import com.tulip.host.web.rest.vm.ExpenseItemVM;
+import com.tulip.host.web.rest.vm.ExpenseVm;
 import com.tulip.host.web.rest.vm.PayVM;
+import com.tulip.host.web.rest.vm.UploadVM;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -58,6 +75,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentService {
+
+    private final DuesPaymentRepository duesPaymentRepository;
+    private final DuesRepository duesRepository;
 
     private final PurchaseLineItemRepository purchaseLineItemRepository;
     private final TransactionRepository transactionRepository;
@@ -82,6 +102,12 @@ public class PaymentService {
 
     private final SessionService sessionService;
 
+    private final DuesMapper duesMapper;
+
+    private final DuesPaymentMapper duesPaymentMapper;
+
+    private final UploadMapper uploadMapper;
+
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT, Locale.ENGLISH);
 
     private static final String TUITION_FEES = "TUITION";
@@ -95,8 +121,33 @@ public class PaymentService {
             .forEach(item -> {
                 item.setOrder(transaction);
             });
+        if (payVM.isDueOpted()) {
+            applyDues(transaction, payVM.getDueInfo());
+        }
+
         Transaction save = transactionRepository.save(transaction);
         return save.getId();
+    }
+
+    private void applyDues(Transaction transaction, DueVM dueInfo) {
+        Dues dues = duesMapper.toEntity(dueInfo);
+        transaction.setDues(dues);
+        if (dueInfo.getDuesDocs() != null) {
+            Upload upload = uploadMapper.toModel(dueInfo.getDuesDocs());
+            upload.setDocumentType(DUES);
+            applyUpload(dueInfo.getDuesDocs(), transaction);
+            transaction.addToUploadList(upload);
+        }
+        dues.setTransaction(transaction);
+    }
+
+    private void applyUpload(UploadVM docs, Transaction transaction) {
+        if (docs != null) {
+            Upload upload = uploadMapper.toModel(docs);
+            upload.setDocumentType(DUES);
+            upload.setTransaction(transaction);
+            transaction.addToUploadList(upload);
+        }
     }
 
     private void validate(PayVM payVM) throws ValidationException {
@@ -119,7 +170,7 @@ public class PaymentService {
                     .mapToDouble(lineItem -> lineItem.getAmount())
                     .sum();
 
-                if (sum != payVM.getTotal()) errors.add("Incorrect Total");
+                if (sum != payVM.getTotal() + (payVM.isDueOpted() ? payVM.getDueInfo().getDueAmount() : 0)) errors.add("Incorrect Total");
             }
         }
         if (payVM.getPayType() == PayTypeEnum.FEES) {
@@ -142,7 +193,7 @@ public class PaymentService {
                     })
                     .mapToDouble(lineItem -> lineItem.getAmount())
                     .sum();
-                if (sum != payVM.getTotal()) errors.add("Incorrect  Total");
+                if (sum != payVM.getTotal() + (payVM.isDueOpted() ? payVM.getDueInfo().getDueAmount() : 0)) errors.add("Incorrect  Total");
             }
         }
         if (!CollectionUtils.isEmpty(errors)) {
@@ -159,12 +210,44 @@ public class PaymentService {
             .forEach(item -> {
                 item.setOrder(transaction);
             });
+        if (payVM.isDueOpted()) {
+            applyDues(transaction, payVM.getDueInfo());
+        }
         Transaction purchaseOrder = transactionRepository.save(transaction);
         return purchaseOrder.getId();
     }
 
     public Transaction getTransactionRecord(Long paymentId) {
         return transactionRepository.findById(paymentId).orElse(null);
+    }
+
+    @Transactional
+    public List<PaySummaryDTO> getTransactionRecordByDate(Date date, String condition) {
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDateTime startDateTime;
+        LocalDateTime endDateTime;
+        if (condition.equalsIgnoreCase("MONTH")) {
+            LocalDate startDate = localDate.withDayOfMonth(1);
+            LocalDate endDate = localDate.withDayOfMonth(localDate.lengthOfMonth());
+            startDateTime = LocalDateTime.of(startDate, LocalTime.MIN);
+            endDateTime = LocalDateTime.of(endDate, LocalTime.MAX);
+        } else if (condition.equalsIgnoreCase("YEAR")) {
+            LocalDate startDate = localDate.withDayOfYear(1);
+            LocalDate endDate = localDate.withDayOfYear(localDate.lengthOfYear());
+            startDateTime = LocalDateTime.of(startDate, LocalTime.MIN);
+            endDateTime = LocalDateTime.of(endDate, LocalTime.MAX);
+        } else {
+            startDateTime = LocalDateTime.of(localDate, LocalTime.MIN);
+            endDateTime = LocalDateTime.of(localDate, LocalTime.MAX);
+        }
+
+        Date startDate = Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+        BooleanBuilder query = new BooleanBuilder().and(QTransaction.transaction.createdDate.between(startDate, endDate));
+
+        Iterable<Transaction> transactions = transactionPagedRepository.findAll(query, Sort.by(Sort.Direction.DESC, "createdDate"));
+        return transactionMapper.toEntityList(transactions);
     }
 
     @Transactional
@@ -243,19 +326,33 @@ public class PaymentService {
     }
 
     @Transactional
-    public Long registerExpense(List<ExpenseItemVM> expenseItems) {
-        Set<Expense> expenses = expenseMapper.toModelList(expenseItems);
-        Transaction transaction = Transaction
-            .builder()
-            .expenseItems(expenses)
-            .paymentMode(PaymentOptionEnum.CASH.name())
-            .amount(expenses.stream().mapToDouble(Expense::getAmount).sum() * (-1))
-            .type(PayTypeEnum.EXPENSE.name())
-            .build();
-        transaction.setAfterDiscount(transaction.getAmount());
-        expenses.forEach(item -> item.setOrder(transaction));
-        transactionRepository.saveAndFlush(transaction);
-        return transaction.getId();
+    public Long registerExpense(ExpenseVm expenseItems) {
+        Set<Expense> expenses = expenseMapper.toModelList(expenseItems.getExpenseItem());
+        if (expenses.stream().mapToDouble(Expense::getAmount).sum() == expenseItems.getTotal()) {
+            Transaction transaction = Transaction
+                .builder()
+                .expenseItems(expenses)
+                .paymentMode(expenseItems.getPaymentMode())
+                .amount(expenses.stream().mapToDouble(Expense::getAmount).sum() * (-1))
+                .type(PayTypeEnum.EXPENSE.name())
+                .build();
+            expenses.forEach(item -> item.setReceivedBy(expenseItems.getReceivedBy().toUpperCase()));
+            if (CollectionUtils.isNotEmpty(expenseItems.getExpenseDocs())) {
+                Set<Upload> uploadSet = uploadMapper.toModelList(expenseItems.getExpenseDocs());
+                transaction.setUploadList(uploadSet);
+                uploadSet.forEach(upload -> {
+                    upload.setTransaction(transaction);
+                    upload.setDocumentType("EXPENSE");
+                });
+            }
+            transaction.setComments(expenseItems.getComments());
+            transaction.setAfterDiscount(transaction.getAmount());
+            expenses.forEach(item -> item.setOrder(transaction));
+            transactionRepository.saveAndFlush(transaction);
+            return transaction.getId();
+        } else {
+            throw new RuntimeException("Error in calculating amount");
+        }
     }
 
     @Transactional
@@ -293,5 +390,34 @@ public class PaymentService {
 
     public void deleteTransaction(long transactionId) {
         transactionRepository.delete(transactionRepository.findById(transactionId).orElse(null));
+    }
+
+    @Transactional
+    public List<PaySummaryDTO> allDues() {
+        List<Transaction> transactionPage = transactionRepository.fetchAllTransactionByDues();
+        return transactionMapper.toEntityList(transactionPage);
+    }
+
+    @Transactional
+    public long payDues(DuePaymentVm duePaymentVm) throws ValidationException {
+        Dues dues = duesRepository.findById(duePaymentVm.getDueId()).orElse(null);
+        if (dues != null && !dues.getStatus().equals(DueStatusEnum.PAID)) {
+            final Double paidAmount = dues.getDuesPayment().stream().map(item -> item.getAmount()).reduce(0.0, Double::sum);
+            if (CollectionUtils.isEmpty(dues.getDuesPayment()) && paidAmount <= dues.getDueAmount()) {
+                DuesPayment duesPayment = duesPaymentMapper.toEntity(duePaymentVm);
+                dues.addDuesPayment(duesPayment);
+                duesPayment.setDue(dues);
+                if (paidAmount + duePaymentVm.getAmount() == dues.getDueAmount()) {
+                    dues.setStatus(DueStatusEnum.PAID.name());
+                } else if (paidAmount + duePaymentVm.getAmount() >= dues.getDueAmount()) {
+                    throw new ValidationException("Paid amount is greater than due Amount");
+                }
+                DuesPayment payment = duesPaymentRepository.saveAndFlush(duesPayment);
+                return payment.getId();
+            } else {
+                throw new ValidationException("Paid amount is greater than due amount or its paid");
+            }
+        }
+        return -1;
     }
 }

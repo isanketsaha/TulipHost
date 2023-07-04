@@ -2,6 +2,7 @@ package com.tulip.host.data;
 
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.web.rest.vm.PurchasePayVM;
+import com.tulip.host.web.rest.vm.UploadVM;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,10 @@ public class PaySummaryDTO {
     List<FeesItemSummaryDTO> feesItem;
     List<ExpenseItemDTO> expenseItems;
     double total;
+    String comments;
     Date paymentDateTime;
-    String paymentReceivedBy;
+    String createdBy;
+    List<UploadVM> docs;
+    boolean dueOpted;
+    DuesDTO dues;
 }

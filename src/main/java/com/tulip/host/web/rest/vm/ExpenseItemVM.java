@@ -12,7 +12,7 @@ public class ExpenseItemVM {
 
     String itemName;
     ExpenseTypeEnum category;
+    double unitPrice;
     double amount;
     int qty;
-    String receivedBy;
 }

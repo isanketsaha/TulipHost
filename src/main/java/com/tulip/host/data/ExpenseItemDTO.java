@@ -11,5 +11,6 @@ public class ExpenseItemDTO {
     ExpenseTypeEnum category;
     double amount;
     int qty;
+    double unitPrice;
     String receivedBy;
 }

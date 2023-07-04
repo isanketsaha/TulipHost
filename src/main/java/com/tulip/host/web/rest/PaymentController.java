@@ -4,8 +4,9 @@ import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.service.PaymentService;
+import com.tulip.host.web.rest.vm.DuePaymentVm;
 import com.tulip.host.web.rest.vm.EditOrderVm;
-import com.tulip.host.web.rest.vm.ExpenseItemVM;
+import com.tulip.host.web.rest.vm.ExpenseVm;
 import com.tulip.host.web.rest.vm.PayVM;
 import java.util.List;
 import javax.validation.Valid;
@@ -36,6 +37,16 @@ public class PaymentController {
         return paymentService.paymentDetails(paymentId);
     }
 
+    @GetMapping("/dues/all")
+    public List<PaySummaryDTO> allDues() {
+        return paymentService.allDues();
+    }
+
+    @PostMapping("/duePayment")
+    public long duePayment(@Valid @RequestBody DuePaymentVm duePaymentVm) throws ValidationException {
+        return paymentService.payDues(duePaymentVm);
+    }
+
     @GetMapping("/history/{studentId}")
     public PageImpl<PaySummaryDTO> history(
         @Valid @PathVariable Long studentId,
@@ -51,8 +62,8 @@ public class PaymentController {
     }
 
     @PostMapping("/expense")
-    public Long registerExpense(@Valid @RequestBody List<ExpenseItemVM> expenseItems) {
-        return paymentService.registerExpense(expenseItems);
+    public Long registerExpense(@Valid @RequestBody ExpenseVm item) {
+        return paymentService.registerExpense(item);
     }
 
     @PostMapping("/edit")
