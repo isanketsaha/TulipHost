@@ -403,14 +403,12 @@ public class PaymentService {
         Dues dues = duesRepository.findById(duePaymentVm.getDueId()).orElse(null);
         if (dues != null && !dues.getStatus().equals(DueStatusEnum.PAID)) {
             final Double paidAmount = dues.getDuesPayment().stream().map(item -> item.getAmount()).reduce(0.0, Double::sum);
-            if (CollectionUtils.isEmpty(dues.getDuesPayment()) && paidAmount <= dues.getDueAmount()) {
+            if (paidAmount + duePaymentVm.getAmount() <= dues.getDueAmount()) {
                 DuesPayment duesPayment = duesPaymentMapper.toEntity(duePaymentVm);
                 dues.addDuesPayment(duesPayment);
                 duesPayment.setDue(dues);
                 if (paidAmount + duePaymentVm.getAmount() == dues.getDueAmount()) {
                     dues.setStatus(DueStatusEnum.PAID.name());
-                } else if (paidAmount + duePaymentVm.getAmount() >= dues.getDueAmount()) {
-                    throw new ValidationException("Paid amount is greater than due Amount");
                 }
                 DuesPayment payment = duesPaymentRepository.saveAndFlush(duesPayment);
                 return payment.getId();
