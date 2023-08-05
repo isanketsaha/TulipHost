@@ -4,6 +4,7 @@ import com.querydsl.core.Tuple;
 import com.tulip.host.domain.Expense;
 import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.utils.CommonUtils;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,7 @@ public class ExpenseRepositoryImpl extends BaseRepositoryImpl<Expense, Long> imp
             .where(EXPENSE.createdDate.between(startDate, endDate))
             .groupBy(EXPENSE.createdDate.year(), EXPENSE.createdDate.month(), EXPENSE.category)
             .fetch();
+        Collections.reverse(tupleList);
         return formatResult(tupleList);
     }
 
