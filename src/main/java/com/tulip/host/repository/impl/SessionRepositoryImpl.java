@@ -24,7 +24,7 @@ public class SessionRepositoryImpl extends BaseRepositoryImpl<Session, Long> imp
     }
 
     @Override
-    public Optional<SessionDTO> fetchCurrentSession() {
+    public Session fetchCurrentSession() {
         final BooleanExpression operation;
         try {
             operation =
@@ -37,17 +37,11 @@ public class SessionRepositoryImpl extends BaseRepositoryImpl<Session, Long> imp
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-        return Optional.ofNullable(
-            jpaQueryFactory
-                .from(SESSION)
-                .where(operation)
-                .select(Projections.fields(SessionDTO.class, SESSION.id, SESSION.displayText))
-                .fetchFirst()
-        );
+        return jpaQueryFactory.selectFrom(SESSION).where(operation).fetchFirst();
     }
 
     @Override
-    public List<SessionDTO> listAllFinancialYears() {
-        return jpaQueryFactory.from(SESSION).select(Projections.fields(SessionDTO.class, SESSION.id, SESSION.displayText)).fetch();
+    public List<Session> listAllFinancialYears() {
+        return jpaQueryFactory.selectFrom(SESSION).fetch();
     }
 }
