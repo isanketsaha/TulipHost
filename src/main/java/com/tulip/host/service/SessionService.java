@@ -13,7 +13,8 @@ public class SessionService {
     private final SessionRepository sessionRepository;
 
     public SessionDTO fetchCurrentSession() {
-        return sessionRepository.fetchCurrentSession().orElse(null);
+        Session session = sessionRepository.fetchCurrentSession();
+        return SessionDTO.builder().displayText(session.getDisplayText()).id(session.getId()).build();
     }
 
     public SessionDTO fetchSession(Long sessionId) {
@@ -22,5 +23,9 @@ public class SessionService {
             return SessionDTO.builder().displayText(session.getDisplayText()).id(sessionId).build();
         }
         return null;
+    }
+
+    public Session currentSession() {
+        return sessionRepository.fetchCurrentSession();
     }
 }

@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SessionRepository extends JpaRepository<Session, Long> {
-    Optional<SessionDTO> fetchCurrentSession();
+    Session fetchCurrentSession();
 
-    List<SessionDTO> listAllFinancialYears();
+    List<Session> listAllFinancialYears();
 }

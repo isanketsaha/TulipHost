@@ -1,9 +1,10 @@
 package com.tulip.host.repository;
 
 import com.querydsl.core.BooleanBuilder;
-import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.Student;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface StudentRepository extends JpaRepository<Student, Long> {
@@ -11,11 +12,13 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     public List<Student> search(String name);
 
-    public Student search(long id);
+    Student search(long id);
 
-    public Student searchByClassId(long studentId, long classId);
+    Student searchByClassId(long studentId, long classId);
 
-    public long fetchStudentCount(boolean active, BooleanBuilder condition);
+    long fetchStudentCount(boolean active, BooleanBuilder condition);
 
-    public Student checkIfFeesPaid(Long studentId, Long feesId, String month);
+    Student checkIfFeesPaid(Long studentId, Long feesId, String month);
+
+    Map<String, Long> admissionStats(Date startDate, Date endDate);
 }

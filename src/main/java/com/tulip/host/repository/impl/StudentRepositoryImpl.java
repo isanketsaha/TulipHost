@@ -1,15 +1,16 @@
 package com.tulip.host.repository.impl;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.PathBuilder;
-import com.tulip.host.data.StudentDetailsDTO;
-import com.tulip.host.domain.Session;
 import com.tulip.host.domain.Student;
 import com.tulip.host.repository.StudentRepository;
+import com.tulip.host.utils.CommonUtils;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.EntityManager;
 import org.apache.commons.lang3.StringUtils;
 
@@ -66,5 +67,23 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
                 STUDENT.active.eq(true).and(STUDENT.id.eq(studentId)).and(FEES_LINE_ITEM.feesProduct().id.eq(feesId)).and(monthCondition)
             )
             .fetchOne();
+    }
+
+    public Map<String, Long> admissionStats(Date startDate, Date endDate) {
+        List<Tuple> tupleList = jpaQueryFactory
+            .select(STUDENT.createdDate.month(), STUDENT.count())
+            .from(STUDENT)
+            .where(STUDENT.active.eq(true).and(STUDENT.createdDate.between(startDate, endDate)))
+            .groupBy(STUDENT.createdDate.year(), STUDENT.createdDate.month())
+            .fetch();
+        Map<String, Long> resultAsMap = new HashMap<>();
+        for (Tuple tuple : tupleList) {
+            if (tuple != null) {
+                String monthCreated = CommonUtils.getMonthName(tuple.get(0, Integer.class));
+                Long studentCount = tuple.get(1, Long.class);
+                resultAsMap.put(monthCreated, studentCount);
+            }
+        }
+        return resultAsMap;
     }
 }

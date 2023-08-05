@@ -3,6 +3,7 @@ package com.tulip.host.utils;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Month;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -57,5 +58,9 @@ public class CommonUtils {
     public static String formatFromDate(Date date, String format) {
         DateFormat dateFormat = new SimpleDateFormat(format);
         return dateFormat.format(date);
+    }
+
+    public static String getMonthName(int month) {
+        return Month.of(month).name();
     }
 }

@@ -17,6 +17,7 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
     static final QCredential CREDENTIAL = QCredential.credential;
     static final com.tulip.host.domain.QEmployee EMPLOYEE = QEmployee.employee;
     static final QStudent STUDENT = QStudent.student;
+    static final QExpense EXPENSE = QExpense.expense;
     static final QDependent DEPENDENT = QDependent.dependent;
     static final QUserGroup USER_GROUP = QUserGroup.userGroup;
     static final QPurchaseLineItem PURCHASE_LINE_ITEM = QPurchaseLineItem.purchaseLineItem;
