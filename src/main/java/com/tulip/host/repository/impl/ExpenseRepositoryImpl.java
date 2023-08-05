@@ -21,7 +21,7 @@ public class ExpenseRepositoryImpl extends BaseRepositoryImpl<Expense, Long> imp
         List<Tuple> tupleList = jpaQueryFactory
             .select(EXPENSE.category, EXPENSE.createdDate.month(), EXPENSE.amount.sum())
             .from(EXPENSE)
-            .where(EXPENSE.createdDate.between(startDate, endDate))
+            .where(EXPENSE.createdDate.between(startDate, endDate).and(EXPENSE.createdBy.notEqualsIgnoreCase("Sanket Saha")))
             .groupBy(EXPENSE.createdDate.year(), EXPENSE.createdDate.month(), EXPENSE.category)
             .fetch();
         Collections.reverse(tupleList);
