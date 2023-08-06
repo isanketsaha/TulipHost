@@ -2,11 +2,13 @@ package com.tulip.host.repository.impl;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.tulip.host.domain.Student;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.utils.CommonUtils;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +77,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             .from(STUDENT)
             .where(STUDENT.active.eq(true).and(STUDENT.createdDate.between(startDate, endDate)))
             .groupBy(STUDENT.createdDate.year(), STUDENT.createdDate.month())
+            .orderBy(new OrderSpecifier[] { STUDENT.createdDate.year().desc(), STUDENT.createdDate.month().desc() })
             .fetch();
         Map<String, Long> resultAsMap = new HashMap<>();
         for (Tuple tuple : tupleList) {
