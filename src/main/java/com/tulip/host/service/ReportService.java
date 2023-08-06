@@ -1,7 +1,6 @@
 package com.tulip.host.service;
 
 import static java.time.DayOfWeek.MONDAY;
-import static java.time.temporal.TemporalAdjusters.previousOrSame;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import com.querydsl.core.BooleanBuilder;
@@ -62,8 +61,8 @@ public class ReportService {
 
     @Transactional
     public DashBoardStudentDTO studentReport() {
-        Date thisWeek = LocalDate.now().withDayOfWeek(MONDAY.getValue()).toDate();
-        Date thisMonth = LocalDate.now().withDayOfMonth(1).toDate();
+        Date thisWeek = new LocalDate().withDayOfWeek(MONDAY.getValue()).toDate();
+        Date thisMonth = new LocalDate().withDayOfMonth(1).toDate();
         BooleanBuilder admissionWeekCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisWeek));
         BooleanBuilder admissionMonthCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisMonth));
         BooleanBuilder withdrawnWeekCondition = new BooleanBuilder()
