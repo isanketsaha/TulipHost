@@ -8,6 +8,7 @@ import com.tulip.host.utils.CommonUtils;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
@@ -24,13 +25,13 @@ public class ExpenseRepositoryImpl extends BaseRepositoryImpl<Expense, Long> imp
             .from(EXPENSE)
             .where(EXPENSE.createdDate.between(startDate, endDate).and(EXPENSE.createdBy.notEqualsIgnoreCase("Sanket Saha")))
             .groupBy(EXPENSE.createdDate.year(), EXPENSE.createdDate.month(), EXPENSE.category)
-            .orderBy(new OrderSpecifier[] { EXPENSE.createdDate.year().desc(), EXPENSE.createdDate.month().desc() })
+            .orderBy(EXPENSE.createdDate.year().asc(), EXPENSE.createdDate.month().asc())
             .fetch();
         return formatResult(tupleList);
     }
 
     private Map<String, Map<String, Double>> formatResult(List<Tuple> tupleList) {
-        Map<String, Map<String, Double>> resultAsMap = new HashMap<>();
+        Map<String, Map<String, Double>> resultAsMap = new LinkedHashMap<>();
         for (Tuple tuple : tupleList) {
             if (tuple != null) {
                 String monthCreated = CommonUtils.getMonthName(tuple.get(1, Integer.class));
@@ -40,7 +41,7 @@ public class ExpenseRepositoryImpl extends BaseRepositoryImpl<Expense, Long> imp
                     Map<String, Double> amountByCategory = resultAsMap.get(category);
                     amountByCategory.put(monthCreated, amount);
                 } else {
-                    HashMap<String, Double> amountByCategory = new HashMap<>();
+                    HashMap<String, Double> amountByCategory = new LinkedHashMap<>();
                     amountByCategory.put(monthCreated, amount);
                     resultAsMap.put(category, amountByCategory);
                 }
