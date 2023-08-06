@@ -1,6 +1,7 @@
 package com.tulip.host.repository.impl;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
 import com.tulip.host.domain.Expense;
 import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.utils.CommonUtils;
@@ -23,8 +24,8 @@ public class ExpenseRepositoryImpl extends BaseRepositoryImpl<Expense, Long> imp
             .from(EXPENSE)
             .where(EXPENSE.createdDate.between(startDate, endDate).and(EXPENSE.createdBy.notEqualsIgnoreCase("Sanket Saha")))
             .groupBy(EXPENSE.createdDate.year(), EXPENSE.createdDate.month(), EXPENSE.category)
+            .orderBy(new OrderSpecifier[] { EXPENSE.createdDate.year().desc(), EXPENSE.createdDate.month().desc() })
             .fetch();
-        Collections.reverse(tupleList);
         return formatResult(tupleList);
     }
 
