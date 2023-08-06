@@ -82,7 +82,6 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             .groupBy(STUDENT.createdDate.year(), STUDENT.createdDate.month())
             .orderBy(STUDENT.createdDate.year().asc(), STUDENT.createdDate.month().asc())
             .fetch();
-        log.info("Tuple List - {}", tupleList);
         Map<String, Long> resultAsMap = new LinkedHashMap<>();
         for (Tuple tuple : tupleList) {
             if (tuple != null) {
