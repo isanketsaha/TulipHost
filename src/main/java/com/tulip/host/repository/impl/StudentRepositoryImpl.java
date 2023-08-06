@@ -11,11 +11,14 @@ import com.tulip.host.utils.CommonUtils;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+@Slf4j
 public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> implements StudentRepository {
 
     protected StudentRepositoryImpl(EntityManager em) {
@@ -77,9 +80,10 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             .from(STUDENT)
             .where(STUDENT.active.eq(true).and(STUDENT.createdDate.between(startDate, endDate)))
             .groupBy(STUDENT.createdDate.year(), STUDENT.createdDate.month())
-            .orderBy(new OrderSpecifier[] { STUDENT.createdDate.year().desc(), STUDENT.createdDate.month().desc() })
+            .orderBy(STUDENT.createdDate.year().asc(), STUDENT.createdDate.month().asc())
             .fetch();
-        Map<String, Long> resultAsMap = new HashMap<>();
+        log.info("Tuple List - {}", tupleList);
+        Map<String, Long> resultAsMap = new LinkedHashMap<>();
         for (Tuple tuple : tupleList) {
             if (tuple != null) {
                 String monthCreated = CommonUtils.getMonthName(tuple.get(0, Integer.class));
