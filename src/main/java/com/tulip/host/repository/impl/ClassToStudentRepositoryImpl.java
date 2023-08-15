@@ -60,7 +60,13 @@ public class ClassToStudentRepositoryImpl extends BaseRepositoryImpl<StudentToCl
             .join(STUDENT_TO_CLASS.classField(), CLASS_DETAIL)
             .on(CLASS_DETAIL.session().eq(session))
             .join(CLASS_DETAIL.feesCatalogs, FEES_CATALOG)
-            .on(FEES_CATALOG.active.eq(true).and(FEES_CATALOG.applicableRule.eq(FeesRuleType.YEARLY)))
+            .on(
+                FEES_CATALOG.active
+                    .eq(true)
+                    .and(
+                        FEES_CATALOG.applicableRule.eq(FeesRuleType.YEARLY).and(FEES_CATALOG.feesName.notEqualsIgnoreCase("ADMISSION FEES"))
+                    )
+            )
             .join(STUDENT_TO_CLASS.student(), STUDENT)
             .on(STUDENT.active.eq(true))
             .where(STUDENT_TO_CLASS.student().createdDate.loe(session.getToDate()))

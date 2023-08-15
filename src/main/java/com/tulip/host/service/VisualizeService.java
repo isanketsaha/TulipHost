@@ -10,6 +10,7 @@ import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.repository.StudentRepository;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.joda.time.Months;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -48,7 +50,7 @@ public class VisualizeService {
     @Transactional
     public double getMRR() {
         Session session = sessionService.currentSession();
-        Map<String, Double> feesByClass = classDetailRepository.getFeesByClass(session);
+        Map<String, Double> feesByClass = classDetailRepository.getMonthlyFeesByClass(session);
         Map<String, Long> classSize = classToStudentRepository.initialSessionStrength(session, session.getToDate());
         return feesByClass
             .entrySet()
@@ -64,8 +66,10 @@ public class VisualizeService {
         Map<String, Double> revenueYearly = classToStudentRepository.recurringRevenueYearly(session);
         Map<String, Long> initialSessionStrength = classToStudentRepository.initialSessionStrength(session, session.getFromDate());
         Map<String, Map<String, Long>> admissionOverYear = classToStudentRepository.overYearAdmission(session);
-        Map<String, Double> feesByClass = classDetailRepository.getFeesByClass(session);
+        Map<String, Double> feesByClass = classDetailRepository.getMonthlyFeesByClass(session);
         Map<String, Double> tuitionFees = new HashMap<>();
+        double admissionCharges = 0.0;
+        Map<String, Double> admissionFeesByClass = classDetailRepository.getAdmissionFeesByClass(session);
 
         for (Map.Entry<String, Map<String, Long>> entry : admissionOverYear.entrySet()) {
             String std = entry.getKey();
@@ -81,13 +85,29 @@ public class VisualizeService {
                 } else {
                     studentCount += admissionByMonth.getOrDefault(yearMonthFormatter.format(startDate), 0L);
                 }
+                admissionCharges += admissionByMonth.getOrDefault(yearMonthFormatter.format(startDate), 0L) * admissionFeesByClass.get(std);
                 tuitionFees.put(std, tuitionFees.getOrDefault(std, 0.0) + (studentCount * feesByClass.get(std)));
                 startDate = startDate.plusMonths(1);
             }
         }
-        initialSessionStrength.forEach((k, v) -> tuitionFees.put(k, v * feesByClass.get(k)));
-        log.info("{} - {} ", tuitionFees, revenueYearly);
+        log.info("Fees : {} - {} ", initialSessionStrength, tuitionFees);
+        initialSessionStrength.forEach((k, v) ->
+            tuitionFees.put(
+                k,
+                (v * feesByClass.get(k)) *
+                (ChronoUnit.MONTHS.between(convertToLocalDate(session.getFromDate()), convertToLocalDate(session.getToDate())) + 1)
+            )
+        );
+        log.info("{} - {} - {} ", tuitionFees, revenueYearly, admissionCharges);
+        log.info(
+            "Months - {}",
+            ChronoUnit.MONTHS.between(convertToLocalDate(session.getFromDate()), convertToLocalDate(session.getToDate()))
+        );
 
-        return tuitionFees.values().stream().reduce(0.0, Double::sum) + revenueYearly.values().stream().reduce(0.0, Double::sum);
+        return (
+            tuitionFees.values().stream().reduce(0.0, Double::sum) +
+            revenueYearly.values().stream().reduce(0.0, Double::sum) +
+            admissionCharges
+        );
     }
 }
