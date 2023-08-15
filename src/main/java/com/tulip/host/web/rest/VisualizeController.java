@@ -25,4 +25,14 @@ public class VisualizeController {
     public Map<String, Map<String, Double>> getExpenseRecord() {
         return visualizeService.getExpenseRecord();
     }
+
+    @GetMapping("/mrr")
+    public double getMRR() {
+        return visualizeService.getMRR();
+    }
+
+    @GetMapping("/yrr")
+    public double getYRR() {
+        return visualizeService.getYRR();
+    }
 }

@@ -113,7 +113,7 @@ public class Student extends AbstractAuditingEntity {
     )
     private Set<Dependent> dependents = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "student", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
     @Filter(name = "filterTransactionOnType")
     @OrderBy("created_date DESC")
     private Set<Transaction> transactions = new LinkedHashSet<>();

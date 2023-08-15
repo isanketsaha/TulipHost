@@ -61,7 +61,7 @@ public class ClassDetail extends AbstractAuditingEntity implements Comparable<Cl
     private Set<FeesCatalog> feesCatalogs = new LinkedHashSet<>();
 
     @Filter(name = "activeStudent")
-    @ManyToMany(mappedBy = "classDetails", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "classDetails", fetch = FetchType.LAZY)
     private Set<Student> students = new LinkedHashSet<>();
 
     @Filter(name = "filterCatalogNEPlaceholder")

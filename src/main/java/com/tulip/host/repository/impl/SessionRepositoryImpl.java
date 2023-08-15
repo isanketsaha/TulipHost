@@ -25,23 +25,20 @@ public class SessionRepositoryImpl extends BaseRepositoryImpl<Session, Long> imp
 
     @Override
     public Session fetchCurrentSession() {
-        final BooleanExpression operation;
-        try {
-            operation =
-                Expressions.booleanOperation(
-                    Ops.BETWEEN,
-                    Expressions.asDate(new SimpleDateFormat("yyyy-MM-dd").parse(new SimpleDateFormat("yyyy-MM-dd").format(new Date()))),
-                    SESSION.fromDate,
-                    SESSION.toDate
-                );
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        return jpaQueryFactory.selectFrom(SESSION).where(operation).fetchFirst();
+        return jpaQueryFactory.selectFrom(SESSION).where(expressionBetweenDate(new Date())).fetchFirst();
     }
 
     @Override
     public List<Session> listAllFinancialYears() {
         return jpaQueryFactory.selectFrom(SESSION).fetch();
+    }
+
+    public Session sessionByDate(Date date) {
+        return jpaQueryFactory.selectFrom(SESSION).where(expressionBetweenDate(date)).fetchFirst();
+    }
+
+    private BooleanExpression expressionBetweenDate(Date date) {
+        BooleanExpression operation = Expressions.booleanOperation(Ops.BETWEEN, Expressions.asDate(date), SESSION.fromDate, SESSION.toDate);
+        return operation;
     }
 }
