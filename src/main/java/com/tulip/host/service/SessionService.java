@@ -3,6 +3,7 @@ package com.tulip.host.service;
 import com.tulip.host.data.SessionDTO;
 import com.tulip.host.domain.Session;
 import com.tulip.host.repository.SessionRepository;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,5 +28,9 @@ public class SessionService {
 
     public Session currentSession() {
         return sessionRepository.fetchCurrentSession();
+    }
+
+    public Session sessionByDate(Date date) {
+        return sessionRepository.sessionByDate(date);
     }
 }

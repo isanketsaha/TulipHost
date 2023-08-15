@@ -4,9 +4,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Month;
+import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.LocalDate;
 import org.joda.time.Years;
@@ -62,5 +61,9 @@ public class CommonUtils {
 
     public static String getMonthName(int month) {
         return Month.of(month).name();
+    }
+
+    public static java.time.LocalDate convertToLocalDate(Date dateToConvert) {
+        return dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 }
