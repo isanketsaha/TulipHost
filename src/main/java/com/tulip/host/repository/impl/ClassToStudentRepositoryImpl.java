@@ -69,7 +69,7 @@ public class ClassToStudentRepositoryImpl extends BaseRepositoryImpl<StudentToCl
             )
             .join(STUDENT_TO_CLASS.student(), STUDENT)
             .on(STUDENT.active.eq(true))
-            .where(STUDENT_TO_CLASS.student().createdDate.loe(session.getToDate()))
+            .where(STUDENT_TO_CLASS.student().createdDate.loe(session.getFromDate()))
             .groupBy(CLASS_DETAIL, FEES_CATALOG)
             .fetch();
         log.info("{}", activeStudentClassWise);
