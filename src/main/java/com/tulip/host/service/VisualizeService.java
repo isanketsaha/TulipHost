@@ -103,11 +103,6 @@ public class VisualizeService {
             "Months - {}",
             ChronoUnit.MONTHS.between(convertToLocalDate(session.getFromDate()), convertToLocalDate(session.getToDate()))
         );
-        log.info(
-            "{} - {} ",
-            revenueYearly.values().stream().reduce(0.0, Double::sum),
-            tuitionFees.values().stream().reduce(0.0, Double::sum)
-        );
         return (
             tuitionFees.values().stream().reduce(0.0, Double::sum) +
             revenueYearly.values().stream().reduce(0.0, Double::sum) +
