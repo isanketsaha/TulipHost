@@ -77,16 +77,13 @@ public class ClassroomService {
 
     @Transactional
     public List<ClassListDTO> fetchAllClasses(long sessionId) {
-        if (sessionId == 0) {
-            SessionDTO sessionDTO = sessionService.fetchCurrentSession();
-            sessionId = sessionDTO.getId();
-        }
         Session unwrap = em.unwrap(Session.class);
         unwrap.enableFilter("activeStudent").setParameter("flag", true);
         List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(sessionId);
         Collections.sort(allBySessionId, Comparator.comparing(ClassDetail::getStd));
+        List<ClassListDTO> classListDTOS = classMapper.toClassListEntityList(allBySessionId);
         unwrap.disableFilter("activeStudent");
-        return classMapper.toClassListEntityList(allBySessionId);
+        return classListDTOS;
     }
 
     @Transactional
