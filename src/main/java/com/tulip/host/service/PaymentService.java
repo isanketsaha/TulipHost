@@ -187,7 +187,10 @@ public class PaymentService {
                             errors.add("Incorrect Fees Price ");
                         }
                         if (student != null) {
-                            errors.add(feesCatalog.getFeesName() + " already paid for month -  " + item.getMonth());
+                            String monthString = feesCatalog.getApplicableRule().equals(FeesRuleType.MONTHLY)
+                                ? "for month -  " + item.getMonth()
+                                : "";
+                            errors.add(feesCatalog.getFeesName() + " is already paid " + monthString);
                         }
                         return item;
                     })
