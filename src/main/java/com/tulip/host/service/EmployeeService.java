@@ -2,15 +2,22 @@ package com.tulip.host.service;
 
 import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
+import com.tulip.host.data.LoginDTO;
 import com.tulip.host.domain.*;
+import com.tulip.host.enums.UserRoleEnum;
+import com.tulip.host.mapper.CredentialMapper;
 import com.tulip.host.mapper.EmployeeMapper;
+import com.tulip.host.repository.CredentialRepository;
 import com.tulip.host.repository.EmployeeRepository;
+import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.UserGroupRepository;
 import com.tulip.host.repository.UserToDependentRepository;
 import com.tulip.host.web.rest.vm.BankVM;
+import com.tulip.host.web.rest.vm.CredentialVM;
 import com.tulip.host.web.rest.vm.DependentVM;
 import com.tulip.host.web.rest.vm.InterviewVM;
 import com.tulip.host.web.rest.vm.OnboardingVM;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,15 +30,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final CredentialMapper credentialMapper;
 
     private final UserGroupRepository userGroupRepository;
 
     private final UserToDependentRepository userToDependentRepository;
 
     private final EmployeeMapper employeeMapper;
+    private final CredentialRepository credentialRepository;
+    private final SessionRepository sessionRepository;
 
     @Transactional
     public List<EmployeeBasicDTO> fetchAllEmployee(boolean isActive) {
+        Long id = sessionRepository.fetchCurrentSession().getId();
         List<Employee> employees = employeeRepository.fetchAll(isActive);
         return employeeMapper.toBasicEntityList(employees);
     }
@@ -47,7 +58,13 @@ public class EmployeeService {
         UserGroup userGroupByAuthority = userGroupRepository.findUserGroupByAuthority(employeeVM.getInterview().getRole().getValue());
         if (userGroupByAuthority != null) {
             Employee employee = employeeMapper.toModel(employeeVM);
+            employee.setLocked(userGroupByAuthority.getAuthority().equalsIgnoreCase(UserRoleEnum.TEACHER.getValue()));
+            employee.setResetCredential(!userGroupByAuthority.getAuthority().equalsIgnoreCase(UserRoleEnum.TEACHER.getValue()));
             employee.setGroup(userGroupByAuthority);
+            Credential credential = credentialMapper.toEntity(
+                CredentialVM.builder().password("tulip123").userId(employeeVM.getInterview().getUserId()).build()
+            );
+            employee.setCredential(credential);
             Employee emp = employeeRepository.saveAndFlush(employee);
             return emp.getId();
         }
@@ -73,5 +90,14 @@ public class EmployeeService {
     @Transactional
     public EmployeeDetailsDTO editEmployee() {
         return employeeRepository.edit();
+    }
+
+    public void deactivate(long id) {
+        Employee byId = employeeRepository.findById(id).orElse(null);
+        if (byId != null) {
+            byId.setActive(Boolean.FALSE);
+            //            byId.setTerminationDate(new Date());
+            employeeRepository.save(byId);
+        }
     }
 }

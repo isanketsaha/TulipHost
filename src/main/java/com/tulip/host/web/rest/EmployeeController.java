@@ -4,14 +4,17 @@ import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.service.EmployeeService;
 import com.tulip.host.web.rest.vm.AddEmployeeVM;
+import com.tulip.host.web.rest.vm.CredentialVM;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -45,5 +48,11 @@ public class EmployeeController {
     @RequestMapping("/edit")
     public EmployeeDetailsDTO edit() {
         return employeeService.editEmployee();
+    }
+
+    @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")
+    @RequestMapping("/deactivate")
+    public void deactivate(@Valid @RequestParam long id) {
+        employeeService.deactivate(id);
     }
 }

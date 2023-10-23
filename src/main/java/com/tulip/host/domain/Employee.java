@@ -1,13 +1,16 @@
 package com.tulip.host.domain;
 
+import com.tulip.host.utils.ClassComparatorBySession;
 import java.time.Instant;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.SortComparator;
 
 @Builder
 @AllArgsConstructor
@@ -88,6 +91,9 @@ public class Employee extends AbstractAuditingEntity {
     @Column(name = "religion", length = 20)
     private String religion;
 
+    //    @Column(name = "termination_date")
+    //    private Date terminationDate;
+
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE }, optional = false)
     @JoinColumn(name = "group_id", nullable = false)
@@ -110,7 +116,8 @@ public class Employee extends AbstractAuditingEntity {
     private Set<Dependent> dependents = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "headTeacher", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
-    private Set<ClassDetail> classDetails = new LinkedHashSet<>();
+    @SortComparator(ClassComparatorBySession.class)
+    private Set<ClassDetail> classDetails = new TreeSet<>();
 
     @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<Upload> uploadedDocuments;
