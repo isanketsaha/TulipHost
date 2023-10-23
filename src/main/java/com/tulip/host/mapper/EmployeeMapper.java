@@ -21,6 +21,14 @@ public interface EmployeeMapper {
     Employee toModel(OnboardingVM source);
 
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(source.getDob()))")
+    @Mapping(
+        target = "classTeacher",
+        expression = "java(source.getClassDetails()\n" +
+        "                .stream()\n" +
+        "                .findFirst()\n" +
+        "                .orElse(null)\n" +
+        "                .getStd())"
+    )
     EmployeeBasicDTO toBasicEntity(Employee source);
 
     List<EmployeeDetailsDTO> toEntityList(List<Employee> source);

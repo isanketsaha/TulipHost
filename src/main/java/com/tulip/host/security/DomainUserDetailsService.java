@@ -39,11 +39,15 @@ public class DomainUserDetailsService implements UserDetailsService {
 
     private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, LoginDTO user) {
         if (!user.getActive()) {
-            throw new UsernameNotFoundException("User " + lowercaseLogin + " was not activated");
+            throw new UsernameNotFoundException("User " + lowercaseLogin + " is not active" + "");
         }
         return new org.springframework.security.core.userdetails.User(
             user.getName(),
-            user.getPassword(), //Default Password - tulip123
+            user.getPassword(), //Default Password - tulip123,
+            !user.getLocked(),
+            true,
+            true,
+            user.getActive(),
             Arrays.asList(new SimpleGrantedAuthority(user.getAuthority()))
         );
     }

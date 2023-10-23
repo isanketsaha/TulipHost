@@ -29,5 +29,5 @@ public class Credential extends AbstractAuditingEntity {
     @Size(max = 20)
     @NotNull
     @Column(name = "user_name", nullable = false, length = 20)
-    private String userName;
+    private String userId;
 }

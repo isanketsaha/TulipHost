@@ -47,12 +47,12 @@ public class OnboardingVM {
     @NotNull
     Date dob;
 
-    Boolean eveningClass;
-
+    //    Boolean eveningClass;
     GenderEnum gender;
-    CredentialVM credential;
+    //    CredentialVM credential;
     List<UploadVM> aadhaarCard;
     List<UploadVM> panCard;
+    UploadVM profilePhoto;
     List<UploadVM> birthCertificate;
     String previousSchool;
     ReligionEnum religion;

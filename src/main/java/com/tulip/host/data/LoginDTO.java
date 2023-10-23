@@ -25,11 +25,14 @@ public class LoginDTO implements Serializable {
     private String authority;
 
     @NotNull
-    private Boolean resetPassword;
+    private Boolean resetCredential;
+
+    @NotNull
+    private Boolean locked;
 
     @Size(max = 20)
     @NotNull
-    private String userName;
+    private String userId;
 
     private String password;
 }

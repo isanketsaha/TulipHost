@@ -1,0 +1,18 @@
+--
+--ALTER TABLE employee
+--ADD COLUMN terminationDate timestamp  DEFAULT NULL;
+--
+--
+--ALTER TABLE student
+--ADD COLUMN picture_id bigint  DEFAULT NULL,
+--ADD admissionLetter bit(1)  DEFAULT 1,
+--ADD FOREIGN KEY (picture_id) REFERENCES upload (id);
+--
+--ALTER TABLE employee
+--ADD COLUMN picture_id bigint  DEFAULT NULL,
+--ADD joiningLetter bit(1)  DEFAULT 1,
+--ADD FOREIGN KEY (picture_id) REFERENCES upload (id);
+--
+--
+--
+--

@@ -36,4 +36,6 @@ public class EmployeeBasicDTO {
     private Boolean active;
 
     private String address;
+
+    private String classTeacher;
 }

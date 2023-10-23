@@ -24,4 +24,6 @@ public class InterviewVM {
     Integer salary;
 
     String comments;
+
+    String userId;
 }

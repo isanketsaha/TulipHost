@@ -38,7 +38,7 @@ public final class SecurityUtils {
         return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
     }
 
-    private static String extractPrincipal(Authentication authentication) {
+    public static String extractPrincipal(Authentication authentication) {
         if (authentication == null) {
             return null;
         } else if (authentication.getPrincipal() instanceof UserDetails) {
@@ -46,6 +46,13 @@ public final class SecurityUtils {
             return springSecurityUser.getUsername();
         } else if (authentication.getPrincipal() instanceof String) {
             return (String) authentication.getPrincipal();
+        }
+        return null;
+    }
+
+    public static UserDetails getPrincipal(Authentication authentication) {
+        if (authentication.getPrincipal() instanceof UserDetails) {
+            return (UserDetails) authentication.getPrincipal();
         }
         return null;
     }

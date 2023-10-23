@@ -1,10 +1,16 @@
 package com.tulip.host.web.rest;
 
+import static com.tulip.host.security.SecurityUtils.getPrincipal;
+
 import com.tulip.host.data.LoggedUserDTO;
+import com.tulip.host.data.LoginDTO;
+import com.tulip.host.repository.CredentialRepository;
 import com.tulip.host.security.jwt.JWTFilter;
 import com.tulip.host.security.jwt.TokenProvider;
+import com.tulip.host.service.EmployeeService;
 import com.tulip.host.web.rest.vm.LoginVM;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -16,6 +22,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -26,11 +33,18 @@ public class UserJWTController {
 
     private final TokenProvider tokenProvider;
 
+    private final CredentialRepository credentialRepository;
+
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    public UserJWTController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
+    public UserJWTController(
+        TokenProvider tokenProvider,
+        AuthenticationManagerBuilder authenticationManagerBuilder,
+        CredentialRepository credentialRepository
+    ) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.credentialRepository = credentialRepository;
     }
 
     @PostMapping("/authenticate")
@@ -50,12 +64,14 @@ public class UserJWTController {
             .stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toList());
+        LoginDTO byUserId = this.credentialRepository.findByUserId(loginVM.getUsername()).orElse(null);
         LoggedUserDTO build = LoggedUserDTO
             .builder()
             .idToken(jwt)
             .userId(loginVM.getUsername())
             .userName(authentication.getName())
             .authority(authorities.get(0))
+            .resetCredential(byUserId != null && byUserId.getResetCredential() != null ? byUserId.getResetCredential() : false)
             .build();
         return new ResponseEntity<>(build, httpHeaders, HttpStatus.OK);
     }
