@@ -44,12 +44,12 @@ public class OnboardingVM {
 
     String experience;
 
+    UploadVM profilePicture;
+
     @NotNull
     Date dob;
 
-    //    Boolean eveningClass;
     GenderEnum gender;
-    //    CredentialVM credential;
     List<UploadVM> aadhaarCard;
     List<UploadVM> panCard;
     UploadVM profilePhoto;

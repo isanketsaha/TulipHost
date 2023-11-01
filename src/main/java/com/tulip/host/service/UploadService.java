@@ -15,7 +15,7 @@ public class UploadService {
         return storageService.save(documents);
     }
 
-    public String preSignedURL(String uuid) {
+    public String getURL(String uuid) {
         return storageService.createURL(uuid).toString();
     }
 

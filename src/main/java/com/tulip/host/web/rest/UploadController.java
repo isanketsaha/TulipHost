@@ -38,7 +38,7 @@ public class UploadController {
 
     @GetMapping
     public String preSignedURL(@RequestParam String uuid) {
-        return uploadService.preSignedURL(uuid);
+        return uploadService.getURL(uuid);
     }
 
     @DeleteMapping

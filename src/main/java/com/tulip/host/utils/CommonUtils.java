@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.LocalDate;
@@ -75,15 +76,15 @@ public class CommonUtils {
         return dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
-    public static List<String> findEligibleUG() {
+    public static List<UserRoleEnum> findEligibleUG() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String UG = authorities.stream().map(GrantedAuthority::getAuthority).findFirst().get();
-        UserRoleEnum userRoleEnum = UserRoleEnum.valueOf(UG);
+
+        UserRoleEnum userRoleEnum = UserRoleEnum.valueOf(UG.split("_")[1]);
         return Arrays
             .stream(UserRoleEnum.values())
             .filter(group -> group.getPriority() <= userRoleEnum.getPriority())
-            .map(UserRoleEnum::getValue)
             .collect(Collectors.toList());
     }
 }

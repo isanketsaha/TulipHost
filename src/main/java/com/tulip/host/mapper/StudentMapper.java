@@ -4,16 +4,17 @@ import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.data.StudentExportDTO;
 import com.tulip.host.domain.Student;
-import com.tulip.host.domain.Upload;
 import com.tulip.host.repository.impl.ReferenceMapper;
+import com.tulip.host.service.UploadService;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import com.tulip.host.web.rest.vm.StudentLoadVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.AfterMapping;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -28,9 +29,10 @@ public interface StudentMapper {
     @Mapping(target = "classDetails", ignore = true)
     @Mapping(target = "phoneNumber", source = "contact")
     @Mapping(target = "dependents", source = "dependent")
+    @Mapping(target = "profilePicture", ignore = true)
     @Mapping(target = "bloodGroup", expression = "java(source.getBloodGroup().getDisplayType())")
     @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(source.getName()))")
-    Student toModel(OnboardingVM source);
+    Student toModel(OnboardingVM source, @Context UploadService service);
 
     Student toEntity(Long id);
 
@@ -100,4 +102,11 @@ public interface StudentMapper {
     StudentExportDTO toBasicEntityExport(Student student);
 
     List<StudentExportDTO> toBasicEntityExportList(List<Student> student);
+
+    @AfterMapping
+    default void map(@MappingTarget Student target, OnboardingVM source, @Context UploadService service) {
+        target.setProfilePicture(
+            source.getProfilePicture() != null ? service.getURL(source.getProfilePicture().getUid()) : StringUtils.EMPTY
+        );
+    }
 }

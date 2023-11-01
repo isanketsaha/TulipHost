@@ -2,9 +2,13 @@ package com.tulip.host.web.rest;
 
 import com.tulip.host.data.ClassDetailDTO;
 import com.tulip.host.data.ClassListDTO;
+import com.tulip.host.data.FeesCatalogDTO;
+import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.service.ClassroomService;
+import com.tulip.host.web.rest.vm.FeesFilterVM;
 import com.tulip.host.web.rest.vm.PromoteStudentVM;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.xml.bind.ValidationException;
@@ -32,6 +36,11 @@ public class ClassroomController {
     @GetMapping("/details/{classroomId}")
     public ClassDetailDTO fetchStudentList(@PathVariable Long classroomId) {
         return classroomService.fetchClassDetails(classroomId);
+    }
+
+    @PostMapping("/feesByRule")
+    public Map<String, List<FeesCatalogDTO>> getFees(@Valid @RequestBody FeesFilterVM rule) {
+        return classroomService.getFees(rule);
     }
 
     @PostMapping("/student-promote")

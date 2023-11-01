@@ -20,13 +20,13 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
     }
 
     @Override
-    public List<Employee> fetchAll(boolean isActive) {
+    public List<Employee> fetchAll(boolean isActive, List<UserRoleEnum> role) {
         return jpaQueryFactory
             .selectFrom(EMPLOYEE)
             .where(
                 EMPLOYEE.active
                     .eq(isActive)
-                    .and(EMPLOYEE.group().authority.in(UserRoleEnum.STAFF.getValue(), UserRoleEnum.TEACHER.getValue()))
+                    .and(EMPLOYEE.group().authority.in(role.stream().map(item -> item.getValue()).collect(Collectors.toList())))
             )
             .distinct()
             .fetch();

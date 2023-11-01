@@ -21,6 +21,7 @@ public final class Constants {
     public static final String GROUP_BY_MONTH_FORMAT = "%m/%Y";
     public static final String GROUP_BY_YEAR_FORMAT = "%Y";
     public static final String DUES = "DUES";
+    public static final String DEFAULT_PASSWORD = "tulip123";
 
     private Constants() {}
 }

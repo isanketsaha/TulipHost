@@ -49,6 +49,7 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final ClassDetailRepository classDetailRepository;
     private final StudentMapper studentMapper;
+    private final UploadService uploadService;
     private final ClassMapper classMapper;
     private final DependentMapper dependentMapper;
     private final UploadMapper uploadMapper;
@@ -70,7 +71,7 @@ public class StudentService {
     @Transactional
     public Long addStudent(OnboardingVM onboardingVM) {
         ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(onboardingVM.getSession(), onboardingVM.getStd().name());
-        Student student = studentMapper.toModel(onboardingVM);
+        Student student = studentMapper.toModel(onboardingVM, uploadService);
         student.addClass(classDetail);
         addUpload(student, onboardingVM);
         Student save = studentRepository.save(student);

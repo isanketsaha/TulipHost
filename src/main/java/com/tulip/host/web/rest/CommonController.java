@@ -10,6 +10,7 @@ import com.tulip.host.enums.ReligionEnum;
 import com.tulip.host.enums.StdEnum;
 import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.service.FinancialYearService;
+import com.tulip.host.utils.CommonUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,8 +60,9 @@ public class CommonController {
 
     @RequestMapping("/userRoleList")
     public List<DropDownOptionsDto> userRoleList() {
-        return Arrays
-            .stream(UserRoleEnum.values())
+        return CommonUtils
+            .findEligibleUG()
+            .stream()
             .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
             .collect(Collectors.toList());
     }

@@ -1,28 +1,27 @@
 package com.tulip.host.service;
 
-import com.mysql.cj.xdevapi.SessionFactory;
-import com.querydsl.jpa.hibernate.HibernateUtil;
 import com.tulip.host.data.ClassDetailDTO;
 import com.tulip.host.data.ClassListDTO;
-import com.tulip.host.data.SessionDTO;
+import com.tulip.host.data.FeesCatalogDTO;
 import com.tulip.host.domain.ClassDetail;
-import com.tulip.host.domain.FeesLineItem;
 import com.tulip.host.domain.Student;
+import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.mapper.ClassMapper;
+import com.tulip.host.mapper.FeesCatalogMapper;
 import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.repository.ClassDetailRepository;
-import com.tulip.host.repository.FeesLineItemRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionRepository;
+import com.tulip.host.web.rest.vm.FeesFilterVM;
 import com.tulip.host.web.rest.vm.PromoteStudentVM;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
@@ -37,6 +36,8 @@ public class ClassroomService {
 
     private final StudentRepository studentRepository;
     private final ClassMapper classMapper;
+
+    private final FeesCatalogMapper feesCatalogMapper;
 
     private final StudentMapper studentMapper;
 
@@ -115,5 +116,18 @@ public class ClassroomService {
     public Long fetchClassDetails(String std, Long sessionId) {
         ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(sessionId, std);
         return classDetail.getId();
+    }
+
+    @Transactional
+    public Map<String, List<FeesCatalogDTO>> getFees(FeesFilterVM filter) {
+        List<ClassDetail> classDetail = classDetailRepository.findAllById(filter.getStd());
+        return classDetail
+            .stream()
+            .collect(
+                Collectors.toMap(
+                    ClassDetail::getStd,
+                    item -> feesCatalogMapper.toEntityList(item.getFeesCatalogs().stream().collect(Collectors.toList()))
+                )
+            );
     }
 }

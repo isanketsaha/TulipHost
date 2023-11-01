@@ -35,8 +35,8 @@ public class ObjectStorageService {
     }
 
     public URL createURL(String key) {
-        Date date = new Date(new Date().getTime() + 300 * 1000); // 1 s * 1000 ms/s
-        URL url = amazonS3Client.generatePresignedUrl(properties.getAws().getCredential().getBucketName(), key, date);
+        Date date = new Date(new Date().getTime() + 240000 * 1000); // 1 s * 1000 ms/s
+        URL url = amazonS3Client.getUrl(properties.getAws().getCredential().getBucketName(), key);
         log.info("Generated the signature " + url);
         return url;
     }

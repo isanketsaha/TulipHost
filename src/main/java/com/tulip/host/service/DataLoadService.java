@@ -91,4 +91,6 @@ public class DataLoadService {
             .collect(Collectors.toList());
         feesCatalogRepository.saveAllAndFlush(feesCatalogList);
     }
+
+    public void getFees() {}
 }

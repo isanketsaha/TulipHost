@@ -64,6 +64,8 @@ public class Employee extends AbstractAuditingEntity {
     @Builder.Default
     private Boolean locked = false;
 
+    private String profilePicture;
+
     @Size(max = 50)
     @NotNull
     @Column(name = "name", nullable = false, length = 50)
@@ -91,8 +93,8 @@ public class Employee extends AbstractAuditingEntity {
     @Column(name = "religion", length = 20)
     private String religion;
 
-    //    @Column(name = "termination_date")
-    //    private Date terminationDate;
+    @Column(name = "termination_date")
+    private Date terminationDate;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE }, optional = false)

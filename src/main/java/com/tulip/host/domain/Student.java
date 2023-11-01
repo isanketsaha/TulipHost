@@ -18,6 +18,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -101,6 +102,8 @@ public class Student extends AbstractAuditingEntity {
     @Size(max = 20)
     @Column(name = "religion", length = 20)
     private String religion;
+
+    private String profilePicture;
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<Upload> uploadedDocuments;
