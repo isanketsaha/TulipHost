@@ -1,13 +1,29 @@
 package com.tulip.host.repository.impl;
 
-import com.querydsl.core.annotations.Config;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.tulip.host.domain.*;
+import com.tulip.host.domain.QClassDetail;
+import com.tulip.host.domain.QCredential;
+import com.tulip.host.domain.QDependent;
+import com.tulip.host.domain.QDues;
+import com.tulip.host.domain.QDuesPayment;
+import com.tulip.host.domain.QEmployee;
+import com.tulip.host.domain.QExpense;
+import com.tulip.host.domain.QFeesCatalog;
+import com.tulip.host.domain.QFeesLineItem;
+import com.tulip.host.domain.QHoliday;
+import com.tulip.host.domain.QInventory;
+import com.tulip.host.domain.QProductCatalog;
+import com.tulip.host.domain.QPurchaseLineItem;
+import com.tulip.host.domain.QSession;
+import com.tulip.host.domain.QStudent;
+import com.tulip.host.domain.QStudentToClass;
+import com.tulip.host.domain.QTransaction;
+import com.tulip.host.domain.QUserGroup;
+import com.tulip.host.domain.QUserToDependent;
 import com.tulip.host.repository.BaseRepository;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> implements BaseRepository<T, ID> {

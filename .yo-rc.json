@@ -15,6 +15,7 @@
     "enableHibernateCache": false,
     "enableSwaggerCodegen": false,
     "enableTranslation": false,
+    "entities": [],
     "entitySuffix": "",
     "jhiPrefix": "jhi",
     "jhipsterVersion": "7.9.3",
@@ -38,7 +39,7 @@
     "skipFakeData": false,
     "skipUserManagement": true,
     "testFrameworks": [],
-    "websocket": false,
+    "websocket": "no",
     "withAdminUi": false
   }
 }

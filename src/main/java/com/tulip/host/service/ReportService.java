@@ -19,11 +19,12 @@ import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.repository.TransactionRepository;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.time.DateUtils;
 import org.joda.time.LocalDate;
@@ -54,7 +55,7 @@ public class ReportService {
     public List<PaySummaryDTO> fetchTransactionHistory(Date date) {
         Date plus = DateUtils.addDays(date, 1);
         BooleanBuilder query = new BooleanBuilder()
-            .and(QTransaction.transaction.createdDate.gt(date).and(QTransaction.transaction.createdDate.lt(plus)));
+            .and(QTransaction.transaction.createdDate.gt(date.toInstant()).and(QTransaction.transaction.createdDate.lt(plus.toInstant())));
         Iterable<Transaction> transactions = transactionPagedRepository.findAll(query, Sort.by(DESC, "createdDate"));
         return transactionMapper.toEntityList(transactions);
     }
@@ -63,8 +64,8 @@ public class ReportService {
     public DashBoardStudentDTO studentReport() {
         Date thisWeek = new LocalDate().withDayOfWeek(MONDAY.getValue()).toDate();
         Date thisMonth = new LocalDate().withDayOfMonth(1).toDate();
-        BooleanBuilder admissionWeekCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisWeek));
-        BooleanBuilder admissionMonthCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisMonth));
+        BooleanBuilder admissionWeekCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisWeek.toInstant()));
+        BooleanBuilder admissionMonthCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisMonth.toInstant()));
         BooleanBuilder withdrawnWeekCondition = new BooleanBuilder()
             .and(QStudent.student.terminationDate.isNotNull().and(QStudent.student.terminationDate.goe(thisWeek)));
         BooleanBuilder withdrawnMonthCondition = new BooleanBuilder()

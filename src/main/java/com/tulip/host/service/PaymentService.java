@@ -46,6 +46,8 @@ import com.tulip.host.web.rest.vm.EditOrderVm;
 import com.tulip.host.web.rest.vm.ExpenseVm;
 import com.tulip.host.web.rest.vm.PayVM;
 import com.tulip.host.web.rest.vm.UploadVM;
+import jakarta.transaction.Transactional;
+import jakarta.xml.bind.ValidationException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -61,8 +63,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import javax.transaction.Transactional;
-import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -247,7 +247,8 @@ public class PaymentService {
         Date startDate = Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
         Date endDate = Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-        BooleanBuilder query = new BooleanBuilder().and(QTransaction.transaction.createdDate.between(startDate, endDate));
+        BooleanBuilder query = new BooleanBuilder()
+            .and(QTransaction.transaction.createdDate.between(startDate.toInstant(), endDate.toInstant()));
 
         Iterable<Transaction> transactions = transactionPagedRepository.findAll(query, Sort.by(Sort.Direction.DESC, "createdDate"));
         return transactionMapper.toEntityList(transactions);

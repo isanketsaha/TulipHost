@@ -1,15 +1,23 @@
 package com.tulip.host.security.jwt;
 
 import com.tulip.host.management.SecurityMetersService;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -55,7 +63,7 @@ public class TokenProvider {
             keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         }
         key = Keys.hmacShaKeyFor(keyBytes);
-        jwtParser = Jwts.parserBuilder().setSigningKey(key).build();
+        jwtParser = Jwts.parser().setSigningKey(key).build();
         this.tokenValidityInMilliseconds = 1000 * jHipsterProperties.getSecurity().getAuthentication().getJwt().getTokenValidityInSeconds();
         this.tokenValidityInMillisecondsForRememberMe =
             1000 * jHipsterProperties.getSecurity().getAuthentication().getJwt().getTokenValidityInSecondsForRememberMe();
@@ -123,7 +131,7 @@ public class TokenProvider {
         } catch (SignatureException e) {
             this.securityMetersService.trackTokenInvalidSignature();
 
-            log.trace(INVALID_JWT_TOKEN, e);
+            log.trace(INVALID_JWT_TOKEN);
         } catch (IllegalArgumentException e) { // TODO: should we let it bubble (no catch), to avoid defensive programming and follow the fail-fast principle?
             log.error("Token validation error {}", e.getMessage());
         }

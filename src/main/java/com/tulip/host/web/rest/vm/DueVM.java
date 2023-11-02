@@ -1,7 +1,7 @@
 package com.tulip.host.web.rest.vm;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.Date;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

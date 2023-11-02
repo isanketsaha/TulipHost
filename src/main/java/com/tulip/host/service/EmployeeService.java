@@ -89,7 +89,7 @@ public class EmployeeService {
         return employeeMapper.toBasicEntityList(employees);
     }
 
-    @javax.transaction.Transactional
+    @jakarta.transaction.Transactional
     public EmployeeDetailsDTO searchEmployee(long id) {
         Employee employee = employeeRepository.search(id);
         if (employee != null) {

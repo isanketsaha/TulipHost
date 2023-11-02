@@ -5,13 +5,13 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.tulip.host.domain.Expense;
 import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.utils.CommonUtils;
+import jakarta.persistence.EntityManager;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.EntityManager;
 
 public class ExpenseRepositoryImpl extends BaseRepositoryImpl<Expense, Long> implements ExpenseRepository {
 
@@ -23,7 +23,11 @@ public class ExpenseRepositoryImpl extends BaseRepositoryImpl<Expense, Long> imp
         List<Tuple> tupleList = jpaQueryFactory
             .select(EXPENSE.category, EXPENSE.createdDate.month(), EXPENSE.amount.sum())
             .from(EXPENSE)
-            .where(EXPENSE.createdDate.between(startDate, endDate).and(EXPENSE.createdBy.notEqualsIgnoreCase("Sanket Saha")))
+            .where(
+                EXPENSE.createdDate
+                    .between(startDate.toInstant(), endDate.toInstant())
+                    .and(EXPENSE.createdBy.notEqualsIgnoreCase("Sanket Saha"))
+            )
             .groupBy(EXPENSE.createdDate.year(), EXPENSE.createdDate.month(), EXPENSE.category)
             .orderBy(EXPENSE.createdDate.year().asc(), EXPENSE.createdDate.month().asc())
             .fetch();

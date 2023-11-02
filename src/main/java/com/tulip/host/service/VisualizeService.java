@@ -8,6 +8,8 @@ import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.ClassToStudentRepository;
 import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.repository.StudentRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -15,8 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.Months;
@@ -80,7 +80,7 @@ public class VisualizeService {
             while (startDate.isBefore(endDate)) {
                 if (initialSessionStrength.containsKey(std)) {
                     studentCount +=
-                        initialSessionStrength.get(std) + admissionByMonth.getOrDefault(yearMonthFormatter.format(startDate), 0L);
+                    initialSessionStrength.get(std) + admissionByMonth.getOrDefault(yearMonthFormatter.format(startDate), 0L);
                     initialSessionStrength.remove(std);
                 } else {
                     studentCount += admissionByMonth.getOrDefault(yearMonthFormatter.format(startDate), 0L);

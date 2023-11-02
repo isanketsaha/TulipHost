@@ -4,9 +4,9 @@ import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.ProductCatalog;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.ProductCatalogRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 
 public class ProductCatalogRepositoryImpl extends BaseRepositoryImpl<ProductCatalog, Long> implements ProductCatalogRepository {
 

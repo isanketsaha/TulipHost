@@ -1,19 +1,15 @@
 package com.tulip.host.web.rest;
 
-import static com.tulip.host.security.SecurityUtils.getPrincipal;
-
 import com.tulip.host.data.LoggedUserDTO;
 import com.tulip.host.data.LoginDTO;
 import com.tulip.host.repository.CredentialRepository;
 import com.tulip.host.security.jwt.JWTFilter;
 import com.tulip.host.security.jwt.TokenProvider;
-import com.tulip.host.service.EmployeeService;
 import com.tulip.host.web.rest.vm.LoginVM;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +18,9 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Controller to authenticate users.

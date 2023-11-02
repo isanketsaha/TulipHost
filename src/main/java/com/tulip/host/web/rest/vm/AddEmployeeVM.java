@@ -2,10 +2,10 @@ package com.tulip.host.web.rest.vm;
 
 import com.tulip.host.enums.BloodGroupEnum;
 import com.tulip.host.enums.GenderEnum;
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.Date;
-import javax.persistence.Column;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.Data;
 
 @Data

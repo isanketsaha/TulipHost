@@ -6,12 +6,10 @@ import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.domain.Employee;
 import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.repository.EmployeeRepository;
-import java.util.Collections;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import org.apache.commons.collections4.CollectionUtils;
 
 public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> implements EmployeeRepository {
 

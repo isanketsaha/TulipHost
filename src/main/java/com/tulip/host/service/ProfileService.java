@@ -6,7 +6,7 @@ import com.tulip.host.mapper.PasswordEncoderMapper;
 import com.tulip.host.repository.CredentialRepository;
 import com.tulip.host.repository.EmployeeRepository;
 import com.tulip.host.web.rest.vm.CredentialVM;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

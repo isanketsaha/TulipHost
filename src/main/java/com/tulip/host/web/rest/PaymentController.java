@@ -8,13 +8,19 @@ import com.tulip.host.web.rest.vm.DuePaymentVm;
 import com.tulip.host.web.rest.vm.EditOrderVm;
 import com.tulip.host.web.rest.vm.ExpenseVm;
 import com.tulip.host.web.rest.vm.PayVM;
+import jakarta.validation.Valid;
 import java.util.List;
-import javax.validation.Valid;
 import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/payment")
@@ -24,7 +30,7 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public Long pay(@Valid @RequestBody PayVM payVM) throws ValidationException {
+    public Long pay(@Valid @RequestBody PayVM payVM) throws ValidationException, jakarta.xml.bind.ValidationException {
         if (payVM.getPayType() == PayTypeEnum.FEES) {
             return paymentService.payFees(payVM);
         } else {
@@ -43,7 +49,7 @@ public class PaymentController {
     }
 
     @PostMapping("/duePayment")
-    public long duePayment(@Valid @RequestBody DuePaymentVm duePaymentVm) throws ValidationException {
+    public long duePayment(@Valid @RequestBody DuePaymentVm duePaymentVm) throws ValidationException, jakarta.xml.bind.ValidationException {
         return paymentService.payDues(duePaymentVm);
     }
 

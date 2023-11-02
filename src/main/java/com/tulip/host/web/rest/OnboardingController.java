@@ -3,7 +3,7 @@ package com.tulip.host.web.rest;
 import com.tulip.host.service.EmployeeService;
 import com.tulip.host.service.StudentService;
 import com.tulip.host.web.rest.vm.OnboardingVM;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -4,10 +4,10 @@ import com.tulip.host.data.FeesCatalogDTO;
 import com.tulip.host.data.ProductDTO;
 import com.tulip.host.service.CatalogService;
 import com.tulip.host.web.rest.vm.StockUpdateVM;
+import jakarta.validation.Valid;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
