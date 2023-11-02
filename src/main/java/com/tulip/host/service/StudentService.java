@@ -71,7 +71,7 @@ public class StudentService {
     @Transactional
     public Long addStudent(OnboardingVM onboardingVM) {
         ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(onboardingVM.getSession(), onboardingVM.getStd().name());
-        Student student = studentMapper.toModel(onboardingVM, uploadService);
+        Student student = studentMapper.toModel(onboardingVM);
         student.addClass(classDetail);
         addUpload(student, onboardingVM);
         Student save = studentRepository.save(student);
@@ -89,7 +89,7 @@ public class StudentService {
         Student byId = studentRepository.search(id);
         if (byId != null && !CollectionUtils.isEmpty(byId.getClassDetails())) {
             List<ClassDetailDTO> classDetailDTOS = classMapper.toClassDetailList(byId.getClassDetails());
-            StudentDetailsDTO studentDetailsDTO = studentMapper.toDetailEntity(byId);
+            StudentDetailsDTO studentDetailsDTO = studentMapper.toDetailEntity(byId, uploadService);
             mapUpload(studentDetailsDTO, byId);
             studentDetailsDTO.setClassDetails(classDetailDTOS);
             return studentDetailsDTO;

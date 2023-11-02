@@ -75,6 +75,8 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "gender", nullable = false)
     private String gender;
 
+    private String aadhaar;
+
     @Column(name = "active")
     @Builder.Default
     private Boolean active = true;
@@ -103,7 +105,9 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "religion", length = 20)
     private String religion;
 
-    private String profilePicture;
+    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinColumn(name = "picture_id")
+    private Upload profilePicture;
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<Upload> uploadedDocuments;

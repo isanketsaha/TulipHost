@@ -69,7 +69,7 @@ public class EmployeeService {
     public Long addEmployee(OnboardingVM employeeVM) throws Exception {
         UserGroup userGroupByAuthority = userGroupRepository.findUserGroupByAuthority(employeeVM.getInterview().getRole().getValue());
         if (userGroupByAuthority != null) {
-            Employee employee = employeeMapper.toModel(employeeVM, uploadService);
+            Employee employee = employeeMapper.toModel(employeeVM);
             employee.setLocked(userGroupByAuthority.getAuthority().equalsIgnoreCase(UserRoleEnum.TEACHER.getValue()));
             employee.setResetCredential(!userGroupByAuthority.getAuthority().equalsIgnoreCase(UserRoleEnum.TEACHER.getValue()));
             employee.setGroup(userGroupByAuthority);

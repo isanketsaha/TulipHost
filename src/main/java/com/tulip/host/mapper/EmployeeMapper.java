@@ -28,8 +28,7 @@ public interface EmployeeMapper {
     @Mapping(target = "dependents", source = "dependent")
     @Mapping(target = "bloodGroup", expression = "java(source.getBloodGroup().getDisplayType())")
     @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(source.getName()))")
-    @Mapping(target = "profilePicture", ignore = true)
-    Employee toModel(OnboardingVM source, @Context UploadService uploadService);
+    Employee toModel(OnboardingVM source);
 
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(source.getDob()))")
     @Mapping(target = "classTeacher", source = ".", qualifiedByName = "findClassTeacher")
@@ -42,13 +41,6 @@ public interface EmployeeMapper {
     @Named("findClassTeacher")
     default String getClassTeacher(Employee source) {
         return CollectionUtils.isEmpty(source.getClassDetails()) ? "" : source.getClassDetails().stream().findFirst().get().getStd();
-    }
-
-    @AfterMapping
-    default void map(@MappingTarget Employee target, OnboardingVM source, @Context UploadService service) {
-        target.setProfilePicture(
-            source.getProfilePicture() != null ? service.getURL(source.getProfilePicture().getUid()) : StringUtils.EMPTY
-        );
     }
 
     @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(source.getName()))")

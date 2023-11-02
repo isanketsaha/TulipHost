@@ -4,11 +4,15 @@ ADD COLUMN termination_date DATETIME DEFAULT NULL;
 
 
 ALTER TABLE student
-ADD COLUMN profile_picture text  DEFAULT NULL;
+ADD COLUMN picture_id bigint  DEFAULT NULL,
+ADD COLUMN aadhaar varchar(20)  DEFAULT NULL,
+ADD FOREIGN KEY (picture_id) REFERENCES upload (id);
 
 ALTER TABLE employee
-ADD COLUMN profile_picture text  DEFAULT NULL,
-MODIFY COLUMN reset_credential bit(1) DEFAULT 1;
+ADD COLUMN picture_id bigint  DEFAULT NULL,
+ADD COLUMN aadhaar varchar(20)  DEFAULT NULL,
+MODIFY COLUMN reset_credential bit(1) DEFAULT 1,
+ADD FOREIGN KEY (picture_id) REFERENCES upload (id);
 
 CREATE TABLE IF NOT EXISTS  transport_catalog (
   id bigint NOT NULL AUTO_INCREMENT,

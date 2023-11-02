@@ -3,6 +3,7 @@ package com.tulip.host.web.rest.vm;
 import static com.tulip.host.config.Constants.AADHAAR_CARD;
 import static com.tulip.host.config.Constants.BIRTH_CERTIFICATE;
 import static com.tulip.host.config.Constants.PAN_CARD;
+import static com.tulip.host.config.Constants.PROFILE_PICTURE;
 
 import com.tulip.host.enums.BloodGroupEnum;
 import com.tulip.host.enums.GenderEnum;
@@ -60,6 +61,14 @@ public class OnboardingVM {
     BankVM bank;
     InterviewVM interview;
     StdEnum std;
+
+    public void setProfilePhoto(List<UploadVM> profilePhoto) {
+        UploadVM uploadVM = profilePhoto.stream().findFirst().orElse(null);
+        if (uploadVM != null) {
+            uploadVM.setDocumentType(PROFILE_PICTURE);
+            this.profilePhoto = uploadVM;
+        }
+    }
 
     public void setAadhaarCard(List<UploadVM> aadhaarCard) {
         this.aadhaarCard =

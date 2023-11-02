@@ -29,10 +29,9 @@ public interface StudentMapper {
     @Mapping(target = "classDetails", ignore = true)
     @Mapping(target = "phoneNumber", source = "contact")
     @Mapping(target = "dependents", source = "dependent")
-    @Mapping(target = "profilePicture", ignore = true)
     @Mapping(target = "bloodGroup", expression = "java(source.getBloodGroup().getDisplayType())")
     @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(source.getName()))")
-    Student toModel(OnboardingVM source, @Context UploadService service);
+    Student toModel(OnboardingVM source);
 
     Student toEntity(Long id);
 
@@ -44,10 +43,11 @@ public interface StudentMapper {
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(student.getDob()))")
     @Mapping(target = "dependent", source = "dependents")
     @Mapping(target = "classDetails", ignore = true)
+    @Mapping(target = "profilePicture", ignore = true)
     @Mapping(target = "aadhaarCard", expression = "java(new ArrayList<>())")
     @Mapping(target = "panCard", expression = "java(new ArrayList<>())")
     @Mapping(target = "birthCertificate", expression = "java(new ArrayList<>())")
-    StudentDetailsDTO toDetailEntity(Student student);
+    StudentDetailsDTO toDetailEntity(Student student, @Context UploadService service);
 
     @Mapping(
         target = "classId",
@@ -104,7 +104,7 @@ public interface StudentMapper {
     List<StudentExportDTO> toBasicEntityExportList(List<Student> student);
 
     @AfterMapping
-    default void map(@MappingTarget Student target, OnboardingVM source, @Context UploadService service) {
+    default void map(@MappingTarget StudentDetailsDTO target, Student source, @Context UploadService service) {
         target.setProfilePicture(
             source.getProfilePicture() != null ? service.getURL(source.getProfilePicture().getUid()) : StringUtils.EMPTY
         );

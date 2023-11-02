@@ -41,6 +41,8 @@ public class StudentDetailsDTO {
     @NotNull
     private String bloodGroup;
 
+    private String profilePicture;
+
     @Size(max = 6)
     @NotNull
     private String gender;

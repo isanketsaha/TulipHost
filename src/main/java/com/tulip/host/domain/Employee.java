@@ -59,12 +59,16 @@ public class Employee extends AbstractAuditingEntity {
     @Column(name = "leave_balance")
     private Double leaveBalance;
 
+    private String aadhaar;
+
     @NotNull
     @Column(name = "locked", nullable = false)
     @Builder.Default
     private Boolean locked = false;
 
-    private String profilePicture;
+    @OneToOne
+    @JoinColumn(name = "picture_id")
+    private Upload profilePicture;
 
     @Size(max = 50)
     @NotNull

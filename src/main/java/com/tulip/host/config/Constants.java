@@ -10,6 +10,8 @@ public final class Constants {
 
     public static final String AADHAAR_CARD = "AADHAAR CARD";
 
+    public static final String PROFILE_PICTURE = "PROFILE PICTURE";
+
     public static final String PAN_CARD = "PAN CARD";
 
     public static final String BIRTH_CERTIFICATE = "BIRTH CERTIFICATE";
