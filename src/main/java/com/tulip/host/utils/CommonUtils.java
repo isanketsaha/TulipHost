@@ -79,7 +79,7 @@ public class CommonUtils {
     public static List<UserRoleEnum> findEligibleUG() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        String UG = authorities.stream().map(GrantedAuthority::getAuthority).findFirst().get();
+        String UG = authorities.stream().map(GrantedAuthority::getAuthority).findFirst().orElseThrow();
 
         UserRoleEnum userRoleEnum = UserRoleEnum.valueOf(UG.split("_")[1]);
         return Arrays

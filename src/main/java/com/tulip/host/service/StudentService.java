@@ -201,7 +201,7 @@ public class StudentService {
                 if (lastPaidDate.isPresent()) {
                     return Months
                         .monthsBetween(
-                            new LocalDate(lastPaidDate.get()).dayOfMonth().withMaximumValue(),
+                            new LocalDate(lastPaidDate.orElseThrow()).dayOfMonth().withMaximumValue(),
                             new LocalDate(new Date()).withDayOfMonth(1)
                         )
                         .getMonths();

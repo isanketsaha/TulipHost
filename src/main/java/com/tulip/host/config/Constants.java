@@ -25,5 +25,7 @@ public final class Constants {
     public static final String DUES = "DUES";
     public static final String DEFAULT_PASSWORD = "tulip123";
 
+    public static final String NOT_AVAILABLE = "N/A";
+
     private Constants() {}
 }

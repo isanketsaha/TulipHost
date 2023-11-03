@@ -1,8 +1,11 @@
 package com.tulip.host.mapper;
 
+import static com.tulip.host.config.Constants.NOT_AVAILABLE;
+
 import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.data.JoiningLetterDTO;
+import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Dependent;
 import com.tulip.host.domain.Employee;
 import com.tulip.host.service.UploadService;
@@ -40,7 +43,8 @@ public interface EmployeeMapper {
 
     @Named("findClassTeacher")
     default String getClassTeacher(Employee source) {
-        return CollectionUtils.isEmpty(source.getClassDetails()) ? "" : source.getClassDetails().stream().findFirst().get().getStd();
+        ClassDetail classDetail = source.getClassDetails().stream().findFirst().orElse(null);
+        return classDetail != null ? classDetail.getStd() : NOT_AVAILABLE;
     }
 
     @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(source.getName()))")

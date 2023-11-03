@@ -44,7 +44,8 @@ public class ClassroomController {
     }
 
     @PostMapping("/student-promote")
-    public void promoteStudents(@Valid @RequestBody PromoteStudentVM promoteStudentVM) throws ValidationException {
+    public void promoteStudents(@Valid @RequestBody PromoteStudentVM promoteStudentVM)
+        throws ValidationException, jakarta.xml.bind.ValidationException {
         classroomService.promoteStudents(promoteStudentVM);
     }
 
