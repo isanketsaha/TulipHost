@@ -3,14 +3,11 @@ package com.tulip.host.data;
 import com.tulip.host.web.rest.vm.UploadVM;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
@@ -34,6 +31,8 @@ public class StudentDetailsDTO {
     @NotNull
     private String phoneNumber;
 
+    String aadhaar;
+
     @NotNull
     private List<ClassDetailDTO> classDetails;
 
@@ -41,7 +40,7 @@ public class StudentDetailsDTO {
     @NotNull
     private String bloodGroup;
 
-    private String profilePicture;
+    private String profilePictureUrl;
 
     @Size(max = 6)
     @NotNull
@@ -61,8 +60,9 @@ public class StudentDetailsDTO {
 
     private String religion;
     private int age;
-
     List<UploadVM> aadhaarCard;
+
+    List<UploadVM> profilePicture;
 
     List<UploadVM> panCard;
 

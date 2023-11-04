@@ -70,6 +70,13 @@
         <validation-api.version>3.0.2</validation-api.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -305,12 +312,6 @@
         </dependency>
         <dependency>
             <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-jpa</artifactId>
-            <version>${querydsl.version}</version>
-            <classifier>jakarta</classifier>
-        </dependency>
-        <dependency>
-            <groupId>com.querydsl</groupId>
             <artifactId>querydsl-apt</artifactId>
             <scope>provided</scope>
             <version>${querydsl.version}</version>
@@ -374,6 +375,11 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
             <version>0.12.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Bindambc</groupId>
+            <artifactId>whatsapp-business-java-api</artifactId>
+            <version>v0.3.4</version>
         </dependency>
     </dependencies>
 

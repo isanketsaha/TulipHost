@@ -17,11 +17,18 @@ public class ApplicationProperties {
 
     public final Page page = new Page();
     public final Aws aws = new Aws();
+    public final Whatsapp whatsapp = new Whatsapp();
 
     @Data
     public static class Page {
 
         private int size;
+    }
+
+    @Data
+    public static class Whatsapp {
+
+        private String key;
     }
 
     @Data

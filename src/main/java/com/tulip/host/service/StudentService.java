@@ -27,6 +27,7 @@ import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import com.tulip.host.web.rest.vm.UserEditVM;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -98,6 +99,9 @@ public class StudentService {
     }
 
     private void mapUpload(StudentDetailsDTO studentDetailsDTO, Student byId) {
+        if (byId.getProfilePicture() != null) studentDetailsDTO.setProfilePicture(
+            Arrays.asList(uploadMapper.toEntity(byId.getProfilePicture()))
+        );
         byId
             .getUploadedDocuments()
             .forEach(item -> {

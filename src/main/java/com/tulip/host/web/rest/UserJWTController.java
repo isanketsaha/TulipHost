@@ -5,6 +5,7 @@ import com.tulip.host.data.LoginDTO;
 import com.tulip.host.repository.CredentialRepository;
 import com.tulip.host.security.jwt.JWTFilter;
 import com.tulip.host.security.jwt.TokenProvider;
+import com.tulip.host.service.WhatsappNotificationService;
 import com.tulip.host.web.rest.vm.LoginVM;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

@@ -10,6 +10,7 @@ import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import com.tulip.host.web.rest.vm.StudentLoadVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -105,7 +106,7 @@ public interface StudentMapper {
 
     @AfterMapping
     default void map(@MappingTarget StudentDetailsDTO target, Student source, @Context UploadService service) {
-        target.setProfilePicture(
+        target.setProfilePictureUrl(
             source.getProfilePicture() != null ? service.getURL(source.getProfilePicture().getUid()) : StringUtils.EMPTY
         );
     }

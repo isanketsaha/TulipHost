@@ -258,3 +258,5 @@ application:
   aws:
     region:
       value: ap-northeast-1
+  whatsapp:
+    key: ${whatsapp.token}

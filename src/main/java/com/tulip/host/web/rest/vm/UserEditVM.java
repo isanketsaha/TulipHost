@@ -3,6 +3,7 @@ package com.tulip.host.web.rest.vm;
 import static com.tulip.host.config.Constants.AADHAAR_CARD;
 import static com.tulip.host.config.Constants.BIRTH_CERTIFICATE;
 import static com.tulip.host.config.Constants.PAN_CARD;
+import static com.tulip.host.config.Constants.PROFILE_PICTURE;
 
 import com.tulip.host.enums.BloodGroupEnum;
 import com.tulip.host.enums.GenderEnum;
@@ -33,7 +34,7 @@ public class UserEditVM {
     boolean eveningClass;
     List<DependentVM> dependent;
     String experience;
-
+    String aadhaar;
     List<UploadVM> aadhaarCard;
     List<UploadVM> panCard;
     List<UploadVM> birthCertificate;
@@ -44,6 +45,15 @@ public class UserEditVM {
     ReligionEnum religion;
     Long session;
     StdEnum std;
+    private UploadVM profilePicture;
+
+    public void setProfilePicture(List<UploadVM> profilePhoto) {
+        UploadVM uploadVM = profilePhoto.stream().findFirst().orElse(null);
+        if (uploadVM != null) {
+            uploadVM.setDocumentType(PROFILE_PICTURE);
+            this.profilePicture = uploadVM;
+        }
+    }
 
     public void setAadhaarCard(List<UploadVM> aadhaarCard) {
         this.aadhaarCard =

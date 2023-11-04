@@ -51,9 +51,9 @@ public class OnboardingVM {
     Date dob;
 
     GenderEnum gender;
+    String aadhaar;
     List<UploadVM> aadhaarCard;
     List<UploadVM> panCard;
-    UploadVM profilePhoto;
     List<UploadVM> birthCertificate;
     String previousSchool;
     ReligionEnum religion;
@@ -66,7 +66,7 @@ public class OnboardingVM {
         UploadVM uploadVM = profilePhoto.stream().findFirst().orElse(null);
         if (uploadVM != null) {
             uploadVM.setDocumentType(PROFILE_PICTURE);
-            this.profilePhoto = uploadVM;
+            this.profilePicture = uploadVM;
         }
     }
 
