@@ -3,12 +3,14 @@ package com.tulip.host.web.rest;
 import com.tulip.host.data.FeesCatalogDTO;
 import com.tulip.host.data.ProductDTO;
 import com.tulip.host.service.CatalogService;
+import com.tulip.host.service.ProductService;
 import com.tulip.host.web.rest.vm.StockUpdateVM;
 import jakarta.validation.Valid;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 public class CatalogController {
 
     private final CatalogService catalogService;
+
+    private final ProductService productService;
 
     @GetMapping("/fees/{classID}")
     public List<FeesCatalogDTO> feesCatalog(@PathVariable Long classID) {
@@ -30,8 +34,14 @@ public class CatalogController {
         return catalogService.productCatalog(classID);
     }
 
-    @PostMapping("/productStock")
+    @PostMapping("/updateStock")
     public void updateProduct(@Valid @RequestBody StockUpdateVM stockUpdateVM) {
         catalogService.updateProduct(stockUpdateVM);
+    }
+
+    @PreAuthorize("hasAuthority('UG_ADMIN')")
+    @PostMapping("/productVisibility")
+    public void productVisibility(@RequestParam long productId) {
+        productService.updateProductVisibility(productId, false);
     }
 }

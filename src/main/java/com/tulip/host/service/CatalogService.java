@@ -56,11 +56,13 @@ public class CatalogService {
         return catalogMapper.toModelList(collect);
     }
 
+    @Transactional
     public void updateProduct(StockUpdateVM stockUpdateVM) {
         Inventory stockReport = inventoryRepository.findById(stockUpdateVM.getStockId()).orElse(null);
         if (stockReport != null) {
-            stockReport.getProduct().setItemName(stockUpdateVM.getProduct().getItemName());
-            stockReport.getProduct().setPrice(stockUpdateVM.getProduct().getPrice());
+            ProductCatalog product = stockReport.getProduct();
+            product.setItemName(stockUpdateVM.getProduct().getItemName().toUpperCase());
+            product.setPrice(stockUpdateVM.getProduct().getPrice());
             stockReport.setQty(stockUpdateVM.getPurchasedQty());
             inventoryRepository.saveAndFlush(stockReport);
         }

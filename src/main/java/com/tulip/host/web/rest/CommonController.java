@@ -1,6 +1,7 @@
 package com.tulip.host.web.rest;
 
 import com.tulip.host.data.DropDownOptionsDto;
+import com.tulip.host.data.SessionDTO;
 import com.tulip.host.enums.BloodGroupEnum;
 import com.tulip.host.enums.ExpenseTypeEnum;
 import com.tulip.host.enums.GenderEnum;
@@ -8,8 +9,8 @@ import com.tulip.host.enums.PaymentOptionEnum;
 import com.tulip.host.enums.RelationEnum;
 import com.tulip.host.enums.ReligionEnum;
 import com.tulip.host.enums.StdEnum;
-import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.service.FinancialYearService;
+import com.tulip.host.service.SessionService;
 import com.tulip.host.utils.CommonUtils;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommonController {
 
     private final FinancialYearService financialYearService;
+
+    private final SessionService sessionService;
 
     @RequestMapping("/genderList")
     public List<DropDownOptionsDto> genderList() {
@@ -73,6 +76,11 @@ public class CommonController {
             .stream(StdEnum.values())
             .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
             .collect(Collectors.toList());
+    }
+
+    @GetMapping("/currentSession")
+    public SessionDTO fetchCurrentSession() {
+        return sessionService.fetchCurrentSession();
     }
 
     @GetMapping("/currentFinancialYear")

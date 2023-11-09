@@ -1,18 +1,24 @@
 
-ALTER TABLE employee
-ADD COLUMN termination_date DATETIME DEFAULT NULL;
-
-
 ALTER TABLE student
 ADD COLUMN picture_id bigint  DEFAULT NULL,
 ADD COLUMN aadhaar varchar(20)  DEFAULT NULL,
-ADD FOREIGN KEY (picture_id) REFERENCES upload (id);
+Add COLUMN letter_id bigint  DEFAULT NULL,
+ADD FOREIGN KEY (picture_id) REFERENCES upload (id),
+ADD FOREIGN KEY (letter_id) REFERENCES upload (id);
 
 ALTER TABLE employee
 ADD COLUMN picture_id bigint  DEFAULT NULL,
+ADD COLUMN termination_date DATETIME DEFAULT NULL,
 ADD COLUMN aadhaar varchar(20)  DEFAULT NULL,
+Add COLUMN letter_id bigint  DEFAULT NULL,
 MODIFY COLUMN reset_credential bit(1) DEFAULT 1,
-ADD FOREIGN KEY (picture_id) REFERENCES upload (id);
+ADD FOREIGN KEY (picture_id) REFERENCES upload (id),
+ADD FOREIGN KEY (letter_id) REFERENCES upload (id);
+
+ALTER TABLE transactions
+ADD COLUMN invoice_id bigint  DEFAULT NULL,
+ADD FOREIGN KEY (invoice_id) REFERENCES upload (id);
+
 
 CREATE TABLE IF NOT EXISTS  transport_catalog (
   id bigint NOT NULL AUTO_INCREMENT,
@@ -38,4 +44,10 @@ CREATE TABLE IF NOT EXISTS  student_to_transport (
     FOREIGN KEY (student_id) REFERENCES student (student_id),
     FOREIGN KEY (transport_id) REFERENCES transport_catalog (id)
 );
+
+ALTER TABLE fees_catalog
+MODIFY COLUMN price double DEFAULT NULL,
+ADD COLUMN transport_id bigint  DEFAULT NULL,
+ADD FOREIGN KEY (transport_id) REFERENCES transport_catalog (id);
+
 

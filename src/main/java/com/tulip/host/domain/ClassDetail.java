@@ -57,7 +57,7 @@ public class ClassDetail extends AbstractAuditingEntity implements Comparable<Cl
     @JoinColumn(name = "session_id", nullable = false)
     private Session session;
 
-    @OneToMany(mappedBy = "std", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "std", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
     private Set<FeesCatalog> feesCatalogs = new LinkedHashSet<>();
 
     @Filter(name = "activeStudent")
@@ -65,10 +65,10 @@ public class ClassDetail extends AbstractAuditingEntity implements Comparable<Cl
     private Set<Student> students = new LinkedHashSet<>();
 
     @Filter(name = "filterCatalogNEPlaceholder")
-    @OneToMany(mappedBy = "std", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "std", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
     private Set<ProductCatalog> productCatalogs = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "classDetail", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @OneToMany(mappedBy = "classDetail", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
     private Set<Upload> uploadedDocuments;
 
     @Override

@@ -45,10 +45,4 @@ public class ReportController {
     public List<InventoryItemDTO> inventoryReport() {
         return dashboardService.inventoryReport();
     }
-
-    @PreAuthorize("hasAuthority('UG_ADMIN')")
-    @PostMapping("/productVisibility")
-    public void productVisibility(@RequestParam long productId) {
-        productService.updateProductVisibility(productId, false);
-    }
 }

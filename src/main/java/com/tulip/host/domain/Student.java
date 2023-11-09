@@ -1,5 +1,6 @@
 package com.tulip.host.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.tulip.host.utils.ClassComparatorBySession;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -109,6 +110,10 @@ public class Student extends AbstractAuditingEntity {
     @JoinColumn(name = "picture_id")
     private Upload profilePicture;
 
+    @OneToOne
+    @JoinColumn(name = "letter_id")
+    private Upload enrolLetter;
+
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<Upload> uploadedDocuments;
 
@@ -124,6 +129,10 @@ public class Student extends AbstractAuditingEntity {
     @Filter(name = "filterTransactionOnType")
     @OrderBy("created_date DESC")
     private Set<Transaction> transactions = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
+    @OrderBy("created_date DESC")
+    private Set<StudentToTransport> transports = new LinkedHashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
     @JoinTable(

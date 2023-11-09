@@ -1,5 +1,7 @@
 package com.tulip.host.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.tulip.host.utils.ClassComparatorBySession;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -87,6 +89,10 @@ public class Employee extends AbstractAuditingEntity {
     @OneToOne
     @JoinColumn(name = "picture_id")
     private Upload profilePicture;
+
+    @OneToOne
+    @JoinColumn(name = "letter_id")
+    private Upload appointmentLetter;
 
     @Size(max = 50)
     @NotNull

@@ -37,11 +37,13 @@ public class VisualizeService {
 
     private final ClassToStudentRepository classToStudentRepository;
 
+    @Transactional
     public Map<String, Long> admissionByMonth() {
         Session session = sessionService.currentSession();
         return studentRepository.admissionStats(session.getFromDate(), session.getToDate());
     }
 
+    @Transactional
     public Map<String, Map<String, Double>> getExpenseRecord() {
         Session session = sessionService.currentSession();
         return expenseRepository.expenseReport(session.getFromDate(), session.getToDate());

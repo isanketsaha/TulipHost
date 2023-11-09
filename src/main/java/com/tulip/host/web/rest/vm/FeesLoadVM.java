@@ -6,18 +6,8 @@ import lombok.Data;
 @Data
 public class FeesLoadVM {
 
-    @FieldName("Fees Name")
-    private String feesName;
-
-    @FieldName("Price")
+    private String label;
     private Double price;
-
-    @FieldName("Applicable Rule")
-    private String applicableRule;
-
-    @FieldName("Class")
+    private String rule;
     private String classDetail;
-
-    @FieldName("Session")
-    private Long session;
 }

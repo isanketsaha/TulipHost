@@ -1,18 +1,18 @@
 package com.tulip.host.domain;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.Date;
-import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,27 +27,29 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
-@Table(name = "session")
-public class Session extends AbstractAuditingEntity {
+@Table(name = "transport_catalog")
+public class TransportCatalog extends AbstractAuditingEntity {
 
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(max = 10)
+    @Size(max = 40)
     @NotNull
-    @Column(name = "display_text", nullable = false, length = 10)
-    private String displayText;
+    @Column(name = "location", nullable = false, length = 40)
+    private String location;
 
     @NotNull
-    @Column(name = "from_date", nullable = false)
-    private Date fromDate;
+    @Column(name = "amount", nullable = false)
+    private double amount;
 
-    @NotNull
-    @Column(name = "to_date", nullable = false)
-    private Date toDate;
+    @OneToOne
+    @JoinColumn(name = "session_id")
+    private Session session;
 
-    @OneToMany(mappedBy = "session", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
-    private List<ClassDetail> stdList;
+    private Integer distance;
+
+    @OneToMany(mappedBy = "transport", fetch = FetchType.LAZY)
+    private Set<StudentToTransport> student;
 }

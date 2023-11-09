@@ -55,6 +55,10 @@ public class Transaction extends AbstractAuditingEntity {
     @JoinColumn(name = "student_id")
     private Student student;
 
+    @OneToOne
+    @JoinColumn(name = "invoice_id")
+    private Upload invoice;
+
     @NotNull
     @Column(name = "amount", nullable = false)
     private Double amount;
