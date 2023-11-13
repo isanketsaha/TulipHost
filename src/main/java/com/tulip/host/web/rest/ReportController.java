@@ -9,6 +9,7 @@ import com.tulip.host.service.ReportService;
 import jakarta.validation.Valid;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,5 +45,10 @@ public class ReportController {
     @GetMapping("/inventory")
     public List<InventoryItemDTO> inventoryReport() {
         return dashboardService.inventoryReport();
+    }
+
+    @GetMapping("/transport")
+    public Map<String, Long> transportReport() {
+        return dashboardService.transportReport();
     }
 }

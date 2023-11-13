@@ -70,4 +70,6 @@ public class StudentDetailsDTO {
 
     @NotNull
     private Set<DependentDTO> dependent;
+
+    private TransportOptDTO transports;
 }

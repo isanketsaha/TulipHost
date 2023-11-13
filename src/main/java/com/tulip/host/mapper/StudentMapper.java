@@ -23,7 +23,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(
     componentModel = "spring",
-    uses = { DependentMapper.class, ReferenceMapper.class, CommonUtils.class, UploadMapper.class },
+    uses = { DependentMapper.class, ReferenceMapper.class, CommonUtils.class, UploadMapper.class, StudentToTransportMapper.class },
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
 public interface StudentMapper {

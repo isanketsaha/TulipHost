@@ -25,7 +25,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "transport_catalog")
 public class TransportCatalog extends AbstractAuditingEntity {

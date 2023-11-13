@@ -14,10 +14,12 @@ import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Dependent;
 import com.tulip.host.domain.QStudent;
 import com.tulip.host.domain.Student;
+import com.tulip.host.domain.StudentToTransport;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.DependentMapper;
 import com.tulip.host.mapper.StudentMapper;
+import com.tulip.host.mapper.StudentToTransportMapper;
 import com.tulip.host.mapper.UploadMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.DependentRepository;
@@ -26,6 +28,7 @@ import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
+import com.tulip.host.web.rest.vm.TransportVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import java.util.Arrays;
 import java.util.Date;
@@ -58,6 +61,8 @@ public class StudentService {
     private final DependentRepository dependentRepository;
 
     private final TransactionRepository transactionRepository;
+
+    private final StudentToTransportMapper studentToTransportMapper;
 
     @Transactional
     public Page<StudentBasicDTO> fetchAllStudent(int pageNo, int pageSize) {
@@ -213,5 +218,14 @@ public class StudentService {
             }
         }
         return Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths();
+    }
+
+    @Transactional
+    public void addTransport(TransportVm transport) {
+        Student student = studentRepository.findById(transport.getStudentId()).orElseThrow();
+        StudentToTransport studentToTransport = studentToTransportMapper.toEntity(transport);
+        studentToTransport.setStudent(student);
+        student.addTransport(studentToTransport);
+        studentRepository.saveAndFlush(student);
     }
 }

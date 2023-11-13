@@ -11,12 +11,14 @@ import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.domain.Inventory;
 import com.tulip.host.domain.QStudent;
 import com.tulip.host.domain.QTransaction;
+import com.tulip.host.domain.Session;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.mapper.InventoryMapper;
 import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.EmployeeRepository;
 import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.repository.StudentRepository;
+import com.tulip.host.repository.StudentToTransportRepository;
 import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.repository.TransactionRepository;
 import jakarta.transaction.Transactional;
@@ -50,6 +52,7 @@ public class ReportService {
     private final InventoryMapper inventoryMapper;
 
     private final SessionService sessionService;
+    private final StudentToTransportRepository studentToTransportRepository;
 
     @org.springframework.transaction.annotation.Transactional
     public List<PaySummaryDTO> fetchTransactionHistory(Date date) {
@@ -103,5 +106,11 @@ public class ReportService {
     @Transactional
     public double getTransactionTotal(Date from, Date to) {
         return transactionRepository.fetchTransactionTotal(from, to);
+    }
+
+    public Map<String, Long> transportReport() {
+        Session session = sessionService.currentSession();
+        Map<String, Long> report = studentToTransportRepository.findReport(session);
+        return report;
     }
 }

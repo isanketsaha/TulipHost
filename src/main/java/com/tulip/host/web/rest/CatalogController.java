@@ -2,6 +2,7 @@ package com.tulip.host.web.rest;
 
 import com.tulip.host.data.FeesCatalogDTO;
 import com.tulip.host.data.ProductDTO;
+import com.tulip.host.data.TransportCatalogDto;
 import com.tulip.host.service.CatalogService;
 import com.tulip.host.service.ProductService;
 import com.tulip.host.web.rest.vm.StockUpdateVM;
@@ -23,10 +24,18 @@ public class CatalogController {
     private final ProductService productService;
 
     @GetMapping("/fees/{classID}")
-    public List<FeesCatalogDTO> feesCatalog(@PathVariable Long classID) {
+    public List<FeesCatalogDTO> feesCatalog(@PathVariable Long classID, @RequestParam Long studentId) {
         List<FeesCatalogDTO> feesCatalogDTOS = catalogService.fetchFeesCatalog(classID);
+        feesCatalogDTOS.addAll(catalogService.fetchFeesCatalogByStudent(studentId));
         Collections.sort(feesCatalogDTOS, Comparator.comparing(FeesCatalogDTO::getName));
         return feesCatalogDTOS;
+    }
+
+    @GetMapping("/transport")
+    public List<TransportCatalogDto> transportCatalog(@RequestParam Long sessionId) {
+        List<TransportCatalogDto> transportCatalog = catalogService.fetchTransportCatalog(sessionId);
+        Collections.sort(transportCatalog, Comparator.comparing(TransportCatalogDto::getAmount));
+        return transportCatalog;
     }
 
     @GetMapping("/product/{classID}")

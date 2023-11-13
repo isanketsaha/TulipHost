@@ -27,5 +27,7 @@ public final class Constants {
 
     public static final String NOT_AVAILABLE = "N/A";
 
+    public static final String TRANSPORT_FEES = "TRANSPORT FEES";
+
     private Constants() {}
 }

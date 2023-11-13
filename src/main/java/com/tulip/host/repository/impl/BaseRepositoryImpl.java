@@ -1,5 +1,6 @@
 package com.tulip.host.repository.impl;
 
+import com.querydsl.jpa.JPQLTemplates;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.tulip.host.domain.QClassDetail;
@@ -18,7 +19,9 @@ import com.tulip.host.domain.QPurchaseLineItem;
 import com.tulip.host.domain.QSession;
 import com.tulip.host.domain.QStudent;
 import com.tulip.host.domain.QStudentToClass;
+import com.tulip.host.domain.QStudentToTransport;
 import com.tulip.host.domain.QTransaction;
+import com.tulip.host.domain.QTransportCatalog;
 import com.tulip.host.domain.QUserGroup;
 import com.tulip.host.domain.QUserToDependent;
 import com.tulip.host.repository.BaseRepository;
@@ -45,6 +48,8 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
     static final QStudentToClass STUDENT_TO_CLASS = QStudentToClass.studentToClass;
     static final QProductCatalog PRODUCT_CATALOG = QProductCatalog.productCatalog;
     static final QInventory INVENTORY = QInventory.inventory;
+    static final QTransportCatalog TRANSPORT_CATALOG = QTransportCatalog.transportCatalog;
+    static final QStudentToTransport STUDENT_TO_TRANSPORT = QStudentToTransport.studentToTransport;
 
     static final QDues DUES = QDues.dues;
     static final QDuesPayment DUES_PAYMENT = QDuesPayment.duesPayment;
@@ -59,7 +64,7 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
     protected BaseRepositoryImpl(Class<T> domainClass, EntityManager em) {
         super(domainClass, em);
         this.em = em;
-        this.jpaQueryFactory = new JPAQueryFactory(em);
+        this.jpaQueryFactory = new JPAQueryFactory(JPQLTemplates.DEFAULT, em);
         this.jpaQuery = new JPAQuery<>(em);
     }
 }

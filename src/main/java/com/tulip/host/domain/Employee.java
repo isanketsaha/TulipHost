@@ -37,7 +37,6 @@ import org.hibernate.annotations.SortComparator;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "employee")
 public class Employee extends AbstractAuditingEntity {

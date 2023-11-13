@@ -32,10 +32,8 @@ import org.hibernate.annotations.ParamDef;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "class_details")
-@EqualsAndHashCode
 @FilterDef(name = "filterClass", defaultCondition = "id = :classId", parameters = @ParamDef(name = "classId", type = Long.class))
 public class ClassDetail extends AbstractAuditingEntity implements Comparable<ClassDetail> {
 

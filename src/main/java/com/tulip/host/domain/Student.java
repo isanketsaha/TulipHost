@@ -1,6 +1,5 @@
 package com.tulip.host.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.tulip.host.utils.ClassComparatorBySession;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -32,9 +31,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.FilterJoinTable;
-import org.hibernate.annotations.FilterJoinTables;
-import org.hibernate.annotations.Filters;
 import org.hibernate.annotations.ParamDef;
 import org.hibernate.annotations.SortComparator;
 
@@ -43,7 +39,6 @@ import org.hibernate.annotations.SortComparator;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "student")
 @FilterDef(name = "activeStudent", defaultCondition = "active = :flag", parameters = @ParamDef(name = "flag", type = Boolean.class))
@@ -130,9 +125,9 @@ public class Student extends AbstractAuditingEntity {
     @OrderBy("created_date DESC")
     private Set<Transaction> transactions = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
     @OrderBy("created_date DESC")
-    private Set<StudentToTransport> transports = new LinkedHashSet<>();
+    private Set<StudentToTransport> transports = new TreeSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
     @JoinTable(
@@ -151,6 +146,16 @@ public class Student extends AbstractAuditingEntity {
             this.setClassDetails(classList);
         } else {
             classDetails.add(classDetail);
+        }
+    }
+
+    public void addTransport(StudentToTransport studentToTransport) {
+        if (transports == null) {
+            SortedSet<StudentToTransport> transportList = new TreeSet();
+            transportList.add(studentToTransport);
+            this.setTransports(transportList);
+        } else {
+            transports.add(studentToTransport);
         }
     }
 

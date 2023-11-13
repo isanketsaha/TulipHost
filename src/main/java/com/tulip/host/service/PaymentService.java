@@ -2,6 +2,7 @@ package com.tulip.host.service;
 
 import static com.tulip.host.config.Constants.DUES;
 import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
+import static com.tulip.host.config.Constants.TRANSPORT_FEES;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import com.querydsl.core.BooleanBuilder;
@@ -19,6 +20,7 @@ import com.tulip.host.domain.PurchaseLineItem;
 import com.tulip.host.domain.QTransaction;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
+import com.tulip.host.domain.TransportCatalog;
 import com.tulip.host.domain.Upload;
 import com.tulip.host.enums.DueStatusEnum;
 import com.tulip.host.enums.FeesRuleType;
@@ -39,6 +41,7 @@ import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.repository.TransactionRepository;
+import com.tulip.host.repository.TransportCatalogRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.DuePaymentVm;
 import com.tulip.host.web.rest.vm.DueVM;
@@ -75,6 +78,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentService {
+
+    private final TransportCatalogRepository transportCatalogRepository;
 
     private final DuesPaymentRepository duesPaymentRepository;
     private final DuesRepository duesRepository;
@@ -126,6 +131,7 @@ public class PaymentService {
         }
 
         Transaction save = transactionRepository.save(transaction);
+
         return save.getId();
     }
 
@@ -181,16 +187,23 @@ public class PaymentService {
                     .getFeeItem()
                     .stream()
                     .map(item -> {
-                        FeesCatalog feesCatalog = feesCatalogRepository.findById(item.getFeesId()).orElse(null);
-                        Student student = studentRepository.checkIfFeesPaid(payVM.getStudentId(), item.getFeesId(), item.getMonth());
-                        if (feesCatalog.getPrice() != item.getUnitPrice()) {
-                            errors.add("Incorrect Fees Price ");
-                        }
-                        if (student != null) {
-                            String monthString = feesCatalog.getApplicableRule().equals(FeesRuleType.MONTHLY)
-                                ? "for month -  " + item.getMonth()
-                                : "";
-                            errors.add(feesCatalog.getFeesName() + " is already paid " + monthString);
+                        if (item.getType().equals("CLASS_FEES")) {
+                            FeesCatalog feesCatalog = feesCatalogRepository.findById(item.getFeesId()).orElse(null);
+                            Student student = studentRepository.checkIfFeesPaid(payVM.getStudentId(), item.getFeesId(), item.getMonth());
+                            if (feesCatalog.getPrice() != item.getUnitPrice()) {
+                                errors.add("Incorrect Fees Price ");
+                            }
+                            if (student != null) {
+                                String monthString = feesCatalog.getApplicableRule().equals(FeesRuleType.MONTHLY)
+                                    ? "for month -  " + item.getMonth()
+                                    : "";
+                                errors.add(feesCatalog.getFeesName() + " is already paid " + monthString);
+                            }
+                        } else if (item.getType().equals(TRANSPORT_FEES.replace(" ", "_"))) {
+                            TransportCatalog transportCatalog = transportCatalogRepository.findById(item.getFeesId()).orElseThrow();
+                            if (transportCatalog.getAmount() != item.getUnitPrice()) {
+                                errors.add("Incorrect Fees Price ");
+                            }
                         }
                         return item;
                     })

@@ -29,7 +29,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "dependent")
 public class Dependent extends AbstractAuditingEntity {

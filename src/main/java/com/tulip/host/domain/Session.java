@@ -25,7 +25,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "session")
 public class Session extends AbstractAuditingEntity {

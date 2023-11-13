@@ -20,4 +20,5 @@ public class FeePayVM {
     double amount;
 
     String month;
+    String type;
 }

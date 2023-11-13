@@ -31,11 +31,13 @@ public class PaymentController {
 
     @PostMapping
     public Long pay(@Valid @RequestBody PayVM payVM) throws ValidationException, jakarta.xml.bind.ValidationException {
+        Long paymentId = -1L;
         if (payVM.getPayType() == PayTypeEnum.FEES) {
-            return paymentService.payFees(payVM);
+            paymentId = paymentService.payFees(payVM);
         } else {
-            return paymentService.payPurchase(payVM);
+            paymentId = paymentService.payPurchase(payVM);
         }
+        return paymentId;
     }
 
     @GetMapping("/details/{paymentId}")
