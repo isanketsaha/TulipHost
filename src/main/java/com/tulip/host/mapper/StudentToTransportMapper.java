@@ -5,7 +5,6 @@ import com.tulip.host.domain.StudentToTransport;
 import com.tulip.host.repository.impl.ReferenceMapper;
 import com.tulip.host.web.rest.vm.TransportVm;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;

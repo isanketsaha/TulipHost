@@ -48,7 +48,7 @@ public class ReportController {
     }
 
     @GetMapping("/transport")
-    public Map<String, Long> transportReport() {
+    public Map<String, Integer> transportReport() {
         return dashboardService.transportReport();
     }
 }

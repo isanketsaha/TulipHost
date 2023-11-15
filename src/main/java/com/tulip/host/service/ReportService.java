@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.time.DateUtils;
 import org.joda.time.LocalDate;
@@ -108,9 +109,9 @@ public class ReportService {
         return transactionRepository.fetchTransactionTotal(from, to);
     }
 
-    public Map<String, Long> transportReport() {
+    public Map<String, Integer> transportReport() {
         Session session = sessionService.currentSession();
-        Map<String, Long> report = studentToTransportRepository.findReport(session);
-        return report;
+        Map<String, List<Long>> report = studentToTransportRepository.findReport(session);
+        return report.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, item -> item.getValue().size()));
     }
 }

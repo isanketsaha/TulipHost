@@ -5,9 +5,11 @@ import static com.tulip.host.config.Constants.NOT_AVAILABLE;
 import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.data.JoiningLetterDTO;
+import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Dependent;
 import com.tulip.host.domain.Employee;
+import com.tulip.host.domain.Student;
 import com.tulip.host.service.UploadService;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import java.util.Collections;
@@ -21,11 +23,14 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
-@Mapper(componentModel = "spring", uses = { DependentMapper.class, BankMapper.class, InterviewMapper.class, CredentialMapper.class })
+@Mapper(
+    componentModel = "spring",
+    uses = { DependentMapper.class, BankMapper.class, InterviewMapper.class, CredentialMapper.class, UploadMapper.class }
+)
 public interface EmployeeMapper {
     @Mapping(target = "authority", source = "group.authority")
     @Mapping(target = "dependent", source = "dependents")
-    EmployeeDetailsDTO toEntity(Employee source);
+    EmployeeDetailsDTO toEntity(Employee source, @Context UploadService service);
 
     @Mapping(target = "phoneNumber", source = "contact")
     @Mapping(target = "dependents", source = "dependent")
@@ -68,5 +73,12 @@ public interface EmployeeMapper {
             target.setDependentAadhar(dependent.getAadhaarNo());
             target.setRelation(dependent.getRelationship());
         }
+    }
+
+    @AfterMapping
+    default void map(@MappingTarget EmployeeDetailsDTO target, Employee source, @Context UploadService service) {
+        target.setProfilePictureUrl(
+            source.getProfilePicture() != null ? service.getURL(source.getProfilePicture().getUid()) : StringUtils.EMPTY
+        );
     }
 }

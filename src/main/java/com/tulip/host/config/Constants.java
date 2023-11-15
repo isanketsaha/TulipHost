@@ -16,6 +16,8 @@ public final class Constants {
 
     public static final String BIRTH_CERTIFICATE = "BIRTH CERTIFICATE";
 
+    public static final String JOINING_LETTER = "EMPLOYMENT LETTER";
+
     public static final String CATEGORY_PLACEHOLDER = "PLACEHOLDER";
     public static final String CATEGORY_BOOK = "BOOK";
     public static final String JASPER_FOLDER = "/jasper/";
@@ -28,6 +30,8 @@ public final class Constants {
     public static final String NOT_AVAILABLE = "N/A";
 
     public static final String TRANSPORT_FEES = "TRANSPORT FEES";
+
+    public static final String INVOICE = "INVOICE";
 
     private Constants() {}
 }

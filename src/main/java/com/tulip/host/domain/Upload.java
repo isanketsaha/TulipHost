@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -24,7 +25,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "upload")
 public class Upload extends AbstractAuditingEntity {
@@ -72,5 +72,11 @@ public class Upload extends AbstractAuditingEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "transaction_id", nullable = false)
-    private Transaction transaction;
+    private Transaction transactionDocs;
+
+    @OneToOne(mappedBy = "invoice", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    private Transaction invoice;
+
+    @OneToOne(mappedBy = "appointmentLetter", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    private Employee appointmentLetter;
 }

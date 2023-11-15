@@ -43,8 +43,6 @@ public class OnboardingVM {
     @NotNull
     List<DependentVM> dependent;
 
-    TransportVm transport;
-
     String experience;
 
     UploadVM profilePicture;
@@ -64,11 +62,7 @@ public class OnboardingVM {
     InterviewVM interview;
     StdEnum std;
 
-    public void setTransport(List<TransportVm> transport) {
-        this.transport = transport.stream().findFirst().orElse(null);
-    }
-
-    public void setProfilePhoto(List<UploadVM> profilePhoto) {
+    public void setProfilePicture(List<UploadVM> profilePhoto) {
         UploadVM uploadVM = profilePhoto.stream().findFirst().orElse(null);
         if (uploadVM != null) {
             uploadVM.setDocumentType(PROFILE_PICTURE);

@@ -1,5 +1,6 @@
 package com.tulip.host.service;
 
+import static com.tulip.host.config.Constants.INVOICE;
 import static com.tulip.host.config.Constants.JASPER_FOLDER;
 
 import com.tulip.host.data.PaySummaryDTO;
@@ -11,6 +12,7 @@ import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Inventory;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
+import com.tulip.host.domain.Upload;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.mapper.InventoryMapper;
 import com.tulip.host.mapper.StudentMapper;
@@ -18,8 +20,10 @@ import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.utils.CommonUtils;
+import com.tulip.host.web.rest.vm.UploadVM;
 import jakarta.transaction.Transactional;
-import java.io.ByteArrayOutputStream;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -31,16 +35,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRExporter;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
-import net.sf.jasperreports.export.SimpleExporterInput;
-import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -66,6 +64,8 @@ public class ExportService {
 
     private final TransactionMapper transactionMapper;
 
+    private final UploadService uploadService;
+
     @Transactional
     public XSSFWorkbook exportStock() {
         List<Inventory> stockReport = inventoryRepository.stockReport();
@@ -86,6 +86,21 @@ public class ExportService {
             return excelExporterService.export(list, "ClassDetail");
         }
         return null;
+    }
+
+    @Transactional
+    public @Size(max = 100) @NotNull String downloadReceipt(Long paymentId) throws IOException, FileUploadException {
+        Transaction transactionRecord = paymentService.getTransactionRecord(paymentId);
+        if (transactionRecord.getInvoice() != null) {
+            Upload invoice = transactionRecord.getInvoice();
+            return invoice.getUid();
+        } else {
+            byte[] bytes = paymentReceipt(paymentId);
+            UploadVM save = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, INVOICE);
+            save.setName("INVOICE-" + paymentId);
+            paymentService.attachInvoice(paymentId, save);
+            return save.getUid();
+        }
     }
 
     @Transactional

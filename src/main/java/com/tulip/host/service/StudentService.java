@@ -204,7 +204,7 @@ public class StudentService {
                 Optional<Date> lastPaidDate = transaction
                     .getFeesLineItem()
                     .stream()
-                    .filter(fees -> fees.getFeesProduct().getFeesName().equals("TUITION FEES"))
+                    .filter(fees -> fees.getFeesProduct() != null && fees.getFeesProduct().getFeesName().equals("TUITION FEES"))
                     .map(u -> formatToDate(u.getMonth(), MONTH_YEAR_FORMAT))
                     .max(Date::compareTo);
                 if (lastPaidDate.isPresent()) {

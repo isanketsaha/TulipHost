@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.fileupload.FileUploadException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,12 +67,7 @@ public class EmployeeController {
 
     @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")
     @GetMapping("/joiningLetter")
-    public void generateJoiningLetter(@RequestParam Long empId, HttpServletResponse response) throws IOException {
-        byte[] bytes = employeeService.generateJoiningLetter(empId);
-        HttpHeaders header = new HttpHeaders();
-        response.setContentType(MediaType.APPLICATION_PDF.toString());
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=citiesreport.pdf");
-        response.getOutputStream().write(bytes);
-        response.getOutputStream().close();
+    public String generateJoiningLetter(@RequestParam Long empId, HttpServletResponse response) throws IOException, FileUploadException {
+        return employeeService.fetchAppointment(empId);
     }
 }

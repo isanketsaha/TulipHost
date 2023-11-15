@@ -38,7 +38,8 @@ CREATE TABLE IF NOT EXISTS  transport_catalog (
 CREATE TABLE IF NOT EXISTS  student_to_transport (
     transport_id bigint NOT NULL,
     student_id bigint NOT NULL,
-    start_date timestamp  DEFAULT CURRENT_TIMESTAMP,
+    start_date DATE  DEFAULT NULL,
+    end_date DATE  DEFAULT NULL,
    created_by varchar(50) DEFAULT NULL,
    last_modified_by varchar(50) DEFAULT NULL,
    created_date timestamp DEFAULT CURRENT_TIMESTAMP,
@@ -48,9 +49,8 @@ CREATE TABLE IF NOT EXISTS  student_to_transport (
     FOREIGN KEY (transport_id) REFERENCES transport_catalog (id)
 );
 
-ALTER TABLE fees_catalog
-MODIFY COLUMN price double DEFAULT NULL,
+ALTER TABLE fees_line_item
+MODIFY COLUMN fees_product_id bigint DEFAULT NULL,
 ADD COLUMN transport_id bigint  DEFAULT NULL,
 ADD FOREIGN KEY (transport_id) REFERENCES transport_catalog (id);
-
 

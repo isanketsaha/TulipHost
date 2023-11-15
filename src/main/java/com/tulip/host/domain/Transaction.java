@@ -30,7 +30,6 @@ import org.hibernate.annotations.ParamDef;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "transactions")
 @FilterDef(name = "filterTransactionOnType", defaultCondition = "type = :type ", parameters = @ParamDef(name = "type", type = String.class))
@@ -55,7 +54,7 @@ public class Transaction extends AbstractAuditingEntity {
     @JoinColumn(name = "student_id")
     private Student student;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "invoice_id")
     private Upload invoice;
 
@@ -105,7 +104,12 @@ public class Transaction extends AbstractAuditingEntity {
     )
     private Set<Expense> expenseItems;
 
-    @OneToMany(mappedBy = "transaction", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST }, orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "transactionDocs",
+        fetch = FetchType.LAZY,
+        cascade = { CascadeType.MERGE, CascadeType.PERSIST },
+        orphanRemoval = true
+    )
     private Set<Upload> uploadList;
 
     public void removeFeesLineItem(FeesLineItem lineItem) {

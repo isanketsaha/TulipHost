@@ -151,7 +151,7 @@ public class PaymentService {
         if (docs != null) {
             Upload upload = uploadMapper.toModel(docs);
             upload.setDocumentType(DUES);
-            upload.setTransaction(transaction);
+            upload.setTransactionDocs(transaction);
             transaction.addToUploadList(upload);
         }
     }
@@ -319,6 +319,7 @@ public class PaymentService {
         if (CollectionUtils.isNotEmpty(transactionList)) {
             Set<String> months = new LinkedHashSet<>();
             Set<Long> annual = new LinkedHashSet<>();
+
             Student student = null;
             for (Transaction transaction : transactionList) {
                 student = transaction.getStudent();
@@ -327,13 +328,16 @@ public class PaymentService {
                     .stream()
                     .forEach(item -> {
                         FeesCatalog feesProduct = item.getFeesProduct();
-                        if (
-                            feesProduct.getApplicableRule().equals(FeesRuleType.MONTHLY) &&
-                            feesProduct.getFeesName().startsWith(TUITION_FEES)
-                        ) {
-                            months.add(item.getMonth());
-                        } else if (feesProduct.getApplicableRule().equals(FeesRuleType.YEARLY)) {
-                            annual.add(feesProduct.getId());
+                        TransportCatalog transportCatalog = item.getTransport();
+                        if (feesProduct != null) {
+                            if (
+                                feesProduct.getApplicableRule().equals(FeesRuleType.MONTHLY) &&
+                                feesProduct.getFeesName().startsWith(TUITION_FEES)
+                            ) {
+                                months.add(item.getMonth());
+                            } else if (feesProduct.getApplicableRule().equals(FeesRuleType.YEARLY)) {
+                                annual.add(feesProduct.getId());
+                            }
                         }
                     });
             }
@@ -358,7 +362,7 @@ public class PaymentService {
                 Set<Upload> uploadSet = uploadMapper.toModelList(expenseItems.getExpenseDocs());
                 transaction.setUploadList(uploadSet);
                 uploadSet.forEach(upload -> {
-                    upload.setTransaction(transaction);
+                    upload.setTransactionDocs(transaction);
                     upload.setDocumentType("EXPENSE");
                 });
             }
@@ -434,5 +438,12 @@ public class PaymentService {
             }
         }
         return -1;
+    }
+
+    public void attachInvoice(Long paymentId, UploadVM save) {
+        Transaction transaction = transactionRepository.findById(paymentId).orElseThrow();
+        Upload upload = uploadMapper.toModel(save);
+        transaction.setInvoice(upload);
+        transactionRepository.saveAndFlush(transaction);
     }
 }

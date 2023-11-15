@@ -1,6 +1,7 @@
 package com.tulip.host.repository.impl;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
+import static com.querydsl.core.group.GroupBy.list;
 
 import com.querydsl.core.types.dsl.Expressions;
 import com.tulip.host.domain.Session;
@@ -9,6 +10,7 @@ import com.tulip.host.domain.StudentToTransportId;
 import com.tulip.host.repository.StudentToTransportRepository;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 public class StudentToTransportRepositoryImpl
@@ -19,8 +21,8 @@ public class StudentToTransportRepositoryImpl
         super(StudentToTransport.class, em);
     }
 
-    public Map<String, Long> findReport(Session session) {
-        Map<String, Long> transform = jpaQueryFactory
+    public Map<String, List<Long>> findReport(Session session) {
+        return jpaQueryFactory
             .selectFrom(STUDENT_TO_TRANSPORT)
             .innerJoin(TRANSPORT_CATALOG)
             .on(
@@ -35,7 +37,6 @@ public class StudentToTransportRepositoryImpl
                     )
             )
             .groupBy(STUDENT_TO_TRANSPORT.student(), STUDENT_TO_TRANSPORT.transport())
-            .transform(groupBy(STUDENT_TO_TRANSPORT.transport().location).as(STUDENT_TO_TRANSPORT.student().id.countDistinct()));
-        return transform;
+            .transform(groupBy(STUDENT_TO_TRANSPORT.transport().location).as(list(STUDENT_TO_TRANSPORT.student().id)));
     }
 }

@@ -85,11 +85,11 @@ public class Employee extends AbstractAuditingEntity {
     @Builder.Default
     private Boolean locked = false;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "picture_id")
     private Upload profilePicture;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "letter_id")
     private Upload appointmentLetter;
 
@@ -150,4 +150,15 @@ public class Employee extends AbstractAuditingEntity {
 
     @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<Upload> uploadedDocuments;
+
+    public void addDocuments(Set<Upload> uploadSet) {
+        if (uploadedDocuments == null) {
+            LinkedHashSet<Upload> objects = new LinkedHashSet<>();
+            objects.addAll(uploadSet);
+            this.setUploadedDocuments(objects);
+        } else {
+            uploadedDocuments.addAll(uploadSet);
+        }
+        uploadedDocuments.forEach(item -> item.setEmployee(this));
+    }
 }

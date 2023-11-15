@@ -1,5 +1,6 @@
 package com.tulip.host.data;
 
+import com.tulip.host.web.rest.vm.UploadVM;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -60,4 +61,14 @@ public class EmployeeDetailsDTO implements Serializable {
     private BankDTO bank;
 
     private InterviewDTO interview;
+
+    List<UploadVM> aadhaarCard;
+
+    List<UploadVM> profilePicture;
+
+    List<UploadVM> panCard;
+
+    private String profilePictureUrl;
+
+    private Instant createdDate;
 }
