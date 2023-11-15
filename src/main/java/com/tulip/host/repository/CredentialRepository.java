@@ -1,8 +1,8 @@
 package com.tulip.host.repository;
 
-import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.data.LoginDTO;
 import com.tulip.host.domain.Credential;
+import com.tulip.host.domain.Employee;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,7 +11,7 @@ public interface CredentialRepository extends JpaRepository<Credential, Long> {
 
     Optional<String> findAuthoritiesByUserId(String userId);
 
-    Optional<EmployeeDetailsDTO> findUserProfileByUserId(String userId);
+    Employee findUserProfileByUserId(String userId);
 
     void disableProfileByUserId(String userId);
 }

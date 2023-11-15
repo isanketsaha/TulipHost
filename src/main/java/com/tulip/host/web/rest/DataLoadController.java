@@ -5,11 +5,10 @@ import com.tulip.host.service.FileUploaderService;
 import com.tulip.host.service.ProductService;
 import com.tulip.host.web.rest.vm.FeesLoadVM;
 import com.tulip.host.web.rest.vm.ProductLoadVM;
-import com.tulip.host.web.rest.vm.StudentLoadVm;
+import com.tulip.host.web.rest.vm.SessionLoadVM;
 import io.github.rushuat.ocell.document.Document;
 import io.github.rushuat.ocell.document.DocumentOOXML;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,20 +32,6 @@ public class DataLoadController {
 
     private final ProductService productService;
 
-    @PostMapping(value = "/student", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<String> uploadStudent(@RequestBody MultipartFile file) {
-        try (Document document = new DocumentOOXML()) {
-            document.fromStream(file.getInputStream());
-            List<StudentLoadVm> documentSheet = document.getSheet("student", StudentLoadVm.class);
-            if (CollectionUtils.isNotEmpty(documentSheet)) {
-                dataLoadService.loadStudents(documentSheet);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return ResponseEntity.ok("Success");
-    }
-
     @PostMapping(value = "/newFees", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<String> uploadNewFees(@RequestBody MultipartFile file) {
         try (Document document = new DocumentOOXML()) {
@@ -60,6 +45,17 @@ public class DataLoadController {
             throw new RuntimeException(e);
         }
         return ResponseEntity.ok("Success");
+    }
+
+    @PostMapping(value = "/newSession")
+    public ResponseEntity addSession(@RequestBody SessionLoadVM loadVM) {
+        dataLoadService.loadSession(loadVM);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(value = "/session")
+    public void removeSession(@RequestParam Long id) {
+        dataLoadService.removeSession(id);
     }
 
     @PostMapping(

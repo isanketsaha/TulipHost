@@ -1,32 +1,26 @@
 package com.tulip.host.security;
 
-import com.tulip.host.security.jwt.TokenProvider;
-import io.jsonwebtoken.Claims;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Stream;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
  * Utility class for Spring Security.
  */
-
 public final class SecurityUtils {
 
-    private static final String AUTHORITIES_KEY = "auth";
+    public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
 
-    public final TokenProvider tokenProvider;
+    public static final String AUTHORITIES_KEY = "auth";
 
-    private SecurityUtils(TokenProvider tokenProvider) {
-        this.tokenProvider = tokenProvider;
-    }
+    private SecurityUtils() {}
 
     /**
      * Get the login of the current user.
@@ -41,11 +35,12 @@ public final class SecurityUtils {
     private static String extractPrincipal(Authentication authentication) {
         if (authentication == null) {
             return null;
-        } else if (authentication.getPrincipal() instanceof UserDetails) {
-            UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
+        } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
             return springSecurityUser.getUsername();
-        } else if (authentication.getPrincipal() instanceof String) {
-            return (String) authentication.getPrincipal();
+        } else if (authentication.getPrincipal() instanceof Jwt jwt) {
+            return jwt.getSubject();
+        } else if (authentication.getPrincipal() instanceof String s) {
+            return s;
         }
         return null;
     }
@@ -108,23 +103,5 @@ public final class SecurityUtils {
 
     private static Stream<String> getAuthorities(Authentication authentication) {
         return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority);
-    }
-
-    public String getUsernameFromToken(String token) {
-        return getClaimFromToken(token, Claims::getSubject);
-    }
-
-    //retrieve expiration date from jwt token
-    public Date getExpirationDateFromToken(String token) {
-        return getClaimFromToken(token, Claims::getExpiration);
-    }
-
-    public List<String> getRoles(String token) {
-        return getClaimFromToken(token, claims -> (List) claims.get(AUTHORITIES_KEY));
-    }
-
-    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = tokenProvider.getAllClaimsFromToken(token);
-        return claimsResolver.apply(claims);
     }
 }

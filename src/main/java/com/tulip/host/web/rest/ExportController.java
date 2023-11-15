@@ -1,15 +1,14 @@
 package com.tulip.host.web.rest;
 
 import com.tulip.host.service.ExportService;
-import com.tulip.host.service.ReportService;
+import com.tulip.host.service.UploadService;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExportController {
 
     private final ExportService exportService;
+
+    private final UploadService uploadService;
 
     @PostMapping("/stock")
     public void toExcelStock(HttpServletResponse response) throws IOException {
@@ -54,13 +55,9 @@ public class ExportController {
     }
 
     @PostMapping("/receipt")
-    public void paymentReceipt(@RequestParam Long paymentId, HttpServletResponse response) throws IOException {
-        byte[] bytes = exportService.paymentReceipt(paymentId);
-        HttpHeaders header = new HttpHeaders();
-        response.setContentType(MediaType.APPLICATION_PDF.toString());
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=citiesreport.pdf");
-        response.getOutputStream().write(bytes);
-        response.getOutputStream().close();
+    public String paymentReceipt(@RequestParam Long paymentId) throws IOException, FileUploadException {
+        String uid = exportService.downloadReceipt(paymentId);
+        return uploadService.getURL(uid);
     }
 
     @PostMapping("/transactionHistory")

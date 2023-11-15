@@ -2,11 +2,15 @@ package com.tulip.host.web.rest;
 
 import com.tulip.host.data.ClassDetailDTO;
 import com.tulip.host.data.ClassListDTO;
+import com.tulip.host.data.FeesCatalogDTO;
+import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.service.ClassroomService;
+import com.tulip.host.web.rest.vm.FeesFilterVM;
 import com.tulip.host.web.rest.vm.PromoteStudentVM;
+import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import javax.validation.Valid;
 import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,8 +38,14 @@ public class ClassroomController {
         return classroomService.fetchClassDetails(classroomId);
     }
 
+    @PostMapping("/feesByRule")
+    public Map<String, List<FeesCatalogDTO>> getFees(@Valid @RequestBody FeesFilterVM rule) {
+        return classroomService.getFees(rule);
+    }
+
     @PostMapping("/student-promote")
-    public void promoteStudents(@Valid @RequestBody PromoteStudentVM promoteStudentVM) throws ValidationException {
+    public void promoteStudents(@Valid @RequestBody PromoteStudentVM promoteStudentVM)
+        throws ValidationException, jakarta.xml.bind.ValidationException {
         classroomService.promoteStudents(promoteStudentVM);
     }
 

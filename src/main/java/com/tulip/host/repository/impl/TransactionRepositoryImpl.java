@@ -12,13 +12,13 @@ import com.tulip.host.domain.Transaction;
 import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.repository.TransactionRepository;
+import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.persistence.EntityManager;
 
 public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, Long> implements TransactionRepository {
 
@@ -32,7 +32,7 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
     public Double fetchTransactionTotal(Date from, Date to) {
         return jpaQueryFactory
             .selectFrom(TRANSACTION)
-            .where(TRANSACTION.createdDate.between(from, to))
+            .where(TRANSACTION.createdDate.between(from.toInstant(), to.toInstant()))
             .select(TRANSACTION.amount.sum())
             .fetchOne();
     }
@@ -44,7 +44,7 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
         List<Tuple> tupleList = jpaQueryFactory
             .select(monthYear, TRANSACTION.amount.sum(), TRANSACTION.type)
             .from(TRANSACTION)
-            .where(TRANSACTION.createdDate.between(from, to))
+            .where(TRANSACTION.createdDate.between(from.toInstant(), to.toInstant()))
             .groupBy(monthYear, TRANSACTION.type)
             .fetch();
 

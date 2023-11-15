@@ -1,1 +1,2 @@
-org.springframework.test.context.ContextCustomizerFactory = com.tulip.host.config.TestContainersSpringContextCustomizerFactory
+org.springframework.test.context.ContextCustomizerFactory = com.tulip.host.\
+    config.SqlTestContainersSpringContextCustomizerFactory

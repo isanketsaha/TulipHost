@@ -1,16 +1,13 @@
 package com.tulip.host.data;
 
 import com.tulip.host.web.rest.vm.UploadVM;
-import java.time.Instant;
-import java.time.LocalDate;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
@@ -34,12 +31,16 @@ public class StudentDetailsDTO {
     @NotNull
     private String phoneNumber;
 
+    String aadhaar;
+
     @NotNull
     private List<ClassDetailDTO> classDetails;
 
     @Size(max = 2)
     @NotNull
     private String bloodGroup;
+
+    private String profilePictureUrl;
 
     @Size(max = 6)
     @NotNull
@@ -59,8 +60,9 @@ public class StudentDetailsDTO {
 
     private String religion;
     private int age;
-
     List<UploadVM> aadhaarCard;
+
+    List<UploadVM> profilePicture;
 
     List<UploadVM> panCard;
 
@@ -68,4 +70,6 @@ public class StudentDetailsDTO {
 
     @NotNull
     private Set<DependentDTO> dependent;
+
+    private TransportOptDTO transports;
 }

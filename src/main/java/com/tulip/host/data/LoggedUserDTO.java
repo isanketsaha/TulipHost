@@ -13,10 +13,8 @@ import lombok.NoArgsConstructor;
 public class LoggedUserDTO {
 
     private String idToken;
-
     private String userName;
-
     private String userId;
-
     private String authority;
+    private boolean resetCredential;
 }

@@ -6,16 +6,11 @@ import com.tulip.host.data.InventoryItemDTO;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.service.ProductService;
 import com.tulip.host.service.ReportService;
-import java.io.IOException;
+import jakarta.validation.Valid;
 import java.util.Date;
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,9 +47,8 @@ public class ReportController {
         return dashboardService.inventoryReport();
     }
 
-    @PreAuthorize("hasAuthority('UG_ADMIN')")
-    @PostMapping("/productVisibility")
-    public void productVisibility(@RequestParam long productId) {
-        productService.updateProductVisibility(productId, false);
+    @GetMapping("/transport")
+    public Map<String, Integer> transportReport() {
+        return dashboardService.transportReport();
     }
 }

@@ -1,8 +1,8 @@
 package com.tulip.host.data;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,11 +25,14 @@ public class LoginDTO implements Serializable {
     private String authority;
 
     @NotNull
-    private Boolean resetPassword;
+    private Boolean resetCredential;
+
+    @NotNull
+    private Boolean locked;
 
     @Size(max = 20)
     @NotNull
-    private String userName;
+    private String userId;
 
     private String password;
 }

@@ -1,12 +1,17 @@
 package com.tulip.host.service;
 
+import static com.amazonaws.services.s3control.model.BucketCannedACL.PublicRead;
+
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.tulip.host.config.ApplicationProperties;
 import com.tulip.host.utils.CommonUtils;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
@@ -16,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.time.DateUtils;
+import org.joda.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,7 +42,7 @@ public class ObjectStorageService {
     }
 
     public URL createURL(String key) {
-        Date date = new Date(new Date().getTime() + 300 * 1000); // 1 s * 1000 ms/s
+        Date date = LocalDate.now().plusDays(6).toDate();
         URL url = amazonS3Client.generatePresignedUrl(properties.getAws().getCredential().getBucketName(), key, date);
         log.info("Generated the signature " + url);
         return url;
@@ -74,5 +81,18 @@ public class ObjectStorageService {
             e.printStackTrace();
             throw new FileUploadException();
         }
+    }
+
+    public String save(byte[] file, ObjectMetadata objectMetadata) throws FileUploadException {
+        final String FOLDER = CommonUtils.formatFromDate(new Date(), "MMM-yyyy") + "/";
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        objectMetadata.setContentLength(file.length);
+        PutObjectResult putObjectResult = amazonS3Client.putObject(
+            properties.getAws().getCredential().getBucketName(),
+            FOLDER + uuid,
+            new ByteArrayInputStream(file),
+            objectMetadata
+        );
+        return FOLDER + uuid;
     }
 }

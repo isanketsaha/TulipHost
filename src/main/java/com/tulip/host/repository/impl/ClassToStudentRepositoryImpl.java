@@ -1,7 +1,6 @@
 package com.tulip.host.repository.impl;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
-import static com.querydsl.core.types.Projections.list;
 
 import com.querydsl.core.Tuple;
 import com.tulip.host.domain.Session;
@@ -9,12 +8,12 @@ import com.tulip.host.domain.StudentToClass;
 import com.tulip.host.domain.StudentToClassId;
 import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.repository.ClassToStudentRepository;
+import jakarta.persistence.EntityManager;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -32,7 +31,7 @@ public class ClassToStudentRepositoryImpl extends BaseRepositoryImpl<StudentToCl
             .on(CLASS_DETAIL.session().eq(session))
             .join(STUDENT_TO_CLASS.student(), STUDENT)
             .on(STUDENT.active.eq(true))
-            .where(STUDENT.createdDate.between(session.getFromDate(), session.getToDate()))
+            .where(STUDENT.createdDate.between(session.getFromDate().toInstant(), session.getToDate().toInstant()))
             .groupBy(STUDENT_TO_CLASS.classField(), STUDENT_TO_CLASS.student().createdDate.yearMonth())
             .orderBy(STUDENT_TO_CLASS.student().createdDate.yearMonth().asc())
             .fetch();
@@ -69,7 +68,7 @@ public class ClassToStudentRepositoryImpl extends BaseRepositoryImpl<StudentToCl
             )
             .join(STUDENT_TO_CLASS.student(), STUDENT)
             .on(STUDENT.active.eq(true))
-            .where(STUDENT_TO_CLASS.student().createdDate.loe(session.getFromDate()))
+            .where(STUDENT_TO_CLASS.student().createdDate.loe(session.getFromDate().toInstant()))
             .groupBy(CLASS_DETAIL, FEES_CATALOG)
             .fetch();
         log.info("{}", activeStudentClassWise);
@@ -91,7 +90,7 @@ public class ClassToStudentRepositoryImpl extends BaseRepositoryImpl<StudentToCl
             .join(STUDENT_TO_CLASS.classField(), CLASS_DETAIL)
             .on(CLASS_DETAIL.session().eq(session))
             .join(STUDENT_TO_CLASS.student(), STUDENT)
-            .on(STUDENT.active.eq(true).and(STUDENT.createdDate.lt(date)))
+            .on(STUDENT.active.eq(true).and(STUDENT.createdDate.lt(date.toInstant())))
             .groupBy(STUDENT_TO_CLASS.classField())
             .transform(groupBy(CLASS_DETAIL.std).as(STUDENT_TO_CLASS.student().count()));
     }

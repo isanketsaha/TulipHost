@@ -1,21 +1,21 @@
 package com.tulip.host.domain;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -32,11 +32,9 @@ import org.hibernate.annotations.ParamDef;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "class_details")
-@EqualsAndHashCode
-@FilterDef(name = "filterClass", defaultCondition = "id = :classId", parameters = @ParamDef(name = "classId", type = "long"))
+@FilterDef(name = "filterClass", defaultCondition = "id = :classId", parameters = @ParamDef(name = "classId", type = Long.class))
 public class ClassDetail extends AbstractAuditingEntity implements Comparable<ClassDetail> {
 
     @Id
@@ -57,7 +55,7 @@ public class ClassDetail extends AbstractAuditingEntity implements Comparable<Cl
     @JoinColumn(name = "session_id", nullable = false)
     private Session session;
 
-    @OneToMany(mappedBy = "std", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "std", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
     private Set<FeesCatalog> feesCatalogs = new LinkedHashSet<>();
 
     @Filter(name = "activeStudent")
@@ -65,10 +63,10 @@ public class ClassDetail extends AbstractAuditingEntity implements Comparable<Cl
     private Set<Student> students = new LinkedHashSet<>();
 
     @Filter(name = "filterCatalogNEPlaceholder")
-    @OneToMany(mappedBy = "std", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "std", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
     private Set<ProductCatalog> productCatalogs = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "classDetail", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @OneToMany(mappedBy = "classDetail", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
     private Set<Upload> uploadedDocuments;
 
     @Override

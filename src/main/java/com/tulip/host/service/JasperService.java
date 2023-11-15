@@ -1,8 +1,5 @@
 package com.tulip.host.service;
 
-import com.tulip.host.web.rest.errors.InternalServerErrorException;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +12,6 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,7 +27,7 @@ public class JasperService {
             return JasperExportManager.exportReportToPdf(jasperPrint);
         } catch (JRException e) {
             log.error(e.getMessage());
-            throw new InternalServerErrorException("Failed to create excel : " + e.getMessage());
+            throw new RuntimeException("Failed to create excel : " + e.getMessage());
         }
     }
 }

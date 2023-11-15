@@ -1,6 +1,5 @@
 package com.tulip.host;
 
-import com.tulip.host.TulipHostApp;
 import com.tulip.host.config.AsyncSyncConfiguration;
 import com.tulip.host.config.EmbeddedSQL;
 import java.lang.annotation.ElementType;

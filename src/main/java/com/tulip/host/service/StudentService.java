@@ -14,10 +14,12 @@ import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Dependent;
 import com.tulip.host.domain.QStudent;
 import com.tulip.host.domain.Student;
+import com.tulip.host.domain.StudentToTransport;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.DependentMapper;
 import com.tulip.host.mapper.StudentMapper;
+import com.tulip.host.mapper.StudentToTransportMapper;
 import com.tulip.host.mapper.UploadMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.DependentRepository;
@@ -26,7 +28,9 @@ import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
+import com.tulip.host.web.rest.vm.TransportVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +53,7 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final ClassDetailRepository classDetailRepository;
     private final StudentMapper studentMapper;
+    private final UploadService uploadService;
     private final ClassMapper classMapper;
     private final DependentMapper dependentMapper;
     private final UploadMapper uploadMapper;
@@ -56,6 +61,8 @@ public class StudentService {
     private final DependentRepository dependentRepository;
 
     private final TransactionRepository transactionRepository;
+
+    private final StudentToTransportMapper studentToTransportMapper;
 
     @Transactional
     public Page<StudentBasicDTO> fetchAllStudent(int pageNo, int pageSize) {
@@ -88,7 +95,7 @@ public class StudentService {
         Student byId = studentRepository.search(id);
         if (byId != null && !CollectionUtils.isEmpty(byId.getClassDetails())) {
             List<ClassDetailDTO> classDetailDTOS = classMapper.toClassDetailList(byId.getClassDetails());
-            StudentDetailsDTO studentDetailsDTO = studentMapper.toDetailEntity(byId);
+            StudentDetailsDTO studentDetailsDTO = studentMapper.toDetailEntity(byId, uploadService);
             mapUpload(studentDetailsDTO, byId);
             studentDetailsDTO.setClassDetails(classDetailDTOS);
             return studentDetailsDTO;
@@ -97,6 +104,9 @@ public class StudentService {
     }
 
     private void mapUpload(StudentDetailsDTO studentDetailsDTO, Student byId) {
+        if (byId.getProfilePicture() != null) studentDetailsDTO.setProfilePicture(
+            Arrays.asList(uploadMapper.toEntity(byId.getProfilePicture()))
+        );
         byId
             .getUploadedDocuments()
             .forEach(item -> {
@@ -194,13 +204,13 @@ public class StudentService {
                 Optional<Date> lastPaidDate = transaction
                     .getFeesLineItem()
                     .stream()
-                    .filter(fees -> fees.getFeesProduct().getFeesName().equals("TUITION FEES"))
+                    .filter(fees -> fees.getFeesProduct() != null && fees.getFeesProduct().getFeesName().equals("TUITION FEES"))
                     .map(u -> formatToDate(u.getMonth(), MONTH_YEAR_FORMAT))
                     .max(Date::compareTo);
                 if (lastPaidDate.isPresent()) {
                     return Months
                         .monthsBetween(
-                            new LocalDate(lastPaidDate.get()).dayOfMonth().withMaximumValue(),
+                            new LocalDate(lastPaidDate.orElseThrow()).dayOfMonth().withMaximumValue(),
                             new LocalDate(new Date()).withDayOfMonth(1)
                         )
                         .getMonths();
@@ -208,5 +218,14 @@ public class StudentService {
             }
         }
         return Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths();
+    }
+
+    @Transactional
+    public void addTransport(TransportVm transport) {
+        Student student = studentRepository.findById(transport.getStudentId()).orElseThrow();
+        StudentToTransport studentToTransport = studentToTransportMapper.toEntity(transport);
+        studentToTransport.setStudent(student);
+        student.addTransport(studentToTransport);
+        studentRepository.saveAndFlush(student);
     }
 }

@@ -3,15 +3,16 @@ package com.tulip.host.web.rest.vm;
 import static com.tulip.host.config.Constants.AADHAAR_CARD;
 import static com.tulip.host.config.Constants.BIRTH_CERTIFICATE;
 import static com.tulip.host.config.Constants.PAN_CARD;
+import static com.tulip.host.config.Constants.PROFILE_PICTURE;
 
 import com.tulip.host.enums.BloodGroupEnum;
 import com.tulip.host.enums.GenderEnum;
 import com.tulip.host.enums.ReligionEnum;
 import com.tulip.host.enums.StdEnum;
+import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -44,13 +45,13 @@ public class OnboardingVM {
 
     String experience;
 
+    UploadVM profilePicture;
+
     @NotNull
     Date dob;
 
-    Boolean eveningClass;
-
     GenderEnum gender;
-    CredentialVM credential;
+    String aadhaar;
     List<UploadVM> aadhaarCard;
     List<UploadVM> panCard;
     List<UploadVM> birthCertificate;
@@ -60,6 +61,14 @@ public class OnboardingVM {
     BankVM bank;
     InterviewVM interview;
     StdEnum std;
+
+    public void setProfilePicture(List<UploadVM> profilePhoto) {
+        UploadVM uploadVM = profilePhoto.stream().findFirst().orElse(null);
+        if (uploadVM != null) {
+            uploadVM.setDocumentType(PROFILE_PICTURE);
+            this.profilePicture = uploadVM;
+        }
+    }
 
     public void setAadhaarCard(List<UploadVM> aadhaarCard) {
         this.aadhaarCard =

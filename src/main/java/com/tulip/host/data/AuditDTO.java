@@ -14,5 +14,5 @@ public class AuditDTO {
     String type;
     String description;
     String endpoint;
-    Date dateTime;
+    Instant dateTime;
 }

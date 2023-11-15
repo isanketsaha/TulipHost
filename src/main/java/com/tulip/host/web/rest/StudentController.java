@@ -3,9 +3,10 @@ package com.tulip.host.web.rest;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.service.StudentService;
+import com.tulip.host.web.rest.vm.TransportVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
+import jakarta.validation.Valid;
 import java.util.List;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,6 +48,11 @@ public class StudentController {
         } else {
             return studentService.basicSearchStudent(id, classId);
         }
+    }
+
+    @PostMapping("/transport/add")
+    public void addTransport(@RequestBody TransportVm vm) {
+        studentService.addTransport(vm);
     }
 
     @RequestMapping("/searchByName/{name}")

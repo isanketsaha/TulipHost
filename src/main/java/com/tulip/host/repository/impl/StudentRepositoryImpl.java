@@ -2,19 +2,16 @@ package com.tulip.host.repository.impl;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.tulip.host.domain.Student;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.utils.CommonUtils;
-import java.util.Collections;
+import jakarta.persistence.EntityManager;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -78,7 +75,7 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
         List<Tuple> tupleList = jpaQueryFactory
             .select(STUDENT.createdDate.month(), STUDENT.count())
             .from(STUDENT)
-            .where(STUDENT.active.eq(true).and(STUDENT.createdDate.between(startDate, endDate)))
+            .where(STUDENT.active.eq(true).and(STUDENT.createdDate.between(startDate.toInstant(), endDate.toInstant())))
             .groupBy(STUDENT.createdDate.year(), STUDENT.createdDate.month())
             .orderBy(STUDENT.createdDate.year().asc(), STUDENT.createdDate.month().asc())
             .fetch();

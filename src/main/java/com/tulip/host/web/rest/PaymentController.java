@@ -1,20 +1,34 @@
 package com.tulip.host.web.rest;
 
+import static com.tulip.host.config.Constants.INVOICE;
+
 import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.enums.PayTypeEnum;
+import com.tulip.host.service.ExportService;
 import com.tulip.host.service.PaymentService;
+import com.tulip.host.service.UploadService;
 import com.tulip.host.web.rest.vm.DuePaymentVm;
 import com.tulip.host.web.rest.vm.EditOrderVm;
 import com.tulip.host.web.rest.vm.ExpenseVm;
 import com.tulip.host.web.rest.vm.PayVM;
+import com.tulip.host.web.rest.vm.UploadVM;
+import jakarta.validation.Valid;
+import java.io.IOException;
 import java.util.List;
-import javax.validation.Valid;
 import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.fileupload.FileUploadException;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/payment")
@@ -22,14 +36,24 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final ExportService exportService;
+
+    private final UploadService uploadService;
 
     @PostMapping
-    public Long pay(@Valid @RequestBody PayVM payVM) throws ValidationException {
+    public Long pay(@Valid @RequestBody PayVM payVM)
+        throws ValidationException, jakarta.xml.bind.ValidationException, IOException, FileUploadException {
+        Long paymentId = -1L;
         if (payVM.getPayType() == PayTypeEnum.FEES) {
-            return paymentService.payFees(payVM);
+            paymentId = paymentService.payFees(payVM);
         } else {
-            return paymentService.payPurchase(payVM);
+            paymentId = paymentService.payPurchase(payVM);
         }
+        byte[] bytes = exportService.paymentReceipt(paymentId);
+        UploadVM save = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, INVOICE);
+        save.setName("INVOICE-" + paymentId);
+        paymentService.attachInvoice(paymentId, save);
+        return paymentId;
     }
 
     @GetMapping("/details/{paymentId}")
@@ -43,7 +67,7 @@ public class PaymentController {
     }
 
     @PostMapping("/duePayment")
-    public long duePayment(@Valid @RequestBody DuePaymentVm duePaymentVm) throws ValidationException {
+    public long duePayment(@Valid @RequestBody DuePaymentVm duePaymentVm) throws ValidationException, jakarta.xml.bind.ValidationException {
         return paymentService.payDues(duePaymentVm);
     }
 

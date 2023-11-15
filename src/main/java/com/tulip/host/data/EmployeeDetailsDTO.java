@@ -1,10 +1,11 @@
 package com.tulip.host.data;
 
+import com.tulip.host.web.rest.vm.UploadVM;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -60,4 +61,14 @@ public class EmployeeDetailsDTO implements Serializable {
     private BankDTO bank;
 
     private InterviewDTO interview;
+
+    List<UploadVM> aadhaarCard;
+
+    List<UploadVM> profilePicture;
+
+    List<UploadVM> panCard;
+
+    private String profilePictureUrl;
+
+    private Instant createdDate;
 }

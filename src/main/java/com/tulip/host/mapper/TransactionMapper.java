@@ -1,13 +1,21 @@
 package com.tulip.host.mapper;
 
-import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.data.PrintTransactionDTO;
+import com.tulip.host.data.StudentDetailsDTO;
+import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
+import com.tulip.host.service.UploadService;
 import com.tulip.host.web.rest.vm.PayVM;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(
     componentModel = "spring",
@@ -52,6 +60,12 @@ public interface TransactionMapper {
     @Mapping(target = "payType", source = "type")
     @Mapping(target = "studentId", source = "student.id")
     @Mapping(target = "total", source = "amount")
-    @Mapping(target = "formattedPaymentDateTime", source = "createdDate", dateFormat = "dd-MMM-yyyy")
+    @Mapping(target = "formattedPaymentDateTime", ignore = true)
     PrintTransactionDTO toPrintEntity(Transaction transaction);
+
+    @AfterMapping
+    default void map(@MappingTarget PrintTransactionDTO target, Transaction source) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy").withZone(ZoneId.systemDefault());
+        target.setFormattedPaymentDateTime(formatter.format(source.getCreatedDate()));
+    }
 }

@@ -1,27 +1,28 @@
 package com.tulip.host.domain;
 
 import com.tulip.host.utils.ClassComparatorBySession;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,9 +31,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.FilterJoinTable;
-import org.hibernate.annotations.FilterJoinTables;
-import org.hibernate.annotations.Filters;
 import org.hibernate.annotations.ParamDef;
 import org.hibernate.annotations.SortComparator;
 
@@ -41,10 +39,9 @@ import org.hibernate.annotations.SortComparator;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "student")
-@FilterDef(name = "activeStudent", defaultCondition = "active = :flag", parameters = @ParamDef(name = "flag", type = "boolean"))
+@FilterDef(name = "activeStudent", defaultCondition = "active = :flag", parameters = @ParamDef(name = "flag", type = Boolean.class))
 public class Student extends AbstractAuditingEntity {
 
     @Id
@@ -74,6 +71,8 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "gender", nullable = false)
     private String gender;
 
+    private String aadhaar;
+
     @Column(name = "active")
     @Builder.Default
     private Boolean active = true;
@@ -102,6 +101,14 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "religion", length = 20)
     private String religion;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinColumn(name = "picture_id")
+    private Upload profilePicture;
+
+    @OneToOne
+    @JoinColumn(name = "letter_id")
+    private Upload enrolLetter;
+
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<Upload> uploadedDocuments;
 
@@ -117,6 +124,10 @@ public class Student extends AbstractAuditingEntity {
     @Filter(name = "filterTransactionOnType")
     @OrderBy("created_date DESC")
     private Set<Transaction> transactions = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
+    @OrderBy("created_date DESC")
+    private Set<StudentToTransport> transports = new TreeSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
     @JoinTable(
@@ -135,6 +146,16 @@ public class Student extends AbstractAuditingEntity {
             this.setClassDetails(classList);
         } else {
             classDetails.add(classDetail);
+        }
+    }
+
+    public void addTransport(StudentToTransport studentToTransport) {
+        if (transports == null) {
+            SortedSet<StudentToTransport> transportList = new TreeSet();
+            transportList.add(studentToTransport);
+            this.setTransports(transportList);
+        } else {
+            transports.add(studentToTransport);
         }
     }
 

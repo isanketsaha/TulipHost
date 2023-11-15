@@ -1,12 +1,12 @@
 package com.tulip.host.repository.impl;
 
 import com.querydsl.core.types.Projections;
-import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.data.LoginDTO;
 import com.tulip.host.domain.Credential;
+import com.tulip.host.domain.Employee;
 import com.tulip.host.repository.CredentialRepository;
+import jakarta.persistence.EntityManager;
 import java.util.Optional;
-import javax.persistence.EntityManager;
 
 public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Long> implements CredentialRepository {
 
@@ -21,13 +21,14 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
                 .select(
                     Projections.fields(
                         LoginDTO.class,
-                        CREDENTIAL.userName,
+                        CREDENTIAL.userId,
                         EMPLOYEE.resetCredential,
                         CREDENTIAL.createdDate,
                         EMPLOYEE.name,
                         EMPLOYEE.active,
                         CREDENTIAL.password,
-                        USER_GROUP.authority
+                        USER_GROUP.authority,
+                        EMPLOYEE.locked
                     )
                 )
                 .from(CREDENTIAL)
@@ -35,7 +36,7 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
                 .on(EMPLOYEE.credential().eq(CREDENTIAL))
                 .innerJoin(USER_GROUP)
                 .on(USER_GROUP.eq(EMPLOYEE.group()))
-                .where(CREDENTIAL.userName.eq(userId))
+                .where(CREDENTIAL.userId.eq(userId))
                 .fetchFirst()
         );
     }
@@ -50,24 +51,21 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
                 .on(EMPLOYEE.credential().eq(CREDENTIAL))
                 .innerJoin(USER_GROUP)
                 .on(USER_GROUP.eq(EMPLOYEE.group()))
-                .where(CREDENTIAL.userName.eq(userId))
+                .where(CREDENTIAL.userId.eq(userId))
                 .fetchFirst()
         );
     }
 
     @Override
-    public Optional<EmployeeDetailsDTO> findUserProfileByUserId(String userId) {
-        return Optional.ofNullable(
-            jpaQueryFactory
-                .select(Projections.bean(EmployeeDetailsDTO.class))
-                .from(CREDENTIAL)
-                .innerJoin(EMPLOYEE)
-                .on(EMPLOYEE.credential().eq(CREDENTIAL))
-                .innerJoin(USER_GROUP)
-                .on(USER_GROUP.eq(EMPLOYEE.group()))
-                .where(CREDENTIAL.userName.eq(userId))
-                .fetchFirst()
-        );
+    public Employee findUserProfileByUserId(String userId) {
+        return jpaQueryFactory
+            .selectFrom(EMPLOYEE)
+            .innerJoin(CREDENTIAL)
+            .on(EMPLOYEE.credential().eq(CREDENTIAL))
+            .innerJoin(USER_GROUP)
+            .on(USER_GROUP.eq(EMPLOYEE.group()))
+            .where(CREDENTIAL.userId.eq(userId))
+            .fetchFirst();
     }
 
     @Override
@@ -75,7 +73,7 @@ public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Lon
         jpaQueryFactory
             .update(EMPLOYEE)
             .set(EMPLOYEE.active, false)
-            .where(EMPLOYEE.credential().eq(CREDENTIAL).and(CREDENTIAL.userName.eq(userId)))
+            .where(EMPLOYEE.credential().eq(CREDENTIAL).and(CREDENTIAL.userId.eq(userId)))
             .execute();
     }
 }

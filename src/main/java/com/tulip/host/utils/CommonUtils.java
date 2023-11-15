@@ -1,16 +1,27 @@
 package com.tulip.host.utils;
 
+import com.tulip.host.enums.UserRoleEnum;
+import com.whatsapp.api.WhatsappApiFactory;
+import com.whatsapp.api.impl.WhatsappBusinessManagementApi;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Month;
 import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.LocalDate;
 import org.joda.time.Years;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Slf4j
 public class CommonUtils {
@@ -65,5 +76,17 @@ public class CommonUtils {
 
     public static java.time.LocalDate convertToLocalDate(Date dateToConvert) {
         return dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    public static List<UserRoleEnum> findEligibleUG() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        String UG = authorities.stream().map(GrantedAuthority::getAuthority).findFirst().orElseThrow();
+
+        UserRoleEnum userRoleEnum = UserRoleEnum.valueOf(UG.split("_")[1]);
+        return Arrays
+            .stream(UserRoleEnum.values())
+            .filter(group -> group.getPriority() <= userRoleEnum.getPriority())
+            .collect(Collectors.toList());
     }
 }

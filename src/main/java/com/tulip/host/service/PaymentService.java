@@ -2,6 +2,7 @@ package com.tulip.host.service;
 
 import static com.tulip.host.config.Constants.DUES;
 import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
+import static com.tulip.host.config.Constants.TRANSPORT_FEES;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import com.querydsl.core.BooleanBuilder;
@@ -19,6 +20,7 @@ import com.tulip.host.domain.PurchaseLineItem;
 import com.tulip.host.domain.QTransaction;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
+import com.tulip.host.domain.TransportCatalog;
 import com.tulip.host.domain.Upload;
 import com.tulip.host.enums.DueStatusEnum;
 import com.tulip.host.enums.FeesRuleType;
@@ -39,6 +41,7 @@ import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.repository.TransactionRepository;
+import com.tulip.host.repository.TransportCatalogRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.DuePaymentVm;
 import com.tulip.host.web.rest.vm.DueVM;
@@ -46,6 +49,8 @@ import com.tulip.host.web.rest.vm.EditOrderVm;
 import com.tulip.host.web.rest.vm.ExpenseVm;
 import com.tulip.host.web.rest.vm.PayVM;
 import com.tulip.host.web.rest.vm.UploadVM;
+import jakarta.transaction.Transactional;
+import jakarta.xml.bind.ValidationException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -61,8 +66,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import javax.transaction.Transactional;
-import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -75,6 +78,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentService {
+
+    private final TransportCatalogRepository transportCatalogRepository;
 
     private final DuesPaymentRepository duesPaymentRepository;
     private final DuesRepository duesRepository;
@@ -126,6 +131,7 @@ public class PaymentService {
         }
 
         Transaction save = transactionRepository.save(transaction);
+
         return save.getId();
     }
 
@@ -145,7 +151,7 @@ public class PaymentService {
         if (docs != null) {
             Upload upload = uploadMapper.toModel(docs);
             upload.setDocumentType(DUES);
-            upload.setTransaction(transaction);
+            upload.setTransactionDocs(transaction);
             transaction.addToUploadList(upload);
         }
     }
@@ -181,16 +187,23 @@ public class PaymentService {
                     .getFeeItem()
                     .stream()
                     .map(item -> {
-                        FeesCatalog feesCatalog = feesCatalogRepository.findById(item.getFeesId()).orElse(null);
-                        Student student = studentRepository.checkIfFeesPaid(payVM.getStudentId(), item.getFeesId(), item.getMonth());
-                        if (feesCatalog.getPrice() != item.getUnitPrice()) {
-                            errors.add("Incorrect Fees Price ");
-                        }
-                        if (student != null) {
-                            String monthString = feesCatalog.getApplicableRule().equals(FeesRuleType.MONTHLY)
-                                ? "for month -  " + item.getMonth()
-                                : "";
-                            errors.add(feesCatalog.getFeesName() + " is already paid " + monthString);
+                        if (item.getType().equals("CLASS_FEES")) {
+                            FeesCatalog feesCatalog = feesCatalogRepository.findById(item.getFeesId()).orElse(null);
+                            Student student = studentRepository.checkIfFeesPaid(payVM.getStudentId(), item.getFeesId(), item.getMonth());
+                            if (feesCatalog.getPrice() != item.getUnitPrice()) {
+                                errors.add("Incorrect Fees Price ");
+                            }
+                            if (student != null) {
+                                String monthString = feesCatalog.getApplicableRule().equals(FeesRuleType.MONTHLY)
+                                    ? "for month -  " + item.getMonth()
+                                    : "";
+                                errors.add(feesCatalog.getFeesName() + " is already paid " + monthString);
+                            }
+                        } else if (item.getType().equals(TRANSPORT_FEES.replace(" ", "_"))) {
+                            TransportCatalog transportCatalog = transportCatalogRepository.findById(item.getFeesId()).orElseThrow();
+                            if (transportCatalog.getAmount() != item.getUnitPrice()) {
+                                errors.add("Incorrect Fees Price ");
+                            }
                         }
                         return item;
                     })
@@ -247,7 +260,8 @@ public class PaymentService {
         Date startDate = Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
         Date endDate = Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-        BooleanBuilder query = new BooleanBuilder().and(QTransaction.transaction.createdDate.between(startDate, endDate));
+        BooleanBuilder query = new BooleanBuilder()
+            .and(QTransaction.transaction.createdDate.between(startDate.toInstant(), endDate.toInstant()));
 
         Iterable<Transaction> transactions = transactionPagedRepository.findAll(query, Sort.by(Sort.Direction.DESC, "createdDate"));
         return transactionMapper.toEntityList(transactions);
@@ -305,6 +319,7 @@ public class PaymentService {
         if (CollectionUtils.isNotEmpty(transactionList)) {
             Set<String> months = new LinkedHashSet<>();
             Set<Long> annual = new LinkedHashSet<>();
+
             Student student = null;
             for (Transaction transaction : transactionList) {
                 student = transaction.getStudent();
@@ -313,13 +328,16 @@ public class PaymentService {
                     .stream()
                     .forEach(item -> {
                         FeesCatalog feesProduct = item.getFeesProduct();
-                        if (
-                            feesProduct.getApplicableRule().equals(FeesRuleType.MONTHLY) &&
-                            feesProduct.getFeesName().startsWith(TUITION_FEES)
-                        ) {
-                            months.add(item.getMonth());
-                        } else if (feesProduct.getApplicableRule().equals(FeesRuleType.YEARLY)) {
-                            annual.add(feesProduct.getId());
+                        TransportCatalog transportCatalog = item.getTransport();
+                        if (feesProduct != null) {
+                            if (
+                                feesProduct.getApplicableRule().equals(FeesRuleType.MONTHLY) &&
+                                feesProduct.getFeesName().startsWith(TUITION_FEES)
+                            ) {
+                                months.add(item.getMonth());
+                            } else if (feesProduct.getApplicableRule().equals(FeesRuleType.YEARLY)) {
+                                annual.add(feesProduct.getId());
+                            }
                         }
                     });
             }
@@ -344,7 +362,7 @@ public class PaymentService {
                 Set<Upload> uploadSet = uploadMapper.toModelList(expenseItems.getExpenseDocs());
                 transaction.setUploadList(uploadSet);
                 uploadSet.forEach(upload -> {
-                    upload.setTransaction(transaction);
+                    upload.setTransactionDocs(transaction);
                     upload.setDocumentType("EXPENSE");
                 });
             }
@@ -420,5 +438,12 @@ public class PaymentService {
             }
         }
         return -1;
+    }
+
+    public void attachInvoice(Long paymentId, UploadVM save) {
+        Transaction transaction = transactionRepository.findById(paymentId).orElseThrow();
+        Upload upload = uploadMapper.toModel(save);
+        transaction.setInvoice(upload);
+        transactionRepository.saveAndFlush(transaction);
     }
 }

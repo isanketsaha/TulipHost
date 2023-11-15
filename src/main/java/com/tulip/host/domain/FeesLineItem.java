@@ -1,8 +1,8 @@
 package com.tulip.host.domain;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Builder
@@ -25,10 +25,13 @@ public class FeesLineItem extends AbstractAuditingEntity {
     @JoinColumn(name = "transaction_id", nullable = false)
     private Transaction order;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "fees_product_id", nullable = false)
     private FeesCatalog feesProduct;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "transport_id")
+    private TransportCatalog transport;
 
     @NotNull
     @Column(name = "unit_price", nullable = false)

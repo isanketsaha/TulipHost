@@ -1,7 +1,7 @@
 package com.tulip.host.web.rest.vm;
 
 import com.tulip.host.data.ProductDTO;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data

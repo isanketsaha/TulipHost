@@ -3,17 +3,13 @@ package com.tulip.host.repository.impl;
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.group.GroupBy.sum;
 
-import com.querydsl.core.Tuple;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Session;
 import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.repository.ClassDetailRepository;
-import com.tulip.host.utils.CommonUtils;
-import java.util.Collections;
-import java.util.HashMap;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

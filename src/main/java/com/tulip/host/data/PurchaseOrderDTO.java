@@ -1,8 +1,8 @@
 package com.tulip.host.data;
 
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 /**

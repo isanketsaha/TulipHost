@@ -1,6 +1,6 @@
 package com.tulip.host.web.rest.vm;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,4 +20,5 @@ public class FeePayVM {
     double amount;
 
     String month;
+    String type;
 }
