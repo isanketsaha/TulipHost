@@ -106,9 +106,6 @@ public class EmployeeService {
         if (onboardingVM.getPanCard() != null) {
             employee.addDocuments(uploadMapper.toModelList(onboardingVM.getPanCard()));
         }
-        if (onboardingVM.getBirthCertificate() != null) {
-            employee.addDocuments(uploadMapper.toModelList(onboardingVM.getBirthCertificate()));
-        }
     }
 
     @Transactional
@@ -195,6 +192,7 @@ public class EmployeeService {
 
     public void attachEmployment(Long id, UploadVM joining_letter) {
         Employee byId = employeeRepository.findById(id).orElse(null);
+        joining_letter.setName(byId.getName());
         if (byId != null) {
             byId.setAppointmentLetter(uploadMapper.toModel(joining_letter));
             employeeRepository.saveAndFlush(byId);
@@ -210,6 +208,7 @@ public class EmployeeService {
         } else {
             byte[] bytes = generateJoiningLetter(empId);
             UploadVM joining_letter = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, JOINING_LETTER);
+            joining_letter.setName(byId.getName());
             attachEmployment(empId, joining_letter);
             return uploadService.getURL(joining_letter.getUid());
         }
