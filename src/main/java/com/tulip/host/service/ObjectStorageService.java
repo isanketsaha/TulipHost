@@ -14,6 +14,8 @@ import com.tulip.host.utils.CommonUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.joda.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,7 +44,11 @@ public class ObjectStorageService {
 
     public URL createURL(String key) {
         LocalDate date = LocalDate.now().plusDays(6);
-        URL url = amazonS3Client.generatePresignedUrl(properties.getAws().getCredential().getBucketName(), key, date.toDate());
+        URL url = amazonS3Client.generatePresignedUrl(
+            properties.getAws().getCredential().getBucketName(),
+            key,
+            Date.from(date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+        );
 
         log.info("Generated the signature " + url);
         return url;
