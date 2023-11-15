@@ -44,6 +44,7 @@ public class ObjectStorageService {
     public URL createURL(String key) {
         LocalDate date = LocalDate.now().plusDays(6);
         URL url = amazonS3Client.generatePresignedUrl(properties.getAws().getCredential().getBucketName(), key, date.toDate());
+
         log.info("Generated the signature " + url);
         return url;
     }
