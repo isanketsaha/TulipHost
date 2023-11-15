@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -62,11 +63,11 @@ public class EmployeeDetailsDTO implements Serializable {
 
     private InterviewDTO interview;
 
-    List<UploadVM> aadhaarCard;
+    List<UploadVM> aadhaarCard = new ArrayList<>();
 
-    List<UploadVM> profilePicture;
+    List<UploadVM> profilePicture = new ArrayList<>();
 
-    List<UploadVM> panCard;
+    List<UploadVM> panCard = new ArrayList<>();
 
     private String profilePictureUrl;
 
