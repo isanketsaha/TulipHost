@@ -100,6 +100,7 @@ public class EmployeeService {
     }
 
     public void addUpload(Employee employee, OnboardingVM onboardingVM) {
+        employee.getDependents().forEach(dep -> dep.getUploadedDocuments().forEach(docs -> docs.setDependent(dep)));
         if (onboardingVM.getAadhaarCard() != null) {
             employee.addDocuments(uploadMapper.toModelList(onboardingVM.getAadhaarCard()));
         }
@@ -114,7 +115,7 @@ public class EmployeeService {
         return employeeMapper.toBasicEntityList(employees);
     }
 
-    @jakarta.transaction.Transactional
+    @Transactional
     public EmployeeDetailsDTO searchEmployee(long id) {
         Employee employee = employeeRepository.search(id);
         if (employee != null) {
