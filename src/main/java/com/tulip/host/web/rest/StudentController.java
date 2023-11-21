@@ -55,6 +55,11 @@ public class StudentController {
         studentService.addTransport(vm);
     }
 
+    @GetMapping("/transport/discontinue")
+    public void discontinueTransport(@Valid @RequestParam long id, @Valid @RequestParam long locationId) {
+        studentService.discontinueTransport(id, locationId);
+    }
+
     @RequestMapping("/searchByName/{name}")
     public List<StudentBasicDTO> search(@Valid @PathVariable String name) {
         return studentService.searchStudent(name);
