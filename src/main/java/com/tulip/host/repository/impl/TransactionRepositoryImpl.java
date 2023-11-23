@@ -1,5 +1,7 @@
 package com.tulip.host.repository.impl;
 
+import static com.querydsl.core.group.GroupBy.groupBy;
+import static com.querydsl.core.group.GroupBy.map;
 import static com.tulip.host.config.Constants.GROUP_BY_MONTH_FORMAT;
 import static com.tulip.host.utils.CommonUtils.formatToDate;
 
@@ -13,6 +15,10 @@ import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.repository.TransactionRepository;
 import jakarta.persistence.EntityManager;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -120,5 +126,18 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
             .where(DUES.status.eq("ACTIVE"))
             .orderBy(new OrderSpecifier[] { TRANSACTION.createdDate.desc() })
             .fetch();
+    }
+
+    public Map<String, Map<String, Double>> fetchSalesReport(LocalDate date) {
+        return jpaQueryFactory
+            .selectFrom(TRANSACTION)
+            .where(
+                TRANSACTION.createdDate.between(
+                    date.atStartOfDay(ZoneId.systemDefault()).toInstant(),
+                    date.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant()
+                )
+            )
+            .groupBy(TRANSACTION.type, TRANSACTION.paymentMode)
+            .transform(groupBy(TRANSACTION.type).as(map(TRANSACTION.paymentMode, TRANSACTION.amount.sum())));
     }
 }

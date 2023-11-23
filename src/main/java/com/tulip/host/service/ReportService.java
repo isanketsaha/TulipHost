@@ -114,4 +114,9 @@ public class ReportService {
         Map<String, List<Long>> report = studentToTransportRepository.findReport(session);
         return report.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, item -> item.getValue().size()));
     }
+
+    public Map<String, Map<String, Double>> salesReport(java.time.LocalDate date) {
+        Map<String, Map<String, Double>> stringMapMap = transactionRepository.fetchSalesReport(date);
+        return stringMapMap;
+    }
 }
