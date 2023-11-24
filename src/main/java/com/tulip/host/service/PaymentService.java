@@ -209,7 +209,7 @@ public class PaymentService {
                             if (transportCatalog.getAmount() != item.getUnitPrice()) {
                                 errors.add("Incorrect Fees Price ");
                             }
-                            List<FeesLineItem> feesLineItems = feesLineItemRepository.checkIfTransportPaid(
+                            List<Transaction> feesLineItems = transactionRepository.checkIfTransportPaid(
                                 payVM.getStudentId(),
                                 item.getFeesId(),
                                 item.getMonth()
@@ -330,7 +330,7 @@ public class PaymentService {
             Sort.by(DESC, "createdDate")
         );
         ClassDetail byClass = classDetailRepository.findByClass(classId);
-        List<String> transportSummary = feesLineItemRepository.fetchTransportMonths(studentId, byClass.getSession());
+        List<String> transportSummary = transactionRepository.fetchTransportMonths(studentId, byClass.getSession());
         if (CollectionUtils.isNotEmpty(transactionList)) {
             Set<String> months = new LinkedHashSet<>();
             Set<Long> annual = new LinkedHashSet<>();

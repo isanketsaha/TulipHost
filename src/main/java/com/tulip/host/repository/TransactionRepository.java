@@ -1,6 +1,7 @@
 package com.tulip.host.repository;
 
 import com.tulip.host.data.TransactionReportDTO;
+import com.tulip.host.domain.Session;
 import com.tulip.host.domain.Transaction;
 import java.time.LocalDate;
 import java.util.Date;
@@ -20,4 +21,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> fetchAllTransactionByDues();
 
     Map<String, Map<String, Double>> fetchSalesReport(LocalDate date);
+
+    List<String> fetchTransportMonths(Long studentId, Session sessionId);
+
+    List<Transaction> checkIfTransportPaid(Long studentId, Long transportId, String month);
 }

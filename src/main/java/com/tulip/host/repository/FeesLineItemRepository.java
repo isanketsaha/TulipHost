@@ -8,8 +8,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FeesLineItemRepository extends JpaRepository<FeesLineItem, Long> {
     public List<PayMonthSummary> fetchTuitionFeesSummary(Long studentId, Long sessionId);
-
-    List<String> fetchTransportMonths(Long studentId, Session sessionId);
-
-    List<FeesLineItem> checkIfTransportPaid(Long studentId, Long transportId, String month);
 }
