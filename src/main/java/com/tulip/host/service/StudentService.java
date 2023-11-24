@@ -15,6 +15,7 @@ import com.tulip.host.domain.Dependent;
 import com.tulip.host.domain.QStudent;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.StudentToTransport;
+import com.tulip.host.domain.StudentToTransportId;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.DependentMapper;
@@ -25,11 +26,13 @@ import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.DependentRepository;
 import com.tulip.host.repository.StudentPagedRepository;
 import com.tulip.host.repository.StudentRepository;
+import com.tulip.host.repository.StudentToTransportRepository;
 import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import com.tulip.host.web.rest.vm.TransportVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -49,6 +52,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 public class StudentService {
+
+    private final StudentToTransportRepository studentToTransportRepository;
 
     private final StudentRepository studentRepository;
     private final ClassDetailRepository classDetailRepository;
@@ -227,5 +232,12 @@ public class StudentService {
         studentToTransport.setStudent(student);
         student.addTransport(studentToTransport);
         studentRepository.saveAndFlush(student);
+    }
+
+    public void discontinueTransport(Long id, Long locationId) {
+        StudentToTransportId toTransportId = StudentToTransportId.builder().studentId(id).transportId(locationId).build();
+        StudentToTransport studentToTransport = studentToTransportRepository.findById(toTransportId).orElseThrow();
+        studentToTransport.setEndDate(Instant.now());
+        studentToTransportRepository.saveAndFlush(studentToTransport);
     }
 }

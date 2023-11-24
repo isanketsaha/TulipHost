@@ -29,6 +29,8 @@ public final class Constants {
 
     public static final String NOT_AVAILABLE = "N/A";
 
+    public static final String DATE_PATTERN = "dd/MM/yyyy";
+
     public static final String TRANSPORT_FEES = "TRANSPORT FEES";
 
     public static final String INVOICE = "INVOICE";

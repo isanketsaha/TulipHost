@@ -1,9 +1,8 @@
 package com.tulip.host.repository.impl;
 
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.tulip.host.data.PayMonthSummary;
 import com.tulip.host.domain.FeesLineItem;
+import com.tulip.host.domain.Session;
 import com.tulip.host.repository.FeesLineItemRepository;
 import jakarta.persistence.EntityManager;
 import java.util.List;
