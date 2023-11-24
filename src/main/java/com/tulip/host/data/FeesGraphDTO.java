@@ -14,4 +14,5 @@ public class FeesGraphDTO {
     Instant admissionDate;
     Set<String> paidMonths;
     Set<Long> annualFeesPaid;
+    Set<String> transportMonths;
 }

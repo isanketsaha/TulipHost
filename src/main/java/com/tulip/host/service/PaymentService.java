@@ -10,6 +10,7 @@ import com.tulip.host.config.ApplicationProperties;
 import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.FeesItemSummaryDTO;
 import com.tulip.host.data.PaySummaryDTO;
+import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Dues;
 import com.tulip.host.domain.DuesPayment;
 import com.tulip.host.domain.Expense;
@@ -30,6 +31,7 @@ import com.tulip.host.mapper.DuesPaymentMapper;
 import com.tulip.host.mapper.ExpenseMapper;
 import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.mapper.UploadMapper;
+import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.DuesPaymentRepository;
 import com.tulip.host.repository.DuesRepository;
 import com.tulip.host.repository.ExpenseRepository;
@@ -62,6 +64,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -112,6 +115,8 @@ public class PaymentService {
     private final DuesPaymentMapper duesPaymentMapper;
 
     private final UploadMapper uploadMapper;
+
+    private final ClassDetailRepository classDetailRepository;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT, Locale.ENGLISH);
 
@@ -203,6 +208,14 @@ public class PaymentService {
                             TransportCatalog transportCatalog = transportCatalogRepository.findById(item.getFeesId()).orElseThrow();
                             if (transportCatalog.getAmount() != item.getUnitPrice()) {
                                 errors.add("Incorrect Fees Price ");
+                            }
+                            List<FeesLineItem> feesLineItems = feesLineItemRepository.checkIfTransportPaid(
+                                payVM.getStudentId(),
+                                item.getFeesId(),
+                                item.getMonth()
+                            );
+                            if (CollectionUtils.isNotEmpty(feesLineItems)) {
+                                errors.add("Transport Fees" + " is already paid " + "for month -  " + item.getMonth());
                             }
                         }
                         return item;
@@ -316,10 +329,11 @@ public class PaymentService {
             booleanBuilder,
             Sort.by(DESC, "createdDate")
         );
+        ClassDetail byClass = classDetailRepository.findByClass(classId);
+        List<String> transportSummary = feesLineItemRepository.fetchTransportMonths(studentId, byClass.getSession());
         if (CollectionUtils.isNotEmpty(transactionList)) {
             Set<String> months = new LinkedHashSet<>();
             Set<Long> annual = new LinkedHashSet<>();
-
             Student student = null;
             for (Transaction transaction : transactionList) {
                 student = transaction.getStudent();
@@ -341,7 +355,14 @@ public class PaymentService {
                         }
                     });
             }
-            return FeesGraphDTO.builder().admissionDate(student.getCreatedDate()).paidMonths(months).annualFeesPaid(annual).build();
+
+            return FeesGraphDTO
+                .builder()
+                .admissionDate(student.getCreatedDate())
+                .paidMonths(months)
+                .annualFeesPaid(annual)
+                .transportMonths(new HashSet<>(transportSummary))
+                .build();
         }
         return null;
     }

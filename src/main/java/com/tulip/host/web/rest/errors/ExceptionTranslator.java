@@ -2,6 +2,8 @@ package com.tulip.host.web.rest.errors;
 
 import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
 
+import com.tulip.host.domain.Audit;
+import com.tulip.host.repository.AuditRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.Arrays;
@@ -9,7 +11,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.ConcurrencyFailureException;
@@ -51,6 +55,9 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
+    @Autowired
+    AuditRepository auditRepository;
+
     private final Environment env;
 
     public ExceptionTranslator(Environment env) {
@@ -73,6 +80,21 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         WebRequest request
     ) {
         body = body == null ? wrapAndCustomizeProblem((Throwable) ex, (NativeWebRequest) request) : body;
+        if (body instanceof ProblemDetailWithCause) {
+            Audit error = Audit
+                .builder()
+                .description(((ProblemDetailWithCause) body).getDetail())
+                .type("ERROR")
+                .metadata(
+                    ((ProblemDetailWithCause) body).getProperties()
+                        .values()
+                        .stream()
+                        .map(Object::toString)
+                        .collect(Collectors.joining(" - "))
+                )
+                .build();
+            auditRepository.save(error);
+        }
         return super.handleExceptionInternal(ex, body, headers, statusCode, request);
     }
 
