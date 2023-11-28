@@ -32,6 +32,7 @@ public class ExcelExporterService {
         Class<? extends Object> c = o.getClass();
         Field[] declaredFields = c.getDeclaredFields();
         sheet = workbook.createSheet(StringUtils.isNotEmpty(sheetName) ? sheetName : c.getSimpleName().replace("DTO", StringUtils.EMPTY));
+
         Row row = sheet.createRow(0);
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
@@ -45,10 +46,12 @@ public class ExcelExporterService {
         int index = 0;
         createCell(row, index++, "SL", style);
         for (Field field : declaredFields) {
-            String normalString = WordUtils.capitalizeFully(
-                StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(field.getName()), StringUtils.SPACE)
-            );
-            createCell(row, index++, normalString, style);
+            if (!List.class.isAssignableFrom(field.getType())) {
+                String normalString = WordUtils.capitalizeFully(
+                    StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(field.getName()), StringUtils.SPACE)
+                );
+                createCell(row, index++, normalString, style);
+            }
         }
     }
 
@@ -67,10 +70,9 @@ public class ExcelExporterService {
             cell.setCellValue(CommonUtils.formatFromDate((Date) value, "dd-MM-yyyy"));
         } else if (value instanceof PayTypeEnum) {
             cell.setCellValue(((PayTypeEnum) value).toString());
-        } else {
+        } else if (value instanceof String) {
             cell.setCellValue((String) value);
         }
-        cell.setCellStyle(style);
     }
 
     private void writeDataLines(List<Object> objectList) {
@@ -89,11 +91,13 @@ public class ExcelExporterService {
             Class<? extends Object> c = o.getClass();
             Field[] fields = c.getDeclaredFields();
             for (Field field : fields) {
-                field.setAccessible(true);
-                try {
-                    createCell(row, columnCount++, field.get(o), style);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                if (!List.class.isAssignableFrom(field.getType())) {
+                    field.setAccessible(true);
+                    try {
+                        createCell(row, columnCount++, field.get(o), style);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
