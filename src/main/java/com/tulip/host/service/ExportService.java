@@ -136,7 +136,7 @@ public class ExportService {
             List<PaySummaryDTO> month = paymentService.getTransactionRecordByDate(months, "MONTH");
             List<Object> list = new ArrayList<>(month);
             export =
-                export == null
+                (export == null)
                     ? excelExporterService.export(list, CommonUtils.formatFromDate(months, "MMM-yyyy"))
                     : excelExporterService.export(export, CommonUtils.formatFromDate(months, "MMM-yyyy"), list);
         }
