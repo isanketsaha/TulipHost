@@ -1,21 +1,17 @@
 package com.tulip.host.service;
 
 import static com.tulip.host.config.Constants.AADHAAR_CARD;
-import static com.tulip.host.config.Constants.BIRTH_CERTIFICATE;
 import static com.tulip.host.config.Constants.DEFAULT_PASSWORD;
 import static com.tulip.host.config.Constants.JASPER_FOLDER;
 import static com.tulip.host.config.Constants.JOINING_LETTER;
 import static com.tulip.host.config.Constants.PAN_CARD;
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.data.JoiningLetterDTO;
 import com.tulip.host.data.LetterClause;
-import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.Credential;
 import com.tulip.host.domain.Employee;
-import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Upload;
 import com.tulip.host.domain.UserGroup;
 import com.tulip.host.enums.UserRoleEnum;
@@ -30,18 +26,17 @@ import com.tulip.host.repository.UserGroupRepository;
 import com.tulip.host.repository.UserToDependentRepository;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.CredentialVM;
+import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.OnboardingVM;
-import com.tulip.host.web.rest.vm.UploadVM;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.fileupload.FileUploadException;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -147,7 +142,7 @@ public class EmployeeService {
         Employee byId = employeeRepository.findById(id).orElse(null);
         if (byId != null) {
             byId.setActive(Boolean.FALSE);
-            byId.setTerminationDate(new Date());
+            byId.setTerminationDate(LocalDateTime.now());
             byId.setLocked(true);
             employeeRepository.save(byId);
         }
@@ -191,7 +186,7 @@ public class EmployeeService {
         return null;
     }
 
-    public void attachEmployment(Long id, UploadVM joining_letter) {
+    public void attachEmployment(Long id, FileUploadVM joining_letter) {
         Employee byId = employeeRepository.findById(id).orElse(null);
         joining_letter.setName(byId.getName());
         if (byId != null) {
@@ -208,7 +203,7 @@ public class EmployeeService {
             return uploadService.getURL(appointmentLetter.getUid());
         } else {
             byte[] bytes = generateJoiningLetter(empId);
-            UploadVM joining_letter = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, JOINING_LETTER);
+            FileUploadVM joining_letter = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, JOINING_LETTER);
             joining_letter.setName(byId.getName());
             attachEmployment(empId, joining_letter);
             return uploadService.getURL(joining_letter.getUid());

@@ -1,6 +1,7 @@
 package com.tulip.host.web.rest.vm;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tulip.host.enums.UploadTypeEnum;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,14 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UploadVM {
 
-    private Long id;
+    private UploadTypeEnum type;
+    FileUploadVM file;
 
-    @JsonProperty("response")
-    private String uid;
-
-    private String name;
-    private String status;
-    private String type;
-    private long size;
-    private String documentType;
+    public void setFile(List<FileUploadVM> ele) {
+        FileUploadVM item = ele.stream().findFirst().orElseThrow();
+        item.setDocumentType(type.name() + "_" + "UPLOAD");
+        this.file = item;
+    }
 }

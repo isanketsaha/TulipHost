@@ -1,6 +1,6 @@
 package com.tulip.host.data;
 
-import com.tulip.host.web.rest.vm.UploadVM;
+import com.tulip.host.web.rest.vm.FileUploadVM;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.Date;
@@ -60,13 +60,13 @@ public class StudentDetailsDTO {
 
     private String religion;
     private int age;
-    List<UploadVM> aadhaarCard;
+    List<FileUploadVM> aadhaarCard;
 
-    List<UploadVM> profilePicture;
+    List<FileUploadVM> profilePicture;
 
-    List<UploadVM> panCard;
+    List<FileUploadVM> panCard;
 
-    List<UploadVM> birthCertificate;
+    List<FileUploadVM> birthCertificate;
 
     @NotNull
     private Set<DependentDTO> dependent;

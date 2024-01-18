@@ -1,25 +1,18 @@
 package com.tulip.host.service;
 
-import static com.tulip.host.utils.CommonUtils.convertToLocalDate;
-
-import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Session;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.ClassToStudentRepository;
 import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.repository.StudentRepository;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.Months;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -45,8 +38,7 @@ public class VisualizeService {
 
     @Transactional
     public Map<String, Map<String, Double>> getExpenseRecord() {
-        Session session = sessionService.currentSession();
-        return expenseRepository.expenseReport(session.getFromDate(), session.getToDate());
+        return expenseRepository.expenseReport(LocalDate.now().minus(5, ChronoUnit.MONTHS), LocalDate.now());
     }
 
     @Transactional
@@ -76,8 +68,8 @@ public class VisualizeService {
         for (Map.Entry<String, Map<String, Long>> entry : admissionOverYear.entrySet()) {
             String std = entry.getKey();
             Map<String, Long> admissionByMonth = entry.getValue();
-            LocalDate startDate = convertToLocalDate(session.getFromDate());
-            LocalDate endDate = convertToLocalDate(session.getToDate());
+            LocalDate startDate = session.getFromDate();
+            LocalDate endDate = session.getToDate();
             long studentCount = 0;
             while (startDate.isBefore(endDate)) {
                 if (initialSessionStrength.containsKey(std)) {
@@ -94,17 +86,10 @@ public class VisualizeService {
         }
         log.info("Fees : {} - {} ", initialSessionStrength, tuitionFees);
         initialSessionStrength.forEach((k, v) ->
-            tuitionFees.put(
-                k,
-                (v * feesByClass.get(k)) *
-                (ChronoUnit.MONTHS.between(convertToLocalDate(session.getFromDate()), convertToLocalDate(session.getToDate())) + 1)
-            )
+            tuitionFees.put(k, (v * feesByClass.get(k)) * (ChronoUnit.MONTHS.between(session.getFromDate(), session.getToDate()) + 1))
         );
         log.info("{} - {} - {} ", tuitionFees, revenueYearly, admissionCharges);
-        log.info(
-            "Months - {}",
-            ChronoUnit.MONTHS.between(convertToLocalDate(session.getFromDate()), convertToLocalDate(session.getToDate()))
-        );
+        log.info("Months - {}", ChronoUnit.MONTHS.between(session.getFromDate(), session.getToDate()));
         return (
             tuitionFees.values().stream().reduce(0.0, Double::sum) +
             revenueYearly.values().stream().reduce(0.0, Double::sum) +

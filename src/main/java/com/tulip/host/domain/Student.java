@@ -18,7 +18,8 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.SortedSet;
@@ -28,7 +29,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.ParamDef;
@@ -56,7 +56,7 @@ public class Student extends AbstractAuditingEntity {
 
     @NotNull
     @Column(name = "dob", nullable = false)
-    private Date dob;
+    private LocalDate dob;
 
     @Size(max = 255)
     @Column(name = "address")
@@ -95,7 +95,7 @@ public class Student extends AbstractAuditingEntity {
     private String previousSchool;
 
     @Column(name = "termination_date")
-    private Date terminationDate;
+    private LocalDateTime terminationDate;
 
     @Size(max = 20)
     @Column(name = "religion", length = 20)

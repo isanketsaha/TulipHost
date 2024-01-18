@@ -4,7 +4,7 @@ import com.tulip.host.data.FeesCatalogDTO;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.FeesCatalog;
 import com.tulip.host.repository.impl.ReferenceMapper;
-import com.tulip.host.web.rest.vm.FeesLoadVM;
+import com.tulip.host.web.rest.vm.dataload.FeesLoadVM;
 import java.util.List;
 import java.util.Set;
 import org.mapstruct.Mapper;
@@ -24,7 +24,7 @@ public interface FeesCatalogMapper {
 
     List<FeesCatalogDTO> toEntityList(Set<FeesCatalog> catalogs);
 
-    @Mapping(expression = "java(feesLoadVM.getLabel().toUpperCase())", target = "feesName")
+    @Mapping(expression = "java(feesLoadVM.getItemName().toUpperCase())", target = "feesName")
     @Mapping(target = "applicableRule", source = "rule")
     FeesCatalog toModel(FeesLoadVM feesLoadVM);
 

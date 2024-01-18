@@ -20,6 +20,8 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -60,7 +62,7 @@ public class Employee extends AbstractAuditingEntity {
     private String bloodGroup;
 
     @Column(name = "dob")
-    private Date dob;
+    private LocalDate dob;
 
     @Size(max = 255)
     @Column(name = "experience")
@@ -121,7 +123,7 @@ public class Employee extends AbstractAuditingEntity {
     private String religion;
 
     @Column(name = "termination_date")
-    private Date terminationDate;
+    private LocalDateTime terminationDate;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE }, optional = false)

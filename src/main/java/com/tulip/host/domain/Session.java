@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -41,11 +42,11 @@ public class Session extends AbstractAuditingEntity {
 
     @NotNull
     @Column(name = "from_date", nullable = false)
-    private Date fromDate;
+    private LocalDate fromDate;
 
     @NotNull
     @Column(name = "to_date", nullable = false)
-    private Date toDate;
+    private LocalDate toDate;
 
     @OneToMany(mappedBy = "session", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
     private List<ClassDetail> stdList;

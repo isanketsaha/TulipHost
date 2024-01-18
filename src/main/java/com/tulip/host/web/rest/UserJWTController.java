@@ -1,11 +1,11 @@
 package com.tulip.host.web.rest;
 
+import static com.tulip.host.config.Constants.AUTHORIZATION_HEADER;
+
 import com.tulip.host.data.LoggedUserDTO;
 import com.tulip.host.data.LoginDTO;
 import com.tulip.host.repository.CredentialRepository;
-import com.tulip.host.security.jwt.JWTFilter;
 import com.tulip.host.security.jwt.TokenProvider;
-import com.tulip.host.service.WhatsappNotificationService;
 import com.tulip.host.web.rest.vm.LoginVM;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -19,7 +19,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,7 +55,7 @@ public class UserJWTController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.createToken(authentication, loginVM.getRememberMe() == null ? false : loginVM.getRememberMe());
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
+        httpHeaders.add(AUTHORIZATION_HEADER, "Bearer " + jwt);
         List<String> authorities = authentication
             .getAuthorities()
             .stream()

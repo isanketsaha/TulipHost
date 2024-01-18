@@ -10,7 +10,6 @@ import com.tulip.host.service.ProductService;
 import com.tulip.host.service.ReportService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,7 @@ public class ReportController {
     private final ProductService productService;
 
     @GetMapping("/transaction/{date}")
-    public List<PaySummaryDTO> transactionHistory(@Valid @PathVariable Date date) {
+    public List<PaySummaryDTO> transactionHistory(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return dashboardService.fetchTransactionHistory(date);
     }
 

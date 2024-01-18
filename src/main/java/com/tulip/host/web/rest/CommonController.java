@@ -9,7 +9,7 @@ import com.tulip.host.enums.PaymentOptionEnum;
 import com.tulip.host.enums.RelationEnum;
 import com.tulip.host.enums.ReligionEnum;
 import com.tulip.host.enums.StdEnum;
-import com.tulip.host.enums.UploadEnum;
+import com.tulip.host.enums.UploadTypeEnum;
 import com.tulip.host.service.FinancialYearService;
 import com.tulip.host.service.SessionService;
 import com.tulip.host.utils.CommonUtils;
@@ -113,7 +113,7 @@ public class CommonController {
     @RequestMapping("/uploadOptions")
     public List<DropDownOptionsDto> uploadOptions() {
         return Arrays
-            .stream(UploadEnum.values())
+            .stream(UploadTypeEnum.values())
             .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
             .collect(Collectors.toList());
     }

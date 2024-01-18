@@ -1,8 +1,7 @@
-package com.tulip.host.web.rest.vm;
+package com.tulip.host.web.rest.vm.dataload;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotNull;
+import com.tulip.host.web.rest.vm.ClassLoadVM;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -21,5 +20,6 @@ public class SessionLoadVM {
     private Date toDate;
 
     List<ClassLoadVM> stdList;
+
     Map<String, List<FeesLoadVM>> feesList;
 }

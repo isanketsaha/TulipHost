@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.20.0.final using JasperReports Library version 6.20.0-2bc7ab61c56f459e8176eb05c7705e145cd400ad  -->
+<!-- Created with Jaspersoft Studio version 6.20.5.final using JasperReports Library version 6.20.5-3efcf2e67f959db3888d79f73dde2dbd7acb4f8e  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Appointment_Letter" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e87674a8-e4a6-4da8-95d3-d3c56f0cbd30">
     <style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
         <box>
@@ -222,7 +222,7 @@
                 </textElement>
                 <text><![CDATA[
 ____________________________________					_____________________________________
-Appointed By							          Signature]]></text>
+Signature						          Appointed By	]]></text>
             </staticText>
             <staticText>
                 <reportElement x="1" y="0" width="551" height="50" uuid="614ccdc6-05e2-4e57-a226-63a6fff8413a"/>

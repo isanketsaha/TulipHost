@@ -45,16 +45,16 @@ public class OnboardingVM {
 
     String experience;
 
-    UploadVM profilePicture;
+    FileUploadVM profilePicture;
 
     @NotNull
     Date dob;
 
     GenderEnum gender;
     String aadhaar;
-    List<UploadVM> aadhaarCard;
-    List<UploadVM> panCard;
-    List<UploadVM> birthCertificate;
+    List<FileUploadVM> aadhaarCard;
+    List<FileUploadVM> panCard;
+    List<FileUploadVM> birthCertificate;
     String previousSchool;
     ReligionEnum religion;
     Long session;
@@ -62,15 +62,15 @@ public class OnboardingVM {
     InterviewVM interview;
     StdEnum std;
 
-    public void setProfilePicture(List<UploadVM> profilePhoto) {
-        UploadVM uploadVM = profilePhoto.stream().findFirst().orElse(null);
+    public void setProfilePicture(List<FileUploadVM> profilePhoto) {
+        FileUploadVM uploadVM = profilePhoto.stream().findFirst().orElse(null);
         if (uploadVM != null) {
             uploadVM.setDocumentType(PROFILE_PICTURE);
             this.profilePicture = uploadVM;
         }
     }
 
-    public void setAadhaarCard(List<UploadVM> aadhaarCard) {
+    public void setAadhaarCard(List<FileUploadVM> aadhaarCard) {
         this.aadhaarCard =
             aadhaarCard
                 .stream()
@@ -81,7 +81,7 @@ public class OnboardingVM {
                 .collect(Collectors.toList());
     }
 
-    public void setPanCard(List<UploadVM> panCard) {
+    public void setPanCard(List<FileUploadVM> panCard) {
         this.panCard =
             panCard
                 .stream()
@@ -92,7 +92,7 @@ public class OnboardingVM {
                 .collect(Collectors.toList());
     }
 
-    public void setBirthCertificate(List<UploadVM> birthCertificate) {
+    public void setBirthCertificate(List<FileUploadVM> birthCertificate) {
         this.birthCertificate =
             birthCertificate
                 .stream()

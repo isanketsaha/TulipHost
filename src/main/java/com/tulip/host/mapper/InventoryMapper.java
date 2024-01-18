@@ -3,7 +3,7 @@ package com.tulip.host.mapper;
 import com.tulip.host.data.InventoryItemDTO;
 import com.tulip.host.data.StockExportDTO;
 import com.tulip.host.domain.Inventory;
-import com.tulip.host.web.rest.vm.ProductLoadVM;
+import com.tulip.host.web.rest.vm.dataload.ProductLoadVM;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -11,11 +11,12 @@ import com.tulip.host.service.UploadService;
 import com.tulip.host.web.rest.vm.DuePaymentVm;
 import com.tulip.host.web.rest.vm.EditOrderVm;
 import com.tulip.host.web.rest.vm.ExpenseVm;
+import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.PayVM;
-import com.tulip.host.web.rest.vm.UploadVM;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import javax.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.fileupload.FileUploadException;
@@ -43,16 +44,23 @@ public class PaymentController {
     @PostMapping
     public Long pay(@Valid @RequestBody PayVM payVM)
         throws ValidationException, jakarta.xml.bind.ValidationException, IOException, FileUploadException {
-        Long paymentId = -1L;
+        Long paymentId;
         if (payVM.getPayType() == PayTypeEnum.FEES) {
             paymentId = paymentService.payFees(payVM);
         } else {
             paymentId = paymentService.payPurchase(payVM);
         }
-        byte[] bytes = exportService.paymentReceipt(paymentId);
-        UploadVM save = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, INVOICE);
-        save.setName("INVOICE-" + paymentId);
-        paymentService.attachInvoice(paymentId, save);
+        CompletableFuture.runAsync(() -> {
+            try {
+                byte[] bytes = exportService.paymentReceipt(paymentId);
+                FileUploadVM save = null;
+                save = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, INVOICE);
+                save.setName("INVOICE-" + paymentId);
+                paymentService.attachInvoice(paymentId, save);
+            } catch (FileUploadException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
         return paymentId;
     }
 

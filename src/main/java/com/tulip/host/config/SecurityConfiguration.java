@@ -1,7 +1,6 @@
 package com.tulip.host.config;
 
 import com.tulip.host.security.AuthoritiesConstants;
-import com.tulip.host.security.jwt.JWTConfigurer;
 import com.tulip.host.security.jwt.TokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,12 +50,9 @@ public class SecurityConfiguration {
                 // prettier-ignore
                 authz
                     .requestMatchers(mvc.pattern(HttpMethod.POST,"/authenticate")).permitAll()
-                    .requestMatchers(mvc.pattern("/api/admin/**")).hasAuthority(AuthoritiesConstants.ADMIN)
+                    .requestMatchers(mvc.pattern("/admin/**")).hasAuthority(AuthoritiesConstants.ADMIN)
                     .requestMatchers(mvc.pattern("/v3/api-docs/**")).hasAuthority(AuthoritiesConstants.ADMIN)
-                    .requestMatchers(mvc.pattern("/management/health/**")).permitAll()
-                    .requestMatchers(mvc.pattern("/management/info")).permitAll()
-                    .requestMatchers(mvc.pattern("/management/prometheus")).permitAll()
-                    .requestMatchers(mvc.pattern("/management/**")).hasAuthority(AuthoritiesConstants.ADMIN)
+                    .requestMatchers(mvc.pattern("/management/**")).permitAll()
                     .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -69,9 +65,9 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    private JWTConfigurer securityConfigurerAdapter() {
-        return new JWTConfigurer(tokenProvider);
-    }
+    //    private JWTConfigurer securityConfigurerAdapter() {
+    //        return new JWTConfigurer(tokenProvider);
+    //    }
 
     @Bean
     MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {

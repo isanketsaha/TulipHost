@@ -1,22 +1,22 @@
 package com.tulip.host.utils;
 
 import com.tulip.host.enums.UserRoleEnum;
-import com.whatsapp.api.WhatsappApiFactory;
-import com.whatsapp.api.impl.WhatsappBusinessManagementApi;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.Period;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.LocalDate;
-import org.joda.time.Years;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
@@ -28,9 +28,11 @@ public class CommonUtils {
 
     private CommonUtils() {}
 
-    public static Integer calculateAge(Date birthday) {
-        Years age = Years.yearsBetween(new LocalDate(birthday), new LocalDate());
-        return age.getYears();
+    public static Integer calculateAge(LocalDate birthday) {
+        if (birthday != null) {
+            return Period.between(birthday, LocalDate.now()).getYears();
+        }
+        return 0;
     }
 
     public static String calculateDiscountPercent(double purchasePrice, double sellPrice) {
@@ -55,27 +57,20 @@ public class CommonUtils {
         return PageRequest.of(page, pageSize);
     }
 
-    public static Date formatToDate(String date, String format) {
-        DateFormat dateFormat = new SimpleDateFormat(format);
-        try {
-            return dateFormat.parse(date);
-        } catch (ParseException e) {
-            log.error("Error while parsing string date : {} , formatter : {}", date, format);
-            return null;
-        }
-    }
+    //    public static LocalDateTime formatToDateTime(String date, String format) {
+    //        return LocalDateTime.parse(date, DateTimeFormatter.ofPattern(format, Locale.ENGLISH));
+    //    }
 
-    public static String formatFromDate(Date date, String format) {
-        DateFormat dateFormat = new SimpleDateFormat(format);
-        return dateFormat.format(date);
+    //    public static LocalDate formatToDate(String date, String format) {
+    //        return LocalDate.parse(date, DateTimeFormatter.ofPattern(format, Locale.ENGLISH));
+    //    }
+    //
+    public static String formatFromDate(LocalDate date, String format) {
+        return date.format(DateTimeFormatter.ofPattern(format));
     }
 
     public static String getMonthName(int month) {
         return Month.of(month).name();
-    }
-
-    public static java.time.LocalDate convertToLocalDate(Date dateToConvert) {
-        return dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public static List<UserRoleEnum> findEligibleUG() {

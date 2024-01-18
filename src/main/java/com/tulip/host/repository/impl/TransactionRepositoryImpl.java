@@ -2,8 +2,9 @@ package com.tulip.host.repository.impl;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.group.GroupBy.map;
+import static com.tulip.host.config.Constants.DATE_PATTERN;
 import static com.tulip.host.config.Constants.GROUP_BY_MONTH_FORMAT;
-import static com.tulip.host.utils.CommonUtils.formatToDate;
+import static com.tulip.host.config.Constants.MONTH_YEAR_PATTERN;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
@@ -18,11 +19,12 @@ import com.tulip.host.repository.TransactionRepository;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -35,22 +37,22 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
     }
 
     @Override
-    public Double fetchTransactionTotal(Date from, Date to) {
+    public Double fetchTransactionTotal(LocalDate from, LocalDate to) {
         return jpaQueryFactory
             .selectFrom(TRANSACTION)
-            .where(TRANSACTION.createdDate.between(from.toInstant(), to.toInstant()))
+            .where(TRANSACTION.createdDate.between(from.atStartOfDay(), to.atTime(LocalTime.MAX)))
             .select(TRANSACTION.amount.sum())
             .fetchOne();
     }
 
     @Override
-    public List<TransactionReportDTO> fetchTransactionGroupBy(Date from, Date to, String groupByFormat) {
+    public List<TransactionReportDTO> fetchTransactionGroupBy(LocalDate from, LocalDate to, String groupByFormat) {
         StringExpression monthYear = Expressions.stringTemplate(dateFormat.replace("groupBy", groupByFormat), TRANSACTION.createdDate);
 
         List<Tuple> tupleList = jpaQueryFactory
             .select(monthYear, TRANSACTION.amount.sum(), TRANSACTION.type)
             .from(TRANSACTION)
-            .where(TRANSACTION.createdDate.between(from.toInstant(), to.toInstant()))
+            .where(TRANSACTION.createdDate.between(from.atStartOfDay(), to.atTime(LocalTime.MAX)))
             .groupBy(monthYear, TRANSACTION.type)
             .fetch();
 
@@ -59,7 +61,9 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
             String monthYearValue = tuple.get(monthYear);
             TransactionReportDTO transactionReport = transactionReportMap.getOrDefault(monthYearValue, new TransactionReportDTO());
             transactionReport.setTransactionDate(
-                formatToDate(monthYearValue, groupByFormat.equalsIgnoreCase(GROUP_BY_MONTH_FORMAT) ? "MM/yyyy" : "dd/MM/yyyy")
+                groupByFormat.equalsIgnoreCase(GROUP_BY_MONTH_FORMAT)
+                    ? YearMonth.parse(monthYearValue, DateTimeFormatter.ofPattern(MONTH_YEAR_PATTERN, Locale.ENGLISH)).atEndOfMonth()
+                    : LocalDate.parse(monthYearValue, DateTimeFormatter.ofPattern(DATE_PATTERN, Locale.ENGLISH))
             );
             mapTransactionType(transactionReport, tuple);
             transactionReportMap.put(monthYearValue, transactionReport);
@@ -131,12 +135,7 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
     public Map<String, Map<String, Double>> fetchSalesReport(LocalDate date) {
         return jpaQueryFactory
             .selectFrom(TRANSACTION)
-            .where(
-                TRANSACTION.createdDate.between(
-                    date.atStartOfDay(ZoneId.systemDefault()).toInstant(),
-                    date.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant()
-                )
-            )
+            .where(TRANSACTION.createdDate.between(date.atStartOfDay(), date.atTime(LocalTime.MAX)))
             .groupBy(TRANSACTION.type, TRANSACTION.paymentMode)
             .transform(groupBy(TRANSACTION.type).as(map(TRANSACTION.paymentMode, TRANSACTION.amount.sum())));
     }
@@ -160,6 +159,8 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
             .selectFrom(TRANSACTION)
             .join(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
             .on(FEES_LINE_ITEM.transport().isNotNull())
+            .join(TRANSACTION.student(), STUDENT)
+            .on(STUDENT.id.eq(studentId))
             .where(
                 FEES_LINE_ITEM
                     .transport()

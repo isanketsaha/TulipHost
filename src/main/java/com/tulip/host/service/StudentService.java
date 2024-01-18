@@ -4,7 +4,6 @@ import static com.tulip.host.config.Constants.AADHAAR_CARD;
 import static com.tulip.host.config.Constants.BIRTH_CERTIFICATE;
 import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
 import static com.tulip.host.config.Constants.PAN_CARD;
-import static com.tulip.host.utils.CommonUtils.formatToDate;
 
 import com.querydsl.core.BooleanBuilder;
 import com.tulip.host.data.ClassDetailDTO;
@@ -33,15 +32,17 @@ import com.tulip.host.web.rest.vm.OnboardingVM;
 import com.tulip.host.web.rest.vm.TransportVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.joda.time.LocalDate;
-import org.joda.time.Months;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
@@ -178,7 +179,7 @@ public class StudentService {
         Student byId = studentRepository.findById(id).orElse(null);
         if (byId != null) {
             byId.setActive(Boolean.FALSE);
-            byId.setTerminationDate(new Date());
+            byId.setTerminationDate(LocalDateTime.now());
             studentRepository.save(byId);
         }
     }
@@ -201,28 +202,25 @@ public class StudentService {
     }
 
     @Transactional
-    public int calculatePendingMonthFees(StudentBasicDTO student, Long classId, Date sessionFrom) {
+    public int calculatePendingMonthFees(StudentBasicDTO student, Long classId, LocalDate sessionFrom) {
         List<Transaction> transactionList = transactionRepository.fetchStudentFeesTransactionByClassId(student.getId(), classId);
-        Date date = student.getCreatedDate().before(sessionFrom) ? sessionFrom : student.getCreatedDate();
+        LocalDateTime date = student.getCreatedDate().isBefore(sessionFrom.atStartOfDay())
+            ? sessionFrom.atStartOfDay()
+            : student.getCreatedDate();
         if (!CollectionUtils.isEmpty(transactionList)) {
             for (Transaction transaction : transactionList) {
-                Optional<Date> lastPaidDate = transaction
+                Optional<LocalDate> tuition_fees = transaction
                     .getFeesLineItem()
                     .stream()
                     .filter(fees -> fees.getFeesProduct() != null && fees.getFeesProduct().getFeesName().equals("TUITION FEES"))
-                    .map(u -> formatToDate(u.getMonth(), MONTH_YEAR_FORMAT))
-                    .max(Date::compareTo);
-                if (lastPaidDate.isPresent()) {
-                    return Months
-                        .monthsBetween(
-                            new LocalDate(lastPaidDate.orElseThrow()).dayOfMonth().withMaximumValue(),
-                            new LocalDate(new Date()).withDayOfMonth(1)
-                        )
-                        .getMonths();
+                    .map(u -> YearMonth.parse(u.getMonth(), DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT)).atEndOfMonth())
+                    .max(LocalDate::compareTo);
+                if (tuition_fees.isPresent()) {
+                    return Period.between(tuition_fees.orElseThrow().withDayOfMonth(1), LocalDate.now()).getMonths();
                 }
             }
         }
-        return Months.monthsBetween(new LocalDate(date).withDayOfMonth(1), new LocalDate(new Date()).withDayOfMonth(1)).getMonths();
+        return Period.between(date.withDayOfMonth(1).toLocalDate(), LocalDate.now()).getMonths();
     }
 
     @Transactional

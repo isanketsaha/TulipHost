@@ -8,7 +8,8 @@ import com.tulip.host.domain.Student;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.utils.CommonUtils;
 import jakarta.persistence.EntityManager;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,11 +72,11 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
             .fetchOne();
     }
 
-    public Map<String, Long> admissionStats(Date startDate, Date endDate) {
+    public Map<String, Long> admissionStats(LocalDate startDate, LocalDate endDate) {
         List<Tuple> tupleList = jpaQueryFactory
             .select(STUDENT.createdDate.month(), STUDENT.count())
             .from(STUDENT)
-            .where(STUDENT.active.eq(true).and(STUDENT.createdDate.between(startDate.toInstant(), endDate.toInstant())))
+            .where(STUDENT.active.eq(true).and(STUDENT.createdDate.between(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX))))
             .groupBy(STUDENT.createdDate.year(), STUDENT.createdDate.month())
             .orderBy(STUDENT.createdDate.year().asc(), STUDENT.createdDate.month().asc())
             .fetch();

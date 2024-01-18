@@ -7,5 +7,6 @@ public enum ExpenseTypeEnum {
     STAFF,
     SCHOOL_CELEBRATION,
     SCHOOL_INFRASTRUCTURE,
+    TRANSPORT,
     OTHERS,
 }
