@@ -9,6 +9,8 @@ import com.tulip.host.domain.StudentToClassId;
 import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.repository.ClassToStudentRepository;
 import jakarta.persistence.EntityManager;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,7 +33,7 @@ public class ClassToStudentRepositoryImpl extends BaseRepositoryImpl<StudentToCl
             .on(CLASS_DETAIL.session().eq(session))
             .join(STUDENT_TO_CLASS.student(), STUDENT)
             .on(STUDENT.active.eq(true))
-            .where(STUDENT.createdDate.between(session.getFromDate().toInstant(), session.getToDate().toInstant()))
+            .where(STUDENT.createdDate.between(session.getFromDate().atStartOfDay(), session.getToDate().atTime(LocalTime.MAX)))
             .groupBy(STUDENT_TO_CLASS.classField(), STUDENT_TO_CLASS.student().createdDate.yearMonth())
             .orderBy(STUDENT_TO_CLASS.student().createdDate.yearMonth().asc())
             .fetch();
@@ -68,29 +70,23 @@ public class ClassToStudentRepositoryImpl extends BaseRepositoryImpl<StudentToCl
             )
             .join(STUDENT_TO_CLASS.student(), STUDENT)
             .on(STUDENT.active.eq(true))
-            .where(STUDENT_TO_CLASS.student().createdDate.loe(session.getFromDate().toInstant()))
+            .where(STUDENT_TO_CLASS.student().createdDate.loe(session.getFromDate().atTime(LocalTime.MAX)))
             .groupBy(CLASS_DETAIL, FEES_CATALOG)
             .fetch();
         log.info("{}", activeStudentClassWise);
         return activeStudentClassWise
             .stream()
-            .collect(
-                Collectors.toMap(
-                    item -> item.get(0, String.class),
-                    item1 -> item1.get(1, Double.class),
-                    (existingValue, newValue) -> existingValue + newValue
-                )
-            );
+            .collect(Collectors.toMap(item -> item.get(0, String.class), item1 -> item1.get(1, Double.class), Double::sum));
     }
 
-    public Map<String, Long> initialSessionStrength(Session session, Date date) {
+    public Map<String, Long> initialSessionStrength(Session session, LocalDate date) {
         return jpaQueryFactory
             .select(CLASS_DETAIL.std, STUDENT_TO_CLASS.student().count())
             .from(STUDENT_TO_CLASS)
             .join(STUDENT_TO_CLASS.classField(), CLASS_DETAIL)
             .on(CLASS_DETAIL.session().eq(session))
             .join(STUDENT_TO_CLASS.student(), STUDENT)
-            .on(STUDENT.active.eq(true).and(STUDENT.createdDate.lt(date.toInstant())))
+            .on(STUDENT.active.eq(true).and(STUDENT.createdDate.lt(date.atTime(LocalTime.MAX))))
             .groupBy(STUDENT_TO_CLASS.classField())
             .transform(groupBy(CLASS_DETAIL.std).as(STUDENT_TO_CLASS.student().count()));
     }

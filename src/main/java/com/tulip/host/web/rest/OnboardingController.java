@@ -5,8 +5,8 @@ import static com.tulip.host.config.Constants.JOINING_LETTER;
 import com.tulip.host.service.EmployeeService;
 import com.tulip.host.service.StudentService;
 import com.tulip.host.service.UploadService;
+import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.OnboardingVM;
-import com.tulip.host.web.rest.vm.UploadVM;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ public class OnboardingController {
         if (onboardingVM.getType().equals("employee")) {
             Long id = employeeService.addEmployee(onboardingVM);
             byte[] bytes = employeeService.generateJoiningLetter(id);
-            UploadVM joining_letter = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, JOINING_LETTER);
+            FileUploadVM joining_letter = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, JOINING_LETTER);
             employeeService.attachEmployment(id, joining_letter);
             return ResponseEntity.ok(id);
         } else if (onboardingVM.getType().equals("student")) {

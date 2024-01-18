@@ -1,21 +1,18 @@
 package com.tulip.host.service;
 
-import com.tulip.host.config.Constants;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.utils.CommonUtils;
 import java.lang.reflect.Field;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -66,8 +63,8 @@ public class ExcelExporterService {
             cell.setCellValue((Long) value);
         } else if (value instanceof Double) {
             cell.setCellValue((Double) value);
-        } else if (value instanceof Date) {
-            cell.setCellValue(CommonUtils.formatFromDate((Date) value, "dd-MM-yyyy"));
+        } else if (value instanceof LocalDate) {
+            cell.setCellValue(CommonUtils.formatFromDate((LocalDate) value, "dd-MM-yyyy"));
         } else if (value instanceof PayTypeEnum) {
             cell.setCellValue(((PayTypeEnum) value).toString());
         } else if (value instanceof String) {

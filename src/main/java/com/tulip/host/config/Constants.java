@@ -6,13 +6,15 @@ package com.tulip.host.config;
 public final class Constants {
 
     public static final String SYSTEM = "system";
-    public static final String MONTH_YEAR_FORMAT = "MMM/yyyy";
+    public static final String MONTH_YEAR_FORMAT = "MMM/uuuu";
 
     public static final String AADHAAR_CARD = "AADHAAR CARD";
 
     public static final String PROFILE_PICTURE = "PROFILE PICTURE";
 
     public static final String PAN_CARD = "PAN CARD";
+
+    public static final String AUTHORIZATION_HEADER = "Authorization";
 
     public static final String BIRTH_CERTIFICATE = "BIRTH CERTIFICATE";
 
@@ -29,7 +31,9 @@ public final class Constants {
 
     public static final String NOT_AVAILABLE = "N/A";
 
-    public static final String DATE_PATTERN = "dd/MM/yyyy";
+    public static final String DATE_PATTERN = "dd/MM/uuuu";
+
+    public static final String MONTH_YEAR_PATTERN = "MM/uuuu";
 
     public static final String TRANSPORT_FEES = "TRANSPORT FEES";
 

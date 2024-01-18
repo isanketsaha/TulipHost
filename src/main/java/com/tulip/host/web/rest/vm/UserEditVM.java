@@ -35,9 +35,9 @@ public class UserEditVM {
     List<DependentVM> dependent;
     String experience;
     String aadhaar;
-    List<UploadVM> aadhaarCard;
-    List<UploadVM> panCard;
-    List<UploadVM> birthCertificate;
+    List<FileUploadVM> aadhaarCard;
+    List<FileUploadVM> panCard;
+    List<FileUploadVM> birthCertificate;
     Date dob;
     GenderEnum gender;
     String name;
@@ -45,17 +45,17 @@ public class UserEditVM {
     ReligionEnum religion;
     Long session;
     StdEnum std;
-    private UploadVM profilePicture;
+    private FileUploadVM profilePicture;
 
-    public void setProfilePicture(List<UploadVM> profilePhoto) {
-        UploadVM uploadVM = profilePhoto.stream().findFirst().orElse(null);
+    public void setProfilePicture(List<FileUploadVM> profilePhoto) {
+        FileUploadVM uploadVM = profilePhoto.stream().findFirst().orElse(null);
         if (uploadVM != null) {
             uploadVM.setDocumentType(PROFILE_PICTURE);
             this.profilePicture = uploadVM;
         }
     }
 
-    public void setAadhaarCard(List<UploadVM> aadhaarCard) {
+    public void setAadhaarCard(List<FileUploadVM> aadhaarCard) {
         this.aadhaarCard =
             aadhaarCard
                 .stream()
@@ -66,7 +66,7 @@ public class UserEditVM {
                 .collect(Collectors.toList());
     }
 
-    public void setPanCard(List<UploadVM> panCard) {
+    public void setPanCard(List<FileUploadVM> panCard) {
         this.panCard =
             panCard
                 .stream()
@@ -77,7 +77,7 @@ public class UserEditVM {
                 .collect(Collectors.toList());
     }
 
-    public void setBirthCertificate(List<UploadVM> birthCertificate) {
+    public void setBirthCertificate(List<FileUploadVM> birthCertificate) {
         this.birthCertificate =
             birthCertificate
                 .stream()

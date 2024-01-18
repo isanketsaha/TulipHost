@@ -1,6 +1,7 @@
 package com.tulip.host.data;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -11,7 +12,7 @@ import lombok.Data;
 @Builder
 public class FeesGraphDTO {
 
-    Instant admissionDate;
+    LocalDateTime admissionDate;
     Set<String> paidMonths;
     Set<Long> annualFeesPaid;
     Set<String> transportMonths;

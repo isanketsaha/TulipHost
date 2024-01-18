@@ -2,6 +2,7 @@ package com.tulip.host.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.tulip.host.domain.Student;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,5 +21,5 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     Student checkIfFeesPaid(Long studentId, Long feesId, String month);
 
-    Map<String, Long> admissionStats(Date startDate, Date endDate);
+    Map<String, Long> admissionStats(LocalDate startDate, LocalDate endDate);
 }

@@ -6,6 +6,7 @@ import com.tulip.host.domain.Expense;
 import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.utils.CommonUtils;
 import jakarta.persistence.EntityManager;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,13 +20,13 @@ public class ExpenseRepositoryImpl extends BaseRepositoryImpl<Expense, Long> imp
         super(Expense.class, em);
     }
 
-    public Map<String, Map<String, Double>> expenseReport(Date startDate, Date endDate) {
+    public Map<String, Map<String, Double>> expenseReport(LocalDate startDate, LocalDate endDate) {
         List<Tuple> tupleList = jpaQueryFactory
             .select(EXPENSE.category, EXPENSE.createdDate.month(), EXPENSE.amount.sum())
             .from(EXPENSE)
             .where(
                 EXPENSE.createdDate
-                    .between(startDate.toInstant(), endDate.toInstant())
+                    .between(startDate.atStartOfDay(), endDate.atStartOfDay())
                     .and(EXPENSE.createdBy.notEqualsIgnoreCase("Sanket Saha"))
             )
             .groupBy(EXPENSE.createdDate.year(), EXPENSE.createdDate.month(), EXPENSE.category)

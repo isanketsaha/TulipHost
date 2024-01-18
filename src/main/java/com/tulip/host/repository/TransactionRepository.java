@@ -10,9 +10,9 @@ import java.util.Map;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    Double fetchTransactionTotal(Date from, Date to);
+    Double fetchTransactionTotal(LocalDate from, LocalDate to);
 
-    List<TransactionReportDTO> fetchTransactionGroupBy(Date from, Date to, String groupByFormat);
+    List<TransactionReportDTO> fetchTransactionGroupBy(LocalDate from, LocalDate to, String groupByFormat);
 
     List<String> fetchAnnualFeesByClass(long studentId, long classId);
 

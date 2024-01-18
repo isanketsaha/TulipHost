@@ -4,7 +4,7 @@ import com.tulip.host.service.ExportService;
 import com.tulip.host.service.UploadService;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -62,7 +62,7 @@ public class ExportController {
 
     @PostMapping("/transactionHistory")
     public void transactionHistory(
-        @RequestBody @DateTimeFormat(pattern = "MMM/YYYY") Map<String, List<Date>> transactionMonths,
+        @RequestBody @DateTimeFormat(pattern = "MMM/YYYY") Map<String, List<LocalDate>> transactionMonths,
         HttpServletResponse response
     ) throws IOException {
         XSSFWorkbook sheets = exportService.transactionHistory(transactionMonths.get("transactionMonths"));

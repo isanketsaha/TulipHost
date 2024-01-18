@@ -49,8 +49,8 @@ import com.tulip.host.web.rest.vm.DuePaymentVm;
 import com.tulip.host.web.rest.vm.DueVM;
 import com.tulip.host.web.rest.vm.EditOrderVm;
 import com.tulip.host.web.rest.vm.ExpenseVm;
+import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.PayVM;
-import com.tulip.host.web.rest.vm.UploadVM;
 import jakarta.transaction.Transactional;
 import jakarta.xml.bind.ValidationException;
 import java.text.ParseException;
@@ -58,12 +58,10 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -152,7 +150,7 @@ public class PaymentService {
         dues.setTransaction(transaction);
     }
 
-    private void applyUpload(UploadVM docs, Transaction transaction) {
+    private void applyUpload(FileUploadVM docs, Transaction transaction) {
         if (docs != null) {
             Upload upload = uploadMapper.toModel(docs);
             upload.setDocumentType(DUES);
@@ -251,8 +249,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public List<PaySummaryDTO> getTransactionRecordByDate(Date date, String condition) {
-        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    public List<PaySummaryDTO> getTransactionRecordByDate(LocalDate localDate, String condition) {
         LocalDateTime startDateTime;
         LocalDateTime endDateTime;
         if (condition.equalsIgnoreCase("MONTH")) {
@@ -270,11 +267,7 @@ public class PaymentService {
             endDateTime = LocalDateTime.of(localDate, LocalTime.MAX);
         }
 
-        Date startDate = Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        Date endDate = Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
-
-        BooleanBuilder query = new BooleanBuilder()
-            .and(QTransaction.transaction.createdDate.between(startDate.toInstant(), endDate.toInstant()));
+        BooleanBuilder query = new BooleanBuilder().and(QTransaction.transaction.createdDate.between(startDateTime, endDateTime));
 
         Iterable<Transaction> transactions = transactionPagedRepository.findAll(query, Sort.by(Sort.Direction.DESC, "createdDate"));
         return transactionMapper.toEntityList(transactions);
@@ -461,7 +454,7 @@ public class PaymentService {
         return -1;
     }
 
-    public void attachInvoice(Long paymentId, UploadVM save) {
+    public void attachInvoice(Long paymentId, FileUploadVM save) {
         Transaction transaction = transactionRepository.findById(paymentId).orElseThrow();
         Upload upload = uploadMapper.toModel(save);
         transaction.setInvoice(upload);

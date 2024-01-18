@@ -9,7 +9,7 @@ public class ExpenseVm {
     List<ExpenseItemVM> expenseItem;
     String receivedBy;
     String comments;
-    List<UploadVM> expenseDocs;
+    List<FileUploadVM> expenseDocs;
     double total;
     String paymentMode;
 }

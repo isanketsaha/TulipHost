@@ -20,16 +20,16 @@ import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.utils.CommonUtils;
-import com.tulip.host.web.rest.vm.UploadVM;
+import com.tulip.host.web.rest.vm.FileUploadVM;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +96,7 @@ public class ExportService {
             return invoice.getUid();
         } else {
             byte[] bytes = paymentReceipt(paymentId);
-            UploadVM save = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, INVOICE);
+            FileUploadVM save = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, INVOICE);
             save.setName("INVOICE-" + paymentId);
             paymentService.attachInvoice(paymentId, save);
             return save.getUid();
@@ -130,9 +130,9 @@ public class ExportService {
         return null;
     }
 
-    public XSSFWorkbook transactionHistory(List<Date> transactionMonths) {
+    public XSSFWorkbook transactionHistory(List<LocalDate> transactionMonths) {
         XSSFWorkbook export = null;
-        for (Date months : transactionMonths) {
+        for (LocalDate months : transactionMonths) {
             List<PaySummaryDTO> month = paymentService.getTransactionRecordByDate(months, "MONTH");
             List<Object> list = new ArrayList<>(month);
             export =

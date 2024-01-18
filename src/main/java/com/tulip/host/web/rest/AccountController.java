@@ -6,6 +6,7 @@ import com.tulip.host.data.TransactionSummary;
 import com.tulip.host.service.MonitorService;
 import com.tulip.host.service.ProductService;
 import com.tulip.host.service.ReportService;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,8 @@ public class AccountController {
 
     @GetMapping("/finance")
     public TransactionSummary transactionReport(
-        @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") Date from,
-        @DateTimeFormat(pattern = "dd-MM-yyyy") @RequestParam Date to,
+        @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate from,
+        @DateTimeFormat(pattern = "dd-MM-yyyy") @RequestParam LocalDate to,
         @RequestParam(defaultValue = "MONTHLY") String groupByType
     ) {
         return monitorService.transactionReport(

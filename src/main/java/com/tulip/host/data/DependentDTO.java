@@ -1,6 +1,6 @@
 package com.tulip.host.data;
 
-import com.tulip.host.web.rest.vm.UploadVM;
+import com.tulip.host.web.rest.vm.FileUploadVM;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -38,7 +38,7 @@ public class DependentDTO implements Serializable {
     @NotNull
     private String aadhaarNo;
 
-    List<UploadVM> aadhaarCard;
+    List<FileUploadVM> aadhaarCard;
 
     private Boolean whatsappAvailable;
 }

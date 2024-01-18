@@ -21,6 +21,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.lang.Nullable;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import tech.jhipster.config.JHipsterConstants;
@@ -92,6 +94,14 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
                         .map(Object::toString)
                         .collect(Collectors.joining(" - "))
                 )
+                .build();
+            auditRepository.save(error);
+        } else if (body instanceof ProblemDetail) {
+            Audit error = Audit
+                .builder()
+                .description(((ProblemDetail) body).getTitle())
+                .type("ERROR")
+                .metadata((((ProblemDetail) body).getDetail() + " - " + ((ServletWebRequest) request).getRequest().getRequestURI()))
                 .build();
             auditRepository.save(error);
         }

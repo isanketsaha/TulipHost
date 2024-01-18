@@ -1,7 +1,6 @@
 package com.tulip.host.data;
 
-import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,5 +13,5 @@ public class AuditDTO {
     String type;
     String description;
     String endpoint;
-    Instant dateTime;
+    LocalDateTime dateTime;
 }

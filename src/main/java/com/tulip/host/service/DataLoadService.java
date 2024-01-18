@@ -3,10 +3,9 @@ package com.tulip.host.service;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Dependent;
 import com.tulip.host.domain.FeesCatalog;
-import com.tulip.host.domain.Inventory;
-import com.tulip.host.domain.ProductCatalog;
 import com.tulip.host.domain.Session;
 import com.tulip.host.domain.Student;
+import com.tulip.host.domain.Upload;
 import com.tulip.host.enums.RelationEnum;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.FeesCatalogMapper;
@@ -14,19 +13,18 @@ import com.tulip.host.mapper.InventoryMapper;
 import com.tulip.host.mapper.ProductCatalogMapper;
 import com.tulip.host.mapper.SessionMapper;
 import com.tulip.host.mapper.StudentMapper;
+import com.tulip.host.mapper.UploadMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.EmployeeRepository;
 import com.tulip.host.repository.FeesCatalogRepository;
 import com.tulip.host.repository.InventoryRepository;
-import com.tulip.host.repository.ProductCatalogRepository;
 import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
-import com.tulip.host.web.rest.vm.FeesLoadVM;
-import com.tulip.host.web.rest.vm.ProductLoadVM;
-import com.tulip.host.web.rest.vm.SessionLoadVM;
+import com.tulip.host.repository.UploadRepository;
+import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.StudentLoadVm;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import com.tulip.host.web.rest.vm.dataload.FeesLoadVM;
+import com.tulip.host.web.rest.vm.dataload.SessionLoadVM;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,34 +60,37 @@ public class DataLoadService {
     private final SessionMapper sessionMapper;
     private final ClassMapper classMapper;
 
-    @Transactional
-    public void loadStudents(List<StudentLoadVm> list) {
-        List<Student> studentList = list
-            .stream()
-            .map(item -> {
-                ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(item.getSession(), item.getStd());
-                Student student = studentMapper.toModel(item);
-                student.addClass(classDetail);
-                Dependent dependent = Dependent
-                    .builder()
-                    .name(WordUtils.capitalizeFully(item.getFatherName()))
-                    .aadhaarNo(item.getFatherAadhaar())
-                    .relationship(RelationEnum.FATHER.name())
-                    .qualification(item.getFatherQualification())
-                    .contact(item.getFatherContact())
-                    .occupation(item.getFatherOccupation())
-                    .build();
-                student.addDependent(dependent);
-                return student;
-            })
-            .collect(Collectors.toList());
-        try {
-            studentRepository.saveAllAndFlush(studentList);
-        } catch (DataIntegrityViolationException e) {
-            log.error("{}", e);
-        }
-        log.info("Successfully loaded data");
-    }
+    private final UploadMapper uploadMapper;
+    private final UploadRepository uploadRepository;
+
+    //    @Transactional
+    //    public void loadStudents(List<StudentLoadVm> list) {
+    //        List<Student> studentList = list
+    //            .stream()
+    //            .map(item -> {
+    //                ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(item.getSession(), item.getStd());
+    //                Student student = studentMapper.toModel(item);
+    //                student.addClass(classDetail);
+    //                Dependent dependent = Dependent
+    //                    .builder()
+    //                    .name(WordUtils.capitalizeFully(item.getFatherName()))
+    //                    .aadhaarNo(item.getFatherAadhaar())
+    //                    .relationship(RelationEnum.FATHER.name())
+    //                    .qualification(item.getFatherQualification())
+    //                    .contact(item.getFatherContact())
+    //                    .occupation(item.getFatherOccupation())
+    //                    .build();
+    //                student.addDependent(dependent);
+    //                return student;
+    //            })
+    //            .collect(Collectors.toList());
+    //        try {
+    //            studentRepository.saveAllAndFlush(studentList);
+    //        } catch (DataIntegrityViolationException e) {
+    //            log.error("{}", e);
+    //        }
+    //        log.info("Successfully loaded data");
+    //    }
 
     @Transactional
     public void loadFees(List<FeesLoadVM> fees) {
@@ -105,8 +106,6 @@ public class DataLoadService {
             .collect(Collectors.toList());
         feesCatalogRepository.saveAllAndFlush(feesCatalogList);
     }
-
-    public void getFees() {}
 
     @Transactional
     public void loadSession(SessionLoadVM loadVM) {
@@ -140,5 +139,14 @@ public class DataLoadService {
 
     public void removeSession(Long id) {
         sessionRepository.deleteById(id);
+    }
+
+    public void addToUpload(FileUploadVM uploadVM) {
+        uploadRepository.saveAndFlush(uploadMapper.toModel(uploadVM));
+    }
+
+    public List<FileUploadVM> get(String type) {
+        List<Upload> byTypeEndsWith = uploadRepository.findByDocumentTypeLikeOrderByCreatedDateDesc(type);
+        return uploadMapper.toEntityList(byTypeEndsWith);
     }
 }

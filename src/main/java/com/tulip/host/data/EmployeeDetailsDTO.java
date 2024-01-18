@@ -1,10 +1,11 @@
 package com.tulip.host.data;
 
-import com.tulip.host.web.rest.vm.UploadVM;
+import com.tulip.host.web.rest.vm.FileUploadVM;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -30,7 +31,7 @@ public class EmployeeDetailsDTO implements Serializable {
     @Size(max = 4)
     private String bloodGroup;
 
-    private Instant dob;
+    private LocalDate dob;
 
     @Size(max = 255)
     private String experience;
@@ -63,13 +64,13 @@ public class EmployeeDetailsDTO implements Serializable {
 
     private InterviewDTO interview;
 
-    List<UploadVM> aadhaarCard = new ArrayList<>();
+    List<FileUploadVM> aadhaarCard = new ArrayList<>();
 
-    List<UploadVM> profilePicture = new ArrayList<>();
+    List<FileUploadVM> profilePicture = new ArrayList<>();
 
-    List<UploadVM> panCard = new ArrayList<>();
+    List<FileUploadVM> panCard = new ArrayList<>();
 
     private String profilePictureUrl;
 
-    private Instant createdDate;
+    private LocalDateTime createdDate;
 }

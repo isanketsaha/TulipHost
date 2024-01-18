@@ -5,7 +5,6 @@ import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @AllArgsConstructor
@@ -21,5 +20,5 @@ public class DueVM {
     @NotNull
     Date paymentDate;
 
-    UploadVM duesDocs;
+    FileUploadVM duesDocs;
 }

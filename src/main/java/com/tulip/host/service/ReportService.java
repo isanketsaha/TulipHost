@@ -1,6 +1,7 @@
 package com.tulip.host.service;
 
 import static java.time.DayOfWeek.MONDAY;
+import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import com.querydsl.core.BooleanBuilder;
@@ -22,15 +23,16 @@ import com.tulip.host.repository.StudentToTransportRepository;
 import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.repository.TransactionRepository;
 import jakarta.transaction.Transactional;
-import jakarta.transaction.Transactional;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.time.DateUtils;
-import org.joda.time.LocalDate;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -56,24 +58,35 @@ public class ReportService {
     private final StudentToTransportRepository studentToTransportRepository;
 
     @org.springframework.transaction.annotation.Transactional
-    public List<PaySummaryDTO> fetchTransactionHistory(Date date) {
-        Date plus = DateUtils.addDays(date, 1);
+    public List<PaySummaryDTO> fetchTransactionHistory(LocalDate date) {
         BooleanBuilder query = new BooleanBuilder()
-            .and(QTransaction.transaction.createdDate.gt(date.toInstant()).and(QTransaction.transaction.createdDate.lt(plus.toInstant())));
+            .and(
+                QTransaction.transaction.createdDate
+                    .gt(date.atStartOfDay())
+                    .and(QTransaction.transaction.createdDate.lt(date.atTime(LocalTime.MAX)))
+            );
         Iterable<Transaction> transactions = transactionPagedRepository.findAll(query, Sort.by(DESC, "createdDate"));
         return transactionMapper.toEntityList(transactions);
     }
 
     @Transactional
     public DashBoardStudentDTO studentReport() {
-        Date thisWeek = new LocalDate().withDayOfWeek(MONDAY.getValue()).toDate();
-        Date thisMonth = new LocalDate().withDayOfMonth(1).toDate();
-        BooleanBuilder admissionWeekCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisWeek.toInstant()));
-        BooleanBuilder admissionMonthCondition = new BooleanBuilder().and(QStudent.student.createdDate.goe(thisMonth.toInstant()));
+        BooleanBuilder admissionWeekCondition = new BooleanBuilder()
+            .and(QStudent.student.createdDate.goe(LocalDate.now().with(DayOfWeek.MONDAY).atStartOfDay()));
+        BooleanBuilder admissionMonthCondition = new BooleanBuilder()
+            .and(QStudent.student.createdDate.goe(LocalDate.now().withDayOfMonth(1).atStartOfDay()));
         BooleanBuilder withdrawnWeekCondition = new BooleanBuilder()
-            .and(QStudent.student.terminationDate.isNotNull().and(QStudent.student.terminationDate.goe(thisWeek)));
+            .and(
+                QStudent.student.terminationDate
+                    .isNotNull()
+                    .and(QStudent.student.terminationDate.goe(LocalDate.now().with(DayOfWeek.MONDAY).atStartOfDay()))
+            );
         BooleanBuilder withdrawnMonthCondition = new BooleanBuilder()
-            .and(QStudent.student.terminationDate.isNotNull().and(QStudent.student.terminationDate.goe(thisMonth)));
+            .and(
+                QStudent.student.terminationDate
+                    .isNotNull()
+                    .and(QStudent.student.terminationDate.goe(LocalDate.now().withDayOfMonth(1).atStartOfDay()))
+            );
 
         return DashBoardStudentDTO
             .builder()
@@ -105,7 +118,7 @@ public class ReportService {
     }
 
     @Transactional
-    public double getTransactionTotal(Date from, Date to) {
+    public double getTransactionTotal(LocalDate from, LocalDate to) {
         return transactionRepository.fetchTransactionTotal(from, to);
     }
 

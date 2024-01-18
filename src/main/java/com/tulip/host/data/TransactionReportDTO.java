@@ -1,5 +1,6 @@
 package com.tulip.host.data;
 
+import java.time.LocalDate;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class TransactionReportDTO {
 
     String id;
-    Date transactionDate;
+    LocalDate transactionDate;
     double expense;
     double fees;
     double purchase;

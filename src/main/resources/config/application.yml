@@ -74,16 +74,13 @@ management:
           - threaddump
           - liquibase
   endpoint:
-    health:
-      show-details: when_authorized
-      roles: 'ROLE_ADMIN'
-      probes:
-        enabled: true
-      group:
-        liveness:
-          include: livenessState
-        readiness:
-          include: readinessState,db
+    probes:
+      enabled: true
+    group:
+      liveness:
+        include: livenessState
+      readiness:
+        include: readinessState,db
     jhimetrics:
       enabled: true
   info:

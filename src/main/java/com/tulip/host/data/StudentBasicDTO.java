@@ -3,6 +3,7 @@ package com.tulip.host.data;
 import com.tulip.host.enums.StdEnum;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -39,5 +40,5 @@ public class StudentBasicDTO {
     private String address;
     private int age;
     private List<String> annualPaidFees;
-    private Date createdDate;
+    private LocalDateTime createdDate;
 }

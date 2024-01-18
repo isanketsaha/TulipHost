@@ -1,24 +1,14 @@
-package com.tulip.host.web.rest.vm;
+package com.tulip.host.web.rest.vm.dataload;
 
 import io.github.rushuat.ocell.annotation.FieldFormat;
 import io.github.rushuat.ocell.annotation.FieldName;
 import lombok.Data;
 
 @Data
-public class ProductLoadVM {
-
-    @FieldName("Product Name")
-    private String itemName;
-
-    @FieldName("Price")
-    @FieldFormat("#0.00")
-    private Double price;
+public class ProductLoadVM extends DataLoadVM {
 
     @FieldName("Tag")
     private String tag;
-
-    @FieldName("Class")
-    private String classDetail;
 
     @FieldName("Session")
     private Long session;
