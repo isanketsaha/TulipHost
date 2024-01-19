@@ -41,22 +41,26 @@ public class DataLoadController {
         try (Document document = new DocumentOOXML()) {
             byte[] download = Optional.of(uploadService.download(vm.getFile().getUid())).orElseThrow();
             document.fromBytes(download);
-
-            List<? extends DataLoadVM> data = map(FeesLoadVM.class, document);
-
+            List<? extends DataLoadVM> data = map(vm.getType().getFormat(), vm.getType().name(), document);
             if (CollectionUtils.isNotEmpty(data)) {
-                // productService.loadProducts(products);
-                //                    dataLoadService.addToUpload(vm.getFile());
+                if (vm.getType().equals(UploadTypeEnum.PRODUCT)) {
+                    productService.loadProducts((List<ProductLoadVM>) data);
+                } else if (vm.getType().equals(UploadTypeEnum.FEES)) {
+                    dataLoadService.loadFees((List<FeesLoadVM>) data);
+                }
+                dataLoadService.addToUpload(vm.getFile());
                 return ResponseEntity.ok("Loaded");
             }
         } catch (IOException e) {
+            vm.getFile().setStatus("FAILED");
+            dataLoadService.addToUpload(vm.getFile());
             throw new RuntimeException(e);
         }
         return ResponseEntity.internalServerError().body("Error");
     }
 
-    private <T> List<? extends DataLoadVM> map(Class<? extends DataLoadVM> clazz, Document document) {
-        return document.getSheet(clazz);
+    private <T> List<? extends DataLoadVM> map(Class<? extends DataLoadVM> clazz, String sheetName, Document document) {
+        return document.getSheet(sheetName, clazz);
     }
 
     @PostMapping(value = "/newFees", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })

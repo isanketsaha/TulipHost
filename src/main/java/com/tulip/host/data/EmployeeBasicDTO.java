@@ -38,4 +38,5 @@ public class EmployeeBasicDTO {
     private String address;
 
     private String classTeacher;
+    private String authority;
 }

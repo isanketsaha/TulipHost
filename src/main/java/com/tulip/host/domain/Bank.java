@@ -32,7 +32,7 @@ public class Bank extends AbstractAuditingEntity {
 
     @NotNull
     @Column(name = "account_no", nullable = false)
-    private Long accountNo;
+    private String accountNo;
 
     @Size(max = 30)
     @NotNull
