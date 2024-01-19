@@ -7,6 +7,4 @@ import lombok.Data;
 public class FeesLoadVM extends DataLoadVM {
 
     private String rule;
-
-    private String applicableRule;
 }

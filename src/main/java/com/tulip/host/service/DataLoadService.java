@@ -146,7 +146,7 @@ public class DataLoadService {
     }
 
     public List<FileUploadVM> get(String type) {
-        List<Upload> byTypeEndsWith = uploadRepository.findByDocumentTypeLikeOrderByCreatedDateDesc(type);
+        List<Upload> byTypeEndsWith = uploadRepository.findByDocumentTypeContainingIgnoreCaseOrderByCreatedDateDesc(type);
         return uploadMapper.toEntityList(byTypeEndsWith);
     }
 }

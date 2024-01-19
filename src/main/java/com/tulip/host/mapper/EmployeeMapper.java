@@ -40,6 +40,7 @@ public interface EmployeeMapper {
 
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(source.getDob()))")
     @Mapping(target = "classTeacher", source = ".", qualifiedByName = "findClassTeacher")
+    @Mapping(target = "authority", source = "group.authority")
     EmployeeBasicDTO toBasicEntity(Employee source);
 
     List<EmployeeDetailsDTO> toEntityList(List<Employee> source);
