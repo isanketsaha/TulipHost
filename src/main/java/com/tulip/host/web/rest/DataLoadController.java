@@ -12,7 +12,6 @@ import com.tulip.host.web.rest.vm.dataload.ProductLoadVM;
 import com.tulip.host.web.rest.vm.dataload.SessionLoadVM;
 import io.github.rushuat.ocell.document.Document;
 import io.github.rushuat.ocell.document.DocumentOOXML;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +20,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/dataload")
@@ -41,7 +45,7 @@ public class DataLoadController {
         try (Document document = new DocumentOOXML()) {
             byte[] download = Optional.of(uploadService.download(vm.getFile().getUid())).orElseThrow();
             document.fromBytes(download);
-            List<? extends DataLoadVM> data = map(vm.getType().getFormat(), vm.getType().name(), document);
+            List<? extends DataLoadVM> data = map(vm.getType(), document);
             if (CollectionUtils.isNotEmpty(data)) {
                 if (vm.getType().equals(UploadTypeEnum.PRODUCT)) {
                     productService.loadProducts((List<ProductLoadVM>) data);
@@ -49,33 +53,18 @@ public class DataLoadController {
                     dataLoadService.loadFees((List<FeesLoadVM>) data);
                 }
                 dataLoadService.addToUpload(vm.getFile());
-                return ResponseEntity.ok("Loaded");
+                return ResponseEntity.ok().build();
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             vm.getFile().setStatus("FAILED");
             dataLoadService.addToUpload(vm.getFile());
             throw new RuntimeException(e);
         }
-        return ResponseEntity.internalServerError().body("Error");
+        return ResponseEntity.internalServerError().build();
     }
 
-    private <T> List<? extends DataLoadVM> map(Class<? extends DataLoadVM> clazz, String sheetName, Document document) {
-        return document.getSheet(sheetName, clazz);
-    }
-
-    @PostMapping(value = "/newFees", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<String> uploadNewFees(@RequestBody MultipartFile file) {
-        try (Document document = new DocumentOOXML()) {
-            document.fromStream(file.getInputStream());
-
-            List<FeesLoadVM> fees = document.getSheet("fees", FeesLoadVM.class);
-            if (CollectionUtils.isNotEmpty(fees)) {
-                dataLoadService.loadFees(fees);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return ResponseEntity.ok("Success");
+    private List<? extends DataLoadVM> map(UploadTypeEnum uploadType, Document document) {
+        return document.getSheet(uploadType.name(), uploadType.getFormat());
     }
 
     @PostMapping(value = "/addSession")
@@ -87,25 +76,6 @@ public class DataLoadController {
     @DeleteMapping(value = "/session")
     public void removeSession(@RequestParam Long id) {
         dataLoadService.removeSession(id);
-    }
-
-    @PostMapping(
-        value = "/newProducts",
-        consumes = { MediaType.MULTIPART_FORM_DATA_VALUE },
-        produces = { MediaType.APPLICATION_JSON_VALUE }
-    )
-    public ResponseEntity<String> uploadNewProducts(@RequestBody MultipartFile file) {
-        try (Document document = new DocumentOOXML()) {
-            document.fromStream(file.getInputStream());
-
-            List<ProductLoadVM> products = document.getSheet("product", ProductLoadVM.class);
-            if (CollectionUtils.isNotEmpty(products)) {
-                productService.loadProducts(products);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return ResponseEntity.ok("Success");
     }
 
     @GetMapping(value = "/all")
