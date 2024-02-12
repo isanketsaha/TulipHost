@@ -70,6 +70,8 @@ public class EmployeeDetailsDTO implements Serializable {
 
     List<FileUploadVM> panCard = new ArrayList<>();
 
+    List<FileUploadVM> highestQualification = new ArrayList<>();
+
     private String profilePictureUrl;
 
     private LocalDateTime createdDate;
