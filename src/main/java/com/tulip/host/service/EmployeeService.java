@@ -2,6 +2,7 @@ package com.tulip.host.service;
 
 import static com.tulip.host.config.Constants.AADHAAR_CARD;
 import static com.tulip.host.config.Constants.DEFAULT_PASSWORD;
+import static com.tulip.host.config.Constants.HIGHEST_QUALIFICATION;
 import static com.tulip.host.config.Constants.JASPER_FOLDER;
 import static com.tulip.host.config.Constants.JOINING_LETTER;
 import static com.tulip.host.config.Constants.PAN_CARD;
@@ -102,6 +103,9 @@ public class EmployeeService {
         if (onboardingVM.getPanCard() != null) {
             employee.addDocuments(uploadMapper.toModelList(onboardingVM.getPanCard()));
         }
+        if (onboardingVM.getHighestQualification() != null) {
+            employee.addDocuments(uploadMapper.toModelList(onboardingVM.getHighestQualification()));
+        }
     }
 
     @Transactional
@@ -129,6 +133,8 @@ public class EmployeeService {
                     employeeDetailsDTO.getAadhaarCard().add(uploadMapper.toEntity(item));
                 } else if (item.getDocumentType().equals(PAN_CARD)) {
                     employeeDetailsDTO.getPanCard().add(uploadMapper.toEntity(item));
+                } else if (item.getDocumentType().equals(HIGHEST_QUALIFICATION)) {
+                    employeeDetailsDTO.getHighestQualification().add(uploadMapper.toEntity(item));
                 }
             });
     }

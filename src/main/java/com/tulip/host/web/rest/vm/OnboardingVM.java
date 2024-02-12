@@ -2,6 +2,7 @@ package com.tulip.host.web.rest.vm;
 
 import static com.tulip.host.config.Constants.AADHAAR_CARD;
 import static com.tulip.host.config.Constants.BIRTH_CERTIFICATE;
+import static com.tulip.host.config.Constants.HIGHEST_QUALIFICATION;
 import static com.tulip.host.config.Constants.PAN_CARD;
 import static com.tulip.host.config.Constants.PROFILE_PICTURE;
 
@@ -55,6 +56,7 @@ public class OnboardingVM {
     List<FileUploadVM> aadhaarCard;
     List<FileUploadVM> panCard;
     List<FileUploadVM> birthCertificate;
+    List<FileUploadVM> highestQualification;
     String previousSchool;
     ReligionEnum religion;
     Long session;
@@ -98,6 +100,17 @@ public class OnboardingVM {
                 .stream()
                 .map(item -> {
                     item.setDocumentType(BIRTH_CERTIFICATE);
+                    return item;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public void setHighestQualification(List<FileUploadVM> highestQualification) {
+        this.highestQualification =
+            highestQualification
+                .stream()
+                .map(item -> {
+                    item.setDocumentType(HIGHEST_QUALIFICATION);
                     return item;
                 })
                 .collect(Collectors.toList());

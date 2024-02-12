@@ -188,9 +188,6 @@ public class StudentService {
         if (onboardingVM.getAadhaarCard() != null) {
             student.addUpload(uploadMapper.toModelList(onboardingVM.getAadhaarCard()));
         }
-        if (onboardingVM.getPanCard() != null) {
-            student.addUpload(uploadMapper.toModelList(onboardingVM.getPanCard()));
-        }
         if (onboardingVM.getBirthCertificate() != null) {
             student.addUpload(uploadMapper.toModelList(onboardingVM.getBirthCertificate()));
         }
