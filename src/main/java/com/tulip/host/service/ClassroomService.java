@@ -5,6 +5,7 @@ import com.tulip.host.data.ClassListDTO;
 import com.tulip.host.data.FeesCatalogDTO;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Student;
+import com.tulip.host.enums.ClassTypeEnum;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.FeesCatalogMapper;
 import com.tulip.host.mapper.StudentMapper;
@@ -83,6 +84,7 @@ public class ClassroomService {
         Collections.sort(allBySessionId, Comparator.comparing(ClassDetail::getStd));
         List<ClassListDTO> classListDTOS = classMapper.toClassListEntityList(allBySessionId);
         unwrap.disableFilter("activeStudent");
+        classListDTOS.sort(Comparator.comparingInt(s1 -> ClassTypeEnum.valueOf(s1.getStd().toUpperCase()).getOrder()));
         return classListDTOS;
     }
 
