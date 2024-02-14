@@ -67,7 +67,7 @@ public class UserJWTController {
             .idToken(jwt)
             .userId(loginVM.getUsername())
             .userName(authentication.getName())
-            .authority(authorities.get(0))
+            .authority(authorities.stream().findAny().orElseThrow())
             .resetCredential(byUserId != null && byUserId.getResetCredential() != null ? byUserId.getResetCredential() : false)
             .build();
         return new ResponseEntity<>(build, httpHeaders, HttpStatus.OK);
