@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
+import javax.crypto.SecretKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,7 +39,7 @@ public class TokenProvider {
 
     private static final String INVALID_JWT_TOKEN = "Invalid JWT token.";
 
-    private final Key key;
+    private final SecretKey key;
 
     private final JwtParser jwtParser;
 
@@ -63,7 +64,7 @@ public class TokenProvider {
             keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         }
         key = Keys.hmacShaKeyFor(keyBytes);
-        jwtParser = Jwts.parser().setSigningKey(key).build();
+        jwtParser = Jwts.parser().verifyWith(key).build();
         this.tokenValidityInMilliseconds = 1000 * jHipsterProperties.getSecurity().getAuthentication().getJwt().getTokenValidityInSeconds();
         this.tokenValidityInMillisecondsForRememberMe =
             1000 * jHipsterProperties.getSecurity().getAuthentication().getJwt().getTokenValidityInSecondsForRememberMe();
@@ -81,76 +82,13 @@ public class TokenProvider {
         } else {
             validity = new Date(now + this.tokenValidityInMilliseconds);
         }
-        //        final Map<String, Object> claims = new HashMap<>();
-        //        claims.put(AUTHORITIES_KEY, authorities);
-        //        claims.put("ip",getClientIp(request));
-
         return Jwts
             .builder()
-            .setSubject(authentication.getName())
+            .subject(authentication.getName())
             .claim(AUTHORITIES_KEY, authorities)
-            .signWith(key, SignatureAlgorithm.HS512)
-            .setExpiration(validity)
-            .setIssuedAt(new Date(System.currentTimeMillis()))
+            .signWith(key)
+            .expiration(validity)
+            .issuedAt(new Date(System.currentTimeMillis()))
             .compact();
-    }
-
-    //    public String doGenerateRefreshToken(Authentication authentication) {
-    //        return createToken(authentication, false);
-    //    }
-
-    public Authentication getAuthentication(String token) {
-        Claims claims = jwtParser.parseClaimsJws(token).getBody();
-
-        Collection<? extends GrantedAuthority> authorities = Arrays
-            .stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-            .filter(auth -> !auth.trim().isEmpty())
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
-
-        User principal = new User(claims.getSubject(), "", authorities);
-
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
-    }
-
-    public boolean validateToken(String authToken) {
-        try {
-            jwtParser.parseClaimsJws(authToken);
-            return true;
-        } catch (ExpiredJwtException e) {
-            this.securityMetersService.trackTokenExpired();
-            log.trace(INVALID_JWT_TOKEN, e);
-        } catch (UnsupportedJwtException e) {
-            this.securityMetersService.trackTokenUnsupported();
-
-            log.trace(INVALID_JWT_TOKEN, e);
-        } catch (MalformedJwtException e) {
-            this.securityMetersService.trackTokenMalformed();
-
-            log.trace(INVALID_JWT_TOKEN, e);
-        } catch (SignatureException e) {
-            this.securityMetersService.trackTokenInvalidSignature();
-
-            log.trace(INVALID_JWT_TOKEN);
-        } catch (IllegalArgumentException e) { // TODO: should we let it bubble (no catch), to avoid defensive programming and follow the fail-fast principle?
-            log.error("Token validation error {}", e.getMessage());
-        }
-
-        return false;
-    }
-
-    public Claims getAllClaimsFromToken(String token) {
-        return jwtParser.parseClaimsJws(token).getBody();
-    }
-
-    private static String getClientIp(HttpServletRequest request) {
-        String remoteAddr = "";
-        if (request != null) {
-            remoteAddr = request.getHeader("X-FORWARDED-FOR");
-            if (remoteAddr == null || "".equals(remoteAddr)) {
-                remoteAddr = request.getRemoteAddr();
-            }
-        }
-        return remoteAddr;
     }
 }

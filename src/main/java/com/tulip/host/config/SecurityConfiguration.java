@@ -28,10 +28,8 @@ public class SecurityConfiguration {
 
     private final JHipsterProperties jHipsterProperties;
     private final CorsFilter corsFilter;
-    private final TokenProvider tokenProvider;
 
-    public SecurityConfiguration(TokenProvider tokenProvider, CorsFilter corsFilter, JHipsterProperties jHipsterProperties) {
-        this.tokenProvider = tokenProvider;
+    public SecurityConfiguration(CorsFilter corsFilter, JHipsterProperties jHipsterProperties) {
         this.corsFilter = corsFilter;
         this.jHipsterProperties = jHipsterProperties;
     }
@@ -64,10 +62,6 @@ public class SecurityConfiguration {
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
     }
-
-    //    private JWTConfigurer securityConfigurerAdapter() {
-    //        return new JWTConfigurer(tokenProvider);
-    //    }
 
     @Bean
     MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
