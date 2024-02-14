@@ -3,6 +3,7 @@ package com.tulip.host.security;
 import com.tulip.host.data.LoginDTO;
 import com.tulip.host.repository.CredentialRepository;
 import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class DomainUserDetailsService implements UserDetailsService {
 
     private final Logger log = LoggerFactory.getLogger(DomainUserDetailsService.class);
-
-    private final PasswordEncoder passwordEncoder;
-
     private final CredentialRepository credentialRepository;
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(final String login) {
         log.debug("Authenticating {}", login);
         return credentialRepository
@@ -38,7 +36,7 @@ public class DomainUserDetailsService implements UserDetailsService {
     }
 
     private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, LoginDTO user) {
-        if (!user.getActive()) {
+        if (Boolean.FALSE.equals(user.getActive())) {
             throw new UsernameNotFoundException("User " + lowercaseLogin + " is not active" + "");
         }
         return new org.springframework.security.core.userdetails.User(
@@ -48,7 +46,7 @@ public class DomainUserDetailsService implements UserDetailsService {
             true,
             true,
             user.getActive(),
-            Arrays.asList(new SimpleGrantedAuthority(user.getAuthority()))
+            List.of(new SimpleGrantedAuthority(user.getAuthority()))
         );
     }
 }
