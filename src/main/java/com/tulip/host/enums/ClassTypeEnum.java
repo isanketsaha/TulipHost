@@ -6,6 +6,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public enum ClassTypeEnum {
+    PRENURSERY(-1),
     NURSERY(0),
     LKG(1),
     UKG(2),
