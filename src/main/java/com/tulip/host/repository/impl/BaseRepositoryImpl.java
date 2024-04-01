@@ -1,5 +1,8 @@
 package com.tulip.host.repository.impl;
 
+import com.querydsl.core.types.Ops;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLTemplates;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,9 +27,12 @@ import com.tulip.host.domain.QTransaction;
 import com.tulip.host.domain.QTransportCatalog;
 import com.tulip.host.domain.QUserGroup;
 import com.tulip.host.domain.QUserToDependent;
+import com.tulip.host.domain.Session;
 import com.tulip.host.repository.BaseRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.time.LocalDate;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> implements BaseRepository<T, ID> {
@@ -59,6 +65,8 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
 
     JPAQueryFactory jpaQueryFactory;
 
+    Session currentSession;
+
     JPAQuery<T> jpaQuery;
 
     protected BaseRepositoryImpl(Class<T> domainClass, EntityManager em) {
@@ -66,5 +74,14 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
         this.em = em;
         this.jpaQueryFactory = new JPAQueryFactory(JPQLTemplates.DEFAULT, em);
         this.jpaQuery = new JPAQuery<>(em);
+    }
+
+    @PostConstruct
+    void initializeSession() {
+        this.currentSession = jpaQueryFactory.selectFrom(SESSION).where(expressionBetweenDate(LocalDate.now())).fetchFirst();
+    }
+
+    private BooleanExpression expressionBetweenDate(LocalDate date) {
+        return Expressions.booleanOperation(Ops.BETWEEN, Expressions.asDate(date), SESSION.fromDate, SESSION.toDate);
     }
 }
