@@ -55,8 +55,18 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
     @Override
     public long fetchStudentCount(boolean active, BooleanBuilder condition) {
         return condition != null
-            ? jpaQueryFactory.selectFrom(STUDENT).where(STUDENT.active.eq(active).and(condition)).fetchCount()
-            : jpaQueryFactory.selectFrom(STUDENT).where(STUDENT.active.eq(active)).fetchCount();
+            ? jpaQueryFactory
+                .selectFrom(STUDENT)
+                .join(STUDENT.classDetails, CLASS_DETAIL)
+                .on(CLASS_DETAIL.session().eq(currentSession))
+                .where(STUDENT.active.eq(active).and(condition))
+                .fetchCount()
+            : jpaQueryFactory
+                .selectFrom(STUDENT)
+                .join(STUDENT.classDetails, CLASS_DETAIL)
+                .on(CLASS_DETAIL.session().eq(currentSession))
+                .where(STUDENT.active.eq(active))
+                .fetchCount();
     }
 
     @Override
