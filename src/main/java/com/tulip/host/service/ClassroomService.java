@@ -62,9 +62,7 @@ public class ClassroomService {
             classDetailDTO
                 .getStudents()
                 .forEach(item -> {
-                    item.setPendingFees(
-                        studentService.calculatePendingMonthFees(item, classDetail.getId(), classDetail.getSession().getFromDate())
-                    );
+                    item.setPendingFees(studentService.calculatePendingMonthFees(item, classDetail.getId(), classDetail.getSession()));
                     item.setAnnualPaidFees(transactionRepository.fetchAnnualFeesByClass(item.getId(), classroomId));
                 });
             classDetailDTO.getStudents().sort((s1, s2) -> s1.getName().toUpperCase().compareTo(s2.getName().toUpperCase()));

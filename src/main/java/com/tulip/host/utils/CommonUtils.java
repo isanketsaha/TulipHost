@@ -1,20 +1,13 @@
 package com.tulip.host.utils;
 
 import com.tulip.host.enums.UserRoleEnum;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Period;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +26,10 @@ public class CommonUtils {
             return Period.between(birthday, LocalDate.now()).getYears();
         }
         return 0;
+    }
+
+    public static LocalDate isDateAfterCurrent(LocalDate date) {
+        return date.isAfter(LocalDate.now()) ? LocalDate.now() : date;
     }
 
     public static String calculateDiscountPercent(double purchasePrice, double sellPrice) {
