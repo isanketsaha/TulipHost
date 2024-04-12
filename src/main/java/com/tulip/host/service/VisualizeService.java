@@ -7,6 +7,7 @@ import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.repository.StudentRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -57,43 +58,20 @@ public class VisualizeService {
     public double getYRR() {
         Session session = sessionService.currentSession();
         DateTimeFormatter yearMonthFormatter = DateTimeFormatter.ofPattern("yyyyMM");
-        Map<String, Double> revenueYearly = classToStudentRepository.recurringRevenueYearly(session);
         Map<String, Long> initialSessionStrength = classToStudentRepository.initialSessionStrength(session, session.getFromDate());
-        Map<String, Map<String, Long>> admissionOverYear = classToStudentRepository.overYearAdmission(session);
+        Map<String, Double> paymentDone = classToStudentRepository.paymentDoneTillDate(session);
         Map<String, Double> feesByClass = classDetailRepository.getMonthlyFeesByClass(session);
-        Map<String, Double> tuitionFees = new HashMap<>();
-        double admissionCharges = 0.0;
-        Map<String, Double> admissionFeesByClass = classDetailRepository.getAdmissionFeesByClass(session);
-
-        for (Map.Entry<String, Map<String, Long>> entry : admissionOverYear.entrySet()) {
-            String std = entry.getKey();
-            Map<String, Long> admissionByMonth = entry.getValue();
-            LocalDate startDate = session.getFromDate();
-            LocalDate endDate = session.getToDate();
-            long studentCount = 0;
-            while (startDate.isBefore(endDate)) {
-                if (initialSessionStrength.containsKey(std)) {
-                    studentCount +=
-                    initialSessionStrength.get(std) + admissionByMonth.getOrDefault(yearMonthFormatter.format(startDate), 0L);
-                    initialSessionStrength.remove(std);
-                } else {
-                    studentCount += admissionByMonth.getOrDefault(yearMonthFormatter.format(startDate), 0L);
-                }
-                admissionCharges += admissionByMonth.getOrDefault(yearMonthFormatter.format(startDate), 0L) * admissionFeesByClass.get(std);
-                tuitionFees.put(std, tuitionFees.getOrDefault(std, 0.0) + (studentCount * feesByClass.get(std)));
-                startDate = startDate.plusMonths(1);
-            }
-        }
-        log.info("Fees : {} - {} ", initialSessionStrength, tuitionFees);
-        initialSessionStrength.forEach((k, v) ->
-            tuitionFees.put(k, (v * feesByClass.get(k)) * (ChronoUnit.MONTHS.between(session.getFromDate(), session.getToDate()) + 1))
-        );
-        log.info("{} - {} - {} ", tuitionFees, revenueYearly, admissionCharges);
-        log.info("Months - {}", ChronoUnit.MONTHS.between(session.getFromDate(), session.getToDate()));
-        return (
-            tuitionFees.values().stream().reduce(0.0, Double::sum) +
-            revenueYearly.values().stream().reduce(0.0, Double::sum) +
-            admissionCharges
-        );
+        double forecast = feesByClass
+            .entrySet()
+            .stream()
+            .filter(entry -> initialSessionStrength.containsKey(entry.getKey()))
+            .mapToDouble(entry ->
+                entry.getValue() *
+                initialSessionStrength.get(entry.getKey()) *
+                Period.between(LocalDate.now(), session.getToDate()).getMonths()
+            )
+            .sum();
+        double paidTillDate = paymentDone.entrySet().stream().mapToDouble(entry -> entry.getValue()).sum();
+        return forecast + paidTillDate;
     }
 }

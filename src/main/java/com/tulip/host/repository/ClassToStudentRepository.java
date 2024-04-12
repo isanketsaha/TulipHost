@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ClassToStudentRepository extends JpaRepository<StudentToClass, StudentToClassId> {
     Map<String, Map<String, Long>> overYearAdmission(Session session);
 
-    Map<String, Double> recurringRevenueYearly(Session session);
-
     Map<String, Long> initialSessionStrength(Session session, LocalDate date);
+
+    public Map<String, Double> paymentDoneTillDate(Session session);
 }
