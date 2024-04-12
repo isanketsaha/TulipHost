@@ -14,6 +14,4 @@ public interface ClassDetailRepository extends JpaRepository<ClassDetail, Long> 
     ClassDetail findByClass(Long classId);
 
     Map<String, Double> getMonthlyFeesByClass(Session session);
-
-    Map<String, Double> getAdmissionFeesByClass(Session session);
 }

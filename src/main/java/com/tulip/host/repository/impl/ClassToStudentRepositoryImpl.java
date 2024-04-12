@@ -3,6 +3,7 @@ package com.tulip.host.repository.impl;
 import static com.querydsl.core.group.GroupBy.groupBy;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.StringExpression;
 import com.tulip.host.domain.Session;
 import com.tulip.host.domain.StudentToClass;
 import com.tulip.host.domain.StudentToClassId;
@@ -53,41 +54,36 @@ public class ClassToStudentRepositoryImpl extends BaseRepositoryImpl<StudentToCl
         return summary;
     }
 
-    @Override
-    public Map<String, Double> recurringRevenueYearly(Session session) {
-        List<Tuple> activeStudentClassWise = jpaQueryFactory
-            .select(CLASS_DETAIL.std, FEES_CATALOG.price.multiply(STUDENT_TO_CLASS.student().count()))
-            .from(STUDENT_TO_CLASS)
-            .join(STUDENT_TO_CLASS.classField(), CLASS_DETAIL)
-            .on(CLASS_DETAIL.session().eq(session))
-            .join(CLASS_DETAIL.feesCatalogs, FEES_CATALOG)
-            .on(
-                FEES_CATALOG.active
-                    .eq(true)
-                    .and(
-                        FEES_CATALOG.applicableRule.eq(FeesRuleType.YEARLY).and(FEES_CATALOG.feesName.notEqualsIgnoreCase("ADMISSION FEES"))
-                    )
-            )
-            .join(STUDENT_TO_CLASS.student(), STUDENT)
-            .on(STUDENT.active.eq(true))
-            .where(STUDENT_TO_CLASS.student().createdDate.loe(session.getFromDate().atTime(LocalTime.MAX)))
-            .groupBy(CLASS_DETAIL, FEES_CATALOG)
-            .fetch();
-        log.info("{}", activeStudentClassWise);
-        return activeStudentClassWise
-            .stream()
-            .collect(Collectors.toMap(item -> item.get(0, String.class), item1 -> item1.get(1, Double.class), Double::sum));
-    }
-
     public Map<String, Long> initialSessionStrength(Session session, LocalDate date) {
         return jpaQueryFactory
-            .select(CLASS_DETAIL.std, STUDENT_TO_CLASS.student().count())
+            .select(CLASS_DETAIL.std, STUDENT_TO_CLASS.student().countDistinct())
             .from(STUDENT_TO_CLASS)
             .join(STUDENT_TO_CLASS.classField(), CLASS_DETAIL)
             .on(CLASS_DETAIL.session().eq(session))
             .join(STUDENT_TO_CLASS.student(), STUDENT)
-            .on(STUDENT.active.eq(true).and(STUDENT.createdDate.lt(date.atTime(LocalTime.MAX))))
+            .on(STUDENT.active.eq(true))
+            .join(STUDENT.transactions, TRANSACTION)
+            .join(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
+            .join(FEES_LINE_ITEM.feesProduct(), FEES_CATALOG)
+            .on(FEES_CATALOG.feesName.likeIgnoreCase("SESSION%").and(FEES_CATALOG.std().eq(CLASS_DETAIL)))
             .groupBy(STUDENT_TO_CLASS.classField())
             .transform(groupBy(CLASS_DETAIL.std).as(STUDENT_TO_CLASS.student().count()));
+    }
+
+    public Map<String, Double> paymentDoneTillDate(Session session) {
+        return jpaQueryFactory
+            .select(CLASS_DETAIL.std, FEES_CATALOG.price.sum())
+            .from(STUDENT_TO_CLASS)
+            .join(STUDENT_TO_CLASS.classField(), CLASS_DETAIL)
+            .on(CLASS_DETAIL.session().eq(session))
+            .join(STUDENT_TO_CLASS.student(), STUDENT)
+            .on(STUDENT.active.eq(true))
+            .join(STUDENT.transactions, TRANSACTION)
+            .on(TRANSACTION.feesLineItem.isNotEmpty())
+            .join(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
+            .join(FEES_LINE_ITEM.feesProduct(), FEES_CATALOG)
+            .on(FEES_CATALOG.std().eq(CLASS_DETAIL))
+            .groupBy(CLASS_DETAIL.std)
+            .transform(groupBy(CLASS_DETAIL.std).as(FEES_CATALOG.price.sum()));
     }
 }
