@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +48,7 @@ import tech.jhipster.web.util.HeaderUtil;
  * The error response follows RFC7807 - Problem Details for HTTP APIs (https://tools.ietf.org/html/rfc7807).
  */
 @ControllerAdvice
+@Slf4j
 public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
     private static final String FIELD_ERRORS_KEY = "fieldErrors";
@@ -68,6 +70,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<Object> handleAnyException(Throwable ex, NativeWebRequest request) {
+        log.error(ex.getMessage());
         ProblemDetailWithCause pdCause = wrapAndCustomizeProblem(ex, request);
         return handleExceptionInternal((Exception) ex, pdCause, buildHeaders(ex), HttpStatusCode.valueOf(pdCause.getStatus()), request);
     }
@@ -81,6 +84,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         HttpStatusCode statusCode,
         WebRequest request
     ) {
+        //        log.error(" Body :  %s , \n Header = %s ,\n StatusCode = %s , \n Request = %s \n",body, headers, statusCode, request);
         body = body == null ? wrapAndCustomizeProblem((Throwable) ex, (NativeWebRequest) request) : body;
         if (body instanceof ProblemDetailWithCause) {
             Audit error = Audit
