@@ -1,11 +1,7 @@
 package com.tulip.host.service;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.tulip.host.domain.Upload;
-import com.tulip.host.mapper.UploadMapper;
-import com.tulip.host.repository.UploadRepository;
 import com.tulip.host.web.rest.vm.FileUploadVM;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.fileupload.FileUploadException;
 import org.springframework.stereotype.Service;
@@ -21,7 +17,7 @@ public class UploadService {
         return storageService.save(documents);
     }
 
-    public FileUploadVM save(byte[] documents, String mediaType, String docsType) throws FileUploadException {
+    public FileUploadVM save(byte[] documents, String mediaType, String docsType) {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(mediaType);
         String uid = storageService.save(documents, objectMetadata);

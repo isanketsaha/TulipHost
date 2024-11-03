@@ -1,12 +1,9 @@
 package com.tulip.host.service;
 
 import com.tulip.host.domain.ClassDetail;
-import com.tulip.host.domain.Dependent;
 import com.tulip.host.domain.FeesCatalog;
 import com.tulip.host.domain.Session;
-import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Upload;
-import com.tulip.host.enums.RelationEnum;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.FeesCatalogMapper;
 import com.tulip.host.mapper.InventoryMapper;
@@ -22,18 +19,16 @@ import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.UploadRepository;
 import com.tulip.host.web.rest.vm.FileUploadVM;
-import com.tulip.host.web.rest.vm.StudentLoadVm;
 import com.tulip.host.web.rest.vm.dataload.FeesLoadVM;
 import com.tulip.host.web.rest.vm.dataload.SessionLoadVM;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.WordUtils;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

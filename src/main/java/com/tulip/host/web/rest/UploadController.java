@@ -1,11 +1,7 @@
 package com.tulip.host.web.rest;
 
 import com.tulip.host.service.UploadService;
-import com.tulip.host.web.rest.vm.FileUploadVM;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileUploadException;
@@ -19,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/file")
@@ -45,7 +44,7 @@ public class UploadController {
     }
 
     @GetMapping("/download")
-    public void download(@RequestParam String uuid, HttpServletResponse response) throws FileUploadException, IOException {
+    public void download(@RequestParam String uuid, HttpServletResponse response) throws IOException {
         byte[] download = uploadService.download(uuid);
         ByteArrayInputStream output = new ByteArrayInputStream(download);
         IOUtils.copy(output, response.getOutputStream());

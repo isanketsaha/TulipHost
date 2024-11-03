@@ -1,12 +1,5 @@
 package com.tulip.host.service;
 
-import static com.tulip.host.config.Constants.AADHAAR_CARD;
-import static com.tulip.host.config.Constants.DEFAULT_PASSWORD;
-import static com.tulip.host.config.Constants.HIGHEST_QUALIFICATION;
-import static com.tulip.host.config.Constants.JASPER_FOLDER;
-import static com.tulip.host.config.Constants.JOINING_LETTER;
-import static com.tulip.host.config.Constants.PAN_CARD;
-
 import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.data.JoiningLetterDTO;
@@ -29,6 +22,12 @@ import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.CredentialVM;
 import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.OnboardingVM;
+import lombok.RequiredArgsConstructor;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -36,12 +35,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.apache.commons.fileupload.FileUploadException;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import static com.tulip.host.config.Constants.AADHAAR_CARD;
+import static com.tulip.host.config.Constants.DEFAULT_PASSWORD;
+import static com.tulip.host.config.Constants.HIGHEST_QUALIFICATION;
+import static com.tulip.host.config.Constants.JASPER_FOLDER;
+import static com.tulip.host.config.Constants.JOINING_LETTER;
+import static com.tulip.host.config.Constants.PAN_CARD;
 
 @Service
 @RequiredArgsConstructor
@@ -202,7 +202,7 @@ public class EmployeeService {
     }
 
     @Transactional
-    public String fetchAppointment(Long empId) throws IOException, FileUploadException {
+    public String fetchAppointment(Long empId) throws IOException {
         Employee byId = employeeRepository.findById(empId).orElseThrow();
         Upload appointmentLetter = byId.getAppointmentLetter();
         if (appointmentLetter != null) {

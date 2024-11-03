@@ -5,20 +5,17 @@ import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.service.EmployeeService;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.fileupload.FileUploadException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/employee")
@@ -67,7 +64,7 @@ public class EmployeeController {
 
     @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")
     @GetMapping("/joiningLetter")
-    public String generateJoiningLetter(@RequestParam Long empId, HttpServletResponse response) throws IOException, FileUploadException {
+    public String generateJoiningLetter(@RequestParam Long empId) throws IOException {
         return employeeService.fetchAppointment(empId);
     }
 }
