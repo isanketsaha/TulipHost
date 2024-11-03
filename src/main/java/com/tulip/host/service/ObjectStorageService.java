@@ -1,5 +1,6 @@
 package com.tulip.host.service;
 
+import com.amazonaws.services.ecr.model.UploadNotFoundException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectResult;
@@ -81,15 +82,15 @@ public class ObjectStorageService {
             return FOLDER + uuid;
         } catch (IOException e) {
             e.printStackTrace();
-            throw new FileUploadException();
+            throw new FileUploadException("Unable to Upload");
         }
     }
 
-    public String save(byte[] file, ObjectMetadata objectMetadata) throws FileUploadException {
+    public String save(byte[] file, ObjectMetadata objectMetadata){
         final String FOLDER = CommonUtils.formatFromDate(LocalDate.now(), "MMM-yyyy") + "/";
         String uuid = UUID.randomUUID().toString().replace("-", "");
         objectMetadata.setContentLength(file.length);
-        PutObjectResult putObjectResult = amazonS3Client.putObject(
+        amazonS3Client.putObject(
             properties.getAws().getCredential().getBucketName(),
             FOLDER + uuid,
             new ByteArrayInputStream(file),

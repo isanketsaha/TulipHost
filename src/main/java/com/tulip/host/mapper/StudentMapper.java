@@ -31,7 +31,7 @@ public interface StudentMapper {
     @Mapping(target = "phoneNumber", source = "contact")
     @Mapping(target = "dependents", source = "dependent")
     @Mapping(target = "bloodGroup", expression = "java(source.getBloodGroup().getDisplayType())")
-    @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(source.getName()))")
+    @Mapping(target = "name", expression = "java(org.apache.commons.lang3.text.WordUtils.capitalizeFully(source.getName()))")
     Student toModel(OnboardingVM source);
 
     Student toEntity(Long id);
@@ -71,7 +71,7 @@ public interface StudentMapper {
     @Mapping(target = "annualPaidFees", ignore = true)
     StudentBasicDTO toBasicEntity(Student student);
 
-    @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(studentLoadVms.getName()))")
+    @Mapping(target = "name", expression = "java(org.apache.commons.lang3.text.WordUtils.capitalizeFully(studentLoadVms.getName()))")
     Student toModel(StudentLoadVm studentLoadVms);
 
     List<Student> toModelList(List<StudentLoadVm> studentLoadVms);
@@ -85,7 +85,7 @@ public interface StudentMapper {
     )
     @Mapping(
         target = "name",
-        expression = "java(editVM.getName() != null ? org.apache.commons.lang.WordUtils.capitalizeFully(editVM.getName()): student.getName())"
+        expression = "java(editVM.getName() != null ? org.apache.commons.lang3.text.WordUtils.capitalizeFully(editVM.getName()): student.getName())"
     )
     void toUpdateModel(UserEditVM editVM, @MappingTarget Student student);
 

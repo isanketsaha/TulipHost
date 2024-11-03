@@ -1,7 +1,6 @@
 package com.tulip.host.config;
 
 import com.tulip.host.security.AuthoritiesConstants;
-import com.tulip.host.security.jwt.TokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

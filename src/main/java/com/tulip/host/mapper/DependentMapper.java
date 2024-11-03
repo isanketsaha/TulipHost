@@ -18,7 +18,7 @@ public interface DependentMapper {
     @Mapping(target = "aadhaarNo", source = "aadhaar")
     @Mapping(target = "relationship", source = "relation")
     @Mapping(target = "uploadedDocuments", source = "aadhaarCard")
-    @Mapping(target = "name", expression = "java(org.apache.commons.lang.WordUtils.capitalizeFully(dependent.getName()))")
+    @Mapping(target = "name", expression = "java(org.apache.commons.lang3.text.WordUtils.capitalizeFully(dependent.getName()))")
     Dependent toModel(DependentVM dependent);
 
     Set<Dependent> toModel(List<DependentVM> dependent);
@@ -27,7 +27,7 @@ public interface DependentMapper {
     @Mapping(target = "relationship", source = "relation")
     @Mapping(
         target = "name",
-        expression = "java(dependentVM.getName() != null ? org.apache.commons.lang.WordUtils.capitalizeFully(dependentVM.getName()) : dependent.getName())"
+        expression = "java(dependentVM.getName() != null ? org.apache.commons.lang3.text.WordUtils.capitalizeFully(dependentVM.getName()) : dependent.getName())"
     )
     @Mapping(target = "uploadedDocuments", source = "aadhaarCard")
     void toUpdateModel(DependentVM dependentVM, @MappingTarget Dependent dependent);
