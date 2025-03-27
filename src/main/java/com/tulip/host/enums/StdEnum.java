@@ -8,4 +8,8 @@ public enum StdEnum {
     I,
     II,
     III,
+
+    IV,
+
+    V
 }
