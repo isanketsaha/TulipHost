@@ -23,8 +23,8 @@ public class InventoryRepositoryImpl extends BaseRepositoryImpl<Inventory, Long>
             .where(
                 PRODUCT_CATALOG.active
                     .eq(true)
-                    .and(PRODUCT_CATALOG.category.notEqualsIgnoreCase(CATEGORY_PLACEHOLDER)
-                        .and(PRODUCT_CATALOG.category.notEqualsIgnoreCase(CATEGORY_BOOK)))
+                    .and(PRODUCT_CATALOG.category.ne(CATEGORY_PLACEHOLDER)
+                        .and(PRODUCT_CATALOG.category.ne(CATEGORY_BOOK)))
             )
             .fetch();
     }

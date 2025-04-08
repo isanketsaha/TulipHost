@@ -22,8 +22,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import lombok.AllArgsConstructor;
@@ -152,6 +154,9 @@ public class Employee extends AbstractAuditingEntity {
 
     @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<Upload> uploadedDocuments;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "organizer")
+    private List<AcademicCalendar> events;
 
     public void addDocuments(Set<Upload> uploadSet) {
         if (uploadedDocuments == null) {

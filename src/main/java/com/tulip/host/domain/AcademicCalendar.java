@@ -36,7 +36,7 @@ public class AcademicCalendar extends AbstractAuditingEntity {
 
     private String recurringPattern;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organizer_emp_id")
+    @ManyToOne(fetch = FetchType.LAZY,  cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinColumn(name = "organizer")
     private Employee organizer;
 }
