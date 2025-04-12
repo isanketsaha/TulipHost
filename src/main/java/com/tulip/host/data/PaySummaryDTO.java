@@ -27,5 +27,7 @@ public class PaySummaryDTO {
     String createdBy;
     List<FileUploadVM> docs;
     boolean dueOpted;
+    String couponCode;
+    double discount;
     DuesDTO dues;
 }

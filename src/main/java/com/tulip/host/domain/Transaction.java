@@ -63,7 +63,7 @@ public class Transaction extends AbstractAuditingEntity {
     private Double amount;
 
     @Column(name = "discount")
-    private Integer discount;
+    private Double discount;
 
     @NotNull
     @Column(name = "after_discount", nullable = false)
@@ -111,6 +111,10 @@ public class Transaction extends AbstractAuditingEntity {
         orphanRemoval = true
     )
     private Set<Upload> uploadList;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {  CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH })
+    @JoinColumn(name = "coupon_id")
+    private Coupon couponId;
 
     public void removeFeesLineItem(FeesLineItem lineItem) {
         this.feesLineItem.remove(lineItem);

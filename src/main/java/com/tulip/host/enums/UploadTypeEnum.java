@@ -1,5 +1,6 @@
 package com.tulip.host.enums;
 
+import com.tulip.host.web.rest.vm.dataload.CalenderLoadVM;
 import com.tulip.host.web.rest.vm.dataload.DataLoadVM;
 import com.tulip.host.web.rest.vm.dataload.FeesLoadVM;
 import com.tulip.host.web.rest.vm.dataload.ProductLoadVM;
@@ -11,11 +12,13 @@ import lombok.ToString;
 public enum UploadTypeEnum {
     PRODUCT(ProductLoadVM.class),
 
-    FEES(FeesLoadVM.class);
+    FEES(FeesLoadVM.class),
 
-    private final Class<? extends DataLoadVM> format;
+    CALENDER(CalenderLoadVM.class);
 
-    UploadTypeEnum(Class<? extends DataLoadVM> format) {
+    private final Class<? extends Object> format;
+
+    UploadTypeEnum(Class<? extends Object> format) {
         this.format = format;
     }
 }

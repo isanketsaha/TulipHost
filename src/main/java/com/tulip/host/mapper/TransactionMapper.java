@@ -30,7 +30,8 @@ import org.mapstruct.MappingTarget;
 )
 public interface TransactionMapper {
     @Mapping(target = "afterDiscount", source = "total")
-    @Mapping(target = "amount", source = "total")
+    @Mapping(target = "amount", source = "subTotal")
+    @Mapping(target = "discount", source = "discountAmount")
     @Mapping(target = "feesLineItem", source = "feeItem")
     @Mapping(target = "purchaseLineItems", source = "purchaseItems")
     @Mapping(target = "student", source = "studentId")
@@ -40,10 +41,11 @@ public interface TransactionMapper {
     List<Transaction> toFeesModelList(List<PayVM> classDetails);
 
     @Mapping(target = "paymentDateTime", source = "createdDate")
-    @Mapping(target = "total", source = "amount")
+    @Mapping(target = "total", source = "afterDiscount")
     @Mapping(target = "payType", source = "type")
     @Mapping(target = "studentId", source = "student.id")
     @Mapping(target = "studentName", source = "student.name")
+    @Mapping(target = "couponCode", source = "couponId.code")
     @Mapping(target = "feesItem", source = "feesLineItem")
     @Mapping(target = "purchaseItems", source = "purchaseLineItems")
     @Mapping(target = "paymentId", source = "id")
@@ -59,7 +61,7 @@ public interface TransactionMapper {
     @Mapping(target = "transactionId", source = "id")
     @Mapping(target = "payType", source = "type")
     @Mapping(target = "studentId", source = "student.id")
-    @Mapping(target = "total", source = "amount")
+    @Mapping(target = "total", source = "afterDiscount")
     @Mapping(target = "formattedPaymentDateTime", ignore = true)
     PrintTransactionDTO toPrintEntity(Transaction transaction);
 
