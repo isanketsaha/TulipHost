@@ -15,8 +15,10 @@ import java.util.Optional;
 
         Optional<Coupon> findByCode(String code);
 
-        @Query("SELECT c FROM Coupon c WHERE c.code = :code AND c.isActive = true " +
-            "AND c.startDate <= :now AND c.endDate >= :now")
+        @Query("SELECT c FROM Coupon c " +
+            "WHERE c.code = :code AND c.isActive = true " +
+            "AND c.startDate <= :now AND c.endDate >= :now " +
+            "AND (SELECT COUNT(t) FROM Transaction t WHERE t.couponId.id = c.id) < c.usageLimit")
         Optional<Coupon> findValidCoupon(@Param("code") String code, @Param("now") LocalDateTime now);
     }
 

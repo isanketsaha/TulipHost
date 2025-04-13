@@ -186,7 +186,7 @@ public class PaymentService {
                     .sum();
 
                 if (sum != payVM.getTotal() + (payVM.isDueOpted() ? payVM.getDueInfo().getDueAmount() : 0)
-                    + (StringUtils.isNotEmpty(payVM.getCouponCode()) ? payVM.getDiscountAmount() : 0 ) || sum != payVM.getSubTotal()) errors.add("Incorrect Total");
+                     || sum != payVM.getSubTotal()) errors.add("Incorrect Total");
             }
         }
         if (payVM.getPayType() == PayTypeEnum.FEES) {
@@ -203,12 +203,12 @@ public class PaymentService {
                             if (feesCatalog.getPrice() != item.getUnitPrice()) {
                                 errors.add("Incorrect Fees Price ");
                             }
-//                            if (student != null) {
-//                                String monthString = feesCatalog.getApplicableRule().equals(FeesRuleType.MONTHLY)
-//                                    ? "for month -  " + item.getMonth()
-//                                    : "";
-//                                errors.add(feesCatalog.getFeesName() + " is already paid " + monthString);
-//                            }
+                            if (student != null) {
+                                String monthString = feesCatalog.getApplicableRule().equals(FeesRuleType.MONTHLY)
+                                    ? "for month -  " + item.getMonth()
+                                    : "";
+                                errors.add(feesCatalog.getFeesName() + " is already paid " + monthString);
+                            }
                         } else if (item.getType().equals(TRANSPORT_FEES.replace(" ", "_"))) {
                             TransportCatalog transportCatalog = transportCatalogRepository.findById(item.getFeesId()).orElseThrow();
                             if (transportCatalog.getAmount() != item.getUnitPrice()) {
@@ -248,9 +248,6 @@ public class PaymentService {
             });
         if (payVM.isDueOpted()) {
             applyDues(transaction, payVM.getDueInfo());
-        }
-        if(!StringUtils.isEmpty(payVM.getCouponCode())){
-            couponService.applyCoupon(transaction, payVM);
         }
         Transaction purchaseOrder = transactionRepository.save(transaction);
         return purchaseOrder.getId();
