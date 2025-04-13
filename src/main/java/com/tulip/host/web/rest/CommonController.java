@@ -9,13 +9,16 @@ import com.tulip.host.enums.PaymentOptionEnum;
 import com.tulip.host.enums.RelationEnum;
 import com.tulip.host.enums.ReligionEnum;
 import com.tulip.host.enums.StdEnum;
+import com.tulip.host.enums.TypeEnum;
 import com.tulip.host.enums.UploadTypeEnum;
 import com.tulip.host.service.FinancialYearService;
 import com.tulip.host.service.SessionService;
 import com.tulip.host.utils.CommonUtils;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +37,10 @@ public class CommonController {
     public List<DropDownOptionsDto> genderList() {
         return Arrays
             .stream(GenderEnum.values())
-            .map(item -> DropDownOptionsDto.builder().label(item.getDisplayType()).value(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder()
+                .label(item.getDisplayType())
+                .value(item.name())
+                .build())
             .collect(Collectors.toList());
     }
 
@@ -42,7 +48,21 @@ public class CommonController {
     public List<DropDownOptionsDto> bloodGroupList() {
         return Arrays
             .stream(BloodGroupEnum.values())
-            .map(item -> DropDownOptionsDto.builder().label(item.getDisplayType()).value(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder()
+                .label(item.getDisplayType())
+                .value(item.name())
+                .build())
+            .collect(Collectors.toList());
+    }
+
+    @RequestMapping("/eventType")
+    public List<DropDownOptionsDto> eventTypeList() {
+        return Arrays
+            .stream(TypeEnum.values())
+            .map(item -> DropDownOptionsDto.builder()
+                .label(item.name())
+                .value(item.getColor())
+                .build())
             .collect(Collectors.toList());
     }
 
@@ -50,7 +70,10 @@ public class CommonController {
     public List<DropDownOptionsDto> dependentRelationList() {
         return Arrays
             .stream(RelationEnum.values())
-            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder()
+                .label(item.name())
+                .value(item.name())
+                .build())
             .collect(Collectors.toList());
     }
 
@@ -58,7 +81,10 @@ public class CommonController {
     public List<DropDownOptionsDto> religionList() {
         return Arrays
             .stream(ReligionEnum.values())
-            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder()
+                .label(item.name())
+                .value(item.name())
+                .build())
             .collect(Collectors.toList());
     }
 
@@ -67,7 +93,10 @@ public class CommonController {
         return CommonUtils
             .findEligibleUG()
             .stream()
-            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder()
+                .label(item.name())
+                .value(item.name())
+                .build())
             .collect(Collectors.toList());
     }
 
@@ -75,7 +104,10 @@ public class CommonController {
     public List<DropDownOptionsDto> classList() {
         return Arrays
             .stream(StdEnum.values())
-            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder()
+                .label(item.name())
+                .value(item.name())
+                .build())
             .collect(Collectors.toList());
     }
 
@@ -98,7 +130,10 @@ public class CommonController {
     public List<DropDownOptionsDto> fetchPaymentOptions() {
         return Arrays
             .stream(PaymentOptionEnum.values())
-            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder()
+                .label(item.name())
+                .value(item.name())
+                .build())
             .collect(Collectors.toList());
     }
 
@@ -106,7 +141,10 @@ public class CommonController {
     public List<DropDownOptionsDto> expenseCategoryList() {
         return Arrays
             .stream(ExpenseTypeEnum.values())
-            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder()
+                .label(item.name())
+                .value(item.name())
+                .build())
             .collect(Collectors.toList());
     }
 
@@ -114,7 +152,10 @@ public class CommonController {
     public List<DropDownOptionsDto> uploadOptions() {
         return Arrays
             .stream(UploadTypeEnum.values())
-            .map(item -> DropDownOptionsDto.builder().label(item.name()).value(item.name()).build())
+            .map(item -> DropDownOptionsDto.builder()
+                .label(item.name())
+                .value(item.name())
+                .build())
             .collect(Collectors.toList());
     }
 }

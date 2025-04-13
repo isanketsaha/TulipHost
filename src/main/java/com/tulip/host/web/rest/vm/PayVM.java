@@ -2,7 +2,9 @@ package com.tulip.host.web.rest.vm;
 
 import com.tulip.host.enums.PayTypeEnum;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +23,8 @@ public class PayVM {
     @NotNull
     PayTypeEnum payType;
 
+    Double subTotal;
+
     List<PurchasePayVM> purchaseItems;
     List<FeePayVM> feeItem;
 
@@ -29,6 +33,10 @@ public class PayVM {
 
     @NotNull
     boolean dueOpted;
+
+    double discountAmount;
+
+    String couponCode;
 
     DueVM dueInfo;
 }

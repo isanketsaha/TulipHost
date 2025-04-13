@@ -1,0 +1,22 @@
+package com.tulip.host.repository;
+
+
+import com.tulip.host.domain.Coupon;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+    @Repository
+    public interface CouponRepository extends JpaRepository<Coupon, Long> {
+
+        Optional<Coupon> findByCode(String code);
+
+        @Query("SELECT c FROM Coupon c WHERE c.code = :code AND c.isActive = true " +
+            "AND c.startDate <= :now AND c.endDate >= :now")
+        Optional<Coupon> findValidCoupon(@Param("code") String code, @Param("now") LocalDateTime now);
+    }
+

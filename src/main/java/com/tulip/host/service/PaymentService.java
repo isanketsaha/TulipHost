@@ -70,6 +70,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
@@ -103,6 +104,8 @@ public class PaymentService {
 
     private final ApplicationProperties applicationProperties;
 
+    private final CouponService couponService;
+
     private final ExpenseRepository expenseRepository;
     private final ExpenseMapper expenseMapper;
 
@@ -133,8 +136,11 @@ public class PaymentService {
             applyDues(transaction, payVM.getDueInfo());
         }
 
-        Transaction save = transactionRepository.save(transaction);
+        if(!StringUtils.isEmpty(payVM.getCouponCode())){
+            couponService.applyCoupon(transaction, payVM);
+        }
 
+        Transaction save = transactionRepository.save(transaction);
         return save.getId();
     }
 
@@ -179,7 +185,8 @@ public class PaymentService {
                     .mapToDouble(lineItem -> lineItem.getAmount())
                     .sum();
 
-                if (sum != payVM.getTotal() + (payVM.isDueOpted() ? payVM.getDueInfo().getDueAmount() : 0)) errors.add("Incorrect Total");
+                if (sum != payVM.getTotal() + (payVM.isDueOpted() ? payVM.getDueInfo().getDueAmount() : 0)
+                    + (StringUtils.isNotEmpty(payVM.getCouponCode()) ? payVM.getDiscountAmount() : 0 ) || sum != payVM.getSubTotal()) errors.add("Incorrect Total");
             }
         }
         if (payVM.getPayType() == PayTypeEnum.FEES) {
@@ -196,12 +203,12 @@ public class PaymentService {
                             if (feesCatalog.getPrice() != item.getUnitPrice()) {
                                 errors.add("Incorrect Fees Price ");
                             }
-                            if (student != null) {
-                                String monthString = feesCatalog.getApplicableRule().equals(FeesRuleType.MONTHLY)
-                                    ? "for month -  " + item.getMonth()
-                                    : "";
-                                errors.add(feesCatalog.getFeesName() + " is already paid " + monthString);
-                            }
+//                            if (student != null) {
+//                                String monthString = feesCatalog.getApplicableRule().equals(FeesRuleType.MONTHLY)
+//                                    ? "for month -  " + item.getMonth()
+//                                    : "";
+//                                errors.add(feesCatalog.getFeesName() + " is already paid " + monthString);
+//                            }
                         } else if (item.getType().equals(TRANSPORT_FEES.replace(" ", "_"))) {
                             TransportCatalog transportCatalog = transportCatalogRepository.findById(item.getFeesId()).orElseThrow();
                             if (transportCatalog.getAmount() != item.getUnitPrice()) {
@@ -220,7 +227,9 @@ public class PaymentService {
                     })
                     .mapToDouble(lineItem -> lineItem.getAmount())
                     .sum();
-                if (sum != payVM.getTotal() + (payVM.isDueOpted() ? payVM.getDueInfo().getDueAmount() : 0)) errors.add("Incorrect  Total");
+                if (sum != payVM.getTotal() + (payVM.isDueOpted() ? payVM.getDueInfo().getDueAmount() : 0)
+                    + (StringUtils.isNotEmpty(payVM.getCouponCode()) ? payVM.getDiscountAmount() : 0 ) || sum != payVM.getSubTotal())
+                    errors.add("Incorrect  Total");
             }
         }
         if (!CollectionUtils.isEmpty(errors)) {
@@ -239,6 +248,9 @@ public class PaymentService {
             });
         if (payVM.isDueOpted()) {
             applyDues(transaction, payVM.getDueInfo());
+        }
+        if(!StringUtils.isEmpty(payVM.getCouponCode())){
+            couponService.applyCoupon(transaction, payVM);
         }
         Transaction purchaseOrder = transactionRepository.save(transaction);
         return purchaseOrder.getId();

@@ -1,11 +1,13 @@
 package com.tulip.host.web.rest;
 
 import com.tulip.host.enums.UploadTypeEnum;
+import com.tulip.host.service.CalendarService;
 import com.tulip.host.service.DataLoadService;
 import com.tulip.host.service.ProductService;
 import com.tulip.host.service.UploadService;
 import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.UploadVM;
+import com.tulip.host.web.rest.vm.dataload.CalenderLoadVM;
 import com.tulip.host.web.rest.vm.dataload.DataLoadVM;
 import com.tulip.host.web.rest.vm.dataload.FeesLoadVM;
 import com.tulip.host.web.rest.vm.dataload.ProductLoadVM;
@@ -36,23 +38,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class DataLoadController {
 
     private final DataLoadService dataLoadService;
-
     private final UploadService uploadService;
     private final ProductService productService;
+    private final CalendarService calendarService;
 
     @PostMapping(value = "/add", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<String> load(@RequestBody UploadVM vm) {
         try (Document document = new DocumentOOXML()) {
             byte[] download = Optional.of(uploadService.download(vm.getFile().getUid())).orElseThrow();
             document.fromBytes(download);
-            List<? extends DataLoadVM> data = map(vm.getType(), document);
+            List<? extends Object> data = map(vm.getType(), document);
             if (CollectionUtils.isNotEmpty(data)) {
                 if (vm.getType().equals(UploadTypeEnum.PRODUCT)) {
                     productService.loadProducts((List<ProductLoadVM>) data);
                 } else if (vm.getType().equals(UploadTypeEnum.FEES)) {
                     dataLoadService.loadFees((List<FeesLoadVM>) data);
                 }
-                dataLoadService.addToUpload(vm.getFile());
+                else if (vm.getType().equals(UploadTypeEnum.CALENDER)) {
+                    calendarService.createEvent((List<CalenderLoadVM>) data);
+                }
+              //  dataLoadService.addToUpload(vm.getFile());
                 return ResponseEntity.ok().build();
             }
         } catch (Exception e) {
@@ -63,7 +68,7 @@ public class DataLoadController {
         return ResponseEntity.internalServerError().build();
     }
 
-    private List<? extends DataLoadVM> map(UploadTypeEnum uploadType, Document document) {
+    private List<? extends Object> map(UploadTypeEnum uploadType, Document document) {
         return document.getSheet(uploadType.name(), uploadType.getFormat());
     }
 

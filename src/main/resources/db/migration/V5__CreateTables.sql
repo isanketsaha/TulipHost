@@ -38,3 +38,25 @@ CREATE TABLE IF NOT EXISTS academic_calendar (
 	last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (organizer) REFERENCES employee (emp_id)
 );
+
+CREATE TABLE IF NOT EXISTS coupons (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(255),
+    discount_type ENUM('PERCENTAGE', 'FIXED_AMOUNT') NOT NULL,
+    discount_value DECIMAL(10, 2) NOT NULL,
+    min_purchase_amount DECIMAL(10, 2) DEFAULT 0.00,
+    max_discount_amount DECIMAL(10, 2),
+    start_date DATETIME NOT NULL,
+    end_date DATETIME NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    usage_limit INT DEFAULT 1,
+    created_by varchar(50) DEFAULT NULL,
+    last_modified_by varchar(50) DEFAULT NULL,
+    created_date timestamp DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+ALTER TABLE transactions
+ADD COLUMN coupon_id bigint  DEFAULT NULL,
+ADD FOREIGN KEY (coupon_id) REFERENCES coupons (id)

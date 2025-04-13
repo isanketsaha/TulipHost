@@ -1,5 +1,6 @@
 package com.tulip.host.domain;
 
+import com.tulip.host.enums.TypeEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,7 +29,9 @@ public class AcademicCalendar extends AbstractAuditingEntity {
     @Column(name = "description")
     private String description;
 
-    private String eventType;
+    @Column(name = "eventType")
+    @Enumerated(EnumType.STRING)
+    private TypeEnum eventType;
 
     private LocalDate startDate;
 
@@ -37,6 +40,6 @@ public class AcademicCalendar extends AbstractAuditingEntity {
     private String recurringPattern;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organizer_emp_id")
+    @JoinColumn(name = "organizer")
     private Employee organizer;
 }
