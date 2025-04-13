@@ -92,27 +92,7 @@ public class CouponService {
             Coupon coupon = couponRepository.findValidCoupon(code, LocalDateTime.now())
                 .orElseThrow(() -> new Exception("Coupon is invalid or expired"));
 
-            // Check if minimum purchase amount is met
-//            if (coupon.getMinPurchaseAmount() != null &&
-//                purchaseAmount.compareTo(coupon.getMinPurchaseAmount()) < 0) {
-//                return CouponValidationResponseVM.builder()
-//                    .valid(false)
-//                    .code(code)
-//                    .message("Minimum purchase amount not met. Required: " + coupon.getMinPurchaseAmount())
-//                    .build();
-//            }
-//
-//            // Check if user has already used this coupon (if userId provided)
-//            if (userId != null) {
-//                int usageCount = couponUsageRepository.countByCouponAndUserId(coupon, userId);
-//                if (usageCount > 0) {
-//                    return CouponValidationResponseDTO.builder()
-//                        .valid(false)
-//                        .code(code)
-//                        .message("You have already used this coupon")
-//                        .build();
-//                }
-//            }
+
 
             // Calculate discount
 //            BigDecimal discountAmount = calculateDiscount(coupon, purchaseAmount);
@@ -163,7 +143,6 @@ public class CouponService {
 //                discountAmount = coupon.getMaxDiscountAmount();
 //            }
         } else {
-            // Fixed amount discount
             discountAmount = coupon.getDiscountValue();
 //
 //            // Discount cannot be more than purchase amount
@@ -174,14 +153,4 @@ public class CouponService {
 
         return discountAmount;
     }
-
-//    private void validateCouponDates(CouponRequestDTO requestDTO) {
-//        if (requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
-//            throw new IllegalArgumentException("Start date must be before end date");
-//        }
-//
-//        if (requestDTO.getEndDate().isBefore(LocalDateTime.now())) {
-//            throw new IllegalArgumentException("End date must be in the future");
-//        }
-//    }
 }
