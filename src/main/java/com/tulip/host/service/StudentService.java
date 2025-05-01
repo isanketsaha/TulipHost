@@ -18,6 +18,7 @@ import com.tulip.host.domain.Student;
 import com.tulip.host.domain.StudentToTransport;
 import com.tulip.host.domain.StudentToTransportId;
 import com.tulip.host.domain.Transaction;
+import com.tulip.host.exceptions.ResourceNotFoundException;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.DependentMapper;
 import com.tulip.host.mapper.StudentMapper;
@@ -30,10 +31,12 @@ import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.StudentToTransportRepository;
 import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.utils.CommonUtils;
+import com.tulip.host.web.rest.vm.DeactivateVm;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import com.tulip.host.web.rest.vm.TransportVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import jakarta.validation.constraints.NotNull;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,6 +46,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -85,7 +89,8 @@ public class StudentService {
 
     @Transactional
     public Long addStudent(OnboardingVM onboardingVM) {
-        ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(onboardingVM.getSession(), onboardingVM.getStd().name());
+        ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(onboardingVM.getSession(), onboardingVM.getStd()
+            .name());
         Student student = studentMapper.toModel(onboardingVM);
         student.addClass(classDetail);
         addUpload(student, onboardingVM);
@@ -119,19 +124,26 @@ public class StudentService {
         byId
             .getUploadedDocuments()
             .forEach(item -> {
-                if (item.getDocumentType().equals(AADHAAR_CARD)) {
-                    studentDetailsDTO.getAadhaarCard().add(uploadMapper.toEntity(item));
-                } else if (item.getDocumentType().equals(BIRTH_CERTIFICATE)) {
-                    studentDetailsDTO.getBirthCertificate().add(uploadMapper.toEntity(item));
-                } else if (item.getDocumentType().equals(PAN_CARD)) {
-                    studentDetailsDTO.getPanCard().add(uploadMapper.toEntity(item));
+                if (item.getDocumentType()
+                    .equals(AADHAAR_CARD)) {
+                    studentDetailsDTO.getAadhaarCard()
+                        .add(uploadMapper.toEntity(item));
+                } else if (item.getDocumentType()
+                    .equals(BIRTH_CERTIFICATE)) {
+                    studentDetailsDTO.getBirthCertificate()
+                        .add(uploadMapper.toEntity(item));
+                } else if (item.getDocumentType()
+                    .equals(PAN_CARD)) {
+                    studentDetailsDTO.getPanCard()
+                        .add(uploadMapper.toEntity(item));
                 }
             });
     }
 
     @Transactional
     public StudentBasicDTO basicSearchStudent(long id) {
-        Student byId = studentRepository.findById(id).orElse(null);
+        Student byId = studentRepository.findById(id)
+            .orElse(null);
         if (byId != null) {
             return studentMapper.toBasicEntity(byId);
         }
@@ -149,7 +161,8 @@ public class StudentService {
 
     @Transactional
     public void editStudentDetails(UserEditVM editVM) {
-        Student byId = studentRepository.findById(editVM.getId()).orElse(null);
+        Student byId = studentRepository.findById(editVM.getId())
+            .orElse(null);
         if (byId != null) {
             studentMapper.toUpdateModel(editVM, byId);
             if (editVM.getAadhaarCard() != null) {
@@ -166,11 +179,13 @@ public class StudentService {
                 editVM
                     .getDependent()
                     .forEach(dependentVM -> {
-                        Dependent dependent = dependentRepository.findById(dependentVM.getId()).orElse(null);
+                        Dependent dependent = dependentRepository.findById(dependentVM.getId())
+                            .orElse(null);
 
                         dependentMapper.toUpdateModel(dependentVM, dependent);
                         if (dependentVM.getAadhaarCard() != null) {
-                            dependent.getUploadedDocuments().forEach(item -> item.setDependent(dependent));
+                            dependent.getUploadedDocuments()
+                                .forEach(item -> item.setDependent(dependent));
                         }
                         dependentRepository.saveAndFlush(dependent);
                     });
@@ -178,13 +193,14 @@ public class StudentService {
         }
     }
 
-    public void deactivate(long id) {
-        Student byId = studentRepository.findById(id).orElse(null);
-        if (byId != null) {
-            byId.setActive(Boolean.FALSE);
-            byId.setTerminationDate(LocalDateTime.now());
-            studentRepository.save(byId);
-        }
+    public void deactivate(DeactivateVm vm) {
+        Student byId = studentRepository.findById(vm.getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        byId.setActive(Boolean.FALSE);
+        byId.setTerminationDate(LocalDateTime.now());
+        byId.setTc(vm.getTc());
+        byId.setTerminationReason(vm.getReason());
+        studentRepository.save(byId);
     }
 
     public void addUpload(Student student, OnboardingVM onboardingVM) {
@@ -198,36 +214,47 @@ public class StudentService {
             .getDependents()
             .stream()
             .filter(item -> !CollectionUtils.isEmpty(item.getUploadedDocuments()))
-            .forEach(item -> item.getUploadedDocuments().forEach(upload -> upload.setDependent(item)));
+            .forEach(item -> item.getUploadedDocuments()
+                .forEach(upload -> upload.setDependent(item)));
     }
 
     @Transactional
     public int calculatePendingMonthFees(StudentBasicDTO student, Long classId, @NotNull Session sessionFrom) {
         List<Transaction> transactionList = transactionRepository.fetchStudentFeesTransactionByClassId(student.getId(), classId);
-        LocalDateTime date = student.getCreatedDate().isBefore(sessionFrom.getFromDate().atStartOfDay())
-            ? sessionFrom.getFromDate().atStartOfDay()
+        LocalDateTime date = student.getCreatedDate()
+            .isBefore(sessionFrom.getFromDate()
+                .atStartOfDay())
+            ? sessionFrom.getFromDate()
+            .atStartOfDay()
             : student.getCreatedDate();
         if (!CollectionUtils.isEmpty(transactionList)) {
             for (Transaction transaction : transactionList) {
                 Optional<LocalDate> tuition_fees = transaction
                     .getFeesLineItem()
                     .stream()
-                    .filter(fees -> fees.getFeesProduct() != null && fees.getFeesProduct().getFeesName().equals("TUITION FEES"))
-                    .map(u -> YearMonth.parse(u.getMonth(), DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT)).atEndOfMonth())
+                    .filter(fees -> fees.getFeesProduct() != null && fees.getFeesProduct()
+                        .getFeesName()
+                        .equals("TUITION FEES"))
+                    .map(u -> YearMonth.parse(u.getMonth(), DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT))
+                        .atEndOfMonth())
                     .max(LocalDate::compareTo);
                 if (tuition_fees.isPresent()) {
                     return Period
-                        .between(tuition_fees.orElseThrow().withDayOfMonth(1), isDateAfterCurrent(sessionFrom.getToDate()))
+                        .between(tuition_fees.orElseThrow()
+                            .withDayOfMonth(1), isDateAfterCurrent(sessionFrom.getToDate()))
                         .getMonths();
                 }
             }
         }
-        return Period.between(date.withDayOfMonth(1).toLocalDate(), isDateAfterCurrent(sessionFrom.getToDate())).getMonths();
+        return Period.between(date.withDayOfMonth(1)
+                .toLocalDate(), isDateAfterCurrent(sessionFrom.getToDate()))
+            .getMonths();
     }
 
     @Transactional
     public void addTransport(TransportVm transport) {
-        Student student = studentRepository.findById(transport.getStudentId()).orElseThrow();
+        Student student = studentRepository.findById(transport.getStudentId())
+            .orElseThrow();
         StudentToTransport studentToTransport = studentToTransportMapper.toEntity(transport);
         studentToTransport.setStudent(student);
         student.addTransport(studentToTransport);
@@ -235,8 +262,12 @@ public class StudentService {
     }
 
     public void discontinueTransport(Long id, Long locationId) {
-        StudentToTransportId toTransportId = StudentToTransportId.builder().studentId(id).transportId(locationId).build();
-        StudentToTransport studentToTransport = studentToTransportRepository.findById(toTransportId).orElseThrow();
+        StudentToTransportId toTransportId = StudentToTransportId.builder()
+            .studentId(id)
+            .transportId(locationId)
+            .build();
+        StudentToTransport studentToTransport = studentToTransportRepository.findById(toTransportId)
+            .orElseThrow();
         studentToTransport.setEndDate(Instant.now());
         studentToTransportRepository.saveAndFlush(studentToTransport);
     }

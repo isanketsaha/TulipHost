@@ -33,6 +33,10 @@ public class StudentDetailsDTO {
 
     String aadhaar;
 
+    String tc;
+
+    private String terminationReason;
+
     @NotNull
     private List<ClassDetailDTO> classDetails;
 

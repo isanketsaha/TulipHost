@@ -97,6 +97,13 @@ public class Student extends AbstractAuditingEntity {
     @Column(name = "termination_date")
     private LocalDateTime terminationDate;
 
+
+    @Column(name = "tc_number", length = 25)
+    private String tc;
+
+    @Column(name = "termination_reason")
+    private String terminationReason;
+
     @Size(max = 20)
     @Column(name = "religion", length = 20)
     private String religion;
