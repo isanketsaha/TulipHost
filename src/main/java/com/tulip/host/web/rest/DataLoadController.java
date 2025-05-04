@@ -55,15 +55,15 @@ public class DataLoadController {
             document.fromBytes(download);
             List<? extends Object> data = map(vm.getType(), document);
             if (CollectionUtils.isNotEmpty(data)) {
-//                if (vm.getType().equals(UploadTypeEnum.PRODUCT)) {
-//                    productService.loadProducts((List<ProductLoadVM>) data);
-//                } else if (vm.getType().equals(UploadTypeEnum.FEES)) {
-//                    dataLoadService.loadFees((List<FeesLoadVM>) data);
-//                }
-//                else if (vm.getType().equals(UploadTypeEnum.CALENDER)) {
-//                    calendarService.createEvent((List<CalenderLoadVM>) data);
-//                }
-//                dataLoadService.addToUpload(vm.getFile());
+                if (vm.getType().equals(UploadTypeEnum.PRODUCT)) {
+                    productService.loadProducts((List<ProductLoadVM>) data);
+                } else if (vm.getType().equals(UploadTypeEnum.FEES)) {
+                    dataLoadService.loadFees((List<FeesLoadVM>) data);
+                }
+                else if (vm.getType().equals(UploadTypeEnum.CALENDER)) {
+                    calendarService.createEvent((List<CalenderLoadVM>) data);
+                }
+                dataLoadService.addToUpload(vm.getFile());
                 return ResponseEntity.ok().build();
             }
         } catch (Exception e) {
