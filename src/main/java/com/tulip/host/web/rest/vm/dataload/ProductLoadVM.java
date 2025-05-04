@@ -23,7 +23,7 @@ public class ProductLoadVM extends DataLoadVM {
     private Double purchasePrice;
 
     @FieldName("Quantity")
-    private int qty;
+    private Integer qty;
 
     @FieldName("Discount Percent")
     private Integer discountPercent;

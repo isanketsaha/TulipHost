@@ -38,54 +38,16 @@ public class DataLoadService {
     private final EmployeeRepository employeeRepository;
     private final SessionRepository sessionRepository;
 
-    private final StudentMapper studentMapper;
-
-    private final ClassDetailRepository classDetailRepository;
-
-    private final StudentRepository studentRepository;
 
     private final FeesCatalogMapper feesCatalogMapper;
     private final FeesCatalogRepository feesCatalogRepository;
 
-    private final ProductCatalogMapper productCatalogMapper;
-    private final InventoryMapper inventoryMapper;
-
-    private final InventoryRepository inventoryRepository;
 
     private final SessionMapper sessionMapper;
-    private final ClassMapper classMapper;
 
     private final UploadMapper uploadMapper;
     private final UploadRepository uploadRepository;
 
-    //    @Transactional
-    //    public void loadStudents(List<StudentLoadVm> list) {
-    //        List<Student> studentList = list
-    //            .stream()
-    //            .map(item -> {
-    //                ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(item.getSession(), item.getStd());
-    //                Student student = studentMapper.toModel(item);
-    //                student.addClass(classDetail);
-    //                Dependent dependent = Dependent
-    //                    .builder()
-    //                    .name(WordUtils.capitalizeFully(item.getFatherName()))
-    //                    .aadhaarNo(item.getFatherAadhaar())
-    //                    .relationship(RelationEnum.FATHER.name())
-    //                    .qualification(item.getFatherQualification())
-    //                    .contact(item.getFatherContact())
-    //                    .occupation(item.getFatherOccupation())
-    //                    .build();
-    //                student.addDependent(dependent);
-    //                return student;
-    //            })
-    //            .collect(Collectors.toList());
-    //        try {
-    //            studentRepository.saveAllAndFlush(studentList);
-    //        } catch (DataIntegrityViolationException e) {
-    //            log.error("{}", e);
-    //        }
-    //        log.info("Successfully loaded data");
-    //    }
 
     @Transactional
     public void loadFees(List<FeesLoadVM> fees) {

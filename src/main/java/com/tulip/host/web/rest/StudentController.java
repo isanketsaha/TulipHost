@@ -3,6 +3,7 @@ package com.tulip.host.web.rest;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.service.StudentService;
+import com.tulip.host.web.rest.vm.DeactivateVm;
 import com.tulip.host.web.rest.vm.TransportVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import jakarta.validation.Valid;
@@ -71,8 +72,8 @@ public class StudentController {
     }
 
     @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")
-    @RequestMapping("/deactivate")
-    public void deactivate(@Valid @RequestParam(value = "studentId") long id) {
-        studentService.deactivate(id);
+    @PostMapping("/deactivate")
+    public void deactivate(@Valid @RequestBody DeactivateVm vm) {
+        studentService.deactivate(vm);
     }
 }
