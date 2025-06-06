@@ -1,0 +1,156 @@
+---- tulip.action definition
+--
+--CREATE TABLE IF NOT EXISTS action (
+--  id bigint NOT NULL,
+--  name varchar(255) DEFAULT NULL,
+--  spel varchar(255) DEFAULT NULL,
+--  PRIMARY KEY (id)
+--);
+--
+--
+---- tulip.action_seq definition
+--
+--CREATE TABLE IF NOT EXISTS action_seq (
+--  next_val bigint DEFAULT NULL
+--);
+--
+--
+---- tulip.guard definition
+--
+--CREATE TABLE IF NOT EXISTS guard (
+--  id bigint NOT NULL,
+--  name varchar(255) DEFAULT NULL,
+--  spel varchar(255) DEFAULT NULL,
+--  PRIMARY KEY (id)
+--);
+--
+--
+---- tulip.guard_seq definition
+--
+--CREATE TABLE IF NOT EXISTS guard_seq (
+--  next_val bigint DEFAULT NULL
+--);
+--
+--
+---- tulip.state_machine definition
+--
+--CREATE TABLE IF NOT EXISTS state_machine (
+--  machine_id varchar(255) NOT NULL,
+--  state varchar(255) DEFAULT NULL,
+--  state_machine_context blob,
+--  PRIMARY KEY (machine_id)
+--);
+--
+--
+---- tulip.state_seq definition
+--
+--CREATE TABLE IF NOT EXISTS state_seq (
+--  next_val bigint DEFAULT NULL
+--);
+--
+--
+---- tulip.transition_seq definition
+--
+--CREATE TABLE IF NOT EXISTS transition_seq (
+--  next_val bigint DEFAULT NULL
+--);
+--
+--
+---- tulip.state definition
+--
+--CREATE TABLE IF NOT EXISTS state (
+--  id bigint NOT NULL,
+--  initial_state bit(1) DEFAULT NULL,
+--  kind tinyint DEFAULT NULL,
+--  machine_id varchar(255) DEFAULT NULL,
+--  region varchar(255) DEFAULT NULL,
+--  state varchar(255) DEFAULT NULL,
+--  submachine_id varchar(255) DEFAULT NULL,
+--  initial_action_id bigint DEFAULT NULL,
+--  parent_state_id bigint DEFAULT NULL,
+--  PRIMARY KEY (id),
+--  UNIQUE KEY UK_8wgif9244xst3u1hhmd3uxky (initial_action_id),
+--  KEY fk_state_parent_state (parent_state_id),
+--  CONSTRAINT fk_state_initial_action FOREIGN KEY (initial_action_id) REFERENCES action (id),
+--  CONSTRAINT fk_state_parent_state FOREIGN KEY (parent_state_id) REFERENCES state (id),
+--  CONSTRAINT state_chk_1 CHECK ((kind between 0 and 9))
+--);
+--
+--
+---- tulip.state_entry_actions definition
+--
+--CREATE TABLE IF NOT EXISTS state_entry_actions (
+--  jpa_repository_state_id bigint NOT NULL,
+--  entry_actions_id bigint NOT NULL,
+--  PRIMARY KEY (jpa_repository_state_id,entry_actions_id),
+--  KEY fk_state_entry_actions_a (entry_actions_id),
+--  CONSTRAINT fk_state_entry_actions_a FOREIGN KEY (entry_actions_id) REFERENCES action (id),
+--  CONSTRAINT fk_state_entry_actions_s FOREIGN KEY (jpa_repository_state_id) REFERENCES state (id)
+--);
+--
+--
+---- tulip.state_exit_actions definition
+--
+--CREATE TABLE IF NOT EXISTS state_exit_actions (
+--  jpa_repository_state_id bigint NOT NULL,
+--  exit_actions_id bigint NOT NULL,
+--  PRIMARY KEY (jpa_repository_state_id,exit_actions_id),
+--  KEY fk_state_exit_actions_a (exit_actions_id),
+--  CONSTRAINT fk_state_exit_actions_a FOREIGN KEY (exit_actions_id) REFERENCES action (id),
+--  CONSTRAINT fk_state_exit_actions_s FOREIGN KEY (jpa_repository_state_id) REFERENCES state (id)
+--);
+--
+--
+---- tulip.state_state_actions definition
+--
+--CREATE TABLE IF NOT EXISTS state_state_actions (
+--  jpa_repository_state_id bigint NOT NULL,
+--  state_actions_id bigint NOT NULL,
+--  PRIMARY KEY (jpa_repository_state_id,state_actions_id),
+--  KEY fk_state_state_actions_a (state_actions_id),
+--  CONSTRAINT fk_state_state_actions_a FOREIGN KEY (state_actions_id) REFERENCES action (id),
+--  CONSTRAINT fk_state_state_actions_s FOREIGN KEY (jpa_repository_state_id) REFERENCES state (id)
+--);
+--
+--
+---- tulip.transition definition
+--
+--CREATE TABLE IF NOT EXISTS transition (
+--  id bigint NOT NULL,
+--  event varchar(255) DEFAULT NULL,
+--  kind tinyint DEFAULT NULL,
+--  machine_id varchar(255) DEFAULT NULL,
+--  guard_id bigint DEFAULT NULL,
+--  source_id bigint DEFAULT NULL,
+--  target_id bigint DEFAULT NULL,
+--  PRIMARY KEY (id),
+--  KEY fk_transition_guard (guard_id),
+--  KEY fk_transition_source (source_id),
+--  KEY fk_transition_target (target_id),
+--  CONSTRAINT fk_transition_guard FOREIGN KEY (guard_id) REFERENCES guard (id),
+--  CONSTRAINT fk_transition_source FOREIGN KEY (source_id) REFERENCES state (id),
+--  CONSTRAINT fk_transition_target FOREIGN KEY (target_id) REFERENCES state (id),
+--  CONSTRAINT transition_chk_1 CHECK ((kind between 0 and 3))
+--);
+--
+--
+---- tulip.transition_actions definition
+--
+--CREATE TABLE IF NOT EXISTS transition_actions (
+--  jpa_repository_transition_id bigint NOT NULL,
+--  actions_id bigint NOT NULL,
+--  PRIMARY KEY (jpa_repository_transition_id,actions_id),
+--  KEY fk_transition_actions_a (actions_id),
+--  CONSTRAINT fk_transition_actions_a FOREIGN KEY (actions_id) REFERENCES action (id),
+--  CONSTRAINT fk_transition_actions_t FOREIGN KEY (jpa_repository_transition_id) REFERENCES transition (id)
+--);
+--
+--
+---- tulip.deferred_events definition
+--
+--CREATE TABLE IF NOT EXISTS deferred_events (
+--  jpa_repository_state_id bigint NOT NULL,
+--  deferred_events varchar(255) DEFAULT NULL,
+--  KEY fk_state_deferred_events (jpa_repository_state_id),
+--  CONSTRAINT fk_state_deferred_events FOREIGN KEY (jpa_repository_state_id) REFERENCES state (id)
+--);
