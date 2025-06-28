@@ -28,6 +28,11 @@ public interface EmployeeLeaveMapper {
     @Mapping(target = "lastModifiedBy", ignore = true)
     EmployeeLeave toEntity(ApplyLeaveVM applyLeaveVM);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    void updateEntityFromEntity(EmployeeLeave source, @MappingTarget EmployeeLeave target);
+
     @AfterMapping
     default void map(@MappingTarget EmployeeLeave target, ApplyLeaveVM source) {
         // Calculate total days between start and end date (inclusive)

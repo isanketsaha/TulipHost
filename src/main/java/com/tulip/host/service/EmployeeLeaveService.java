@@ -41,25 +41,16 @@ public class EmployeeLeaveService {
     }
 
     public EmployeeLeave updateEmployeeLeave(Long id, EmployeeLeave updatedEmployeeLeave) {
-        Optional<EmployeeLeave> existingEmployeeLeave = employeeLeaveRepository.findById(id);
-        if (existingEmployeeLeave.isPresent()) {
-            validateLeaveType(updatedEmployeeLeave.getLeaveType().getId());
-            EmployeeLeave employeeLeave = existingEmployeeLeave.get();
-            employeeLeave.setLeaveType(updatedEmployeeLeave.getLeaveType());
-            employeeLeave.setStartDate(updatedEmployeeLeave.getStartDate());
-            employeeLeave.setEndDate(updatedEmployeeLeave.getEndDate());
-            employeeLeave.setTotalDays(updatedEmployeeLeave.getTotalDays());
-            employeeLeave.setReason(updatedEmployeeLeave.getReason());
-            employeeLeave.setStatus(updatedEmployeeLeave.getStatus());
-            employeeLeave.setApprovedBy(updatedEmployeeLeave.getApprovedBy());
-            employeeLeave.setApprovalDate(updatedEmployeeLeave.getApprovalDate());
-            employeeLeave.setComments(updatedEmployeeLeave.getComments());
-            employeeLeave.setCreatedBy(updatedEmployeeLeave.getCreatedBy());
-            employeeLeave.setLastModifiedBy(updatedEmployeeLeave.getLastModifiedBy());
-            employeeLeave.setLastModifiedDate(LocalDateTime.now());
-            return employeeLeaveRepository.save(employeeLeave);
-        }
-        throw new RuntimeException("EmployeeLeave not found with id: " + id);
+        EmployeeLeave existingEmployeeLeave = employeeLeaveRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("EmployeeLeave not found with id: " + id));
+
+        validateLeaveType(updatedEmployeeLeave.getLeaveType().getId());
+
+        // Use MapStruct to update the entity
+        employeeLeaveMapper.updateEntityFromEntity(updatedEmployeeLeave, existingEmployeeLeave);
+        existingEmployeeLeave.setLastModifiedDate(LocalDateTime.now());
+
+        return employeeLeaveRepository.save(existingEmployeeLeave);
     }
 
     public void deleteEmployeeLeave(Long id) {
@@ -113,7 +104,7 @@ public class EmployeeLeaveService {
                 .orElseThrow(
                         () -> new RuntimeException("LeaveType not found with id: " + applyLeaveVM.getLeaveTypeId()));
 
-        // Map DTO to entity using ModelMapper
+        // Map DTO to entity using MapStruct
         EmployeeLeave employeeLeave = employeeLeaveMapper.toEntity(applyLeaveVM);
 
         // Set manually mapped fields
