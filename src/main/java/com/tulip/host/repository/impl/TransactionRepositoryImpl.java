@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, Long> implements TransactionRepository {
 
@@ -73,18 +74,19 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
     }
 
     @Override
-    public List<String> fetchAnnualFeesByClass(long studentId, long classId) {
+    public List<String> fetchAnnualFeesByClass(Long studentId, Long classId) {
         return jpaQueryFactory
-            .select(FEES_CATALOG.feesName)
-            .from(TRANSACTION)
+                .select(FEES_LINE_ITEM.month)
+                .from(STUDENT)
+                .innerJoin(STUDENT.transactions, TRANSACTION)
             .innerJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
             .innerJoin(FEES_LINE_ITEM.feesProduct(), FEES_CATALOG)
             .where(
-                TRANSACTION
-                    .student()
-                    .id.eq(studentId)
-                    .and(FEES_CATALOG.std().id.eq(classId))
-                    .and(FEES_CATALOG.applicableRule.eq(FeesRuleType.YEARLY))
+                        STUDENT.id.eq(studentId)
+                                .and(FEES_CATALOG.std().id.eq(classId))
+                                .and(TRANSACTION.type.eq("FEES"))
+                                .and(FEES_LINE_ITEM.month
+                                        .isNotNull())
             )
             .fetch();
     }
@@ -169,5 +171,62 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
                     .and(FEES_LINE_ITEM.month.eq(month))
             )
             .fetch();
+    }
+
+    @Override
+    public List<Object[]> fetchPendingFeesBatch(List<Long> studentIds, Long classId, Long sessionId) {
+        List<Tuple> results = jpaQueryFactory
+                .select(STUDENT.id, FEES_LINE_ITEM.month.count())
+                .from(STUDENT)
+                .leftJoin(STUDENT.transactions, TRANSACTION)
+                .leftJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
+                .leftJoin(FEES_LINE_ITEM.feesProduct(), FEES_CATALOG)
+                .where(
+                        STUDENT.id.in(studentIds)
+                                .and(FEES_CATALOG.std().id.eq(classId))
+                                .and(TRANSACTION.type.eq("FEES"))
+                                .and(FEES_LINE_ITEM.month.isNull()))
+                .groupBy(STUDENT.id)
+                .fetch();
+
+        return results.stream()
+                .map(tuple -> new Object[] { tuple.get(STUDENT.id), tuple.get(FEES_LINE_ITEM.month.count()) })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<Long, List<String>> fetchAnnualFeesByClassBatch(List<Long> studentIds, Long classId) {
+        List<Tuple> results = jpaQueryFactory
+                .select(STUDENT.id, FEES_LINE_ITEM.month)
+                .from(STUDENT)
+                .innerJoin(STUDENT.transactions, TRANSACTION)
+                .innerJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
+                .innerJoin(FEES_LINE_ITEM.feesProduct(), FEES_CATALOG)
+                .where(
+                        STUDENT.id.in(studentIds)
+                                .and(FEES_CATALOG.std().id.eq(classId))
+                                .and(TRANSACTION.type.eq("FEES"))
+                                .and(FEES_LINE_ITEM.month.isNotNull()))
+                .fetch();
+
+        Map<Long, List<String>> resultMap = new HashMap<>();
+        for (Tuple tuple : results) {
+            Long studentId = tuple.get(STUDENT.id);
+            String month = tuple.get(FEES_LINE_ITEM.month);
+            resultMap.computeIfAbsent(studentId, k -> new ArrayList<>()).add(month);
+        }
+
+        return resultMap;
+    }
+
+    @Override
+    public List<Transaction> fetchAllTransactionByDuesWithLimit(int limit) {
+        return jpaQueryFactory
+                .selectFrom(TRANSACTION)
+                .innerJoin(TRANSACTION.dues(), DUES)
+                .where(DUES.status.ne("PAID"))
+                .orderBy(DUES.dueDate.asc())
+                .limit(limit)
+                .fetch();
     }
 }

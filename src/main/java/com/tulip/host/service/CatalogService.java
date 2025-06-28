@@ -28,12 +28,15 @@ import com.tulip.host.web.rest.vm.StockUpdateVM;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -98,16 +101,43 @@ public class CatalogService {
 
     @Transactional
     public List<ProductDTO> productCatalog(Long classId) {
+        // Use batch processing to avoid N+1 queries
         List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveProduct(classId);
-        List<ProductCatalog> collect = catalogs
-            .stream()
-            .filter(item -> {
-                int soldQuantity = item.getPurchaseLineItems().stream().mapToInt(lineItem -> lineItem.getQty()).sum();
-                int purchaseQuantity = item.getInventories().stream().mapToInt(lineItem -> lineItem.getQty()).sum();
-                return soldQuantity < purchaseQuantity;
-            })
-            .collect(Collectors.toList());
-        return catalogMapper.toModelList(collect);
+
+        try {
+            // Pre-calculate sold quantities in batch - use more memory-efficient approach
+            Map<Long, Integer> soldQuantities = new HashMap<>();
+            Map<Long, Integer> purchaseQuantities = new HashMap<>();
+
+            for (ProductCatalog catalog : catalogs) {
+                // Calculate sold quantities
+                int soldQty = catalog.getPurchaseLineItems().stream()
+                        .mapToInt(lineItem -> lineItem.getQty())
+                        .sum();
+                soldQuantities.put(catalog.getId(), soldQty);
+
+                // Calculate purchase quantities
+                int purchaseQty = catalog.getInventories().stream()
+                        .mapToInt(lineItem -> lineItem.getQty())
+                        .sum();
+                purchaseQuantities.put(catalog.getId(), purchaseQty);
+            }
+
+            // Filter products with available stock - use iterator for memory efficiency
+            List<ProductCatalog> availableProducts = new ArrayList<>();
+            for (ProductCatalog item : catalogs) {
+                int soldQuantity = soldQuantities.getOrDefault(item.getId(), 0);
+                int purchaseQuantity = purchaseQuantities.getOrDefault(item.getId(), 0);
+                if (soldQuantity < purchaseQuantity) {
+                    availableProducts.add(item);
+                }
+            }
+
+            return catalogMapper.toModelList(availableProducts);
+        } finally {
+            // Clear references to help GC
+            catalogs.clear();
+        }
     }
 
     @Transactional

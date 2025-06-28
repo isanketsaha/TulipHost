@@ -14,15 +14,21 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<TransactionReportDTO> fetchTransactionGroupBy(LocalDate from, LocalDate to, String groupByFormat);
 
-    List<String> fetchAnnualFeesByClass(long studentId, long classId);
+    List<String> fetchAnnualFeesByClass(Long studentId, Long classId);
 
     List<Transaction> fetchStudentFeesTransactionByClassId(long studentId, long classId);
 
     List<Transaction> fetchAllTransactionByDues();
+
+    List<Transaction> fetchAllTransactionByDuesWithLimit(int limit);
 
     Map<String, Map<String, Double>> fetchSalesReport(LocalDate date);
 
     List<String> fetchTransportMonths(Long studentId, Session sessionId);
 
     List<Transaction> checkIfTransportPaid(Long studentId, Long transportId, String month);
+
+    List<Object[]> fetchPendingFeesBatch(List<Long> studentIds, Long classId, Long sessionId);
+
+    Map<Long, List<String>> fetchAnnualFeesByClassBatch(List<Long> studentIds, Long classId);
 }

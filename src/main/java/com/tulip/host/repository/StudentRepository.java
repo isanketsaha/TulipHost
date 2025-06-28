@@ -15,6 +15,8 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     Student search(long id);
 
+    Student searchWithDetails(long id);
+
     Student searchByClassId(long studentId, long classId);
 
     long fetchStudentCount(boolean active, BooleanBuilder condition);

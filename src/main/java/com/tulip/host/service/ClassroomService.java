@@ -16,6 +16,7 @@ import com.tulip.host.web.rest.vm.FeesFilterVM;
 import com.tulip.host.web.rest.vm.PromoteStudentVM;
 import jakarta.persistence.EntityManager;
 import jakarta.xml.bind.ValidationException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -53,25 +54,47 @@ public class ClassroomService {
     @Transactional
     public ClassDetailDTO fetchClassDetails(Long classroomId) {
         Session unwrap = em.unwrap(Session.class);
-        unwrap.enableFilter("filterClass").setParameter("classId", classroomId);
-        unwrap.enableFilter("filterCatalogNEPlaceholder");
-        unwrap.enableFilter("activeStudent").setParameter("flag", true);
-        ClassDetail classDetail = classDetailRepository.findByClass(classroomId);
-        if (classDetail != null) {
-            ClassDetailDTO classDetailDTO = classMapper.toEntity(classDetail);
-            classDetailDTO
-                .getStudents()
-                .forEach(item -> {
-                    item.setPendingFees(studentService.calculatePendingMonthFees(item, classDetail.getId(), classDetail.getSession()));
-                    item.setAnnualPaidFees(transactionRepository.fetchAnnualFeesByClass(item.getId(), classroomId));
+        try {
+            unwrap.enableFilter("filterClass").setParameter("classId", classroomId);
+            unwrap.enableFilter("filterCatalogNEPlaceholder");
+            unwrap.enableFilter("activeStudent").setParameter("flag", true);
+            ClassDetail classDetail = classDetailRepository.findByClass(classroomId);
+            if (classDetail != null) {
+                ClassDetailDTO classDetailDTO = classMapper.toEntity(classDetail);
+
+                // Batch process fees calculations to avoid N+1 queries
+                List<Long> studentIds = classDetailDTO.getStudents().stream()
+                        .map(student -> student.getId())
+                        .collect(Collectors.toList());
+
+                // Batch fetch pending fees for all students
+                Map<Long, Integer> pendingFeesMap = studentService.calculatePendingMonthFeesBatch(studentIds,
+                        classDetail.getId(), classDetail.getSession());
+
+                // Batch fetch annual fees for all students
+                Map<Long, List<String>> annualFeesMap = transactionRepository.fetchAnnualFeesByClassBatch(studentIds,
+                        classroomId);
+
+                // Apply batch results to students
+                classDetailDTO.getStudents().forEach(item -> {
+                    item.setPendingFees(pendingFeesMap.getOrDefault(item.getId(), 0));
+                    item.setAnnualPaidFees(annualFeesMap.getOrDefault(item.getId(), new ArrayList<>()));
                 });
-            classDetailDTO.getStudents().sort((s1, s2) -> s1.getName().toUpperCase().compareTo(s2.getName().toUpperCase()));
+
+                // Sort students by name (case-insensitive)
+                classDetailDTO.getStudents()
+                        .sort((s1, s2) -> s1.getName().toUpperCase().compareTo(s2.getName().toUpperCase()));
+
+                return classDetailDTO;
+            }
+            return null;
+        } finally {
+            // Always clean up filters and clear persistence context
             unwrap.disableFilter("filterClass");
             unwrap.disableFilter("filterCatalogNEPlaceholder");
             unwrap.disableFilter("activeStudent");
-            return classDetailDTO;
+            em.clear(); // Clear persistence context to free memory
         }
-        return null;
     }
 
     @Transactional
