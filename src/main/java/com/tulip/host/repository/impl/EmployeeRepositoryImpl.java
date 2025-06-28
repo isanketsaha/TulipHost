@@ -9,6 +9,7 @@ import com.tulip.host.repository.EmployeeRepository;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> implements EmployeeRepository {
@@ -69,6 +70,12 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
                     item -> item.get(EMPLOYEE.group().count())
                 )
             );
+    }
+
+    @Override
+    public Optional<Employee> findByUserId(String userId) {
+        return  Optional.ofNullable(jpaQueryFactory.selectFrom(EMPLOYEE)
+            .where(EMPLOYEE.credential().userId.eq(userId)).fetchOne());
     }
 
     @Override

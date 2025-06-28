@@ -2,6 +2,7 @@ package com.tulip.host.service;
 
 
 import com.tulip.host.data.CouponDTO;
+import com.tulip.host.data.CouponRequestDTO;
 import com.tulip.host.domain.Coupon;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.exceptions.ResourceNotFoundException;
@@ -10,27 +11,35 @@ import com.tulip.host.repository.CouponRepository;
 import com.tulip.host.web.rest.vm.CouponValidationRequestVM;
 import com.tulip.host.web.rest.vm.CouponValidationResponseVM;
 import com.tulip.host.web.rest.vm.PayVM;
+import com.tulip.host.web.rest.vm.GenericFilterVM;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class CouponService {
+    private static final Logger log = LoggerFactory.getLogger(CouponService.class);
     private final CouponRepository couponRepository;
     private final CouponMapper modelMapper;
 
+    @Transactional
     public List<CouponDTO> getAllCoupons() {
-        return couponRepository.findAll()
-            .stream()
-            .map(coupon -> modelMapper.toDto(coupon))
-            .collect(Collectors.toList());
+        return couponRepository.findAllActive()
+                .map(modelMapper::toDto)
+                .orElse(List.of());
     }
 
 
@@ -48,30 +57,30 @@ public class CouponService {
     }
 
 
-//    @Transactional
-//    public CouponDTO createCoupon(CouponRequestDTO requestDTO) {
-//        validateCouponDates(requestDTO);
-//
-//        Coupon coupon = modelMapper.map(requestDTO, Coupon.class);
-//        coupon.setUsedCount(0);
-//
-//        Coupon savedCoupon = couponRepository.save(coupon);
-//        return modelMapper.map(savedCoupon, CouponDTO.class);
-//    }
-//
-//
-//    @Transactional
-//    public CouponDTO updateCoupon(Long id, CouponRequestDTO requestDTO) {
-//        validateCouponDates(requestDTO);
-//
-//        Coupon existingCoupon = couponRepository.findById(id)
-//            .orElseThrow(() -> new ResourceNotFoundException("Coupon not found with id: " + id));
-//
-//        modelMapper.map(requestDTO, existingCoupon);
-//        Coupon updatedCoupon = couponRepository.save(existingCoupon);
-//
-//        return modelMapper.map(updatedCoupon, CouponDTO.class);
-//    }
+    @Transactional
+    public CouponDTO createCoupon(CouponRequestDTO requestDTO) {
+        // Date validation
+        if (requestDTO.getStartDate() == null || requestDTO.getEndDate() == null
+                || requestDTO.getEndDate().isBefore(requestDTO.getStartDate())) {
+            log.error("Invalid date range for coupon: {}", requestDTO.getCode());
+            throw new IllegalArgumentException("End date must be after start date and both dates must be provided");
+        }
+
+        // Validate that dates are today or in the future
+        LocalDateTime todayStart = LocalDateTime.now().toLocalDate().atStartOfDay();
+        if (requestDTO.getStartDate().isBefore(todayStart)) {
+            log.error("Start date must be today or in the future for coupon: {}", requestDTO.getCode());
+            throw new IllegalArgumentException("Start date must be today or in the future");
+        }
+        if (requestDTO.getEndDate().isBefore(todayStart)) {
+            log.error("End date must be today or in the future for coupon: {}", requestDTO.getCode());
+            throw new IllegalArgumentException("End date must be today or in the future");
+        }
+
+        Coupon coupon = modelMapper.toEntity(requestDTO);
+        Coupon savedCoupon = couponRepository.save(coupon);
+        return modelMapper.toDto(savedCoupon);
+    }
 
 
     @Transactional
@@ -82,6 +91,15 @@ public class CouponService {
         couponRepository.deleteById(id);
     }
 
+    @Transactional
+    public CouponDTO deactivateCoupon(Long id) {
+        Coupon coupon = couponRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Coupon not found with id: " + id));
+        coupon.setIsActive(false);
+        Coupon savedCoupon = couponRepository.save(coupon);
+        log.info("Coupon deactivated: {}", coupon.getCode());
+        return modelMapper.toDto(savedCoupon);
+    }
 
     public CouponValidationResponseVM validateCoupon(CouponValidationRequestVM requestDTO) {
         String code = requestDTO.getCode();
@@ -152,5 +170,47 @@ public class CouponService {
         }
 
         return discountAmount;
+    }
+
+    @Transactional
+    public CouponDTO updateCoupon(Long id, CouponRequestDTO requestDTO) {
+        if (requestDTO.getStartDate() == null || requestDTO.getEndDate() == null
+                || requestDTO.getEndDate().isBefore(requestDTO.getStartDate())) {
+            log.error("Invalid date range for coupon update: {}", requestDTO.getCode());
+            throw new IllegalArgumentException("End date must be after start date and both dates must be provided");
+        }
+
+        // Validate that dates are today or in the future
+        LocalDateTime todayStart = LocalDateTime.now().toLocalDate().atStartOfDay();
+        if (requestDTO.getStartDate().isBefore(todayStart)) {
+            log.error("Start date must be today or in the future for coupon update: {}", requestDTO.getCode());
+            throw new IllegalArgumentException("Start date must be today or in the future");
+        }
+        if (requestDTO.getEndDate().isBefore(todayStart)) {
+            log.error("End date must be today or in the future for coupon update: {}", requestDTO.getCode());
+            throw new IllegalArgumentException("End date must be today or in the future");
+        }
+
+        Coupon existingCoupon = couponRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Coupon not found with id: " + id));
+        Coupon updatedCoupon = modelMapper.toEntity(requestDTO);
+        updatedCoupon.setId(existingCoupon.getId());
+        Coupon savedCoupon = couponRepository.save(updatedCoupon);
+        return modelMapper.toDto(savedCoupon);
+    }
+
+    public List<CouponDTO> filterCoupons(GenericFilterVM filterDTO) {
+        GenericSpecification<Coupon> spec = new GenericSpecification<>();
+        if (filterDTO != null) {
+            Specification<Coupon> filterSpec = spec.filterBy(filterDTO.getFilters());
+            Sort sort = Sort.by(
+                    filterDTO.getSortDirection().equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC,
+                    filterDTO.getSortBy());
+            return couponRepository.findAll(filterSpec, sort)
+                    .stream()
+                    .map(modelMapper::toDto)
+                    .toList();
+        }
+        return List.of();
     }
 }

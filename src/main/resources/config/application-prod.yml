@@ -30,7 +30,7 @@ management:
   prometheus:
     metrics:
       export:
-        enabled: false
+        enabled: true
   zipkin: # Use the "zipkin" Maven profile to have the Spring Cloud Zipkin dependencies
     tracing:
       endpoint: http://localhost:9411/api/v2/spans

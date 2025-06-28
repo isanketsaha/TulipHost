@@ -56,7 +56,7 @@ public class Coupon extends AbstractAuditingEntity {
         cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH},
         orphanRemoval = true
     )
-    private Set<Transaction> transactionsList;
+    private Set<Transaction> transactionsList = new LinkedHashSet<>();
 
     public enum DiscountType {
         PERCENTAGE, FIXED_AMOUNT
