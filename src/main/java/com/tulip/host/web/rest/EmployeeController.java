@@ -8,7 +8,6 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.statemachine.StateMachine;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,12 +24,9 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
 
-    private final StateMachine<String, String> stateMachine;
 
     @RequestMapping("/all/active")
     public List<EmployeeBasicDTO> fetchActive(@RequestParam(required = false) UserRoleEnum role) {
-        stateMachine.getExtendedState().getVariables().put("EXPENSE_ID", 12321);
-        stateMachine.sendEvent("EXPENSE_TRIGGER");
         return employeeService.fetchAllEmployee(Boolean.TRUE, role);
     }
 

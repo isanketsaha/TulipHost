@@ -13,6 +13,7 @@ import com.tulip.host.domain.QDependent;
 import com.tulip.host.domain.QDues;
 import com.tulip.host.domain.QDuesPayment;
 import com.tulip.host.domain.QEmployee;
+import com.tulip.host.domain.QEmployeeLeave;
 import com.tulip.host.domain.QExpense;
 import com.tulip.host.domain.QFeesCatalog;
 import com.tulip.host.domain.QFeesLineItem;
@@ -56,9 +57,11 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
     static final QInventory INVENTORY = QInventory.inventory;
     static final QTransportCatalog TRANSPORT_CATALOG = QTransportCatalog.transportCatalog;
     static final QStudentToTransport STUDENT_TO_TRANSPORT = QStudentToTransport.studentToTransport;
-
+    static final QAcademicCalendar ACADEMIC_CALENDAR = QAcademicCalendar.academicCalendar;
     static final QDues DUES = QDues.dues;
     static final QDuesPayment DUES_PAYMENT = QDuesPayment.duesPayment;
+
+    static final QEmployeeLeave EMPLOYEE_LEAVE = QEmployeeLeave.employeeLeave;
 
     @PersistenceContext
     EntityManager em;
@@ -83,5 +86,9 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
 
     private BooleanExpression expressionBetweenDate(LocalDate date) {
         return Expressions.booleanOperation(Ops.BETWEEN, Expressions.asDate(date), SESSION.fromDate, SESSION.toDate);
+    }
+
+    public Session getCurrentSession() {
+        return currentSession;
     }
 }

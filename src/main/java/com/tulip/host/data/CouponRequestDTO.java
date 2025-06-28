@@ -1,25 +1,29 @@
 package com.tulip.host.data;
 
 import com.tulip.host.domain.Coupon;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
-public class CouponDTO {
-    private Long id;
+public class CouponRequestDTO {
+    @NotNull
     private String code;
+    @NotNull
     private String description;
+    @NotNull
     private Coupon.DiscountType discountType;
+    @NotNull
     private BigDecimal discountValue;
     private BigDecimal minPurchaseAmount;
     private BigDecimal maxDiscountAmount;
+    @NotNull
     private LocalDateTime startDate;
+    @NotNull
     private LocalDateTime endDate;
-    private Boolean isActive;
-    private Integer availableLimit;
-    private List<Integer> transactionsList;
-    private String createdBy;
-}
+    private Boolean isActive = true;
+    @NotNull
+    private Integer usageLimit;
+} 

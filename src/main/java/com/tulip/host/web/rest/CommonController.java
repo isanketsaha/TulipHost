@@ -3,6 +3,7 @@ package com.tulip.host.web.rest;
 import com.tulip.host.data.DropDownOptionsDto;
 import com.tulip.host.data.SessionDTO;
 import com.tulip.host.enums.BloodGroupEnum;
+import com.tulip.host.enums.DocumentCategoryEnum;
 import com.tulip.host.enums.ExpenseTypeEnum;
 import com.tulip.host.enums.GenderEnum;
 import com.tulip.host.enums.PaymentOptionEnum;
@@ -155,6 +156,17 @@ public class CommonController {
             .map(item -> DropDownOptionsDto.builder()
                 .label(item.name())
                 .value(item.name())
+                .build())
+            .collect(Collectors.toList());
+    }
+
+    @RequestMapping("/systemDocumentType")
+    public List<DropDownOptionsDto> systemDocumentOptions() {
+        return Arrays
+            .stream(DocumentCategoryEnum.values())
+            .map(item -> DropDownOptionsDto.builder()
+                .value(item.name())
+                .label(item.getCategory())
                 .build())
             .collect(Collectors.toList());
     }

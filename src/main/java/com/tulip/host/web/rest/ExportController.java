@@ -13,6 +13,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,6 +58,11 @@ public class ExportController {
     @PostMapping("/receipt")
     public String paymentReceipt(@RequestParam Long paymentId) throws IOException, FileUploadException {
         String uid = exportService.downloadReceipt(paymentId);
+        return uploadService.getURL(uid);
+    }
+
+    @GetMapping("/download")
+    public String download(@RequestParam String uid) throws IOException, FileUploadException {
         return uploadService.getURL(uid);
     }
 

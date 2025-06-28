@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -25,6 +27,11 @@ public class CalendarController {
     @GetMapping
     public List<AcademicCalendar> getAllEvents() {
         return service.getAllEvents();
+    }
+
+    @GetMapping("/filter")
+    public List<AcademicCalendar> getEventsByFilter(@RequestParam LocalDate from , @RequestParam LocalDate to) {
+        return service.getAllEvents(from, to);
     }
 
     @GetMapping("/{id}")

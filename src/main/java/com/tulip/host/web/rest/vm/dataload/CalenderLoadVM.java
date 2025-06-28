@@ -1,5 +1,6 @@
 package com.tulip.host.web.rest.vm.dataload;
 
+import com.tulip.host.enums.TypeEnum;
 import io.github.rushuat.ocell.annotation.FieldName;
 import lombok.Data;
 
@@ -32,4 +33,6 @@ public class CalenderLoadVM {
 
 //    @FieldName("session")
 //    private String session;
+
+
 }

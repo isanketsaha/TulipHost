@@ -24,6 +24,12 @@ public class LeaveType extends AbstractAuditingEntity {
     @Lob
     private String description;
 
+    @ManyToOne
+    @JoinColumn(name = "session_id")
+    private Session session;
+
+    private int count;
+
     @Column(name = "is_paid", columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean isPaid = true;
 
