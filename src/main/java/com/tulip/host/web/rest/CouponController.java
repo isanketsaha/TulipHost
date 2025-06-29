@@ -21,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/coupons")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('UG_ADMIN') or hasAuthority('UG_PRINCIPAL')")
 public class CouponController {
 
     private final CouponService couponService;
@@ -40,14 +41,12 @@ public class CouponController {
         return ResponseEntity.ok(couponService.getCouponByCode(code));
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('UG_ADMIN') or hasAuthority('UG_PRINCIPAL')")
     @PostMapping
     public ResponseEntity<CouponDTO> createCoupon(@Valid @RequestBody CouponRequestDTO requestDTO) {
         log.info("Attempting to create coupon: {}", requestDTO.getCode());
         return new ResponseEntity<>(couponService.createCoupon(requestDTO), HttpStatus.CREATED);
     }
 
-    @PreAuthorize(" hasAuthority('UG_ADMIN') or hasAuthority('UG_PRINCIPAL')")
     @PutMapping("/{id}")
     public ResponseEntity<CouponDTO> updateCoupon(
             @PathVariable Long id,
@@ -62,7 +61,6 @@ public class CouponController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAuthority('UG_ADMIN') or hasAuthority('UG_PRINCIPAL')")
     @PostMapping("/{id}/deactivate")
     public ResponseEntity<CouponDTO> deactivateCoupon(@PathVariable Long id) {
         log.info("Attempting to deactivate coupon with id: {}", id);

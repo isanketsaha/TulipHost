@@ -20,7 +20,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/documents")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('UG_ADMIN')")
 public class DocumentController {
 
     private final DocumentService documentService;
