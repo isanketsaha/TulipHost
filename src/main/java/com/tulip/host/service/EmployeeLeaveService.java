@@ -12,12 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.HashMap;
+import java.util.ArrayList;
 import com.tulip.host.domain.Session;
 import com.tulip.host.repository.impl.EmployeeLeaveRepositoryImpl;
 import com.tulip.host.domain.Employee;
 import com.tulip.host.repository.EmployeeRepository;
 import com.tulip.host.web.rest.vm.ApplyLeaveVM;
 import com.tulip.host.mapper.EmployeeLeaveMapper;
+import com.tulip.host.data.LeaveBalanceDTO;
 
 @Service
 @AllArgsConstructor
@@ -67,7 +69,7 @@ public class EmployeeLeaveService {
         }
     }
 
-    public Map<String, Integer> getBalanceByEmpId(String employeeId) {
+    public List<LeaveBalanceDTO> getBalanceByEmpId(String employeeId) {
         // Get current session from repository implementation
         Session currentSession = employeeLeaveRepositoryImpl.getCurrentSession();
 
@@ -79,7 +81,7 @@ public class EmployeeLeaveService {
         Map<String, Long> usedLeaves = employeeLeaveRepository.findLeaveBalance(employeeId);
 
         // Calculate available balance for each leave type
-        Map<String, Integer> availableBalance = new HashMap<>();
+        List<LeaveBalanceDTO> leaveBalances = new ArrayList<>();
 
         for (LeaveType leaveType : allLeaveTypes) {
             String leaveTypeName = leaveType.getName();
@@ -87,10 +89,16 @@ public class EmployeeLeaveService {
             long usedCount = usedLeaves.getOrDefault(leaveTypeName, 0L);
             int available = totalAllowed - (int) usedCount;
 
-            availableBalance.put(leaveTypeName, available);
+            LeaveBalanceDTO balanceDTO = new LeaveBalanceDTO(
+                    leaveType.getId(),
+                    leaveTypeName,
+                    available,
+                    totalAllowed,
+                    usedCount);
+            leaveBalances.add(balanceDTO);
         }
 
-        return availableBalance;
+        return leaveBalances;
     }
 
     public EmployeeLeave createEmployeeLeaveFromVM(ApplyLeaveVM applyLeaveVM) {

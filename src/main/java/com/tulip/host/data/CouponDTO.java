@@ -14,6 +14,7 @@ public class CouponDTO {
     private String description;
     private Coupon.DiscountType discountType;
     private BigDecimal discountValue;
+    private Integer usageLimit;
     private BigDecimal minPurchaseAmount;
     private BigDecimal maxDiscountAmount;
     private LocalDateTime startDate;
