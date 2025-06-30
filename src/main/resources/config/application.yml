@@ -19,7 +19,7 @@
 spring:
   config:
     activate:
-      on-profile: '!api-docs'
+      on-profile: "!api-docs"
 springdoc:
   api-docs:
     enabled: false
@@ -218,7 +218,7 @@ springdoc:
 # Properties to be exposed on the /info management endpoint
 info:
   # Comma separated list of profiles that will trigger the ribbon to show
-  display-ribbon-on-profiles: 'dev'
+  display-ribbon-on-profiles: "dev"
 
 # ===================================================================
 # JHipster specific properties
@@ -228,13 +228,13 @@ info:
 
 jhipster:
   clientApp:
-    name: 'tulipHostApp'
+    name: "tulipHostApp"
   # By default CORS is disabled. Uncomment to enable.
   cors:
-    allowed-origins: 'https://www.tulipschool.co.in/,https://tulipschool.co.in/'
-    allowed-methods: '*'
-    allowed-headers: '*'
-    exposed-headers: 'Authorization,Link,X-Total-Count,X-${jhipster.clientApp.name}-alert,X-${jhipster.clientApp.name}-error,X-${jhipster.clientApp.name}-params'
+    allowed-origins: "https://www.tulipschool.co.in/,https://tulipschool.co.in/"
+    allowed-methods: "*"
+    allowed-headers: "*"
+    exposed-headers: "Authorization,Link,X-Total-Count,X-${jhipster.clientApp.name}-alert,X-${jhipster.clientApp.name}-error,X-${jhipster.clientApp.name}-params"
     allow-credentials: true
     max-age: 1800
   mail:

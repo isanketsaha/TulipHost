@@ -5,6 +5,7 @@ import com.tulip.host.domain.LeaveType;
 import com.tulip.host.service.EmployeeLeaveService;
 import com.tulip.host.service.LeaveTypeService;
 import com.tulip.host.web.rest.vm.ApplyLeaveVM;
+import com.tulip.host.data.LeaveBalanceDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -37,12 +38,12 @@ public class LeaveManagementController {
     }
 
     @GetMapping("/balance/{employeeId}")
-    public ResponseEntity<Map<String, Integer>> getBalanceByEmpId(@PathVariable String employeeId) {
+    public ResponseEntity<List<LeaveBalanceDTO>> getBalanceByEmpId(@PathVariable String employeeId) {
         return ResponseEntity.ok(employeeLeaveService.getBalanceByEmpId(employeeId));
     }
 
     @GetMapping("/appliedLeave/{employeeId}")
-    public ResponseEntity<Map<String, Integer>> getAppliedLeaveByEmpId(@PathVariable String employeeId) {
+    public ResponseEntity<List<LeaveBalanceDTO>> getAppliedLeaveByEmpId(@PathVariable String employeeId) {
         return ResponseEntity.ok(employeeLeaveService.getBalanceByEmpId(employeeId));
     }
 

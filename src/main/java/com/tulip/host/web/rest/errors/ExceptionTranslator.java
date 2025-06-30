@@ -87,27 +87,53 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         //        log.error(" Body :  %s , \n Header = %s ,\n StatusCode = %s , \n Request = %s \n",body, headers, statusCode, request);
         body = body == null ? wrapAndCustomizeProblem((Throwable) ex, (NativeWebRequest) request) : body;
         if (body instanceof ProblemDetailWithCause) {
+            String description = ((ProblemDetailWithCause) body).getDetail();
+            if (description == null || description.trim().isEmpty()) {
+                description = "Unknown error occurred";
+            }
+
+            String metadata = ((ProblemDetailWithCause) body).getProperties()
+                    .values()
+                    .stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(" - "));
+
+            if (metadata == null || metadata.trim().isEmpty()) {
+                metadata = "No additional metadata available";
+            }
+
             Audit error = Audit
-                .builder()
-                .description(((ProblemDetailWithCause) body).getDetail())
-                .type("ERROR")
-                .metadata(
-                    ((ProblemDetailWithCause) body).getProperties()
-                        .values()
-                        .stream()
-                        .map(Object::toString)
-                        .collect(Collectors.joining(" - "))
-                )
+                    .builder()
+                    .description(description)
+                    .type("ERROR")
+                    .metadata(metadata)
                 .build();
-            auditRepository.save(error);
+            try {
+                auditRepository.save(error);
+            } catch (Exception auditException) {
+                log.warn("Failed to save audit entry: {}", auditException.getMessage());
+            }
         } else if (body instanceof ProblemDetail) {
+            String description = ((ProblemDetail) body).getTitle();
+            if (description == null || description.trim().isEmpty()) {
+                description = "Unknown error occurred";
+            }
+
+            String detail = ((ProblemDetail) body).getDetail();
+            String requestUri = ((ServletWebRequest) request).getRequest().getRequestURI();
+            String metadata = (detail != null ? detail : "No detail") + " - " + requestUri;
+
             Audit error = Audit
                 .builder()
-                .description(((ProblemDetail) body).getTitle())
+                    .description(description)
                 .type("ERROR")
-                .metadata((((ProblemDetail) body).getDetail() + " - " + ((ServletWebRequest) request).getRequest().getRequestURI()))
+                    .metadata(metadata)
                 .build();
-            auditRepository.save(error);
+            try {
+                auditRepository.save(error);
+            } catch (Exception auditException) {
+                log.warn("Failed to save audit entry: {}", auditException.getMessage());
+            }
         }
         return super.handleExceptionInternal(ex, body, headers, statusCode, request);
     }
