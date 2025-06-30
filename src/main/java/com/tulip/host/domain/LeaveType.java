@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LeaveType extends AbstractAuditingEntity {
+public class LeaveType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

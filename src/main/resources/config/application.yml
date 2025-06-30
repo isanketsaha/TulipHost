@@ -163,7 +163,6 @@ spring:
       hibernate.query.in_clause_parameter_padding: true
       # Memory management optimizations
       hibernate.jdbc.batch_versioned_data: true
-      hibernate.jdbc.batch.builder: legacy
       hibernate.connection.handling_mode: DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION
       hibernate.session.events.log: false
       hibernate.session.events.log.LOG_QUERIES_SLOWER_THAN_MS: 1000

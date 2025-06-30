@@ -22,8 +22,8 @@ public class LeaveTypeService {
     private final EmployeeLeaveRepositoryImpl employeeLeaveRepositoryImpl;
 
     public LeaveType createLeaveType(LeaveType leaveType) {
-        leaveType.setCreatedDate(LocalDateTime.now());
-        leaveType.setLastModifiedDate(LocalDateTime.now());
+        // leaveType.setCreatedDate(LocalDateTime.now());
+        // leaveType.setLastModifiedDate(LocalDateTime.now());
         return leaveTypeRepository.save(leaveType);
     }
 
@@ -46,7 +46,7 @@ public class LeaveTypeService {
 
         // Use MapStruct to update the entity
         leaveTypeMapper.updateEntityFromEntity(updatedLeaveType, existingLeaveType);
-        existingLeaveType.setLastModifiedDate(LocalDateTime.now());
+        // existingLeaveType.setLastModifiedDate(LocalDateTime.now());
 
         return leaveTypeRepository.save(existingLeaveType);
     }
