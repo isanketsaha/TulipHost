@@ -161,6 +161,17 @@ spring:
       hibernate.order_updates: true
       hibernate.query.fail_on_pagination_over_collection_fetch: true
       hibernate.query.in_clause_parameter_padding: true
+      # Memory management optimizations
+      hibernate.jdbc.batch_versioned_data: true
+      hibernate.connection.handling_mode: DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION
+      hibernate.session.events.log: false
+      hibernate.session.events.log.LOG_QUERIES_SLOWER_THAN_MS: 1000
+      # Clear persistence context after each transaction
+      hibernate.connection.release_mode: after_transaction
+      # Optimize memory usage
+      hibernate.jdbc.use_get_generated_keys: true
+      hibernate.jdbc.wrap_result_sets: false
+      hibernate.jdbc.use_scrollable_resultset: false
     hibernate:
       ddl-auto: none
       naming:

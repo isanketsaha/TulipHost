@@ -28,4 +28,19 @@ public class InventoryRepositoryImpl extends BaseRepositoryImpl<Inventory, Long>
             )
             .fetch();
     }
+
+    @Override
+    public List<Inventory> stockReportWithIndex() {
+        return jpaQueryFactory
+                .selectFrom(INVENTORY)
+                .innerJoin(INVENTORY.product(), PRODUCT_CATALOG)
+                .leftJoin(PRODUCT_CATALOG.std(), CLASS_DETAIL)
+                .where(
+                        PRODUCT_CATALOG.active
+                                .eq(true)
+                                .and(PRODUCT_CATALOG.category.ne(CATEGORY_PLACEHOLDER)
+                                        .and(PRODUCT_CATALOG.category.ne(CATEGORY_BOOK))))
+                .orderBy(PRODUCT_CATALOG.itemName.asc())
+                .fetch();
+    }
 }

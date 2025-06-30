@@ -44,7 +44,9 @@ import java.time.Period;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
@@ -106,7 +108,7 @@ public class StudentService {
 
     @Transactional
     public StudentDetailsDTO searchStudent(long id) {
-        Student byId = studentRepository.search(id);
+        Student byId = studentRepository.searchWithDetails(id);
         if (byId != null && !CollectionUtils.isEmpty(byId.getClassDetails())) {
             List<ClassDetailDTO> classDetailDTOS = classMapper.toClassDetailList(byId.getClassDetails());
             StudentDetailsDTO studentDetailsDTO = studentMapper.toDetailEntity(byId, uploadService);
@@ -270,5 +272,27 @@ public class StudentService {
             .orElseThrow();
         studentToTransport.setEndDate(Instant.now());
         studentToTransportRepository.saveAndFlush(studentToTransport);
+    }
+
+    @Transactional
+    public Map<Long, Integer> calculatePendingMonthFeesBatch(List<Long> studentIds, Long classId, Session session) {
+        Map<Long, Integer> result = new HashMap<>();
+
+        // Batch query to get all pending fees for students in one go
+        List<Object[]> pendingFeesData = transactionRepository.fetchPendingFeesBatch(studentIds, classId,
+                session.getId());
+
+        for (Object[] data : pendingFeesData) {
+            Long studentId = (Long) data[0];
+            Integer pendingMonths = ((Number) data[1]).intValue();
+            result.put(studentId, pendingMonths);
+        }
+
+        // Set default value for students with no pending fees
+        for (Long studentId : studentIds) {
+            result.putIfAbsent(studentId, 0);
+        }
+
+        return result;
     }
 }

@@ -111,9 +111,18 @@ public class ReportService {
 
     @Transactional
     public List<InventoryItemDTO> inventoryReport() {
-        List<Inventory> stockReport = inventoryRepository.stockReport();
+        List<Inventory> stockReport = inventoryRepository.stockReportWithIndex();
         List<InventoryItemDTO> inventoryItemDTOS = inventoryMapper.toEntityList(stockReport);
-        Collections.sort(inventoryItemDTOS, (a, b) -> a.getProduct().getItemName().compareTo(b.getProduct().getItemName()));
+
+        if (inventoryItemDTOS.size() > 1000) {
+            inventoryItemDTOS.parallelStream()
+                    .sorted((a, b) -> a.getProduct().getItemName().compareTo(b.getProduct().getItemName()))
+                    .collect(Collectors.toList());
+        } else {
+            Collections.sort(inventoryItemDTOS,
+                    (a, b) -> a.getProduct().getItemName().compareTo(b.getProduct().getItemName()));
+        }
+
         return inventoryItemDTOS;
     }
 
