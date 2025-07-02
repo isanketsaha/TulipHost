@@ -15,9 +15,29 @@
 
 logging:
   level:
-    ROOT: INFO
-    tech.jhipster: INFO
+    ROOT: WARN
+    tech.jhipster: WARN
     com.tulip.host: INFO
+    # Minimal logging for different layers - only errors and important events
+    com.tulip.host.web.rest: WARN
+    com.tulip.host.service: WARN
+    com.tulip.host.repository: WARN
+    com.tulip.host.security: INFO
+    com.tulip.host.web.rest.errors: INFO
+    # Performance monitoring - only slow queries
+    org.hibernate.SQL: ERROR
+    org.hibernate.type.descriptor.sql.BasicBinder: ERROR
+    # Security logging - only failures
+    org.springframework.security: WARN
+    # Database connection logging - only errors
+    com.zaxxer.hikari: ERROR
+    # HTTP request logging - only errors
+    org.springframework.web: WARN
+    # Cache logging - only errors
+    org.springframework.cache: ERROR
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
 
 eureka:
   instance:
@@ -37,6 +57,17 @@ management:
   tracing:
     sampling:
       probability: 1.0 # report 100% of traces
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,loggers
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: prod
 
 spring:
   devtools:
@@ -153,9 +184,9 @@ jhipster:
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
   logging:
-    use-json-format: false # By default, logs are not in Json format
+    use-json-format: true # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
-      enabled: false
+      enabled: true
       host: localhost
       port: 5000
       ring-buffer-size: 512
@@ -176,6 +207,16 @@ application:
       accessKey: ${s3.key}
       secret: ${s3.secret}
       bucket-name: ${s3.bucket}
+  logging:
+    # Performance thresholds - only log when performance is really bad
+    slow-query-threshold-ms: 2000
+    slow-method-threshold-ms: 2000
+    # Security logging - only failures and violations
+    log-authentication-events: false
+    log-authorization-events: true
+    # Audit logging - only sensitive operations
+    log-data-access: false
+    log-business-events: true
 
 jpa:
   open-in-view: false

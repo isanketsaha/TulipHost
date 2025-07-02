@@ -47,7 +47,7 @@ public class ObjectStorageService {
             Date.from(date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
         );
 
-        log.info("Generated the signature " + url);
+        // log.info("Generated the signature " + url);
         return url;
     }
 

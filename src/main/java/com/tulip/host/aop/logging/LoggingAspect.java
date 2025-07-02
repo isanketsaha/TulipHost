@@ -1,6 +1,7 @@
 package com.tulip.host.aop.logging;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -9,19 +10,21 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import tech.jhipster.config.JHipsterConstants;
 
 /**
  * Aspect for logging execution of service and repository Spring components.
- *
- * By default, it only runs with the "dev" profile.
+ * Optimized for performance - only logs errors and important events.
  */
 @Aspect
 public class LoggingAspect {
 
     private final Environment env;
+    private static final long SLOW_METHOD_THRESHOLD_MS = 2000; // 2 seconds
+    private static final long SLOW_QUERY_THRESHOLD_MS = 1000; // 1 second
 
     public LoggingAspect(Environment env) {
         this.env = env;
@@ -59,33 +62,45 @@ public class LoggingAspect {
 
     /**
      * Advice that logs methods throwing exceptions.
+     * Only logs exceptions - no method entry/exit logging for performance.
      *
      * @param joinPoint join point for advice.
-     * @param e exception.
+     * @param e         exception.
      */
     @AfterThrowing(pointcut = "applicationPackagePointcut() && springBeanPointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
-        if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT))) {
-            logger(joinPoint)
-                .error(
-                    "Exception in {}() with cause = '{}' and exception = '{}'",
-                    joinPoint.getSignature().getName(),
-                    e.getCause() != null ? e.getCause() : "NULL",
-                    e.getMessage(),
-                    e
-                );
-        } else {
-            logger(joinPoint)
-                .error(
-                    "Exception in {}() with cause = {}",
-                    joinPoint.getSignature().getName(),
-                    e.getCause() != null ? String.valueOf(e.getCause()) : "NULL"
-                );
+        Logger log = logger(joinPoint);
+        String methodName = joinPoint.getSignature().getName();
+        String className = joinPoint.getSignature().getDeclaringType().getSimpleName();
+
+        // Add minimal context information to MDC
+        MDC.put("method", methodName);
+        MDC.put("class", className);
+        MDC.put("exception", e.getClass().getSimpleName());
+
+        try {
+            // Only log the exception message and cause, no sensitive data
+            String causeMessage = e.getCause() != null ? e.getCause().getClass().getSimpleName() : "NULL";
+            String exceptionMessage = e.getMessage() != null ? e.getMessage() : "NULL";
+
+            // Truncate long messages to prevent log flooding
+            if (exceptionMessage.length() > 200) {
+                exceptionMessage = exceptionMessage.substring(0, 200) + "...";
+            }
+
+            log.error("Exception in {}.{}() - Cause: {} - Message: {}",
+                    className,
+                    methodName,
+                    causeMessage,
+                    exceptionMessage);
+        } finally {
+            MDC.clear();
         }
     }
 
     /**
-     * Advice that logs when a method is entered and exited.
+     * Advice that logs only slow methods and important events.
+     * No verbose entry/exit logging for performance.
      *
      * @param joinPoint join point for advice.
      * @return result.
@@ -94,17 +109,27 @@ public class LoggingAspect {
     @Around("applicationPackagePointcut() && springBeanPointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         Logger log = logger(joinPoint);
-        if (log.isDebugEnabled()) {
-            log.debug("Enter: {}() with argument[s] = {}", joinPoint.getSignature().getName(), Arrays.toString(joinPoint.getArgs()));
-        }
+        String methodName = joinPoint.getSignature().getName();
+        String className = joinPoint.getSignature().getDeclaringType().getSimpleName();
+
+        long startTime = System.nanoTime();
+
         try {
             Object result = joinPoint.proceed();
-            if (log.isDebugEnabled()) {
-                log.debug("Exit: {}() with result = {}", joinPoint.getSignature().getName(), result);
+            long duration = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
+
+            // Only log slow methods (performance issue)
+            if (duration > SLOW_METHOD_THRESHOLD_MS) {
+                log.warn("Slow method: {}.{}() took {}ms", className, methodName, duration);
             }
+
             return result;
         } catch (IllegalArgumentException e) {
-            log.error("Illegal argument: {} in {}()", Arrays.toString(joinPoint.getArgs()), joinPoint.getSignature().getName());
+            long duration = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
+            log.error("Illegal argument in {}.{}() (took {}ms)", className, methodName, duration);
+            throw e;
+        } catch (Exception e) {
+            // Let the @AfterThrowing advice handle the detailed exception logging
             throw e;
         }
     }
