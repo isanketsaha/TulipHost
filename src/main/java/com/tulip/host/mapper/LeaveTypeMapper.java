@@ -9,7 +9,7 @@ import org.mapstruct.MappingTarget;
 public interface LeaveTypeMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
+    // @Mapping(target = "createdDate", ignore = true)
+    // @Mapping(target = "createdBy", ignore = true)
     void updateEntityFromEntity(LeaveType source, @MappingTarget LeaveType target);
 }

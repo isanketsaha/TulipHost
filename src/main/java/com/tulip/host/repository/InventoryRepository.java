@@ -10,4 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     List<Inventory> stockReport();
+
+    List<Inventory> stockReportWithIndex();
 }

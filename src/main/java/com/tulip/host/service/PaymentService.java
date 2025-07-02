@@ -307,13 +307,26 @@ public class PaymentService {
 
     @Transactional
     public PageImpl<PaySummaryDTO> getTransactionHistory(int pageNo, Long studentId, int pageSize) {
-        BooleanBuilder booleanBuilder = new BooleanBuilder().and(QTransaction.transaction.student().id.eq(studentId));
+        BooleanBuilder booleanBuilder = new BooleanBuilder()
+                .and(QTransaction.transaction.student().id.eq(studentId));
+
         Page<Transaction> transactionPage = transactionPagedRepository.findAll(
             booleanBuilder.getValue(),
             CommonUtils.getPageRequest(DESC, "createdDate", pageNo, pageSize)
         );
-        List<PaySummaryDTO> paySummaryDTOS = transactionMapper.toEntityList(transactionPage.getContent());
-        return new PageImpl<PaySummaryDTO>(paySummaryDTOS, transactionPage.getPageable(), transactionPage.getTotalElements());
+
+        try {
+            List<PaySummaryDTO> paySummaryDTOS = transactionMapper.toEntityList(transactionPage.getContent());
+
+            return new PageImpl<PaySummaryDTO>(
+                    paySummaryDTOS,
+                    transactionPage.getPageable(),
+                    transactionPage.getTotalElements());
+        } finally {
+            if (transactionPage.getContent() != null) {
+                transactionPage.getContent().clear();
+            }
+        }
     }
 
     @Transactional
@@ -438,7 +451,7 @@ public class PaymentService {
 
     @Transactional
     public List<PaySummaryDTO> allDues() {
-        List<Transaction> transactionPage = transactionRepository.fetchAllTransactionByDues();
+        List<Transaction> transactionPage = transactionRepository.fetchAllTransactionByDuesWithLimit(1000);
         return transactionMapper.toEntityList(transactionPage);
     }
 

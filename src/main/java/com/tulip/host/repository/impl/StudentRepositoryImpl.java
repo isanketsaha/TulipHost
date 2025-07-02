@@ -100,4 +100,14 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
         }
         return resultAsMap;
     }
+
+    @Override
+    public Student searchWithDetails(long id) {
+        return jpaQueryFactory
+                .selectFrom(STUDENT)
+                .leftJoin(STUDENT.classDetails, CLASS_DETAIL).fetchJoin()
+                .leftJoin(STUDENT.transports, STUDENT_TO_TRANSPORT).fetchJoin()
+                .where(STUDENT.id.eq(id))
+                .fetchOne();
+    }
 }
