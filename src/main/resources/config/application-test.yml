@@ -126,8 +126,5 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-application:
-  # Custom logging thresholds (used in code)
-  slow-query-threshold-ms: 500
-  slow-method-threshold-ms: 500
+
 
