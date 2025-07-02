@@ -87,16 +87,9 @@ logging:
     com.tulip.host.web.rest.errors: INFO # Error handling
 
 application:
-  logging:
-    performance:
-      slow-query-threshold-ms: 2000    # Only very slow queries
-      slow-method-threshold-ms: 2000   # Only very slow methods
-    security:
-      log-authentication-events: false # No successful logins
-      log-authorization-events: true   # Only failures
-    audit:
-      log-data-access: false           # No routine CRUD
-      log-business-events: true        # Only important events
+  # Custom logging thresholds (used in code)
+  slow-query-threshold-ms: 2000    # Only very slow queries
+  slow-method-threshold-ms: 2000   # Only very slow methods
 ```
 
 ## Usage Examples

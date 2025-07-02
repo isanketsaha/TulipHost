@@ -19,6 +19,10 @@ public class ApplicationProperties {
     public final Aws aws = new Aws();
     public final Whatsapp whatsapp = new Whatsapp();
 
+    // Logging performance thresholds
+    private long slowMethodThresholdMs = 2000;
+    private long slowQueryThresholdMs = 1000;
+
     @Data
     public static class Page {
 

@@ -57,6 +57,8 @@ spring:
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
   jpa:
+    hibernate:
+      ddl-auto: none
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
@@ -124,5 +126,8 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
+  # Custom logging thresholds (used in code)
+  slow-query-threshold-ms: 500
+  slow-method-threshold-ms: 500
 

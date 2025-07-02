@@ -11,6 +11,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import tech.jhipster.config.JHipsterConstants;
@@ -23,8 +24,13 @@ import tech.jhipster.config.JHipsterConstants;
 public class LoggingAspect {
 
     private final Environment env;
-    private static final long SLOW_METHOD_THRESHOLD_MS = 2000; // 2 seconds
-    private static final long SLOW_QUERY_THRESHOLD_MS = 1000; // 1 second
+
+    // Configurable thresholds with defaults
+    @Value("${application.slow-method-threshold-ms:2000}")
+    private long slowMethodThresholdMs;
+
+    @Value("${application.slow-query-threshold-ms:1000}")
+    private long slowQueryThresholdMs;
 
     public LoggingAspect(Environment env) {
         this.env = env;
@@ -119,7 +125,7 @@ public class LoggingAspect {
             long duration = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
 
             // Only log slow methods (performance issue)
-            if (duration > SLOW_METHOD_THRESHOLD_MS) {
+            if (duration > slowMethodThresholdMs) {
                 log.warn("Slow method: {}.{}() took {}ms", className, methodName, duration);
             }
 

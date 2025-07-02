@@ -207,16 +207,9 @@ application:
       accessKey: ${s3.key}
       secret: ${s3.secret}
       bucket-name: ${s3.bucket}
-  logging:
-    # Performance thresholds - only log when performance is really bad
-    slow-query-threshold-ms: 2000
-    slow-method-threshold-ms: 2000
-    # Security logging - only failures and violations
-    log-authentication-events: false
-    log-authorization-events: true
-    # Audit logging - only sensitive operations
-    log-data-access: false
-    log-business-events: true
+  # Custom logging thresholds (used in code)
+  slow-query-threshold-ms: 2000
+  slow-method-threshold-ms: 2000
 
 jpa:
   open-in-view: false

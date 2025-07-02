@@ -211,3 +211,6 @@ application:
       accessKey: ${s3.key}
       secret: ${s3.secret}
       bucket-name: ${s3.bucket}
+  # Custom logging thresholds (used in code)
+  slow-query-threshold-ms: 1000
+  slow-method-threshold-ms: 1000
