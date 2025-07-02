@@ -24,6 +24,8 @@ import tech.jhipster.config.JHipsterConstants;
 public class LoggingAspect {
 
     private final Environment env;
+    private static final long SLOW_METHOD_THRESHOLD_MS = 2000; // 2 seconds
+    private static final long SLOW_QUERY_THRESHOLD_MS = 1000; // 1 second
 
     // Configurable thresholds with defaults
     @Value("${application.slow-method-threshold-ms:2000}")
