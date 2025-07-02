@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Launch TulipHost Application",
+      "request": "launch",
+      "mainClass": "com.tulip.host.TulipHostApplication",
+      "projectName": "tulip-host",
+      "env": {
+        "s3.bucket": "tulip-docs-test",
+        "s3.key": "AKIAVHI7JUOUCRMTYOKK",
+        "s3.region": "ap-northeast-1",
+        "s3.secret": "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",
+        "spring.profiles.active": "dev",
+        "whatsapp.token": "EAAEXi9mcCSoBO4ERA50n7GnRZCo7K8DA9ShN9Jh0ybAMRJwCfvwo87VYN4ICOOOIxbpJDkcnnuX0UxyloaCuq7wvIm6BNATQbTHYo5GTeTg3I8GGZCFwZCpLGN1mtQZAJeDTUmLFf2VcRfQKqlTzJ9Y36hKDeHCgbElqTEaEm2tWUpMBeUD2Uqu4hZBvndDt07wmkmgW3vJrpZBLo1BnVn"
+      },
+      "args": "",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
