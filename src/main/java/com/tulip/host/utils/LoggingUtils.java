@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,7 +17,15 @@ import org.springframework.stereotype.Component;
 public class LoggingUtils {
 
     private static final Logger log = LoggerFactory.getLogger(LoggingUtils.class);
-    private static final long SLOW_METHOD_THRESHOLD_MS = 2000; // 2 seconds
+
+    // Default thresholds that can be overridden via application properties
+    private static final long DEFAULT_SLOW_METHOD_THRESHOLD_MS = 2000; // 2 seconds
+
+    @Value("${application.slow-method-threshold-ms:2000}")
+    private long slowMethodThresholdMs;
+
+    @Value("${application.slow-query-threshold-ms:1000}")
+    private long slowQueryThresholdMs;
 
     /**
      * Log critical exceptions with minimal context.
@@ -142,8 +151,8 @@ public class LoggingUtils {
      * @param className  the class name
      * @param duration   the execution duration in milliseconds
      */
-    public static void logPerformanceIssue(Logger logger, String methodName, String className, long duration) {
-        if (duration > SLOW_METHOD_THRESHOLD_MS) {
+    public void logPerformanceIssue(Logger logger, String methodName, String className, long duration) {
+        if (duration > slowMethodThresholdMs) {
             MDC.put("event", "PERFORMANCE");
             MDC.put("method", methodName);
             MDC.put("class", className);
