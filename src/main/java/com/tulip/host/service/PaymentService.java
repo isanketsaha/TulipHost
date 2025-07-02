@@ -315,18 +315,13 @@ public class PaymentService {
             CommonUtils.getPageRequest(DESC, "createdDate", pageNo, pageSize)
         );
 
-        try {
             List<PaySummaryDTO> paySummaryDTOS = transactionMapper.toEntityList(transactionPage.getContent());
 
             return new PageImpl<PaySummaryDTO>(
                     paySummaryDTOS,
                     transactionPage.getPageable(),
                     transactionPage.getTotalElements());
-        } finally {
-            if (transactionPage.getContent() != null) {
-                transactionPage.getContent().clear();
-            }
-        }
+
     }
 
     @Transactional
