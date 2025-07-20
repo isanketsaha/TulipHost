@@ -104,10 +104,12 @@ public interface StudentMapper {
 
     List<StudentExportDTO> toBasicEntityExportList(List<Student> student);
 
-    @AfterMapping
-    default void map(@MappingTarget StudentDetailsDTO target, Student source, @Context UploadService service) {
-        target.setProfilePictureUrl(
-            source.getProfilePicture() != null ? service.getURL(source.getProfilePicture().getUid()) : StringUtils.EMPTY
-        );
-    }
+    // @AfterMapping
+    // default void map(@MappingTarget StudentDetailsDTO target, Student source,
+    // @Context UploadService service) {
+    // target.setProfilePictureUrl(
+    // source.getProfilePicture() != null ?
+    // service.getURL(source.getProfilePicture().getUid()) : StringUtils.EMPTY
+    // );
+    // }
 }

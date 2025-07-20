@@ -5,6 +5,7 @@ import static com.querydsl.core.group.GroupBy.map;
 import static com.tulip.host.config.Constants.DATE_PATTERN;
 import static com.tulip.host.config.Constants.GROUP_BY_MONTH_FORMAT;
 import static com.tulip.host.config.Constants.MONTH_YEAR_PATTERN;
+import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
@@ -28,6 +29,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.time.Period;
+import com.tulip.host.domain.Student;
+import com.tulip.host.utils.CommonUtils;
 
 public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, Long> implements TransactionRepository {
 
@@ -129,7 +134,7 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
         return jpaQueryFactory
             .selectFrom(TRANSACTION)
             .innerJoin(TRANSACTION.dues(), DUES)
-            .where(DUES.status.eq("ACTIVE"))
+                .where(DUES.status.eq("ACTIVE").and(TRANSACTION.student().active.eq(true)))
             .orderBy(new OrderSpecifier[] { TRANSACTION.createdDate.desc() })
             .fetch();
     }
@@ -175,8 +180,9 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
 
     @Override
     public List<Object[]> fetchPendingFeesBatch(List<Long> studentIds, Long classId, Long sessionId) {
-        List<Tuple> results = jpaQueryFactory
-                .select(STUDENT.id, FEES_LINE_ITEM.month.count())
+        // Get the latest tuition fees payment date for each student
+        List<Tuple> latestPaymentResults = jpaQueryFactory
+                .select(STUDENT.id, FEES_LINE_ITEM.month.max())
                 .from(STUDENT)
                 .leftJoin(STUDENT.transactions, TRANSACTION)
                 .leftJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
@@ -185,19 +191,70 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
                         STUDENT.id.in(studentIds)
                                 .and(FEES_CATALOG.std().id.eq(classId))
                                 .and(TRANSACTION.type.eq("FEES"))
-                                .and(FEES_LINE_ITEM.month.isNull()))
+                                .and(FEES_CATALOG.applicableRule.eq(FeesRuleType.MONTHLY))
+                                .and(FEES_CATALOG.feesName.eq("TUITION FEES"))
+                                .and(FEES_LINE_ITEM.month.isNotNull()))
                 .groupBy(STUDENT.id)
                 .fetch();
 
-        return results.stream()
-                .map(tuple -> new Object[] { tuple.get(STUDENT.id), tuple.get(FEES_LINE_ITEM.month.count()) })
-                .collect(Collectors.toList());
+        // Get session details for calculating pending months
+        Session session = jpaQueryFactory
+                .selectFrom(SESSION)
+                .where(SESSION.id.eq(sessionId))
+                .fetchOne();
+
+        List<Object[]> results = new ArrayList<>();
+
+        for (Tuple tuple : latestPaymentResults) {
+            Long studentId = tuple.get(STUDENT.id);
+            String latestMonth = tuple.get(FEES_LINE_ITEM.month.max());
+
+            int pendingMonths = 0;
+            if (latestMonth != null) {
+                // Parse the latest month and calculate pending months
+                LocalDate latestPaymentDate = YearMonth
+                        .parse(latestMonth, DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT)).atEndOfMonth();
+                LocalDate currentDate = LocalDate.now();
+                LocalDate cutoffDate = currentDate.withDayOfMonth(20);
+
+                // If current date is past 20th, fees for current month is pending
+                if (currentDate.isAfter(cutoffDate)) {
+                    cutoffDate = currentDate.withDayOfMonth(1).plusMonths(1).withDayOfMonth(20);
+                }
+
+                pendingMonths = Period.between(latestPaymentDate, cutoffDate).getMonths();
+            } else {
+                // No payments found, calculate from session start or student creation date
+                Student student = jpaQueryFactory
+                        .selectFrom(STUDENT)
+                        .where(STUDENT.id.eq(studentId))
+                        .fetchOne();
+
+                LocalDateTime startDate = student.getCreatedDate().isBefore(session.getFromDate().atStartOfDay())
+                        ? session.getFromDate().atStartOfDay()
+                        : student.getCreatedDate();
+
+                LocalDate currentDate = LocalDate.now();
+                LocalDate cutoffDate = currentDate.withDayOfMonth(20);
+
+                // If current date is past 20th, fees for current month is pending
+                if (currentDate.isAfter(cutoffDate)) {
+                    cutoffDate = currentDate.withDayOfMonth(1).plusMonths(1).withDayOfMonth(20);
+                }
+
+                pendingMonths = Period.between(startDate.withDayOfMonth(1).toLocalDate(), cutoffDate).getMonths();
+            }
+
+            results.add(new Object[] { studentId, pendingMonths });
+        }
+
+        return results;
     }
 
     @Override
     public Map<Long, List<String>> fetchAnnualFeesByClassBatch(List<Long> studentIds, Long classId) {
         List<Tuple> results = jpaQueryFactory
-                .select(STUDENT.id, FEES_LINE_ITEM.month)
+                .select(STUDENT.id, FEES_CATALOG.feesName)
                 .from(STUDENT)
                 .innerJoin(STUDENT.transactions, TRANSACTION)
                 .innerJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
@@ -206,14 +263,15 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
                         STUDENT.id.in(studentIds)
                                 .and(FEES_CATALOG.std().id.eq(classId))
                                 .and(TRANSACTION.type.eq("FEES"))
-                                .and(FEES_LINE_ITEM.month.isNotNull()))
+                                .and(FEES_CATALOG.applicableRule.eq(FeesRuleType.YEARLY))
+                                .and(FEES_LINE_ITEM.month.isNull()))
                 .fetch();
 
         Map<Long, List<String>> resultMap = new HashMap<>();
         for (Tuple tuple : results) {
             Long studentId = tuple.get(STUDENT.id);
-            String month = tuple.get(FEES_LINE_ITEM.month);
-            resultMap.computeIfAbsent(studentId, k -> new ArrayList<>()).add(month);
+            String feesName = tuple.get(FEES_CATALOG.feesName);
+            resultMap.computeIfAbsent(studentId, k -> new ArrayList<>()).add(feesName);
         }
 
         return resultMap;
@@ -224,7 +282,7 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
         return jpaQueryFactory
                 .selectFrom(TRANSACTION)
                 .innerJoin(TRANSACTION.dues(), DUES)
-                .where(DUES.status.ne("PAID"))
+                .where(DUES.status.ne("PAID").and(TRANSACTION.student().active.eq(true)))
                 .orderBy(DUES.dueDate.asc())
                 .limit(limit)
                 .fetch();

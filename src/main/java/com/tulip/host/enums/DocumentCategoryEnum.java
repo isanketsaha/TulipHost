@@ -2,7 +2,8 @@ package com.tulip.host.enums;
 
 public enum DocumentCategoryEnum {
     ACADEMIC("Academic"),
-    UPLOAD_TEMPLATE("Template");
+    UPLOAD_TEMPLATE("Template"),
+    EXAMINATION("Examination Cell");
 
     private final String category;
 
