@@ -63,6 +63,7 @@ public class OnboardingVM {
     BankVM bank;
     InterviewVM interview;
     StdEnum std;
+    String tid;
 
     public void setProfilePicture(List<FileUploadVM> profilePhoto) {
         FileUploadVM uploadVM = profilePhoto.stream().findFirst().orElse(null);
