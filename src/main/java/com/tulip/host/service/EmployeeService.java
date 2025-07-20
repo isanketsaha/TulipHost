@@ -115,6 +115,15 @@ public class EmployeeService {
     }
 
     @Transactional
+    public EmployeeBasicDTO searchByUserId(String userId) {
+        Employee employee = employeeRepository.findByUserId(userId).orElse(null);
+        if (employee != null) {
+            return employeeMapper.toBasicEntity(employee);
+        }
+        return null;
+    }
+
+    @Transactional
     public EmployeeDetailsDTO searchEmployee(long id) {
         Employee employee = employeeRepository.search(id);
         if (employee != null) {

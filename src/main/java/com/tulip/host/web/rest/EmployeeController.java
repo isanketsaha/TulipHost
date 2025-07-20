@@ -30,19 +30,24 @@ public class EmployeeController {
         return employeeService.fetchAllEmployee(Boolean.TRUE, role);
     }
 
-    @RequestMapping("/all")
+    @GetMapping("/all")
     public List<EmployeeBasicDTO> fetch() {
         return employeeService.fetchAllEmployee();
     }
 
-    @RequestMapping("/search/{id}")
+    @GetMapping("/searchById/{id}")
     public EmployeeDetailsDTO search(@PathVariable int id) {
         return employeeService.searchEmployee(id);
     }
 
-    @RequestMapping("/searchByName/{name}")
+    @GetMapping("/searchByName/{name}")
     public List<EmployeeBasicDTO> search(@PathVariable String name) {
         return employeeService.searchEmployee(name);
+    }
+
+    @GetMapping("/searchByUserName/{userId}")
+    public EmployeeBasicDTO searchByUserId(@PathVariable String userId) {
+        return employeeService.searchByUserId(userId);
     }
 
     @RolesAllowed("UG_ADMIN")
