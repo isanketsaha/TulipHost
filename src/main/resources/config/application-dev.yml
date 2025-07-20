@@ -15,13 +15,13 @@
 
 logging:
   level:
-#    org:
-#      springframework:
-#        statemachine: DEBUG
-#        hibernate:
-#          type:
-#            descriptor:
-#              sql: trace
+    #    org:
+    #      springframework:
+    #        statemachine: DEBUG
+    #        hibernate:
+    #          type:
+    #            descriptor:
+    #              sql: trace
     com:
       amazonaws:
         util:
@@ -47,11 +47,11 @@ management:
       probability: 1.0 # report 100% of traces
 
 spring:
-#  jpa:
-#    show-sql: true
-#    properties:
-#      hibernate:
-#        format_sql: true
+  #  jpa:
+  #    show-sql: true
+  #    properties:
+  #      hibernate:
+  #        format_sql: true
   devtools:
     restart:
       enabled: true
@@ -173,10 +173,10 @@ jhipster:
   # CORS is disabled by default on microservices, as you should access them through a gateway.
   # If you want to enable it, please uncomment the configuration below.
   cors:
-    allowed-origins: 'http://localhost:5173'
-    allowed-methods: '*'
-    allowed-headers: '*'
-    exposed-headers: 'Authorization,Link,X-Total-Count'
+    allowed-origins: "http://localhost:5173"
+    allowed-methods: "*"
+    allowed-headers: "*"
+    exposed-headers: "Authorization,Link,X-Total-Count"
     allow-credentials: true
     max-age: 1800
   security:

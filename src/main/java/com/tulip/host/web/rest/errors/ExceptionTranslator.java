@@ -115,7 +115,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
             try {
                 auditRepository.save(error);
             } catch (Exception auditException) {
-                log.warn("Failed to save audit entry: {}", auditException.getMessage());
+                log.error("Failed to save audit entry: {}", auditException.getMessage());
             }
         } else if (body instanceof ProblemDetail) {
             String description = ((ProblemDetail) body).getTitle();
@@ -136,7 +136,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
             try {
                 auditRepository.save(error);
             } catch (Exception auditException) {
-                log.warn("Failed to save audit entry: {}", auditException.getMessage());
+                log.error("Failed to save audit entry: {}", auditException.getMessage());
             }
         }
         return super.handleExceptionInternal(ex, body, headers, statusCode, request);

@@ -25,8 +25,8 @@ public interface StudentToTransportMapper {
         if (CollectionUtils.isNotEmpty(list)) {
             Optional<StudentToTransport> studentToTransport = list
                 .stream()
-                .filter(item ->
-                    item.getStartDate().isBefore(Instant.now()) && (item.getEndDate() == null || item.getEndDate().isAfter(Instant.now()))
+                    .filter(item -> item
+                            .getEndDate() == null
                 )
                 .findFirst();
             if (studentToTransport.isPresent()) return fromEntity(studentToTransport.orElseThrow());
