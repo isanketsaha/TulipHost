@@ -39,4 +39,7 @@ public class EmployeeBasicDTO {
 
     private String classTeacher;
     private String authority;
+
+    @Size(max = 10)
+    private String tid;
 }

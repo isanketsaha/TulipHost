@@ -50,6 +50,10 @@ public class Employee extends AbstractAuditingEntity {
     @Column(name = "emp_id", nullable = false)
     private Long id;
 
+    @Size(max = 10)
+    @Column(name = "tid", length = 10)
+    private String tid;
+
     @NotNull
     @Column(name = "active", nullable = false)
     @Builder.Default
