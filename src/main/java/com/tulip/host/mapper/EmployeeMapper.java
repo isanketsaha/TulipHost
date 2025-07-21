@@ -30,6 +30,7 @@ import org.mapstruct.Named;
 public interface EmployeeMapper {
     @Mapping(target = "authority", source = "group.authority")
     @Mapping(target = "dependent", source = "dependents")
+    @Mapping(target = "userName", source = "credential.userId")
     EmployeeDetailsDTO toEntity(Employee source, @Context UploadService service);
 
     @Mapping(target = "phoneNumber", source = "contact")
