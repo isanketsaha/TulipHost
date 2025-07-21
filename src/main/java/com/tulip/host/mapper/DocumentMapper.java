@@ -12,6 +12,7 @@ import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -24,13 +25,15 @@ public abstract class DocumentMapper {
     @Autowired
     private ClassDetailRepository classDetailRepository;
 
-    @Mapping(target = "classDetail", source = "std")
+    @Mapping(target = "classDetail", source = "std", qualifiedByName = "mapToClassDetail")
     @Mapping(target = "id", source = "id")
     public abstract SystemDocument toEntity(DocumentVM source);
 
     public abstract List<SystemDocument> toEntityList(List<DocumentVM> source);
 
     @Mapping(target = "session", source = "session.id")
+    @Mapping(target = "std", source = "classDetail.id")
+    @Mapping(target = "className", source = "classDetail.std")
     @Mapping(target = "id", source = "id")
     public abstract DocumentVM toDto(SystemDocument source);
 
@@ -45,6 +48,7 @@ public abstract class DocumentMapper {
     }
 
 
+    @Named("mapToClassDetail")
     protected ClassDetail mapToClassDetail(Long value) {
         if (value == null) {
             return null;

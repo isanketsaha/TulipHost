@@ -33,6 +33,8 @@ public class DocumentVM {
 
     Long std;
 
+    String className;
+
     @NotNull
     List<FileUploadVM> files;
 
