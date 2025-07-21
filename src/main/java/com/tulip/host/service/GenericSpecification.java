@@ -27,6 +27,13 @@ public class GenericSpecification<T> {
                     }
 
                     try {
+                        // Handle field name mapping for SystemDocument
+                        if (root.getJavaType().equals(com.tulip.host.domain.SystemDocument.class)) {
+                            if ("std".equals(fieldName)) {
+                                fieldName = "classDetail.id";
+                            }
+                        }
+
                         // Handle nested fields (e.g., "uploads.id")
                         if (fieldName.contains(".")) {
                             String[] parts = fieldName.split("\\.");
@@ -34,7 +41,14 @@ public class GenericSpecification<T> {
                             for (int i = 1; i < parts.length; i++) {
                                 path = path.get(parts[i]);
                             }
-                            predicates.add(criteriaBuilder.equal(path, value));
+
+                            // Handle type conversion for nested fields
+                            Object convertedValue = value;
+                            if (value instanceof Number && path.getJavaType().equals(Long.class)) {
+                                convertedValue = ((Number) value).longValue();
+                            }
+
+                            predicates.add(criteriaBuilder.equal(path, convertedValue));
                         } else {
                             // Handle direct fields (e.g., "type", "createdDateTime")
                             Field field = getField(root.getJavaType(), fieldName);
