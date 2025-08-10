@@ -2,15 +2,9 @@ package com.tulip.host.web.rest;
 
 import static com.tulip.host.config.Constants.AUTHORIZATION_HEADER;
 
-import com.tulip.host.data.LoggedUserDTO;
-import com.tulip.host.data.LoginDTO;
-import com.tulip.host.repository.CredentialRepository;
-import com.tulip.host.security.jwt.TokenProvider;
-import com.tulip.host.web.rest.vm.LoginVM;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +17,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tulip.host.data.LoggedUserDTO;
+import com.tulip.host.data.LoginDTO;
+import com.tulip.host.domain.Employee;
+import com.tulip.host.repository.CredentialRepository;
+import com.tulip.host.repository.EmployeeRepository;
+import com.tulip.host.security.jwt.TokenProvider;
+import com.tulip.host.web.rest.vm.LoginVM;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 /**
  * Controller to authenticate users.
  */
@@ -33,16 +38,20 @@ public class UserJWTController {
 
     private final CredentialRepository credentialRepository;
 
+    private final EmployeeRepository employeeRepository;
+
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     public UserJWTController(
         TokenProvider tokenProvider,
         AuthenticationManagerBuilder authenticationManagerBuilder,
-        CredentialRepository credentialRepository
+            CredentialRepository credentialRepository,
+            EmployeeRepository employeeRepository
     ) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.credentialRepository = credentialRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     @PostMapping("/authenticate")
@@ -62,9 +71,11 @@ public class UserJWTController {
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toList());
         LoginDTO byUserId = this.credentialRepository.findByUserId(loginVM.getUsername()).orElse(null);
+        Employee employee = this.employeeRepository.findByUserId(loginVM.getUsername()).orElse(null);
         LoggedUserDTO build = LoggedUserDTO
             .builder()
             .idToken(jwt)
+                .id(employee.getId())
             .userId(loginVM.getUsername())
                 .name(authentication.getName())
             .authority(authorities.stream().findAny().orElseThrow())

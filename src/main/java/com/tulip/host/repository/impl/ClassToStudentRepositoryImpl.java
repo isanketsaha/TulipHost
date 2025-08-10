@@ -2,21 +2,19 @@ package com.tulip.host.repository.impl;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
 
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.dsl.StringExpression;
-import com.tulip.host.domain.Session;
-import com.tulip.host.domain.StudentToClass;
-import com.tulip.host.domain.StudentToClassId;
-import com.tulip.host.enums.FeesRuleType;
-import com.tulip.host.repository.ClassToStudentRepository;
-import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import com.querydsl.core.Tuple;
+import com.tulip.host.domain.Session;
+import com.tulip.host.domain.StudentToClass;
+import com.tulip.host.domain.StudentToClassId;
+import com.tulip.host.repository.ClassToStudentRepository;
+
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -10,7 +10,12 @@ import lombok.NoArgsConstructor;
 public class LeaveBalanceDTO {
     private Long id;
     private String name;
-    private Integer availableCount;
+    private Double availableCount;
     private Integer totalAllowed;
-    private Long usedCount;
+    private Double usedCount;
+
+    private String description;
+
+    private Boolean isPaid;
+    private Boolean isActive;
 }

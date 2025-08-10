@@ -1,16 +1,18 @@
 package com.tulip.host.repository.impl;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.Expressions;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.domain.Employee;
 import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.repository.EmployeeRepository;
+
 import jakarta.persistence.EntityManager;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> implements EmployeeRepository {
 
@@ -76,6 +78,12 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
     public Optional<Employee> findByUserId(String userId) {
         return  Optional.ofNullable(jpaQueryFactory.selectFrom(EMPLOYEE)
             .where(EMPLOYEE.credential().userId.eq(userId)).fetchOne());
+    }
+
+    @Override
+    public Optional<Employee> findByTid(String tid) {
+        return Optional.ofNullable(jpaQueryFactory.selectFrom(EMPLOYEE)
+                .where(EMPLOYEE.tid.eq(tid)).fetchOne());
     }
 
     @Override

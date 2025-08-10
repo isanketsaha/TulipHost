@@ -14,6 +14,7 @@ public class LoggedUserDTO {
     private String idToken;
     private String name;
     private String userId;
+    private Long id;
     private String authority;
     private boolean resetCredential;
 }
