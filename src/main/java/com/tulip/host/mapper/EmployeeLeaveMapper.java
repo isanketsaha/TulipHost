@@ -1,44 +1,46 @@
 package com.tulip.host.mapper;
 
-import com.tulip.host.domain.EmployeeLeave;
-import com.tulip.host.web.rest.vm.ApplyLeaveVM;
+import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
+
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import com.tulip.host.data.EmployeeLeaveDto;
+import com.tulip.host.domain.EmployeeLeave;
+import com.tulip.host.web.rest.vm.ApplyLeaveVM;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EmployeeLeaveMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "employee", ignore = true) // Will be set in AfterMapping
-    @Mapping(target = "leaveType", ignore = true) // Will be set in AfterMapping
-    @Mapping(target = "totalDays", ignore = true) // Will be calculated in AfterMapping
-    @Mapping(target = "status", constant = "PENDING")
-    @Mapping(target = "approvedBy", ignore = true)
-    @Mapping(target = "approvalDate", ignore = true)
-    @Mapping(target = "comments", ignore = true)
-    @Mapping(target = "createdDate", ignore = true) // Will be set manually
-    @Mapping(target = "lastModifiedDate", ignore = true) // Will be set manually
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "employeeId", source = "employee.id")
+    @Mapping(target = "employeeTid", source = "employee.tid")
+    @Mapping(target = "employeeName", source = "employee.name")
+    @Mapping(target = "approvedBy", source = "approvedBy.name")
+
+    EmployeeLeaveDto toDto(EmployeeLeave employeeLeave);
+
+    @Mapping(target = "employee", ignore = true)
+    @Mapping(target = "leaveType", ignore = true)
+    @Mapping(target = "startDate", source = "startDate")
+    @Mapping(target = "endDate", source = "endDate")
+    @Mapping(target = "status", expression = "java(com.tulip.host.enums.LeaveStatus.APPROVED)")
+    @Mapping(target = "approvalDate", expression = "java(java.time.LocalDateTime.now())")
     EmployeeLeave toEntity(ApplyLeaveVM applyLeaveVM);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdDate", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    void updateEntityFromEntity(EmployeeLeave source, @MappingTarget EmployeeLeave target);
-
     @AfterMapping
-    default void map(@MappingTarget EmployeeLeave target, ApplyLeaveVM source) {
-        // Calculate total days between start and end date (inclusive)
-        if (source.getStartDate() != null && source.getEndDate() != null) {
-            long days = ChronoUnit.DAYS.between(source.getStartDate(), source.getEndDate()) + 1;
-            target.setTotalDays(BigDecimal.valueOf(days));
+    default void calculateTotalDays(@MappingTarget EmployeeLeave employeeLeave, ApplyLeaveVM applyLeaveVM) {
+        if (applyLeaveVM.getStartDate() != null && applyLeaveVM.getEndDate() != null) {
+            long days = ChronoUnit.DAYS.between(applyLeaveVM.getStartDate(), applyLeaveVM.getEndDate()) + 1;
+            if (applyLeaveVM.getIsHalfDay() != null && applyLeaveVM.getIsHalfDay()) {
+                employeeLeave.setTotalDays(BigDecimal.valueOf(days).subtract(BigDecimal.valueOf(0.5)));
+            } else {
+                employeeLeave.setTotalDays(BigDecimal.valueOf(days));
+            }
         }
     }
+
 }

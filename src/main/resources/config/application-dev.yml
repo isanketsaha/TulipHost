@@ -29,7 +29,7 @@ logging:
     ROOT: INFO
     tech.jhipster: INFO
     org.hibernate.SQL: INFO
-    com.tulip.host: DEBUG
+    com.tulip.host: INFO
 
 eureka:
   instance:

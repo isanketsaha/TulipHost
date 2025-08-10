@@ -3,10 +3,12 @@ package com.tulip.host.repository.impl;
 import static com.tulip.host.config.Constants.CATEGORY_BOOK;
 import static com.tulip.host.config.Constants.CATEGORY_PLACEHOLDER;
 
+import java.util.List;
+
 import com.tulip.host.domain.Inventory;
 import com.tulip.host.repository.InventoryRepository;
+
 import jakarta.persistence.EntityManager;
-import java.util.List;
 
 public class InventoryRepositoryImpl extends BaseRepositoryImpl<Inventory, Long> implements InventoryRepository {
 

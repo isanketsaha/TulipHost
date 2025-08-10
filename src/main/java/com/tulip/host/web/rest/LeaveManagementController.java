@@ -1,19 +1,29 @@
 package com.tulip.host.web.rest;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.tulip.host.data.EmployeeLeaveDto;
+import com.tulip.host.data.LeaveBalanceDTO;
 import com.tulip.host.domain.EmployeeLeave;
 import com.tulip.host.domain.LeaveType;
 import com.tulip.host.service.EmployeeLeaveService;
 import com.tulip.host.service.LeaveTypeService;
 import com.tulip.host.web.rest.vm.ApplyLeaveVM;
-import com.tulip.host.data.LeaveBalanceDTO;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/leave")
@@ -32,19 +42,19 @@ public class LeaveManagementController {
 
     @GetMapping("/types/{id}")
     public ResponseEntity<LeaveType> getLeaveTypeById(@PathVariable Long id) {
-        Optional<LeaveType> leaveType = leaveTypeService.getLeaveTypeById(id);
+        Optional<LeaveType> leaveType = leaveTypeService.getLeaveType(id);
         return leaveType.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/balance/{employeeId}")
-    public ResponseEntity<List<LeaveBalanceDTO>> getBalanceByEmpId(@PathVariable String employeeId) {
+    public ResponseEntity<List<LeaveBalanceDTO>> getBalanceByEmpId(@PathVariable Long employeeId) {
         return ResponseEntity.ok(employeeLeaveService.getBalanceByEmpId(employeeId));
     }
 
     @GetMapping("/appliedLeave/{employeeId}")
-    public ResponseEntity<List<LeaveBalanceDTO>> getAppliedLeaveByEmpId(@PathVariable String employeeId) {
-        return ResponseEntity.ok(employeeLeaveService.getBalanceByEmpId(employeeId));
+    public ResponseEntity<List<EmployeeLeave>> getAppliedLeaveByEmpId(@PathVariable Long employeeId) {
+        return ResponseEntity.ok(employeeLeaveService.getAppliedLeaveByEmpId(employeeId));
     }
 
     @GetMapping("/types")
@@ -54,41 +64,49 @@ public class LeaveManagementController {
 
     @PutMapping("/types/{id}")
     public ResponseEntity<LeaveType> updateLeaveType(@PathVariable Long id, @RequestBody LeaveType leaveType) {
-        return ResponseEntity.ok(leaveTypeService.updateLeaveType(id, leaveType));
+        leaveType.setId(id);
+        return ResponseEntity.ok(leaveTypeService.updateLeaveType(leaveType));
     }
 
     @DeleteMapping("/types/{id}")
     public ResponseEntity<Void> deleteLeaveType(@PathVariable Long id) {
         leaveTypeService.deleteLeaveType(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     // EmployeeLeave Endpoints
-    @PostMapping("/apply-leaves")
-    public ResponseEntity<EmployeeLeave> createEmployeeLeave(@Valid @RequestBody ApplyLeaveVM applyLeaveVM) {
+    @PostMapping("/apply")
+    public ResponseEntity<EmployeeLeave> applyLeave(@Valid @RequestBody ApplyLeaveVM applyLeaveVM) {
         return ResponseEntity.ok(employeeLeaveService.createEmployeeLeaveFromVM(applyLeaveVM));
     }
 
     @GetMapping("/applied-leaves/{employeeId}")
-    public ResponseEntity<List<EmployeeLeave>> getEmployeeLeaveByEmployeeId(@PathVariable String employeeId) {
-        List<EmployeeLeave> employeeLeaves = employeeLeaveService.getEmployeeLeaveByEmployeeId(employeeId);
-        return ResponseEntity.ok(employeeLeaves);
+    public ResponseEntity<List<EmployeeLeaveDto>> getEmployeeLeaveByEmployeeId(@PathVariable String employeeId) {
+        if ("ALL".equals(employeeId)) {
+            List<EmployeeLeaveDto> allEmployeeLeaves = employeeLeaveService.getAllEmployeeLeavesAsDto();
+            return ResponseEntity.ok(allEmployeeLeaves);
+        } else {
+            List<EmployeeLeaveDto> employeeLeaves = employeeLeaveService
+                    .getEmployeeLeaveByEmployeeIdAsDto(Long.parseLong(employeeId));
+            return ResponseEntity.ok(employeeLeaves);
+        }
     }
 
     @GetMapping("/applied-leaves")
-    public ResponseEntity<List<EmployeeLeave>> getAllEmployeeLeaves() {
-        return ResponseEntity.ok(employeeLeaveService.getAllEmployeeLeaves());
+    public ResponseEntity<List<EmployeeLeaveDto>> getAllEmployeeLeaves() {
+        return ResponseEntity.ok(employeeLeaveService.getAllEmployeeLeavesAsDto());
     }
 
-    @PutMapping("/applied-leaves/{id}")
-    public ResponseEntity<EmployeeLeave> updateEmployeeLeave(@PathVariable Long id,
-            @RequestBody EmployeeLeave employeeLeave) {
-        return ResponseEntity.ok(employeeLeaveService.updateEmployeeLeave(id, employeeLeave));
+    @GetMapping("/applied-leaves/date-range")
+    public ResponseEntity<List<EmployeeLeaveDto>> getEmployeeLeavesByDateRange(
+            @RequestParam String fromDate,
+            @RequestParam String toDate) {
+        return ResponseEntity.ok(employeeLeaveService.getEmployeeLeavesByDateRangeAsDto(fromDate, toDate));
     }
 
-    @DeleteMapping("/applied-leaves/{id}")
-    public ResponseEntity<Void> deleteEmployeeLeave(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteLeave(@PathVariable Long id) {
         employeeLeaveService.deleteEmployeeLeave(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,14 +1,16 @@
 package com.tulip.host.web.rest.vm;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.time.LocalDate;
-
 @Data
 public class ApplyLeaveVM {
-    @NotNull
-    private String employeeId;
+
+    private Long employeeId;
+
+    private String tid;
 
     @NotNull
     private Long leaveTypeId;
@@ -20,4 +22,6 @@ public class ApplyLeaveVM {
     private LocalDate endDate;
 
     private String reason;
+
+    private Boolean isHalfDay = false;
 }

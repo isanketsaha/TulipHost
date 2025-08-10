@@ -1,12 +1,14 @@
 package com.tulip.host.repository.impl;
 
+import java.util.Optional;
+
 import com.querydsl.core.types.Projections;
 import com.tulip.host.data.LoginDTO;
 import com.tulip.host.domain.Credential;
 import com.tulip.host.domain.Employee;
 import com.tulip.host.repository.CredentialRepository;
+
 import jakarta.persistence.EntityManager;
-import java.util.Optional;
 
 public class CredentialRepositoryImpl extends BaseRepositoryImpl<Credential, Long> implements CredentialRepository {
 

@@ -1,20 +1,22 @@
 package com.tulip.host.repository;
 
-import com.tulip.host.domain.EmployeeLeave;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-import com.querydsl.core.Tuple;
-
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.tulip.host.data.LeaveBalanceDTO;
+import com.tulip.host.domain.EmployeeLeave;
+import com.tulip.host.domain.Session;
 
 @Repository
 public interface EmployeeLeaveRepository extends JpaRepository<EmployeeLeave, Long> {
 
-    List<EmployeeLeave> findByEmployeeId(String employeeId);
+    List<EmployeeLeave> findByEmployeeId(Long employeeId);
 
-    Map<String, Long> findLeaveBalance(String employeeId);
+    List<LeaveBalanceDTO> findLeaveBalance(Long employeeId);
+
+    List<EmployeeLeave> findBySession(Session session);
+
+    List<EmployeeLeave> findByDateRange(String fromDate, String toDate);
 }

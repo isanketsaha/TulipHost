@@ -22,4 +22,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Map<String, Long> fetchStaffReport();
 
     Optional<Employee> findByUserId(String userId);
+
+    Optional<Employee> findByTid(String tid);
 }

@@ -18,6 +18,7 @@ import com.tulip.host.domain.QExpense;
 import com.tulip.host.domain.QFeesCatalog;
 import com.tulip.host.domain.QFeesLineItem;
 import com.tulip.host.domain.QInventory;
+import com.tulip.host.domain.QLeaveType;
 import com.tulip.host.domain.QProductCatalog;
 import com.tulip.host.domain.QPurchaseLineItem;
 import com.tulip.host.domain.QSession;
@@ -62,6 +63,7 @@ public abstract class BaseRepositoryImpl<T, ID> extends SimpleJpaRepository<T, I
     static final QDuesPayment DUES_PAYMENT = QDuesPayment.duesPayment;
 
     static final QEmployeeLeave EMPLOYEE_LEAVE = QEmployeeLeave.employeeLeave;
+    static final QLeaveType LEAVE_TYPE = QLeaveType.leaveType;
 
     @PersistenceContext
     EntityManager em;
