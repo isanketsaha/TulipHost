@@ -1,27 +1,36 @@
 package com.tulip.host.web.rest;
 
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.tulip.host.data.CouponDTO;
 import com.tulip.host.data.CouponRequestDTO;
 import com.tulip.host.service.CouponService;
 import com.tulip.host.web.rest.vm.CouponValidationRequestVM;
 import com.tulip.host.web.rest.vm.CouponValidationResponseVM;
 import com.tulip.host.web.rest.vm.GenericFilterVM;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/coupons")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('UG_ADMIN') or hasAuthority('UG_PRINCIPAL')")
+@PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")
 public class CouponController {
 
     private final CouponService couponService;
@@ -68,6 +77,7 @@ public class CouponController {
     }
 
     @PostMapping("/validate")
+    @PreAuthorize("hasAuthority('UG_STAFF') or hasAuthority('UG_ADMIN') or hasAuthority('UG_PRINCIPAL')")
     public ResponseEntity<CouponValidationResponseVM> validateCoupon(
         @Valid @RequestBody CouponValidationRequestVM requestDTO) {
         return ResponseEntity.ok(couponService.validateCoupon(requestDTO));
