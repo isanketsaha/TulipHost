@@ -5,8 +5,28 @@ import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
 import static com.tulip.host.config.Constants.TRANSPORT_FEES;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
 import com.querydsl.core.BooleanBuilder;
-import com.tulip.host.config.ApplicationProperties;
 import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.FeesItemSummaryDTO;
 import com.tulip.host.data.PaySummaryDTO;
@@ -34,12 +54,10 @@ import com.tulip.host.mapper.UploadMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.DuesPaymentRepository;
 import com.tulip.host.repository.DuesRepository;
-import com.tulip.host.repository.ExpenseRepository;
 import com.tulip.host.repository.FeesCatalogRepository;
 import com.tulip.host.repository.FeesLineItemRepository;
 import com.tulip.host.repository.ProductCatalogRepository;
 import com.tulip.host.repository.PurchaseLineItemRepository;
-import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.repository.TransactionRepository;
@@ -51,30 +69,11 @@ import com.tulip.host.web.rest.vm.EditOrderVm;
 import com.tulip.host.web.rest.vm.ExpenseVm;
 import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.PayVM;
+
 import jakarta.transaction.Transactional;
 import jakarta.xml.bind.ValidationException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -98,18 +97,13 @@ public class PaymentService {
 
     private final StudentRepository studentRepository;
 
-    private final SessionRepository sessionRepository;
-
     private final FeesLineItemRepository feesLineItemRepository;
 
-    private final ApplicationProperties applicationProperties;
 
     private final CouponService couponService;
 
-    private final ExpenseRepository expenseRepository;
     private final ExpenseMapper expenseMapper;
 
-    private final SessionService sessionService;
 
     private final DuesMapper duesMapper;
 
@@ -119,9 +113,24 @@ public class PaymentService {
 
     private final ClassDetailRepository classDetailRepository;
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT, Locale.ENGLISH);
+    private final InventoryAllocationService inventoryAllocationService;
 
     private static final String TUITION_FEES = "TUITION";
+
+    /**
+     * Allocates inventory to purchase line items using smart allocation strategy
+     * This method handles price differences and automatically selects optimal
+     * inventory batches
+     */
+    private void allocateInventoryToPurchaseItems(Set<PurchaseLineItem> purchaseLineItems) {
+        for (PurchaseLineItem lineItem : purchaseLineItems) {
+            // Validate price first
+            // inventoryAllocationService.validatePurchasePrice(lineItem);
+
+            // Use the smart inventory allocation service
+            inventoryAllocationService.allocateInventoryToPurchaseItem(lineItem);
+        }
+    }
 
     @Transactional
     public Long payFees(PayVM payVM) throws ValidationException {
@@ -177,7 +186,9 @@ public class PaymentService {
                     .map(item -> {
                         double amount = item.getQty() * item.getUnitPrice();
                         ProductCatalog productCatalog = productCatalogRepository.findById(item.getProductId()).orElse(null);
-                        if (productCatalog.getPrice() != item.getUnitPrice() || amount != item.getAmount()) {
+                            double expectedPrice = inventoryAllocationService.calculateExpectedPrice(productCatalog);
+                            if (Math.abs(expectedPrice - item.getUnitPrice()) > 0.01
+                                    || Math.abs(amount - item.getAmount()) > 0.01) {
                             errors.add("Incorrect LineItem Amount");
                         }
                         return item;
@@ -249,6 +260,7 @@ public class PaymentService {
         if (payVM.isDueOpted()) {
             applyDues(transaction, payVM.getDueInfo());
         }
+        allocateInventoryToPurchaseItems(transaction.getPurchaseLineItems());
         Transaction purchaseOrder = transactionRepository.save(transaction);
         return purchaseOrder.getId();
     }

@@ -45,4 +45,13 @@ public class InventoryRepositoryImpl extends BaseRepositoryImpl<Inventory, Long>
                 .orderBy(PRODUCT_CATALOG.itemName.asc())
                 .fetch();
     }
+
+    @Override
+    public List<Inventory> findByProductOrderByCreatedDateAsc(com.tulip.host.domain.ProductCatalog product) {
+        return jpaQueryFactory
+                .selectFrom(INVENTORY)
+                .where(INVENTORY.product().eq(product))
+                .orderBy(INVENTORY.createdDate.asc())
+                .fetch();
+    }
 }

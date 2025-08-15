@@ -18,4 +18,6 @@ public class PurchaseItemSummaryDTO {
     int qty;
     double unitPrice;
     double amount;
+    Long inventoryId;
+    String inventoryVendor;
 }

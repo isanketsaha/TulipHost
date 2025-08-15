@@ -1,6 +1,9 @@
 package com.tulip.host.data;
 
 import java.io.Serializable;
+
+import javax.xml.catalog.Catalog;
+
 import lombok.Data;
 
 /**
@@ -9,17 +12,21 @@ import lombok.Data;
 @Data
 public class ProductDTO implements Serializable {
 
-    private final Long id;
+    private Long id;
 
-    private final String itemName;
+    private String itemName;
 
-    private final Double price;
+    private Double price;
 
-    private final String type;
+    private String type;
 
-    private final String tag;
+    private String tag;
 
-    private final String std;
+    private String std;
 
-    private final String size;
+    private String size;
+
+    private Integer availableStock;
+    private Boolean lowStock;
+    private String category;
 }

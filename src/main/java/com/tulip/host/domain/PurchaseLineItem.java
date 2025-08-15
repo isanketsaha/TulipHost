@@ -54,4 +54,8 @@ public class PurchaseLineItem extends AbstractAuditingEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "product_id", nullable = false)
     private ProductCatalog product;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "inventory_id", nullable = true)
+    private Inventory inventory;
 }
