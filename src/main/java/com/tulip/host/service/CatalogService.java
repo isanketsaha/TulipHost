@@ -2,6 +2,15 @@ package com.tulip.host.service;
 
 import static com.tulip.host.config.Constants.TRANSPORT_FEES;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tulip.host.data.FeesCatalogDTO;
 import com.tulip.host.data.ProductDTO;
 import com.tulip.host.data.TransportCatalogDto;
@@ -25,18 +34,9 @@ import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransportCatalogRepository;
 import com.tulip.host.web.rest.vm.StockUpdateVM;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.HashMap;
-import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +63,8 @@ public class CatalogService {
     private final TransportCatalogMapper transportMapper;
 
     private final StudentToTransportMapper toTransportMapper;
+
+    private final InventoryService inventoryService;
 
     @Transactional
     public List<FeesCatalogDTO> fetchFeesCatalog(Long id) {
@@ -105,37 +107,50 @@ public class CatalogService {
         List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveProduct(classId);
 
         try {
-            // Pre-calculate sold quantities in batch - use more memory-efficient approach
-            Map<Long, Integer> soldQuantities = new HashMap<>();
-            Map<Long, Integer> purchaseQuantities = new HashMap<>();
+            // Use the new inventory tracking system to calculate available stock
+            List<ProductCatalog> availableProducts = new ArrayList<>();
 
             for (ProductCatalog catalog : catalogs) {
-                // Calculate sold quantities
-                int soldQty = catalog.getPurchaseLineItems().stream()
-                        .mapToInt(lineItem -> lineItem.getQty())
-                        .sum();
-                soldQuantities.put(catalog.getId(), soldQty);
+                // Use the InventoryService to get total available quantity
+                // This now uses pre-loaded inventory data (filtered to active only)
+                int totalAvailableQty = inventoryService.getTotalAvailableQuantity(catalog);
 
-                // Calculate purchase quantities
-                int purchaseQty = catalog.getInventories().stream()
-                        .mapToInt(lineItem -> lineItem.getQty())
-                        .sum();
-                purchaseQuantities.put(catalog.getId(), purchaseQty);
-            }
-
-            // Filter products with available stock - use iterator for memory efficiency
-            List<ProductCatalog> availableProducts = new ArrayList<>();
-            for (ProductCatalog item : catalogs) {
-                int soldQuantity = soldQuantities.getOrDefault(item.getId(), 0);
-                int purchaseQuantity = purchaseQuantities.getOrDefault(item.getId(), 0);
-                if (soldQuantity < purchaseQuantity) {
-                    availableProducts.add(item);
+                // Only include products that have available stock
+                if (totalAvailableQty > 0) {
+                    availableProducts.add(catalog);
                 }
             }
 
             return catalogMapper.toModelList(availableProducts);
         } finally {
             // Clear references to help GC
+            catalogs.clear();
+        }
+    }
+
+    /**
+     * Get product catalog with unified pricing - shows highest price when multiple
+     * inventory batches exist
+     */
+    @Transactional
+    public List<ProductDTO> productCatalogWithUnifiedPricing(Long classId) {
+        List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveProduct(classId);
+
+        try {
+            List<ProductDTO> productsWithUnifiedPricing = new ArrayList<>();
+
+            for (ProductCatalog catalog : catalogs) {
+                int totalAvailableQty = inventoryService.getTotalAvailableQuantity(catalog);
+
+                if (totalAvailableQty > 0) {
+                    ProductDTO productDTO = catalogMapper.toEntity(catalog);
+                    productDTO.setAvailableStock(totalAvailableQty);
+                    productDTO.setLowStock(totalAvailableQty < 10);
+                    productsWithUnifiedPricing.add(productDTO);
+                }
+            }
+            return productsWithUnifiedPricing;
+        } finally {
             catalogs.clear();
         }
     }

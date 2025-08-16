@@ -1,18 +1,27 @@
 package com.tulip.host.web.rest;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.tulip.host.data.FeesCatalogDTO;
 import com.tulip.host.data.ProductDTO;
 import com.tulip.host.data.TransportCatalogDto;
 import com.tulip.host.service.CatalogService;
 import com.tulip.host.service.ProductService;
 import com.tulip.host.web.rest.vm.StockUpdateVM;
+
 import jakarta.validation.Valid;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/catalog")
@@ -40,9 +49,8 @@ public class CatalogController {
 
     @GetMapping("/product/{classID}")
     public List<ProductDTO> productCatalog(@PathVariable Long classID) {
-        return catalogService.productCatalog(classID);
+        return catalogService.productCatalogWithUnifiedPricing(classID);
     }
-
     @PostMapping("/updateStock")
     public void updateProduct(@Valid @RequestBody StockUpdateVM stockUpdateVM) {
         catalogService.updateProduct(stockUpdateVM);

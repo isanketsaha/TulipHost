@@ -1,8 +1,17 @@
 package com.tulip.host.service;
 
-import static java.time.DayOfWeek.MONDAY;
-import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static org.springframework.data.domain.Sort.Direction.DESC;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import com.querydsl.core.BooleanBuilder;
 import com.tulip.host.data.DashBoardStaffDTO;
@@ -22,19 +31,9 @@ import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.StudentToTransportRepository;
 import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.repository.TransactionRepository;
+
 import jakarta.transaction.Transactional;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.temporal.ChronoField;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
