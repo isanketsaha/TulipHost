@@ -1,12 +1,15 @@
 package com.tulip.host.mapper;
 
-import com.tulip.host.domain.Upload;
-import com.tulip.host.web.rest.vm.FileUploadVM;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+
+import com.tulip.host.domain.Upload;
+import com.tulip.host.web.rest.vm.FileUploadVM;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UploadMapper {
@@ -21,6 +24,9 @@ public interface UploadMapper {
     List<FileUploadVM> toEntityList(List<Upload> uploadMapper);
 
     default List<FileUploadVM> map(Upload value) {
+        if (value == null) {
+            return Collections.emptyList();
+        }
         return Arrays.asList(toEntity(value));
     }
 }
