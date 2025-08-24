@@ -41,7 +41,7 @@ public abstract class ProductCatalogMapper {
 
     @AfterMapping
     protected void setPrice(ProductCatalog source, @MappingTarget ProductDTO target) {
-        if (source.getInventories() == null || source.getInventories().isEmpty()) {
+        if (source.getPrice() != null) {
             target.setPrice(source.getPrice()); // Fallback to catalog price if no inventory
         } else {
             double highestPrice = source.getInventories().stream()

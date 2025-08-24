@@ -65,7 +65,7 @@ public interface InventoryMapper {
      * Calculate the highest inventory price for a product
      */
     default Double calculateHighestInventoryPrice(com.tulip.host.domain.ProductCatalog product) {
-        if (product.getInventories() == null || product.getInventories().isEmpty()) {
+        if (product.getPrice() != null) {
             return product.getPrice(); // Fallback to catalog price if no inventory
         }
 
