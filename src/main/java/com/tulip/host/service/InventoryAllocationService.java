@@ -72,8 +72,8 @@ public class InventoryAllocationService {
      */
     public double calculateExpectedPrice(ProductCatalog product) {
         // Get the highest price from all inventory batches
-        if (product.getInventories() == null || product.getInventories().isEmpty()) {
-            return product.getPrice(); // Fallback to catalog price if no inventory
+        if (product.getPrice() != null) {
+            return product.getPrice();
         }
 
         return product.getInventories().stream()

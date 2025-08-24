@@ -113,7 +113,7 @@ public class ReportService {
         List<Inventory> stockReport = inventoryRepository.stockReportWithIndex();
         List<InventoryItemDTO> inventoryItemDTOS = inventoryMapper.toEntityList(stockReport);
 
-        if (inventoryItemDTOS.size() > 1000) {
+        if (inventoryItemDTOS.size() > 100) {
             inventoryItemDTOS.parallelStream()
                     .sorted((a, b) -> a.getProduct().getItemName().compareTo(b.getProduct().getItemName()))
                     .collect(Collectors.toList());
