@@ -81,8 +81,8 @@ public class EmployeeService {
         UserGroup userGroupByAuthority = userGroupRepository.findUserGroupByAuthority(employeeVM.getInterview().getRole().getValue());
         if (userGroupByAuthority != null) {
             Employee employee = employeeMapper.toModel(employeeVM);
-            employee.setLocked(userGroupByAuthority.getAuthority().equalsIgnoreCase(UserRoleEnum.TEACHER.getValue()));
-            employee.setResetCredential(!userGroupByAuthority.getAuthority().equalsIgnoreCase(UserRoleEnum.TEACHER.getValue()));
+            // employee.setLocked(userGroupByAuthority.getAuthority().equalsIgnoreCase(UserRoleEnum.TEACHER.getValue()));
+            employee.setResetCredential(true);
             employee.setGroup(userGroupByAuthority);
             Credential credential = credentialMapper.toEntity(
                 CredentialVM.builder().password(DEFAULT_PASSWORD).userId(employeeVM.getInterview().getUserId()).build()
