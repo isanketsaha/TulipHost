@@ -58,6 +58,28 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
         }
 
         @Override
+        public List<LeaveBalanceDTO> findLeaveBalanceByTid(String tid) {
+                List<Tuple> results = jpaQueryFactory
+                                .select(
+                                                LEAVE_TYPE,
+                                                EMPLOYEE_LEAVE.totalDays.sum())
+                                .from(LEAVE_TYPE)
+                                .leftJoin(EMPLOYEE_LEAVE)
+                                .on(EMPLOYEE_LEAVE.leaveType().eq(LEAVE_TYPE)
+                                                .and(EMPLOYEE_LEAVE.employee().tid.eq(tid)))
+                                .groupBy(LEAVE_TYPE.id, LEAVE_TYPE.name, LEAVE_TYPE.count)
+                                .fetch();
+
+                return results.stream()
+                                .map(tuple -> {
+                                        LeaveType leaveType = tuple.get(0, LeaveType.class);
+                                        BigDecimal usedDays = tuple.get(1, BigDecimal.class);
+                                        return leaveBalanceMapper.createLeaveBalance(leaveType, usedDays);
+                                })
+                                .collect(Collectors.toList());
+        }
+
+        @Override
         public List<EmployeeLeave> findBySession(Session session) {
                 // For now, return all leaves. We can optimize this later
                 return jpaQueryFactory

@@ -16,6 +16,8 @@ public interface EmployeeLeaveRepository extends JpaRepository<EmployeeLeave, Lo
 
     List<LeaveBalanceDTO> findLeaveBalance(Long employeeId);
 
+    List<LeaveBalanceDTO> findLeaveBalanceByTid(String tid);
+
     List<EmployeeLeave> findBySession(Session session);
 
     List<EmployeeLeave> findByDateRange(String fromDate, String toDate);

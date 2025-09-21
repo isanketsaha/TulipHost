@@ -90,6 +90,10 @@ public class EmployeeLeaveService {
         return employeeLeaveRepository.findLeaveBalance(employeeId);
     }
 
+    public List<LeaveBalanceDTO> getBalanceByTid(String tid) {
+        return employeeLeaveRepository.findLeaveBalanceByTid(tid);
+    }
+
     public boolean validateLeaveBalance(Long employeeId, EmployeeLeave employeeLeave) {
         List<LeaveBalanceDTO> leaveBalances = employeeLeaveRepository.findLeaveBalance(employeeId);
 
