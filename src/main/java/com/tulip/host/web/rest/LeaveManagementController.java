@@ -52,6 +52,11 @@ public class LeaveManagementController {
         return ResponseEntity.ok(employeeLeaveService.getBalanceByEmpId(employeeId));
     }
 
+    @GetMapping("/balance/tid/{tid}")
+    public ResponseEntity<List<LeaveBalanceDTO>> getBalanceByTid(@PathVariable String tid) {
+        return ResponseEntity.ok(employeeLeaveService.getBalanceByTid(tid));
+    }
+
     @GetMapping("/appliedLeave/{employeeId}")
     public ResponseEntity<List<EmployeeLeave>> getAppliedLeaveByEmpId(@PathVariable Long employeeId) {
         return ResponseEntity.ok(employeeLeaveService.getAppliedLeaveByEmpId(employeeId));

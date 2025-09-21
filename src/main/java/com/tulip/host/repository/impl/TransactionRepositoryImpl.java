@@ -4,20 +4,9 @@ import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.group.GroupBy.map;
 import static com.tulip.host.config.Constants.DATE_PATTERN;
 import static com.tulip.host.config.Constants.GROUP_BY_MONTH_FORMAT;
-import static com.tulip.host.config.Constants.MONTH_YEAR_PATTERN;
 import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
+import static com.tulip.host.config.Constants.MONTH_YEAR_PATTERN;
 
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringExpression;
-import com.tulip.host.data.TransactionReportDTO;
-import com.tulip.host.domain.Session;
-import com.tulip.host.domain.Transaction;
-import com.tulip.host.enums.FeesRuleType;
-import com.tulip.host.enums.PayTypeEnum;
-import com.tulip.host.repository.TransactionRepository;
-import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -29,10 +18,20 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.time.LocalDateTime;
-import java.time.Period;
+
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringExpression;
+import com.tulip.host.data.TransactionReportDTO;
+import com.tulip.host.domain.Session;
 import com.tulip.host.domain.Student;
-import com.tulip.host.utils.CommonUtils;
+import com.tulip.host.domain.Transaction;
+import com.tulip.host.enums.FeesRuleType;
+import com.tulip.host.enums.PayTypeEnum;
+import com.tulip.host.repository.TransactionRepository;
+
+import jakarta.persistence.EntityManager;
 
 public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, Long> implements TransactionRepository {
 
@@ -180,9 +179,9 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
 
     @Override
     public List<Object[]> fetchPendingFeesBatch(List<Long> studentIds, Long classId, Long sessionId) {
-        // Get the latest tuition fees payment date for each student
-        List<Tuple> latestPaymentResults = jpaQueryFactory
-                .select(STUDENT.id, FEES_LINE_ITEM.month.max())
+        // Get all fee months for the students
+        List<Tuple> allPaymentResults = jpaQueryFactory
+                .select(STUDENT.id, FEES_LINE_ITEM.month)
                 .from(STUDENT)
                 .leftJoin(STUDENT.transactions, TRANSACTION)
                 .leftJoin(TRANSACTION.feesLineItem, FEES_LINE_ITEM)
@@ -194,8 +193,19 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
                                 .and(FEES_CATALOG.applicableRule.eq(FeesRuleType.MONTHLY))
                                 .and(FEES_CATALOG.feesName.eq("TUITION FEES"))
                                 .and(FEES_LINE_ITEM.month.isNotNull()))
-                .groupBy(STUDENT.id)
                 .fetch();
+
+        // Group by student ID and find the latest month chronologically
+        Map<Long, String> latestMonthsByStudent = allPaymentResults.stream()
+                .collect(Collectors.groupingBy(
+                        tuple -> tuple.get(STUDENT.id),
+                        Collectors.mapping(
+                                tuple -> tuple.get(FEES_LINE_ITEM.month),
+                                Collectors.toList())))
+                .entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> findLatestMonth(entry.getValue())));
 
         // Get session details for calculating pending months
         Session session = jpaQueryFactory
@@ -204,51 +214,87 @@ public class TransactionRepositoryImpl extends BaseRepositoryImpl<Transaction, L
                 .fetchOne();
 
         List<Object[]> results = new ArrayList<>();
+        LocalDate currentDate = LocalDate.now();
 
-        for (Tuple tuple : latestPaymentResults) {
-            Long studentId = tuple.get(STUDENT.id);
-            String latestMonth = tuple.get(FEES_LINE_ITEM.month.max());
+        for (Long studentId : studentIds) {
+            String latestMonth = latestMonthsByStudent.get(studentId);
 
             int pendingMonths = 0;
             if (latestMonth != null) {
-                // Parse the latest month and calculate pending months
-                LocalDate latestPaymentDate = YearMonth
-                        .parse(latestMonth, DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT)).atEndOfMonth();
-                LocalDate currentDate = LocalDate.now();
-                LocalDate cutoffDate = currentDate.withDayOfMonth(20);
+                try {
+                    // Parse the latest month and calculate pending months
+                    YearMonth latestPaymentYearMonth = YearMonth
+                            .parse(latestMonth, DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT));
 
-                // If current date is past 20th, fees for current month is pending
-                if (currentDate.isAfter(cutoffDate)) {
-                    cutoffDate = currentDate.withDayOfMonth(1).plusMonths(1).withDayOfMonth(20);
+                    // Calculate pending months from the month after the latest payment
+                    YearMonth nextMonthAfterPayment = latestPaymentYearMonth.plusMonths(1);
+                    YearMonth currentYearMonth = YearMonth.from(currentDate);
+
+                    // Count months from the month after payment to current month (inclusive)
+                    pendingMonths = (int) nextMonthAfterPayment.until(currentYearMonth,
+                            java.time.temporal.ChronoUnit.MONTHS) + 1;
+
+                    // Ensure non-negative result
+                    pendingMonths = Math.max(0, pendingMonths);
+
+                } catch (Exception e) {
+                    // If parsing fails, treat as no payment found
+                    latestMonth = null;
                 }
+            }
 
-                pendingMonths = Period.between(latestPaymentDate, cutoffDate).getMonths();
-            } else {
+            if (latestMonth == null) {
                 // No payments found, calculate from session start or student creation date
                 Student student = jpaQueryFactory
                         .selectFrom(STUDENT)
                         .where(STUDENT.id.eq(studentId))
                         .fetchOne();
 
-                LocalDateTime startDate = student.getCreatedDate().isBefore(session.getFromDate().atStartOfDay())
-                        ? session.getFromDate().atStartOfDay()
-                        : student.getCreatedDate();
+                LocalDate studentCreatedDate = student.getCreatedDate().toLocalDate();
+                LocalDate startDate = studentCreatedDate.isBefore(session.getFromDate())
+                        ? session.getFromDate()
+                        : studentCreatedDate;
 
-                LocalDate currentDate = LocalDate.now();
-                LocalDate cutoffDate = currentDate.withDayOfMonth(20);
+                YearMonth startYearMonth = YearMonth.from(startDate);
+                YearMonth currentYearMonth = YearMonth.from(currentDate);
 
-                // If current date is past 20th, fees for current month is pending
-                if (currentDate.isAfter(cutoffDate)) {
-                    cutoffDate = currentDate.withDayOfMonth(1).plusMonths(1).withDayOfMonth(20);
-                }
-
-                pendingMonths = Period.between(startDate.withDayOfMonth(1).toLocalDate(), cutoffDate).getMonths();
+                // Count months from start date to current month (inclusive)
+                pendingMonths = (int) startYearMonth.until(currentYearMonth, java.time.temporal.ChronoUnit.MONTHS) + 1;
+                pendingMonths = Math.max(0, pendingMonths);
             }
 
             results.add(new Object[] { studentId, pendingMonths });
         }
 
         return results;
+    }
+
+    /**
+     * Find the latest month chronologically from a list of month strings in
+     * MMM/YYYY format
+     */
+    private String findLatestMonth(List<String> months) {
+        if (months == null || months.isEmpty()) {
+            return null;
+        }
+
+        YearMonth latestYearMonth = null;
+        String latestMonthString = null;
+
+        for (String month : months) {
+            try {
+                YearMonth yearMonth = YearMonth.parse(month, DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT));
+                if (latestYearMonth == null || yearMonth.isAfter(latestYearMonth)) {
+                    latestYearMonth = yearMonth;
+                    latestMonthString = month;
+                }
+            } catch (Exception e) {
+                // Skip invalid month formats
+                continue;
+            }
+        }
+
+        return latestMonthString;
     }
 
     @Override
