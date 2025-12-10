@@ -57,14 +57,10 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
         return condition != null
             ? jpaQueryFactory
                 .selectFrom(STUDENT)
-                .join(STUDENT.classDetails, CLASS_DETAIL)
-                .on(CLASS_DETAIL.session().eq(currentSession))
                 .where(STUDENT.active.eq(active).and(condition))
                 .fetchCount()
             : jpaQueryFactory
                 .selectFrom(STUDENT)
-                .join(STUDENT.classDetails, CLASS_DETAIL)
-                .on(CLASS_DETAIL.session().eq(currentSession))
                 .where(STUDENT.active.eq(active))
                 .fetchCount();
     }
