@@ -2,6 +2,7 @@ package com.tulip.host.web.rest.vm;
 
 import java.time.LocalDate;
 
+import com.tulip.host.enums.LeaveStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -17,6 +18,8 @@ public class ApplyLeaveVM {
 
     @NotNull
     private LocalDate startDate;
+
+    private LeaveStatus status;
 
     @NotNull
     private LocalDate endDate;

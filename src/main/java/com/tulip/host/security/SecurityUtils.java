@@ -1,8 +1,11 @@
 package com.tulip.host.security;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import com.tulip.host.enums.UserRoleEnum;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -101,7 +104,14 @@ public final class SecurityUtils {
         return hasCurrentUserAnyOfAuthorities(authority);
     }
 
-    private static Stream<String> getAuthorities(Authentication authentication) {
+    public static Stream<String> getAuthorities(Authentication authentication) {
         return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority);
+    }
+
+    public static List<UserRoleEnum> extractRoles(Authentication authentication) {
+        return Arrays
+            .stream(UserRoleEnum.values())
+            .filter(role -> getAuthorities(authentication).toList().contains(role.getValue()))
+            .toList();
     }
 }

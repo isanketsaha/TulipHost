@@ -27,18 +27,16 @@ public interface EmployeeLeaveMapper {
     @Mapping(target = "leaveType", ignore = true)
     @Mapping(target = "startDate", source = "startDate")
     @Mapping(target = "endDate", source = "endDate")
-    @Mapping(target = "status", expression = "java(com.tulip.host.enums.LeaveStatus.APPROVED)")
     @Mapping(target = "approvalDate", expression = "java(java.time.LocalDateTime.now())")
     EmployeeLeave toEntity(ApplyLeaveVM applyLeaveVM);
 
     @AfterMapping
     default void calculateTotalDays(@MappingTarget EmployeeLeave employeeLeave, ApplyLeaveVM applyLeaveVM) {
         if (applyLeaveVM.getStartDate() != null && applyLeaveVM.getEndDate() != null) {
-            long days = ChronoUnit.DAYS.between(applyLeaveVM.getStartDate(), applyLeaveVM.getEndDate()) + 1;
             if (applyLeaveVM.getIsHalfDay() != null && applyLeaveVM.getIsHalfDay()) {
-                employeeLeave.setTotalDays(BigDecimal.valueOf(days).subtract(BigDecimal.valueOf(0.5)));
+                employeeLeave.setTotalDays(BigDecimal.valueOf(0.5));
             } else {
-                employeeLeave.setTotalDays(BigDecimal.valueOf(days));
+                employeeLeave.setTotalDays(BigDecimal.valueOf(ChronoUnit.DAYS.between(applyLeaveVM.getStartDate(), applyLeaveVM.getEndDate()) + 1));
             }
         }
     }

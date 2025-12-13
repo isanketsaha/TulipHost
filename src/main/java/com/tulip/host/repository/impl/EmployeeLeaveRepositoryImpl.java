@@ -3,6 +3,7 @@ package com.tulip.host.repository.impl;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import com.tulip.host.data.LeaveBalanceDTO;
 import com.tulip.host.domain.EmployeeLeave;
 import com.tulip.host.domain.LeaveType;
 import com.tulip.host.domain.Session;
+import com.tulip.host.enums.LeaveStatus;
 import com.tulip.host.mapper.LeaveBalanceMapper;
 import com.tulip.host.repository.EmployeeLeaveRepository;
 
@@ -36,6 +38,31 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
         }
 
         @Override
+        public Map<String, List<LeaveBalanceDTO>> findLeaveBalance() {
+            List<Tuple> results = jpaQueryFactory
+                    .select(
+                            LEAVE_TYPE,
+                            EMPLOYEE_LEAVE.totalDays.sum(),
+                            EMPLOYEE_LEAVE.employee().name)
+                    .from(LEAVE_TYPE)
+                    .leftJoin(EMPLOYEE_LEAVE)
+                    .on(EMPLOYEE_LEAVE.leaveType().eq(LEAVE_TYPE).and(EMPLOYEE_LEAVE.status.eq(LeaveStatus.APPROVED)))
+                    .groupBy(LEAVE_TYPE.id, LEAVE_TYPE.name, LEAVE_TYPE.count, EMPLOYEE_LEAVE.employee().id)
+                    .fetch();
+
+            return results.stream()
+                    .collect(Collectors.groupingBy(
+                            tuple -> tuple.get(2, String.class), // Group by employeeName
+                            Collectors.mapping(
+                                    tuple -> {
+                                        LeaveType leaveType = tuple.get(0, LeaveType.class);
+                                        BigDecimal usedDays = tuple.get(1, BigDecimal.class);
+                                        return leaveBalanceMapper.createLeaveBalance(leaveType, usedDays);
+                                    },
+                                    Collectors.toList())));
+        }
+
+        @Override
         public List<LeaveBalanceDTO> findLeaveBalance(Long employeeId) {
                 List<Tuple> results = jpaQueryFactory
                                 .select(
@@ -44,7 +71,8 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
                                 .from(LEAVE_TYPE)
                                 .leftJoin(EMPLOYEE_LEAVE)
                                 .on(EMPLOYEE_LEAVE.leaveType().eq(LEAVE_TYPE)
-                                                .and(EMPLOYEE_LEAVE.employee().id.eq(employeeId)))
+                                .and(EMPLOYEE_LEAVE.employee().id.eq(employeeId))
+                                .and(EMPLOYEE_LEAVE.status.eq(LeaveStatus.APPROVED)))
                                 .groupBy(LEAVE_TYPE.id, LEAVE_TYPE.name, LEAVE_TYPE.count)
                                 .fetch();
 
@@ -66,7 +94,8 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
                                 .from(LEAVE_TYPE)
                                 .leftJoin(EMPLOYEE_LEAVE)
                                 .on(EMPLOYEE_LEAVE.leaveType().eq(LEAVE_TYPE)
-                                                .and(EMPLOYEE_LEAVE.employee().tid.eq(tid)))
+                                                .and(EMPLOYEE_LEAVE.employee().tid.eq(tid))
+                                    .and(EMPLOYEE_LEAVE.status.eq(LeaveStatus.APPROVED)))
                                 .groupBy(LEAVE_TYPE.id, LEAVE_TYPE.name, LEAVE_TYPE.count)
                                 .fetch();
 
@@ -87,6 +116,7 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
                                 .fetch();
         }
 
+        @Override
         public List<EmployeeLeave> findByDateRange(String fromDate, String toDate) {
                 // Convert string dates to LocalDate for comparison
                 LocalDate fromLocalDate = LocalDate.parse(fromDate,
@@ -99,5 +129,13 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
                                 .where(EMPLOYEE_LEAVE.startDate.loe(toLocalDate)
                                                 .and(EMPLOYEE_LEAVE.endDate.goe(fromLocalDate)))
                                 .fetch();
+        }
+
+        @Override
+        public List<EmployeeLeave> findByStatus(LeaveStatus status) {
+            return jpaQueryFactory
+                    .selectFrom(EMPLOYEE_LEAVE)
+                    .where(EMPLOYEE_LEAVE.status.eq(status))
+                    .fetch();
         }
 }
