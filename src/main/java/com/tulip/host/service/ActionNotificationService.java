@@ -58,7 +58,7 @@ public class ActionNotificationService {
             results.addAll(
                     actionNotificationRepository.findByStatusAndApproverUserIdOrderByCreatedDateDesc(
                             NotificationStatus.PENDING,
-                            requiredUserId.get()));
+                            requiredUserId.orElse("")));
         }
 
         if (!roles.isEmpty()) {

@@ -155,7 +155,7 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
                 } else {
                    UserRoleEnum role =  employee.getGroup().getAuthority().equals(UserRoleEnum.PRINCIPAL.getValue()) ? UserRoleEnum.ADMIN : UserRoleEnum.PRINCIPAL;
                     actionNotificationService.create("LEAVE", leave.getId(), machineId, LeaveStatus.PENDING.name(),
-                            LeaveEvents.APPROVE.name(), UserRoleEnum.ADMIN  , null, leave.getEmployee().getName());
+                            LeaveEvents.APPROVE.name(), role  , null, leave.getEmployee().getName());
                 }
             } catch (Exception e) {
                 log.error("Error during leave submission: {}", e.getMessage(), e);
