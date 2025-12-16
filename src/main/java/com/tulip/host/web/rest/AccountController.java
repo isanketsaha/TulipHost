@@ -32,6 +32,7 @@ public class AccountController {
         @DateTimeFormat(pattern = "dd-MM-yyyy") @RequestParam LocalDate to,
         @RequestParam(defaultValue = "MONTHLY") String groupByType
     ) {
+
         return monitorService.transactionReport(
             from,
             to,
