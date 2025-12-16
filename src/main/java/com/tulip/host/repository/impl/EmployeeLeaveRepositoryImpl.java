@@ -34,7 +34,7 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
                 return jpaQueryFactory
                                 .selectFrom(EMPLOYEE_LEAVE)
                                 .where(EMPLOYEE_LEAVE.employee().id.eq(employeeId))
-                                .fetch();
+                                .orderBy(EMPLOYEE_LEAVE.endDate.desc()).fetch();
         }
 
         @Override
@@ -45,9 +45,10 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
                             EMPLOYEE_LEAVE.totalDays.sum(),
                             EMPLOYEE_LEAVE.employee().name)
                     .from(LEAVE_TYPE)
-                    .leftJoin(EMPLOYEE_LEAVE)
-                    .on(EMPLOYEE_LEAVE.leaveType().eq(LEAVE_TYPE).and(EMPLOYEE_LEAVE.status.eq(LeaveStatus.APPROVED)))
-                    .groupBy(LEAVE_TYPE.id, LEAVE_TYPE.name, LEAVE_TYPE.count, EMPLOYEE_LEAVE.employee().id)
+                    .innerJoin(EMPLOYEE_LEAVE)
+                    .on(LEAVE_TYPE.eq(EMPLOYEE_LEAVE.leaveType()).and(EMPLOYEE_LEAVE.status.in(LeaveStatus.APPROVED, LeaveStatus.PENDING))
+                        .and(LEAVE_TYPE.session().eq(getCurrentSession())))
+                    .groupBy( LEAVE_TYPE.id, EMPLOYEE_LEAVE.employee().id)
                     .fetch();
 
             return results.stream()
@@ -56,8 +57,8 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
                             Collectors.mapping(
                                     tuple -> {
                                         LeaveType leaveType = tuple.get(0, LeaveType.class);
-                                        BigDecimal usedDays = tuple.get(1, BigDecimal.class);
-                                        return leaveBalanceMapper.createLeaveBalance(leaveType, usedDays);
+                                        BigDecimal count = tuple.get(1, BigDecimal.class);
+                                        return leaveBalanceMapper.createLeaveBalance(leaveType, count);
                                     },
                                     Collectors.toList())));
         }
@@ -72,7 +73,7 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
                                 .leftJoin(EMPLOYEE_LEAVE)
                                 .on(EMPLOYEE_LEAVE.leaveType().eq(LEAVE_TYPE)
                                 .and(EMPLOYEE_LEAVE.employee().id.eq(employeeId))
-                                .and(EMPLOYEE_LEAVE.status.eq(LeaveStatus.APPROVED)))
+                                .and(EMPLOYEE_LEAVE.status.in(LeaveStatus.APPROVED, LeaveStatus.PENDING)))
                                 .groupBy(LEAVE_TYPE.id, LEAVE_TYPE.name, LEAVE_TYPE.count)
                                 .fetch();
 
@@ -95,7 +96,7 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
                                 .leftJoin(EMPLOYEE_LEAVE)
                                 .on(EMPLOYEE_LEAVE.leaveType().eq(LEAVE_TYPE)
                                                 .and(EMPLOYEE_LEAVE.employee().tid.eq(tid))
-                                    .and(EMPLOYEE_LEAVE.status.eq(LeaveStatus.APPROVED)))
+                                    .and(EMPLOYEE_LEAVE.status.in(LeaveStatus.APPROVED, LeaveStatus.PENDING)))
                                 .groupBy(LEAVE_TYPE.id, LEAVE_TYPE.name, LEAVE_TYPE.count)
                                 .fetch();
 
@@ -118,16 +119,15 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
 
         @Override
         public List<EmployeeLeave> findByDateRange(String fromDate, String toDate) {
-                // Convert string dates to LocalDate for comparison
                 LocalDate fromLocalDate = LocalDate.parse(fromDate,
                                 java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
                 LocalDate toLocalDate = LocalDate.parse(toDate,
                                 java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
                 return jpaQueryFactory
                                 .selectFrom(EMPLOYEE_LEAVE)
                                 .where(EMPLOYEE_LEAVE.startDate.loe(toLocalDate)
                                                 .and(EMPLOYEE_LEAVE.endDate.goe(fromLocalDate)))
+                    .orderBy(EMPLOYEE_LEAVE.createdBy.desc())
                                 .fetch();
         }
 
@@ -136,6 +136,7 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
             return jpaQueryFactory
                     .selectFrom(EMPLOYEE_LEAVE)
                     .where(EMPLOYEE_LEAVE.status.eq(status))
+                .orderBy(EMPLOYEE_LEAVE.createdBy.desc())
                     .fetch();
         }
 }

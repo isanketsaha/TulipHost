@@ -1,8 +1,10 @@
 package com.tulip.host.web.rest.vm;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import com.tulip.host.enums.LeaveStatus;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -27,4 +29,6 @@ public class ApplyLeaveVM {
     private String reason;
 
     private Boolean isHalfDay = false;
+
+    private List<FileUploadVM> documents;
 }

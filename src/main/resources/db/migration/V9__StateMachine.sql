@@ -54,3 +54,4 @@ CREATE INDEX idx_action_notification_machine ON action_notification(machine_id);
 CREATE INDEX idx_action_notification_status ON action_notification(status);
 CREATE INDEX idx_action_notification_created_date ON action_notification(created_date);
 
+alter table employee_leave MODIFY approved_by VARCHAR(60);

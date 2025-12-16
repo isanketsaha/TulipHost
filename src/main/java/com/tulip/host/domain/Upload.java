@@ -18,7 +18,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Builder
 @AllArgsConstructor
@@ -73,6 +72,10 @@ public class Upload extends AbstractAuditingEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "transaction_id", nullable = false)
     private Transaction transactionDocs;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinColumn(name = "leave_id", nullable = true)
+    private EmployeeLeave employeeLeave;
 
     @OneToOne(mappedBy = "invoice", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Transaction invoice;

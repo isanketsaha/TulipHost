@@ -12,16 +12,15 @@ import com.tulip.host.domain.LeaveType;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface LeaveBalanceMapper {
 
-    @Mapping(target = "totalAllowed", source = "leaveType.count")
-    @Mapping(target = "usedCount", source = "usedDays")
-    @Mapping(target = "availableCount", expression = "java((double)(leaveType.getCount() - (usedDays != null ? usedDays.intValue() : 0)))")
-    LeaveBalanceDTO toDto(LeaveType leaveType, Integer usedDays);
+//    @Mapping(target = "totalAllowed", source = "count")
+//    @Mapping(target = "usedCount", source = "usedDays")
+//    @Mapping(target = "availableCount", expression = "java((double)(leaveType.getCount() - (usedDays != null ? usedDays.intValue() : 0)))")
+//    LeaveBalanceDTO toDto(LeaveType leaveType);
 
     default LeaveBalanceDTO createLeaveBalance(LeaveType leaveType, BigDecimal usedDays) {
         if (leaveType == null) {
             return null;
         }
-
         LeaveBalanceDTO dto = new LeaveBalanceDTO();
         dto.setId(leaveType.getId());
         dto.setName(leaveType.getName());
@@ -31,7 +30,6 @@ public interface LeaveBalanceMapper {
         dto.setTotalAllowed(leaveType.getCount());
         dto.setUsedCount(usedDays != null ? usedDays.doubleValue() : 0.0);
         dto.setAvailableCount(leaveType.getCount() - (usedDays != null ? usedDays.doubleValue() : 0.0));
-
         return dto;
     }
 }

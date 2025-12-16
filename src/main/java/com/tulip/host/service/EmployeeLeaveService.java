@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.tulip.host.security.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import com.tulip.host.enums.NotificationStatus;
 import com.tulip.host.mapper.EmployeeLeaveMapper;
 import com.tulip.host.mapper.LeaveBalanceMapper;
 import com.tulip.host.mapper.LeaveTypeMapper;
+import com.tulip.host.mapper.UploadMapper;
 import com.tulip.host.repository.ActionNotificationRepository;
 import com.tulip.host.repository.EmployeeLeaveRepository;
 import com.tulip.host.repository.EmployeeRepository;
@@ -42,6 +44,7 @@ public class EmployeeLeaveService {
     public final LeaveTypeMapper leaveTypeMapper;
     public final LeaveBalanceMapper leaveBalanceMapper;
     public final ActionNotificationRepository actionNotificationRepository;
+    public final UploadMapper uploadMapper;
 
     public List<EmployeeLeaveDto> getAllEmployeeLeavesAsDto(LeaveStatus status) {
         List<EmployeeLeave> employeeLeaves;
@@ -50,7 +53,7 @@ public class EmployeeLeaveService {
         } else {
             employeeLeaves = employeeLeaveRepository.findAll();
         }
-        return employeeLeaves.stream()
+          return employeeLeaves.stream()
                 .map(employeeLeaveMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -77,13 +80,12 @@ public class EmployeeLeaveService {
         employeeLeave.setEmployee(employee);
         employeeLeave.setLeaveType(leaveType);
         if (validateLeaveBalance(employee.getId(), employeeLeave)) {
-
             return employeeLeaveRepository.save(employeeLeave);
-
         }
         throw new RuntimeException("Leave balance not available");
     }
 
+    @Transactional
     public Employee getEmployee(ApplyLeaveVM applyLeaveVM) {
         Employee employee;
         if (applyLeaveVM.getEmployeeId() != null) {
@@ -106,6 +108,8 @@ public class EmployeeLeaveService {
                 .orElseThrow(() -> new RuntimeException("Leave not found : " + leaveId));
         leave.setStatus(status);
         leave.setComments(comments);
+        leave.setApprovalDate(java.time.LocalDateTime.now());
+        leave.setApprovedBy(SecurityUtils.getCurrentUserLogin().orElse("Anonymous"));
         return employeeLeaveRepository.save(leave);
     }
 
@@ -138,12 +142,10 @@ public class EmployeeLeaveService {
                         .map(LeaveBalanceDTO::getName)
                         .collect(Collectors.toSet());
 
-                // Find missing leave types
                 List<LeaveType> missingLeaveTypes = leaveTypes.stream()
                         .filter(lt -> !appliedLeaveType.contains(lt.getName()))
                         .collect(Collectors.toList());
 
-                // Add missing leave types with 0 used days (full available balance)
                 for (LeaveType missingLeaveType : missingLeaveTypes) {
                     LeaveBalanceDTO newBalance = leaveBalanceMapper.createLeaveBalance(missingLeaveType, null);
                     leaveBalances.add(newBalance);

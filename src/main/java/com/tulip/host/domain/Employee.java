@@ -128,7 +128,7 @@ public class Employee extends AbstractAuditingEntity {
     private LocalDateTime terminationDate;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE }, optional = false)
+    @ManyToOne(cascade = { CascadeType.MERGE }, optional = false)
     @JoinColumn(name = "group_id", nullable = false)
     private UserGroup group;
 
