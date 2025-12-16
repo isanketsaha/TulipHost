@@ -15,21 +15,14 @@
 
 logging:
   level:
-    #    org:
-    #      springframework:
-    #        statemachine: DEBUG
-    #        hibernate:
-    #          type:
-    #            descriptor:
-    #              sql: trace
-    com:
-      amazonaws:
-        util:
-          EC2MetadataUtils: error
+    org:
+      springframework:
+        statemachine: INFO
+#        hibernate:
+#          type:
+#            descriptor:
+#              sql: trace
     ROOT: INFO
-    tech.jhipster: INFO
-    org.hibernate.SQL: INFO
-    com.tulip.host: INFO
 
 eureka:
   instance:
