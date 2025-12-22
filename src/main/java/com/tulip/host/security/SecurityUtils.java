@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.tulip.host.enums.UserRoleEnum;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -13,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
+
+import com.tulip.host.enums.UserRoleEnum;
 
 /**
  * Utility class for Spring Security.
@@ -35,6 +36,20 @@ public final class SecurityUtils {
         return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
     }
 
+    /**
+     * Get the userId (login id) of the current user.
+     * <p>
+     * Note: In this application, {@link #getCurrentUserLogin()} returns the display
+     * name. The userId is stored in the
+     * JWT claim {@code uid}.
+     *
+     * @return the userId of the current user.
+     */
+    public static Optional<String> getCurrentUserId() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        return Optional.ofNullable(extractUserId(securityContext.getAuthentication()));
+    }
+
     private static String extractPrincipal(Authentication authentication) {
         if (authentication == null) {
             return null;
@@ -46,6 +61,19 @@ public final class SecurityUtils {
             return s;
         }
         return null;
+    }
+
+    private static String extractUserId(Authentication authentication) {
+        if (authentication == null) {
+            return null;
+        }
+        if (authentication.getPrincipal() instanceof Jwt jwt) {
+            String uid = jwt.getClaimAsString("uid");
+            return uid != null ? uid : jwt.getSubject();
+        }
+        // For non-JWT authentications we don't reliably have a separate userId vs
+        // display name.
+        return authentication.getName();
     }
 
     /**

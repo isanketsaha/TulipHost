@@ -66,7 +66,7 @@ public class StudentController {
         return studentService.searchStudent(name);
     }
 
-    @PostMapping("/editStudentDetails")
+    @PostMapping("/edit")
     public void editDetails(@RequestBody UserEditVM editVM) {
         studentService.editStudentDetails(editVM);
     }

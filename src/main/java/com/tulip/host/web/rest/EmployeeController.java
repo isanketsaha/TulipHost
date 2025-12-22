@@ -4,12 +4,17 @@ import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.service.EmployeeService;
+import com.tulip.host.web.rest.vm.UserEditVM;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,10 +55,10 @@ public class EmployeeController {
         return employeeService.searchByUserId(userId);
     }
 
-    @RolesAllowed("UG_ADMIN")
-    @RequestMapping("/edit")
-    public EmployeeDetailsDTO edit() {
-        return employeeService.editEmployee();
+    @PutMapping("/edit")
+    public ResponseEntity edit(@RequestBody UserEditVM editVM) {
+        employeeService.editEmployee(editVM);
+        return ResponseEntity.ok().build();
     }
 
     @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")

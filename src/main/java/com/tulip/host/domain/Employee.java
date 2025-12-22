@@ -1,6 +1,17 @@
 package com.tulip.host.domain;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import jakarta.validation.constraints.Email;
+import org.hibernate.annotations.SortComparator;
+
 import com.tulip.host.utils.ClassComparatorBySession;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,14 +34,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.SortComparator;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 @Builder
 @AllArgsConstructor
@@ -63,12 +66,24 @@ public class Employee extends AbstractAuditingEntity {
     @Column(name = "blood_group", length = 4)
     private String bloodGroup;
 
+    @Column
+    private String doc_submitted;
+
     @Column(name = "dob")
     private LocalDate dob;
 
     @Size(max = 255)
     @Column(name = "experience")
     private String experience;
+
+    @Size(max = 255)
+    @Column
+    @Email
+    private String email;
+
+//    @Size(max = 255)
+//    @Column(name = "alt_email")
+//    private String altEmail;
 
     @Column(name = "whatsapp_available")
     @Builder.Default

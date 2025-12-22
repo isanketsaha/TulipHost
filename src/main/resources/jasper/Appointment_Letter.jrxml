@@ -128,7 +128,7 @@
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font size="11"/>
                 </textElement>
-                <textFieldExpression><![CDATA["Your monthly salary, set at ₹" +$F{salary}+", will be deposited into your bank account at "+$F{bankName}+" with account number "+$F{accountNo}+", scheduled for crediting between the 1st and 5th day of each month."]]></textFieldExpression>
+                <textFieldExpression><![CDATA["Your monthly salary, set at ₹" +$F{salary}+", will be deposited into your bank account at "+$F{bankName}+" with account number "+$F{accountNo}+", scheduled for crediting between the 5th and 10th day of each month."]]></textFieldExpression>
             </textField>
             <textField>
                 <reportElement x="-6" y="430" width="551" height="30" uuid="53996a73-a3dd-4fb9-8217-a652bb8001fa"/>

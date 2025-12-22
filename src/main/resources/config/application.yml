@@ -118,6 +118,17 @@ management:
 spring:
   application:
     name: tulipHost
+  mail:
+    host: smtp.zoho.in
+    port: 587
+    username: bot@tulipschool.co.in
+    password: Rakhi@06
+    protocol: smtp
+    tls: true
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
+      ssl.trust: smtp.zoho.in
   profiles:
     # The commented value for `active` can be replaced with valid Spring profiles to load.
     # Otherwise, it will be filled in by maven when building the JAR file
@@ -237,7 +248,7 @@ jhipster:
     allow-credentials: true
     max-age: 1800
   mail:
-    from: tulipHost@localhost
+    from: bot@tulipschool.co.in
   api-docs:
     default-include-pattern: ${server.servlet.context-path:}/api/**
     management-include-pattern: ${server.servlet.context-path:}/management/**

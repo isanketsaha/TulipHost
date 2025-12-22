@@ -1,6 +1,7 @@
 package com.tulip.host.data;
 
 import com.tulip.host.web.rest.vm.FileUploadVM;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -25,8 +26,14 @@ public class EmployeeDetailsDTO implements Serializable {
     @NotNull
     private Boolean active;
 
+    private String aadhaar;
+
+    private String email;
+
     @Size(max = 255)
     private String address;
+
+    String doc_submitted;
 
     @Size(max = 4)
     private String bloodGroup;
@@ -46,6 +53,8 @@ public class EmployeeDetailsDTO implements Serializable {
     private String name;
 
     private String userName;
+
+    private String tid;
 
     private Boolean whatsappAvailable;
 

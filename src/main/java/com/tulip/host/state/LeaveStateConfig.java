@@ -1,11 +1,15 @@
 package com.tulip.host.state;
 
+import static com.tulip.host.security.SecurityUtils.hasCurrentUserAnyOfAuthorities;
+
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import com.tulip.host.domain.Employee;
-import com.tulip.host.web.rest.vm.LeaveActionVM;
-import jakarta.transaction.Transactional;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
@@ -20,18 +24,21 @@ import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.persist.StateMachineRuntimePersister;
 import org.springframework.statemachine.state.State;
 
+import com.tulip.host.domain.Employee;
+import com.tulip.host.domain.EmployeeLeave;
 import com.tulip.host.enums.LeaveEvents;
 import com.tulip.host.enums.LeaveStatus;
 import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.service.ActionNotificationService;
 import com.tulip.host.service.EmployeeLeaveService;
+import com.tulip.host.service.MailService;
 import com.tulip.host.service.StateAuditService;
+import com.tulip.host.service.communication.CommunicationRequest;
+import com.tulip.host.service.communication.OutboundCommunicationService;
 import com.tulip.host.web.rest.vm.ApplyLeaveVM;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.tulip.host.security.SecurityUtils.hasCurrentUserAnyOfAuthorities;
 
 @Configuration
 @RequiredArgsConstructor
@@ -47,6 +54,9 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
 
     private final StateAuditService stateAuditService;
 
+    private final MailService mailService;
+
+    private final OutboundCommunicationService outboundCommunicationService;
 
 
     @Override
@@ -142,6 +152,7 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
                 Employee employee = employeeLeaveService.getEmployee(leaveVm);
                 var leave = employeeLeaveService.createEmployeeLeaveFromVM(leaveVm);
                 String machineId = context.getStateMachine().getId();
+                UserRoleEnum role =  employee.getGroup().getAuthority().equals(UserRoleEnum.PRINCIPAL.getValue()) ? UserRoleEnum.ADMIN : UserRoleEnum.PRINCIPAL;
 
                 if (leaveVm.getTid() != null && !leaveVm.getTid().isEmpty()) {
                     log.info("Auto-approving leave with tid: leaveId={}, tid={}", leave.getId(), leaveVm.getTid());
@@ -153,15 +164,42 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
                                     .setHeader("comments", "Auto-approved (TID provided)")
                                     .build());
                 } else {
-                   UserRoleEnum role =  employee.getGroup().getAuthority().equals(UserRoleEnum.PRINCIPAL.getValue()) ? UserRoleEnum.ADMIN : UserRoleEnum.PRINCIPAL;
-                    actionNotificationService.create("LEAVE", leave.getId(), machineId, LeaveStatus.PENDING.name(),
+                   actionNotificationService.create("LEAVE", leave.getId(), machineId, LeaveStatus.PENDING.name(),
                             LeaveEvents.APPROVE.name(), role  , null, leave.getEmployee().getName());
                 }
+                sendEmail(leaveVm, employee, leave, machineId);
             } catch (Exception e) {
                 log.error("Error during leave submission: {}", e.getMessage(), e);
                 throw e;
             }
         };
+    }
+
+    private void sendEmail(ApplyLeaveVM leaveVm, Employee employee, EmployeeLeave leave, String machineId) {
+        try {
+
+            Map<String, Object> model = new HashMap<>();
+            model.put("user", employee);
+            model.put("leave", leave);
+            model.put("leaveVm", leaveVm);
+            // Happy-path: email audit + send via outbound communication service.
+            String to = employee.getEmail() != null && !employee.getEmail().isBlank() ? employee.getEmail()
+                    : "sanketsaha@gmail.com";
+            String subject = "Leave applied";
+            String html = mailService.renderTemplate("mail/leave-applied.vm", model);
+            outboundCommunicationService.send(new CommunicationRequest(
+                    com.tulip.host.enums.CommunicationChannel.EMAIL,
+                    List.of(to).stream().toArray(String[]::new),
+                    null,
+                    subject,
+                    html,
+                    "LEAVE",
+                    leave.getId(),
+                    model));
+
+        } catch (Exception e) {
+            log.warn("Leave submission email failed (non-blocking): {}", e.getMessage(), e);
+        }
     }
 
     private Action<LeaveStatus, LeaveEvents> action() {
