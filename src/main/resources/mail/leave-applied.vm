@@ -1,0 +1,26 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body style="font-family: Arial, Helvetica, sans-serif;">
+
+#parse("mail/_header.vm")
+
+<p>Your leave request has been submitted successfully.</p>
+
+<p>
+  <b>Leave ID:</b> $leave.id<br/>
+  <b>From:</b> $leave.startDate<br/>
+  <b>To:</b> $leave.endDate<br/>
+  <b>Total days:</b> $leave.totalDays<br/>
+  <b>Status:</b> $leave.status
+</p>
+
+#if($leave.reason)
+  <p><b>Reason:</b> $leave.reason</p>
+#end
+
+#parse("mail/_signature.vm")
+
+</body>
+</html>
