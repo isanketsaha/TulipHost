@@ -1,5 +1,6 @@
 package com.tulip.host.data;
 
+import com.tulip.host.web.rest.vm.UploadVM;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
@@ -42,4 +43,6 @@ public class EmployeeBasicDTO {
 
     @Size(max = 10)
     private String tid;
+
+    private String profilePictureUrl;
 }

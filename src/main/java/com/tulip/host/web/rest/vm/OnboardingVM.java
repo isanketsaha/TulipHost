@@ -31,6 +31,10 @@ public class OnboardingVM {
 
     String qualification;
 
+    String email;
+
+    String doc_submitted;
+
     @NotNull
     String address;
 

@@ -83,5 +83,5 @@ public class Dependent extends AbstractAuditingEntity {
     private Set<Employee> employees = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "dependent", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-    private Set<Upload> uploadedDocuments;
+    private Set<Upload> uploadedDocuments = new LinkedHashSet<>();
 }

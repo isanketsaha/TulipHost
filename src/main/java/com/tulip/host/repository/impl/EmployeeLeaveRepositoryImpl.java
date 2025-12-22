@@ -41,14 +41,16 @@ public class EmployeeLeaveRepositoryImpl extends BaseRepositoryImpl<EmployeeLeav
         public Map<String, List<LeaveBalanceDTO>> findLeaveBalance() {
             List<Tuple> results = jpaQueryFactory
                     .select(
-                            LEAVE_TYPE,
+                            EMPLOYEE_LEAVE.leaveType(),
                             EMPLOYEE_LEAVE.totalDays.sum(),
-                            EMPLOYEE_LEAVE.employee().name)
-                    .from(LEAVE_TYPE)
+                            EMPLOYEE.name)
+                    .from(EMPLOYEE)
                     .innerJoin(EMPLOYEE_LEAVE)
-                    .on(LEAVE_TYPE.eq(EMPLOYEE_LEAVE.leaveType()).and(EMPLOYEE_LEAVE.status.in(LeaveStatus.APPROVED, LeaveStatus.PENDING))
-                        .and(LEAVE_TYPE.session().eq(getCurrentSession())))
-                    .groupBy( LEAVE_TYPE.id, EMPLOYEE_LEAVE.employee().id)
+                .on(EMPLOYEE.active.and(EMPLOYEE_LEAVE.employee().eq(EMPLOYEE))
+                    .and(EMPLOYEE_LEAVE.status.in(LeaveStatus.APPROVED, LeaveStatus.PENDING)
+                        .and(EMPLOYEE_LEAVE.leaveType().session().eq(getCurrentSession()))))
+                    .groupBy( EMPLOYEE_LEAVE.leaveType(), EMPLOYEE)
+                .orderBy(EMPLOYEE.name.asc())
                     .fetch();
 
             return results.stream()

@@ -1,22 +1,25 @@
 package com.tulip.host.security.jwt;
 
-import com.tulip.host.management.SecurityMetersService;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.stream.Collectors;
+
+import javax.crypto.SecretKey;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-import tech.jhipster.config.JHipsterProperties;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.stream.Collectors;
+import com.tulip.host.management.SecurityMetersService;
+
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import tech.jhipster.config.JHipsterProperties;
 
 @Component
 public class TokenProvider {
@@ -61,6 +64,10 @@ public class TokenProvider {
     }
 
     public String createToken(Authentication authentication, boolean rememberMe) {
+        return createToken(authentication, rememberMe, null);
+    }
+
+    public String createToken(Authentication authentication, boolean rememberMe, String userId) {
         String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
@@ -70,13 +77,19 @@ public class TokenProvider {
         } else {
             validity = new Date(now + this.tokenValidityInMilliseconds);
         }
-        return Jwts
+        var builder = Jwts
             .builder()
+                // NOTE: in this app authentication.getName() is the display name
             .subject(authentication.getName())
             .claim(AUTHORITIES_KEY, authorities)
             .signWith(key)
             .expiration(validity)
-            .issuedAt(new Date(System.currentTimeMillis()))
-            .compact();
+                .issuedAt(new Date(System.currentTimeMillis()));
+
+        if (!ObjectUtils.isEmpty(userId)) {
+            builder.claim("uid", userId);
+        }
+
+        return builder.compact();
     }
 }

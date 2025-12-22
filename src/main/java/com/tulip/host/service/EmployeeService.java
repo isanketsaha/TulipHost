@@ -5,15 +5,18 @@ import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.data.JoiningLetterDTO;
 import com.tulip.host.data.LetterClause;
 import com.tulip.host.domain.Credential;
+import com.tulip.host.domain.Dependent;
 import com.tulip.host.domain.Employee;
 import com.tulip.host.domain.Upload;
 import com.tulip.host.domain.UserGroup;
 import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.mapper.CredentialMapper;
+import com.tulip.host.mapper.DependentMapper;
 import com.tulip.host.mapper.EmployeeMapper;
 import com.tulip.host.mapper.PasswordEncoderMapper;
 import com.tulip.host.mapper.UploadMapper;
 import com.tulip.host.repository.CredentialRepository;
+import com.tulip.host.repository.DependentRepository;
 import com.tulip.host.repository.EmployeeRepository;
 import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.UserGroupRepository;
@@ -22,6 +25,7 @@ import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.CredentialVM;
 import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.OnboardingVM;
+import com.tulip.host.web.rest.vm.UserEditVM;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.http.MediaType;
@@ -53,6 +57,8 @@ public class EmployeeService {
     private final PasswordEncoderMapper encoderMapper;
     private final UserGroupRepository userGroupRepository;
 
+    private final DependentRepository dependentRepository;
+    private final DependentMapper dependentMapper;
     private final UserToDependentRepository userToDependentRepository;
 
     private final JasperService jasperService;
@@ -81,7 +87,6 @@ public class EmployeeService {
         UserGroup userGroupByAuthority = userGroupRepository.findUserGroupByAuthority(employeeVM.getInterview().getRole().getValue());
         if (userGroupByAuthority != null) {
             Employee employee = employeeMapper.toModel(employeeVM);
-            // employee.setLocked(userGroupByAuthority.getAuthority().equalsIgnoreCase(UserRoleEnum.TEACHER.getValue()));
             employee.setResetCredential(true);
             employee.setGroup(userGroupByAuthority);
             Credential credential = credentialMapper.toEntity(
@@ -96,7 +101,8 @@ public class EmployeeService {
     }
 
     public void addUpload(Employee employee, OnboardingVM onboardingVM) {
-        employee.getDependents().forEach(dep -> dep.getUploadedDocuments().forEach(docs -> docs.setDependent(dep)));
+        employee.getDependents().stream().filter(dep -> dep.getUploadedDocuments() != null && dep.getUploadedDocuments().size() > 0)
+            .forEach(dep -> dep.getUploadedDocuments().forEach(docs -> docs.setDependent(dep)));
         if (onboardingVM.getAadhaarCard() != null) {
             employee.addDocuments(uploadMapper.toModelList(onboardingVM.getAadhaarCard()));
         }
@@ -118,7 +124,7 @@ public class EmployeeService {
     public EmployeeBasicDTO searchByUserId(String userId) {
         Employee employee = employeeRepository.findByUserId(userId).orElse(null);
         if (employee != null) {
-            return employeeMapper.toBasicEntity(employee);
+            return employeeMapper.toBasicEntity(employee, uploadService);
         }
         return null;
     }
@@ -149,8 +155,34 @@ public class EmployeeService {
     }
 
     @Transactional
-    public EmployeeDetailsDTO editEmployee() {
-        return employeeRepository.edit();
+    public void editEmployee(UserEditVM editVM) {
+        Employee byId = employeeRepository.findById(editVM.getId()).orElseThrow();
+        employeeMapper.toUpdateModel(editVM, byId);
+        if (editVM.getAadhaarCard() != null) {
+            byId.addDocuments(uploadMapper.toModelList(editVM.getAadhaarCard()));
+        }
+        if (editVM.getPanCard() != null) {
+            byId.addDocuments(uploadMapper.toModelList(editVM.getPanCard()));
+        }
+        if (editVM.getBirthCertificate() != null) {
+            byId.addDocuments(uploadMapper.toModelList(editVM.getBirthCertificate()));
+        }
+        employeeRepository.saveAndFlush(byId);
+        if (editVM.getDependent() != null) {
+            editVM
+                .getDependent()
+                .forEach(dependentVM -> {
+                    Dependent dependent = dependentRepository.findById(dependentVM.getId())
+                        .orElse(null);
+
+                    dependentMapper.toUpdateModel(dependentVM, dependent);
+                    if (dependentVM.getAadhaarCard() != null) {
+                        dependent.getUploadedDocuments()
+                            .forEach(item -> item.setDependent(dependent));
+                    }
+                    dependentRepository.saveAndFlush(dependent);
+                });
+        }
     }
 
     public void terminate(long id) {
@@ -186,12 +218,8 @@ public class EmployeeService {
                         Arrays.asList(
                             LetterClause.builder().clause("PROBATIONARY PERIOD").value("3 MONTHS").build(),
                             LetterClause.builder().clause("NOTICE PERIOD").value("1 MONTH").build(),
-                            LetterClause
-                                .builder()
-                                .clause("WORKING HOURS")
-                                .value("7:45 AM – 2:00 PM. Occasionally, you might need to work for extended hours, possibly on weekends.")
-                                .build(),
-                            LetterClause.builder().clause("CASUAL LEAVE").value("12 DAYS").build()
+                            LetterClause.builder().clause("CASUAL LEAVE").value("12 DAYS").build(),
+                            LetterClause.builder().clause("MEDICAL LEAVE").value("4 DAYS").build()
                         )
                     )
                 );

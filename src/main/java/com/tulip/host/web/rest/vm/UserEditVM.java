@@ -24,10 +24,11 @@ public class UserEditVM {
 
     @NotNull
     Long id;
-
     String type;
     String qualification;
+    String email;
     String address;
+    String doc_submitted;
     BloodGroupEnum bloodGroup;
     String contact;
     boolean whatsappAvailable;
