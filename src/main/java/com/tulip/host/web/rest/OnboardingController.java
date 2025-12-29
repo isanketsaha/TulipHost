@@ -64,9 +64,9 @@ public class OnboardingController {
         }
         throw new Exception("No Match found for onboard type.");
     }
-
-    @Scheduled(cron = "0 01 17 26 * ?")
-    public void notifyOnboard() {
-        employeeService.notifyOnboard(58L);
-    }
+//
+//    @Scheduled(cron = "0 01 17 26 * ?")
+//    public void notifyOnboard() {
+//        employeeService.notifyOnboard(58L);
+//    }
 }
