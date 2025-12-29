@@ -283,7 +283,7 @@ application:
     account_sid: ${twilio.asid}
     key:  ${twilio.key}
     message_sid: ${twilio.msid}
-    default_email: sanketsaha@gmail.com
-    default_phone: 8910181672
+    default_email: ${default.email:null}
+    default_phone: ${default.phone:null}
   tinyurl:
     key: ${tinyurl.key}
