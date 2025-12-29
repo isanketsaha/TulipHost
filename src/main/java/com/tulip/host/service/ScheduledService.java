@@ -30,7 +30,7 @@ public class ScheduledService {
     private final OutboundCommunicationService outboundCommunicationService;
     private final MailService mailService;
 
-    @Scheduled(cron = "0 44 17 27 * ?")
+    @Scheduled(cron = "0 30 14 2 * ?")
     @Transactional
     public void notifyOnFeesDues() {
         log.info("Starting scheduled task: notifyOnFeesDues");
