@@ -50,30 +50,31 @@ public class OutboundCommunicationService {
     @Transactional
     @Async
     public void send(CommunicationRequest request) {
+        if (!isDevProfile(env.getDefaultProfiles())) {
+            OutboundCommunication comm = outboundCommunicationMapper.toEntity(request);
+            comm = outboundCommunicationRepository.save(comm);
+            try {
+                CommunicationStrategy strategy = strategies.get(request.getChannel());
+                if (strategy == null) {
+                    throw new IllegalStateException("No strategy registered for channel: " + request.getChannel());
+                }
+                comm.setSentDate(LocalDateTime.now());
 
-        OutboundCommunication comm = outboundCommunicationMapper.toEntity(request);
-        comm = outboundCommunicationRepository.save(comm);
-        try {
-            CommunicationStrategy strategy = strategies.get(request.getChannel());
-            if (strategy == null) {
-                throw new IllegalStateException("No strategy registered for channel: " + request.getChannel());
-            }
-            comm.setSentDate(LocalDateTime.now());
-            if (!isDevProfile(env.getDefaultProfiles())) {
                 log.info("Sending {} to {}", request.getChannel()
                     .name(), Arrays.toString(request.getRecipient()));
                 strategy.send(request);
+
+                comm.setStatus(OutboundCommunicationStatus.SENT);
+                outboundCommunicationRepository.save(comm);
+            } catch (Exception e) {
+                log.error("Outbound communication failed: channel={}, recipient={}, entityType={}, entityId={}, err={}",
+                    request.getChannel(), request.getRecipient(), request.getEntityType(), request.getEntityId(),
+                    e.getMessage(),
+                    e);
+                comm.setStatus(OutboundCommunicationStatus.FAILED);
+                comm.setError(e.getMessage());
+                outboundCommunicationRepository.save(comm);
             }
-            comm.setStatus(OutboundCommunicationStatus.SENT);
-            outboundCommunicationRepository.save(comm);
-        } catch (Exception e) {
-            log.error("Outbound communication failed: channel={}, recipient={}, entityType={}, entityId={}, err={}",
-                request.getChannel(), request.getRecipient(), request.getEntityType(), request.getEntityId(),
-                e.getMessage(),
-                e);
-            comm.setStatus(OutboundCommunicationStatus.FAILED);
-            comm.setError(e.getMessage());
-            outboundCommunicationRepository.save(comm);
         }
     }
 }
