@@ -13,19 +13,24 @@ import com.tulip.host.domain.Inventory;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.domain.Upload;
+import com.tulip.host.enums.CommunicationChannel;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.mapper.InventoryMapper;
 import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.InventoryRepository;
+import com.tulip.host.service.communication.CommunicationRequest;
+import com.tulip.host.service.communication.OutboundCommunicationService;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.FileUploadVM;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,9 +39,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -107,19 +114,21 @@ public class ExportService {
     public byte[] paymentReceipt(Long paymentId) throws IOException {
         Transaction transactionRecord = paymentService.getTransactionRecord(paymentId);
         PrintTransactionDTO transaction = transactionMapper.toPrintEntity(transactionRecord);
+        StudentBasicDTO basicDTO = studentService.basicSearchStudent(transaction.getStudentId());
         if (transaction != null && transaction.getFeesItem() != null) {
             try (
                 InputStream inputStream = getClass()
                     .getResourceAsStream(
-                        transaction.getPayType().equals(PayTypeEnum.FEES)
+                        transaction.getPayType()
+                            .equals(PayTypeEnum.FEES)
                             ? JASPER_FOLDER + "Fees_Receipt.jrxml"
                             : JASPER_FOLDER + "Purchase_Receipt.jrxml"
                     )
             ) {
-                StudentBasicDTO basicDTO = studentService.basicSearchStudent(transaction.getStudentId());
                 transaction.setStd(basicDTO.getStd());
                 Map<String, Object> map = new HashMap<>();
-                if (transaction.getPayType().equals(PayTypeEnum.FEES)) {
+                if (transaction.getPayType()
+                    .equals(PayTypeEnum.FEES)) {
                     map.put("feesLineItem", new JRBeanCollectionDataSource(transaction.getFeesItem()));
                 } else {
                     map.put("purchaseLineItems", new JRBeanCollectionDataSource(transaction.getPurchaseItems()));

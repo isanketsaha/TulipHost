@@ -59,6 +59,7 @@ public class PaymentController {
                 save = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, INVOICE);
                 save.setName("INVOICE-" + paymentId);
                 paymentService.attachInvoice(paymentId, save);
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

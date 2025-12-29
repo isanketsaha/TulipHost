@@ -1,0 +1,10 @@
+Dear Parents,
+₹$amount received for your ward $studentName ($paymentType).
+Via: $paymentMode
+#if($shortUrl && $shortUrl != "")
+Receipt: $shortUrl
+#else
+Receipt No: $receiptNo
+#end
+
+Tulip English School

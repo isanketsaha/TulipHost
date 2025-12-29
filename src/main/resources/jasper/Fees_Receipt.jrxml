@@ -125,14 +125,14 @@
             </staticText>
             <image>
                 <reportElement x="60" y="-10" width="60" height="60" uuid="c581ccc5-13c2-4356-9f7d-d66046086186"/>
-                <imageExpression><![CDATA[this.getClass().getResourceAsStream("/static/logo.jpg")]]></imageExpression>
-                  </image>
+                <imageExpression><![CDATA[this.getClass().getResourceAsStream("/static/logo.png")]]></imageExpression>
+            </image>
             <staticText>
-                <reportElement x="0" y="30" width="552" height="20" forecolor="#8F8D8D" uuid="f5862568-2e83-46f9-bc69-9a29d5fa0907"/>
+                <reportElement x="0" y="25" width="552" height="20" forecolor="#8F8D8D" uuid="f5862568-2e83-46f9-bc69-9a29d5fa0907"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="Arial" isItalic="false"/>
                 </textElement>
-                <text><![CDATA[Shaping the lives of those, who will shape the Nation.]]></text>
+                <text><![CDATA[WISDOM , CHARACTER & GROWTH]]></text>
             </staticText>
             <staticText>
                 <reportElement x="0" y="40" width="552" height="20" forecolor="#8C8C8C" uuid="02d04486-87c0-4be7-a9a3-b94b38ce89bd"/>

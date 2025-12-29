@@ -87,6 +87,12 @@ public class EmployeeRepositoryImpl extends BaseRepositoryImpl<Employee, Long> i
     }
 
     @Override
+    public List<Employee> findByUserGroup(UserRoleEnum role){
+        return  jpaQueryFactory.selectFrom(EMPLOYEE)
+            .where(EMPLOYEE.group().authority.eq(role.getValue()).and(EMPLOYEE.active)).fetch();
+    }
+
+    @Override
     public EmployeeDetailsDTO edit() {
         return null;
     }

@@ -7,6 +7,7 @@ import com.tulip.host.web.rest.vm.DeactivateVm;
 import com.tulip.host.web.rest.vm.TransportVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -75,5 +76,11 @@ public class StudentController {
     @PostMapping("/deactivate")
     public void deactivate(@Valid @RequestBody DeactivateVm vm) {
         studentService.deactivate(vm);
+    }
+
+    @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")
+    @GetMapping("/enrollmentLetter")
+    public String generateEnrollmentLetter(@RequestParam Long studentId) throws IOException {
+        return studentService.fetchEnrollment(studentId);
     }
 }

@@ -3,16 +3,23 @@ package com.tulip.host.mapper;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.data.StudentExportDTO;
+import com.tulip.host.data.EnrollmentLetterDTO;
+import com.tulip.host.domain.ClassDetail;
+import com.tulip.host.domain.FeesCatalog;
 import com.tulip.host.domain.Student;
+import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.repository.impl.ReferenceMapper;
 import com.tulip.host.service.UploadService;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import com.tulip.host.web.rest.vm.StudentLoadVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Context;
@@ -23,7 +30,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(
     componentModel = "spring",
-    uses = { DependentMapper.class, ReferenceMapper.class, CommonUtils.class, UploadMapper.class, StudentToTransportMapper.class },
+    uses = {DependentMapper.class, ReferenceMapper.class, CommonUtils.class, UploadMapper.class, StudentToTransportMapper.class},
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
 public interface StudentMapper {
@@ -53,18 +60,18 @@ public interface StudentMapper {
     @Mapping(
         target = "classId",
         expression = "java(student.getClassDetails()\n" +
-        "                .stream()\n" +
-        "                .findFirst()\n" +
-        "                .orElse(null)\n" +
-        "                .getId())"
+            "                .stream()\n" +
+            "                .findFirst()\n" +
+            "                .orElse(null)\n" +
+            "                .getId())"
     )
     @Mapping(
         target = "std",
         expression = "java(student.getClassDetails()\n" +
-        "                .stream()\n" +
-        "                .findFirst()\n" +
-        "                .orElse(null)\n" +
-        "                .getStd())"
+            "                .stream()\n" +
+            "                .findFirst()\n" +
+            "                .orElse(null)\n" +
+            "                .getStd())"
     )
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(student.getDob()))")
     @Mapping(target = "pendingFees", ignore = true)
@@ -94,22 +101,70 @@ public interface StudentMapper {
     @Mapping(
         target = "std",
         expression = "java(student.getClassDetails()\n" +
-        "                .stream()\n" +
-        "                .findFirst()\n" +
-        "                .orElse(null)\n" +
-        "                .getStd())"
+            "                .stream()\n" +
+            "                .findFirst()\n" +
+            "                .orElse(null)\n" +
+            "                .getStd())"
     )
     @Mapping(target = "pendingFees", ignore = true)
     StudentExportDTO toBasicEntityExport(Student student);
 
     List<StudentExportDTO> toBasicEntityExportList(List<Student> student);
 
-    // @AfterMapping
-    // default void map(@MappingTarget StudentDetailsDTO target, Student source,
-    // @Context UploadService service) {
-    // target.setProfilePictureUrl(
-    // source.getProfilePicture() != null ?
-    // service.getURL(source.getProfilePicture().getUid()) : StringUtils.EMPTY
-    // );
-    // }
+    @Mapping(target = "studentName", source = "name")
+    @Mapping(target = "studentId", ignore = true)
+    @Mapping(target = "dateOfBirth", source = "dob", dateFormat = "dd/MM/yyyy")
+    @Mapping(target = "className", expression = "java(source.getClassDetails().stream().findFirst().orElse(null) != null ? source.getClassDetails().stream().findFirst().get().getStd() : \"\")")
+    @Mapping(target = "rollNumber", source = "id")
+    @Mapping(target = "admissionDate", source = "createdDate", dateFormat = "dd/MM/yyyy")
+    @Mapping(target = "tuitionFee", ignore = true)
+    @Mapping(target = "paymentFrequency", ignore = true)
+    @Mapping(target = "parentName", ignore = true)
+    @Mapping(target = "parentContact", ignore = true)
+    @Mapping(target = "academicYear", ignore = true)
+    EnrollmentLetterDTO toPrintEntity(Student source);
+
+    @AfterMapping
+    default void map(@MappingTarget EnrollmentLetterDTO target, Student source) {
+        ClassDetail registeredStd = source.getClassDetails()
+            .last();
+        String displayText = registeredStd
+            .getSession()
+            .getDisplayText();
+        String yearId = Arrays.stream(displayText.split("-"))
+            .map(year -> year.substring(2))
+            .collect(Collectors.joining());
+        target.setAcademicYear(displayText);
+        target.setStudentId("TES/" + yearId + "/" + source.getId());
+        com.tulip.host.domain.Dependent parentDependent = source.getDependents()
+            .stream()
+            .filter(d -> d.getRelationship() != null && d.getRelationship()
+                .toLowerCase()
+                .contains("parent"))
+            .findFirst()
+            .orElse(source.getDependents()
+                .stream()
+                .findFirst()
+                .orElse(null));
+
+        target.setPaymentFrequency("Monthly");
+        if (parentDependent != null) {
+            target.setParentName(parentDependent.getName());
+            target.setParentContact(parentDependent.getContact());
+        }
+        Set<FeesCatalog> feesCatalogs = registeredStd
+            .getFeesCatalogs()
+            .stream()
+            .filter(fees -> fees.getActive() && fees.getApplicableRule()
+                .equals(FeesRuleType.MONTHLY))
+            .collect(Collectors.toSet());
+        double totalFees = feesCatalogs.stream()
+            .filter(fees -> !fees.getFeesName()
+                .toLowerCase()
+                .contains("late"))
+            .mapToDouble(FeesCatalog::getPrice)
+            .sum();
+        target.setTuitionFee(totalFees);
+
+    }
 }

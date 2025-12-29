@@ -27,7 +27,7 @@ public class JasperService {
             return JasperExportManager.exportReportToPdf(jasperPrint);
         } catch (JRException e) {
             log.error(e.getMessage());
-            throw new RuntimeException("Failed to create excel : " + e.getMessage());
+            throw new RuntimeException("Failed to create PDF : " + e.getMessage());
         }
     }
 }

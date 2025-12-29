@@ -112,7 +112,7 @@ public class Student extends AbstractAuditingEntity {
     @JoinColumn(name = "picture_id")
     private Upload profilePicture;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "letter_id")
     private Upload enrolLetter;
 
