@@ -50,8 +50,7 @@ public class OutboundCommunicationService {
     @Transactional
     @Async
     public void send(CommunicationRequest request) {
-        log.info("Sending {} to {}", request.getChannel()
-            .name(), Arrays.toString(request.getRecipient()));
+
         OutboundCommunication comm = outboundCommunicationMapper.toEntity(request);
         comm = outboundCommunicationRepository.save(comm);
         try {
@@ -61,6 +60,8 @@ public class OutboundCommunicationService {
             }
             comm.setSentDate(LocalDateTime.now());
             if (!isDevProfile(env.getDefaultProfiles())) {
+                log.info("Sending {} to {}", request.getChannel()
+                    .name(), Arrays.toString(request.getRecipient()));
                 strategy.send(request);
             }
             comm.setStatus(OutboundCommunicationStatus.SENT);
