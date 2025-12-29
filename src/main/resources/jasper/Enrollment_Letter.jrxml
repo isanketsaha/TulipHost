@@ -212,7 +212,7 @@
             <textField textAdjust="StretchHeight">
                 <reportElement x="0" y="449" width="549" height="40" uuid="c0f2a3b4-c5d6-e7f8-a9ba-bbccddeeefff"/>
                 <textElement textAlignment="Left" verticalAlignment="Top">
-                    <font fontName="Arial Hebrew" size="11"/>
+                    <font fontName="Arial" size="11"/>
                     <paragraph lineSpacing="1_1_2" spacingBefore="8" spacingAfter="8"/>
                 </textElement>
                 <textFieldExpression><![CDATA["We warmly welcome your child to the Tulip English School family and look forward to a rewarding academic journey."]]></textFieldExpression>
