@@ -114,7 +114,7 @@ public interface StudentMapper {
     @Mapping(target = "studentName", source = "name")
     @Mapping(target = "studentId", ignore = true)
     @Mapping(target = "dateOfBirth", source = "dob", dateFormat = "dd/MM/yyyy")
-    @Mapping(target = "className", expression = "java(source.getClassDetails().stream().findFirst().orElse(null) != null ? source.getClassDetails().stream().findFirst().get().getStd() : \"\")")
+    @Mapping(target = "className", expression = "java(source.getClassDetails().stream().findFirst().orElse(null) != null ? source.getClassDetails().stream().findFirst().orElseThrow().getStd() : \"\")")
     @Mapping(target = "rollNumber", source = "id")
     @Mapping(target = "admissionDate", source = "createdDate", dateFormat = "dd/MM/yyyy")
     @Mapping(target = "tuitionFee", ignore = true)

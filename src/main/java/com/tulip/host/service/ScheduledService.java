@@ -57,8 +57,7 @@ public class ScheduledService {
         Map<String, Object> map = Map.of("studentName", studentDetailsDTO.getName(),
             "className", studentDetailsDTO.getClassDetails()
                 .stream()
-                .findFirst()
-                .get()
+                .findFirst().orElseThrow()
                 .getStd());
         outboundCommunicationService.send(CommunicationRequest.builder()
             .channel(CommunicationChannel.SMS)
