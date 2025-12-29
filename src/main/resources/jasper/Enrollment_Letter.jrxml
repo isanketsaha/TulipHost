@@ -227,7 +227,7 @@
             <staticText>
                 <reportElement x="1" y="542" width="259" height="88" uuid="e0b4c5d6-e7f8-a9ba-bbcc-ddeeefff0011"/>
                 <textElement textAlignment="Left" verticalAlignment="Middle">
-                    <font fontName="Avenir Next" size="11"/>
+                    <font fontName="Arial Next" size="11"/>
                     <paragraph spacingBefore="15"/>
                 </textElement>
                 <text><![CDATA[_________________________
