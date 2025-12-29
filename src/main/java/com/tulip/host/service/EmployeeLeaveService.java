@@ -103,6 +103,11 @@ public class EmployeeLeaveService {
         return employeeLeaveRepository.save(employeeLeave);
     }
 
+    public EmployeeLeave findById(Long id) {
+        return employeeLeaveRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Leave not found : " + id));
+    }
+
     public EmployeeLeave updateStatus(Long leaveId, LeaveStatus status, String comments) {
         EmployeeLeave leave = employeeLeaveRepository.findById(leaveId)
                 .orElseThrow(() -> new RuntimeException("Leave not found : " + leaveId));

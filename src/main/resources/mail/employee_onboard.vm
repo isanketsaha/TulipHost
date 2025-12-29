@@ -1,0 +1,37 @@
+
+
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+
+#parse("mail/_header.vm")
+<p>
+    Welcome to <strong>Tulip English School</strong>. We are pleased to have you join our team and
+    look forward to a positive and successful association.
+</p>
+
+<p>
+    Please find your <strong>Joining Letter</strong> attached for your reference.
+</p>
+
+<p><strong>Joining Details</strong><br/>
+Designation: $designation<br/>
+Date of Joining: $joiningDate
+</p>
+
+<p><strong>Login Credentials</strong><br/>
+Portal: <a href="$portalUrl">$portalUrl</a><br/>
+Username: $username<br/>
+Temporary Password: $password
+</p>
+
+<p style="font-size: 12px; color: #555;">
+    For security reasons, please change your password after your first login.
+</p>
+
+#parse("mail/_signature.vm")
+
+</body>
+</html>

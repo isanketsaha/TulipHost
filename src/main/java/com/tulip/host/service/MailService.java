@@ -3,10 +3,12 @@ package com.tulip.host.service;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import lombok.Builder;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -48,8 +51,28 @@ public class MailService {
 
     private static final Pattern HTML_TAGS = Pattern.compile("<[^>]+>");
 
+    /**
+     * Inner class to represent an email attachment
+     */
+    @lombok.Getter
+    @Builder
+    public static class EmailAttachment {
+        private final String filename;
+        private final byte[] content;
+
+        public EmailAttachment(String filename, byte[] content) {
+            this.filename = filename;
+            this.content = content;
+        }
+    }
+
     @Async
-    public void sendEmail(String[] to,String[] cc, String subject, String content, boolean isMultipart, boolean isHtml) {
+    public void sendEmail(String[] to, String[] cc, String subject, String content, boolean isMultipart, boolean isHtml) {
+        sendEmail(to, cc, subject, content, isMultipart, isHtml, null);
+    }
+
+    @Async
+    public void sendEmail(String[] to, String[] cc, String subject, String content, boolean isMultipart, boolean isHtml, List<EmailAttachment> attachments) {
         subject = appendEnvToSubjectIfNotProd(subject);
         log.debug(
                 "Send email[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}",
@@ -64,7 +87,7 @@ public class MailService {
         try {
             // If we send HTML, prefer multipart/alternative with a text fallback (improves
             // rendering in clients like Gmail).
-            boolean multipart = isMultipart || isHtml;
+            boolean multipart = isMultipart || isHtml || (attachments != null && !attachments.isEmpty());
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, multipart, StandardCharsets.UTF_8.name());
             message.setTo(to);
             message.setCc(cc);
@@ -75,8 +98,16 @@ public class MailService {
             } else {
                 message.setText(content, false);
             }
+
+            // Add attachments if provided
+            if (attachments != null && !attachments.isEmpty()) {
+                for (EmailAttachment attachment : attachments) {
+                    message.addAttachment(attachment.getFilename(), new ByteArrayResource(attachment.getContent()));
+                }
+            }
+
             javaMailSender.send(mimeMessage);
-            log.debug("Sent email to User '{}'", to);
+            log.debug("Sent email to User");
         } catch (Exception e) {
             if (log.isDebugEnabled()) {
                 log.warn("Email could not be sent to user '{}'", to, e);
@@ -105,9 +136,21 @@ public class MailService {
             Map<String, Object> variables,
             Locale locale,
             boolean isMultipart) {
+        sendEmailFromTemplate(to, cc, templateName, titleKey, variables, locale, isMultipart, null);
+    }
+
+    public void sendEmailFromTemplate(
+            String[] to,
+            String[] cc,
+            String templateName,
+            String titleKey,
+            Map<String, Object> variables,
+            Locale locale,
+            boolean isMultipart,
+            List<EmailAttachment> attachments) {
         String subject = messageSource.getMessage(titleKey, null, locale);
         String content = renderTemplate(templateName, variables);
-        sendEmail(to, cc, subject, content, isMultipart, true);
+        sendEmail(to, cc, subject, content, isMultipart, true, attachments);
     }
 
     private String appendEnvToSubjectIfNotProd(String subject) {
@@ -142,7 +185,26 @@ public class MailService {
             boolean isMultipart) {
         Map<String, Object> model = new HashMap<>();
         model.put("user", user);
-        sendEmailFromTemplate(to,cc, templateName, titleKey, model, locale, isMultipart);
+        sendEmailFromTemplate(to, cc, templateName, titleKey, model, locale, isMultipart, null);
+    }
+
+    /**
+     * Convenience overload: uses a {@code user} variable in the template model with attachments.
+     */
+    @Async
+    public void sendEmailFromTemplate(
+            String[] to,
+            String[] cc,
+            Employee user,
+            String templateName,
+            String titleKey,
+            Locale locale,
+            boolean isMultipart,
+            List<EmailAttachment> attachments) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("user", user);
+        sendEmailFromTemplate(to, cc, templateName, titleKey, model, locale, isMultipart, attachments);
     }
 
 }
+

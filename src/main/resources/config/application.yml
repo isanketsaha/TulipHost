@@ -279,3 +279,11 @@ application:
       value: ap-northeast-1
   whatsapp:
     key: ${whatsapp.token}
+  twilio_config:
+    account_sid: ${twilio.asid}
+    key:  ${twilio.key}
+    message_sid: ${twilio.msid}
+    default_email: sanketsaha@gmail.com
+    default_phone: 8910181672
+  tinyurl:
+    key: ${tinyurl.key}

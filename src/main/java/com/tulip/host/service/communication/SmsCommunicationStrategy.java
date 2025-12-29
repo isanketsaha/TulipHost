@@ -1,11 +1,36 @@
 package com.tulip.host.service.communication;
 
-import org.springframework.stereotype.Component;
+import java.util.Arrays;
 
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
+
+import com.tulip.host.config.ApplicationProperties;
 import com.tulip.host.enums.CommunicationChannel;
+import com.twilio.Twilio;
 
-@Component
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+
+import static com.tulip.host.utils.CommonUtils.isDevProfile;
+
+@Service
+@RequiredArgsConstructor
 public class SmsCommunicationStrategy implements CommunicationStrategy {
+
+    public static final int COUNTRY_CODE = +91;
+    private final ApplicationProperties properties;
+
+    private final Environment env;
+
+    @PostConstruct
+    void init() {
+        Twilio.init(properties.getTwilioConfig()
+            .getAccountSid(), properties.getTwilioConfig()
+            .getKey());
+    }
 
     @Override
     public CommunicationChannel channel() {
@@ -14,6 +39,15 @@ public class SmsCommunicationStrategy implements CommunicationStrategy {
 
     @Override
     public void send(CommunicationRequest request) {
-        throw new UnsupportedOperationException("SMS sending not implemented yet");
+        boolean isDev = isDevProfile(env.getDefaultProfiles());
+        Arrays.stream(request.getRecipient())
+            .forEach(to -> {
+                Message message = Message.creator(
+                        new PhoneNumber(COUNTRY_CODE + (!isDev ? to : properties.getTwilioConfig()
+                            .getDefaultPhone())), properties.getTwilioConfig()
+                            .getMessageSid(), request.getContent())
+                    .create();
+                System.out.println(message.getSid());
+            });
     }
 }

@@ -4,12 +4,12 @@ import static com.tulip.host.security.SecurityUtils.hasCurrentUserAnyOfAuthoriti
 
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.collections4.MapUtils;
+import com.tulip.host.service.EmployeeService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
@@ -29,6 +29,7 @@ import com.tulip.host.domain.EmployeeLeave;
 import com.tulip.host.enums.LeaveEvents;
 import com.tulip.host.enums.LeaveStatus;
 import com.tulip.host.enums.UserRoleEnum;
+import com.tulip.host.repository.EmployeeRepository;
 import com.tulip.host.service.ActionNotificationService;
 import com.tulip.host.service.EmployeeLeaveService;
 import com.tulip.host.service.MailService;
@@ -37,6 +38,8 @@ import com.tulip.host.service.communication.CommunicationRequest;
 import com.tulip.host.service.communication.OutboundCommunicationService;
 import com.tulip.host.web.rest.vm.ApplyLeaveVM;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,12 +48,15 @@ import lombok.extern.slf4j.Slf4j;
 @EnableStateMachineFactory(contextEvents = false)
 @Slf4j
 public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus, LeaveEvents> {
+    private final EmployeeRepository employeeRepository;
 
     private final StateMachineRuntimePersister<LeaveStatus, LeaveEvents, String> stateMachineRuntimePersister;
 
     private final EmployeeLeaveService employeeLeaveService;
 
     private final ActionNotificationService actionNotificationService;
+
+    private final EmployeeService employeeService;
 
     private final StateAuditService stateAuditService;
 
@@ -89,7 +95,9 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
                         .equals(StateContext.Stage.STATE_CHANGED)) {
                     stateAuditService.recordTransition(machineId, ofNullableState(stateContext.getSource()),
                             ofNullableState(stateContext.getTarget()),
-                            stateContext.getEvent() != null ? stateContext.getEvent().name() : "", true,
+                            stateContext.getEvent() != null ? stateContext.getEvent()
+                                            .name() : "",
+                            true,
                             "Event accepted by state machine");
                 }
             }
@@ -113,7 +121,9 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
 
     @Override
     public void configure(StateMachineTransitionConfigurer<LeaveStatus, LeaveEvents> transitions) throws Exception {
-        transitions.withHistory().and().withInternal()
+        transitions.withHistory()
+                .and()
+                .withInternal()
                 .source(LeaveStatus.PENDING)
                 .event(LeaveEvents.SUBMIT)
                 .action(create())
@@ -135,7 +145,7 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
 
     private Guard<LeaveStatus, LeaveEvents> isValid() {
         return context ->
-             hasCurrentUserAnyOfAuthorities(UserRoleEnum.ADMIN.getValue(), UserRoleEnum.PRINCIPAL.getValue());
+        hasCurrentUserAnyOfAuthorities(UserRoleEnum.ADMIN.getValue(), UserRoleEnum.PRINCIPAL.getValue());
 
     }
 
@@ -151,23 +161,30 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
                 leaveVm.setStatus(LeaveStatus.PENDING);
                 Employee employee = employeeLeaveService.getEmployee(leaveVm);
                 var leave = employeeLeaveService.createEmployeeLeaveFromVM(leaveVm);
-                String machineId = context.getStateMachine().getId();
-                UserRoleEnum role =  employee.getGroup().getAuthority().equals(UserRoleEnum.PRINCIPAL.getValue()) ? UserRoleEnum.ADMIN : UserRoleEnum.PRINCIPAL;
+                String machineId = context.getStateMachine()
+                        .getId();
+                UserRoleEnum role = employee.getGroup()
+                        .getAuthority()
+                        .equals(UserRoleEnum.PRINCIPAL.getValue()) ? UserRoleEnum.ADMIN : UserRoleEnum.PRINCIPAL;
 
-                if (leaveVm.getTid() != null && !leaveVm.getTid().isEmpty()) {
+                if (leaveVm.getTid() != null && !leaveVm.getTid()
+                        .isEmpty()) {
                     log.info("Auto-approving leave with tid: leaveId={}, tid={}", leave.getId(), leaveVm.getTid());
                     leaveVm.setStatus(LeaveStatus.APPROVED);
-                    context.getStateMachine().sendEvent(
+                    context.getStateMachine()
+                            .sendEvent(
                             org.springframework.messaging.support.MessageBuilder
-                                    .withPayload(LeaveEvents.APPROVE)
-                                    .setHeader("leaveId", leave.getId())
-                                    .setHeader("comments", "Auto-approved (TID provided)")
-                                    .build());
+                                            .withPayload(LeaveEvents.APPROVE)
+                                            .setHeader("leaveId", leave.getId())
+                                            .setHeader("autoApproved", true)
+                                            .setHeader("comments", "Auto-approved (TID provided)")
+                                            .build());
                 } else {
-                   actionNotificationService.create("LEAVE", leave.getId(), machineId, LeaveStatus.PENDING.name(),
-                            LeaveEvents.APPROVE.name(), role  , null, leave.getEmployee().getName());
+                    actionNotificationService.create("LEAVE", leave.getId(), machineId, LeaveStatus.PENDING.name(),
+                                    LeaveEvents.APPROVE.name(), role, null, leave.getEmployee()
+                                    .getName());
                 }
-                sendEmail(leaveVm, employee, leave, machineId);
+                sendEmail(leave, "mail/leave-applied.vm", leaveVm.getTid() != null ? "Auto-approved" : "Submitted");
             } catch (Exception e) {
                 log.error("Error during leave submission: {}", e.getMessage(), e);
                 throw e;
@@ -175,30 +192,26 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
         };
     }
 
-    private void sendEmail(ApplyLeaveVM leaveVm, Employee employee, EmployeeLeave leave, String machineId) {
+    private void sendEmail(EmployeeLeave leave, String templatePath, String action) {
         try {
-
-            Map<String, Object> model = new HashMap<>();
-            model.put("user", employee);
-            model.put("leave", leave);
-            model.put("leaveVm", leaveVm);
-            // Happy-path: email audit + send via outbound communication service.
-            String to = employee.getEmail() != null && !employee.getEmail().isBlank() ? employee.getEmail()
-                    : "sanketsaha@gmail.com";
-            String subject = "Leave applied";
-            String html = mailService.renderTemplate("mail/leave-applied.vm", model);
-            outboundCommunicationService.send(new CommunicationRequest(
-                    com.tulip.host.enums.CommunicationChannel.EMAIL,
-                    List.of(to).stream().toArray(String[]::new),
-                    null,
-                    subject,
-                    html,
-                    "LEAVE",
-                    leave.getId(),
-                    model));
+            Employee employee = leave.getEmployee();
+            Map<String, Object> model = Map.of("user", employee, "leave", leave,
+                "employeeName", employee.getName(), "action", action);
+            String[] ccEmails = employeeService.getCCEmails(employee.getGroup()
+                .getAuthority());
+            String[] to = !StringUtils.isEmpty(employee.getEmail()) ? new String[]{employee.getEmail()} : ccEmails;
+            outboundCommunicationService.send(CommunicationRequest.builder()
+                    .channel(com.tulip.host.enums.CommunicationChannel.EMAIL)
+                    .recipient(to)
+                    .cc(ccEmails)
+                    .subject(employee.getName() +" - Leave applied of " + leave.getStartDate() + " to " + leave.getEndDate())
+                    .content(mailService.renderTemplate(templatePath, model))
+                    .entityType(leave.getClass().getName())
+                    .entityId(leave.getId())
+                    .build());
 
         } catch (Exception e) {
-            log.warn("Leave submission email failed (non-blocking): {}", e.getMessage(), e);
+            log.warn("Leave submission email failed : {}", e.getMessage(), e);
         }
     }
 
@@ -210,11 +223,18 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
                 String comments = context.getMessageHeaders()
                         .get("comments", String.class);
                 LeaveEvents event = context.getEvent();
+                Boolean autoApproved = context.getMessageHeaders()
+                    .get("autoApproved", Boolean.class);
                 log.info("Leave {} leaveId={}", event.name(), leaveId);
                 employeeLeaveService.updateStatus(leaveId, event.equals(LeaveEvents.APPROVE)
                     ? LeaveStatus.APPROVED : LeaveStatus.REJECTED, comments);
-                String machineId = context.getStateMachine().getId();
+                String machineId = context.getStateMachine()
+                        .getId();
                 actionNotificationService.markAction(machineId);
+                if(!autoApproved) {
+                    EmployeeLeave byId = employeeLeaveService.findById(leaveId);
+                    sendEmail(byId, "mail/leave-applied.vm", event.name());
+                }
             } catch (Exception e) {
                 log.error("Error during leave approval: {}", e.getMessage(), e);
                 throw e;

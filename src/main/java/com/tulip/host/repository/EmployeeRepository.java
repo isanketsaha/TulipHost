@@ -24,4 +24,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findByUserId(String userId);
 
     Optional<Employee> findByTid(String tid);
+
+    List<Employee> findByUserGroup(UserRoleEnum role);
 }

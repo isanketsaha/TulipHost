@@ -5,6 +5,7 @@ import java.util.Properties;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class ApplicationConfiguration {
@@ -22,5 +23,10 @@ public class ApplicationConfiguration {
         VelocityEngine engine = new VelocityEngine(props);
         engine.init();
         return engine;
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

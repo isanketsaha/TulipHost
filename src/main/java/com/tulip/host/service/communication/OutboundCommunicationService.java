@@ -1,31 +1,43 @@
 package com.tulip.host.service.communication;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tulip.host.domain.OutboundCommunication;
 import com.tulip.host.enums.CommunicationChannel;
 import com.tulip.host.enums.OutboundCommunicationStatus;
+import com.tulip.host.mapper.OutboundCommunicationMapper;
 import com.tulip.host.repository.OutboundCommunicationRepository;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static com.tulip.host.utils.CommonUtils.isDevProfile;
 
 @Service
 @Slf4j
 public class OutboundCommunicationService {
 
     private final OutboundCommunicationRepository outboundCommunicationRepository;
+    private final Environment env;
+    private final OutboundCommunicationMapper outboundCommunicationMapper;
     private final EnumMap<CommunicationChannel, CommunicationStrategy> strategies = new EnumMap<>(
-            CommunicationChannel.class);
+        CommunicationChannel.class);
 
     public OutboundCommunicationService(
-            OutboundCommunicationRepository outboundCommunicationRepository,
-            List<CommunicationStrategy> communicationStrategies) {
+        OutboundCommunicationRepository outboundCommunicationRepository,
+        OutboundCommunicationMapper outboundCommunicationMapper, Environment env,
+        List<CommunicationStrategy> communicationStrategies) {
         this.outboundCommunicationRepository = outboundCommunicationRepository;
+        this.outboundCommunicationMapper = outboundCommunicationMapper;
+        this.env = env;
         for (CommunicationStrategy s : communicationStrategies) {
             strategies.put(s.channel(), s);
         }
@@ -36,33 +48,31 @@ public class OutboundCommunicationService {
      * Happy path: we try to send once and mark SENT/FAILED.
      */
     @Transactional
-    public OutboundCommunication send(CommunicationRequest request) {
-        OutboundCommunication comm = new OutboundCommunication();
-        comm.setChannel(request.channel());
-        comm.setRecipient(String.join( "," ,request.recipient())+" | "+String.join(",", request.cc()));
-        comm.setEntityType(request.entityType());
-        comm.setEntityId(request.entityId());
-        comm.setSubject(request.subject());
-        comm.setContent(request.content());
-        comm.setStatus(OutboundCommunicationStatus.PENDING);
+    @Async
+    public void send(CommunicationRequest request) {
+        log.info("Sending {} to {}", request.getChannel()
+            .name(), Arrays.toString(request.getRecipient()));
+        OutboundCommunication comm = outboundCommunicationMapper.toEntity(request);
         comm = outboundCommunicationRepository.save(comm);
-
         try {
-            CommunicationStrategy strategy = strategies.get(request.channel());
+            CommunicationStrategy strategy = strategies.get(request.getChannel());
             if (strategy == null) {
-                throw new IllegalStateException("No strategy registered for channel: " + request.channel());
+                throw new IllegalStateException("No strategy registered for channel: " + request.getChannel());
             }
-            strategy.send(request);
-            comm.setStatus(OutboundCommunicationStatus.SENT);
             comm.setSentDate(LocalDateTime.now());
-            return outboundCommunicationRepository.save(comm);
+            if (!isDevProfile(env.getDefaultProfiles())) {
+                strategy.send(request);
+            }
+            comm.setStatus(OutboundCommunicationStatus.SENT);
+            outboundCommunicationRepository.save(comm);
         } catch (Exception e) {
-            log.warn("Outbound communication failed: channel={}, recipient={}, entityType={}, entityId={}, err={}",
-                    request.channel(), request.recipient(), request.entityType(), request.entityId(), e.getMessage(),
-                    e);
+            log.error("Outbound communication failed: channel={}, recipient={}, entityType={}, entityId={}, err={}",
+                request.getChannel(), request.getRecipient(), request.getEntityType(), request.getEntityId(),
+                e.getMessage(),
+                e);
             comm.setStatus(OutboundCommunicationStatus.FAILED);
             comm.setError(e.getMessage());
-            return outboundCommunicationRepository.save(comm);
+            outboundCommunicationRepository.save(comm);
         }
     }
 }

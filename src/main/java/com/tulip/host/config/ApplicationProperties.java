@@ -18,6 +18,8 @@ public class ApplicationProperties {
     public final Page page = new Page();
     public final Aws aws = new Aws();
     public final Whatsapp whatsapp = new Whatsapp();
+    public final TwilioConfig twilioConfig = new TwilioConfig();
+    public final TinyUrl tinyurl = new TinyUrl();
 
     // Logging performance thresholds
     private long slowMethodThresholdMs = 2000;
@@ -56,4 +58,19 @@ public class ApplicationProperties {
             private String value;
         }
     }
+
+    @Data
+    public static class TwilioConfig {
+        private String accountSid;
+        private String key;
+        private String messageSid;
+        private String defaultEmail;
+        private String defaultPhone;
+    }
+
+    @Data
+    public static class TinyUrl {
+        private String key;
+    }
+
 }

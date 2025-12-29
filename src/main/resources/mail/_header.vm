@@ -1,4 +1,5 @@
 ## Shared header partial
-<p style="margin:0 0 12px 0; color:#111827; font-size:16px; font-family: Arial, Helvetica, sans-serif;">
-  Hello,
-</p>
+<body style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+
+<p>$employeeName,</p>
+

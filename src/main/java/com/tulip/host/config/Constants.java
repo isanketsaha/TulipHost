@@ -19,6 +19,7 @@ public final class Constants {
     public static final String BIRTH_CERTIFICATE = "BIRTH CERTIFICATE";
     public static final String HIGHEST_QUALIFICATION = "Highest Qualification";
     public static final String JOINING_LETTER = "EMPLOYMENT LETTER";
+    public static final String ENROLLMENT_LETTER = "ENROLLMENT LETTER";
 
     public static final String CATEGORY_PLACEHOLDER = "PLACEHOLDER";
     public static final String CATEGORY_BOOK = "BOOK";

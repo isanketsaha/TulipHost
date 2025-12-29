@@ -2,12 +2,16 @@ package com.tulip.host.service;
 
 import static com.tulip.host.config.Constants.AADHAAR_CARD;
 import static com.tulip.host.config.Constants.BIRTH_CERTIFICATE;
+import static com.tulip.host.config.Constants.ENROLLMENT_LETTER;
+import static com.tulip.host.config.Constants.JASPER_FOLDER;
 import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
 import static com.tulip.host.config.Constants.PAN_CARD;
 import static com.tulip.host.utils.CommonUtils.isDateAfterCurrent;
 
 import com.querydsl.core.BooleanBuilder;
 import com.tulip.host.data.ClassDetailDTO;
+import com.tulip.host.data.EnrollmentLetterDTO;
+import com.tulip.host.data.LetterClause;
 import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.ClassDetail;
@@ -18,6 +22,8 @@ import com.tulip.host.domain.Student;
 import com.tulip.host.domain.StudentToTransport;
 import com.tulip.host.domain.StudentToTransportId;
 import com.tulip.host.domain.Transaction;
+import com.tulip.host.enums.CommunicationChannel;
+import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.exceptions.ResourceNotFoundException;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.DependentMapper;
@@ -30,6 +36,8 @@ import com.tulip.host.repository.StudentPagedRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.StudentToTransportRepository;
 import com.tulip.host.repository.TransactionRepository;
+import com.tulip.host.service.communication.CommunicationRequest;
+import com.tulip.host.service.communication.OutboundCommunicationService;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.DeactivateVm;
 import com.tulip.host.web.rest.vm.OnboardingVM;
@@ -37,6 +45,8 @@ import com.tulip.host.web.rest.vm.TransportVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import jakarta.validation.constraints.NotNull;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,6 +57,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.tulip.host.web.rest.vm.FileUploadVM;
+import com.tulip.host.domain.Upload;
+
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
@@ -55,8 +73,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -74,10 +90,11 @@ public class StudentService {
     private final UploadMapper uploadMapper;
     private final StudentPagedRepository studentPagedRepository;
     private final DependentRepository dependentRepository;
-
+    private final OutboundCommunicationService outboundCommunicationService;
+    private final MailService mailService;
     private final TransactionRepository transactionRepository;
-
     private final StudentToTransportMapper studentToTransportMapper;
+    private final JasperService jasperService;
 
     @Transactional
     public Page<StudentBasicDTO> fetchAllStudent(int pageNo, int pageSize) {
@@ -98,6 +115,20 @@ public class StudentService {
         addUpload(student, onboardingVM);
         Student save = studentRepository.save(student);
         return save.getId();
+    }
+
+
+    public void notify(Student student) {
+        Map<String, Object> map = Map.of("studentName", student.getName(),
+            "className", student.getClassDetails()
+                .first()
+                .getStd());
+        outboundCommunicationService.send(CommunicationRequest.builder()
+            .channel(CommunicationChannel.SMS)
+            .recipient(new String[]{student.getPhoneNumber()})
+            .content(mailService.renderTemplate("mail/student_enroll.vm", map))
+            .entityType("PAYMENT")
+            .build());
     }
 
     @Transactional
@@ -280,7 +311,7 @@ public class StudentService {
 
         // Batch query to get all pending fees for students in one go
         List<Object[]> pendingFeesData = transactionRepository.fetchPendingFeesBatch(studentIds, classId,
-                session.getId());
+            session.getId());
 
         for (Object[] data : pendingFeesData) {
             Long studentId = (Long) data[0];
@@ -294,5 +325,110 @@ public class StudentService {
         }
 
         return result;
+    }
+
+    /**
+     * Generate enrollment letter for a student
+     *
+     * @param studentId the student ID
+     * @return byte array of the PDF
+     * @throws IOException if there's an error reading the JRXML template
+     */
+    @Transactional
+    public byte[] generateEnrollmentLetter(Long studentId) throws IOException {
+        Student student = studentRepository.findById(studentId)
+            .orElse(null);
+        if (student != null) {
+            EnrollmentLetterDTO enrollmentLetterDTO = studentMapper.toPrintEntity(student);
+            try (InputStream inputStream = getClass().getResourceAsStream(JASPER_FOLDER + "Enrollment_Letter.jrxml")) {
+                Map<String, Object> map = new HashMap<>();
+                map.put(
+                    "terms",
+                    new JRBeanCollectionDataSource(
+                        Arrays.asList(
+                            LetterClause.builder()
+                                .clause("Fee Payment")
+                                .value("Monthly fees must be cleared by the 20th of each month; late payments will attract a fine.")
+                                .build(),
+                            LetterClause.builder()
+                                .clause("Attendance")
+                                .value("Student must maintain a minimum of 80% attendance.")
+                                .build(),
+                            LetterClause.builder()
+                                .clause("Parent–Teacher Meetings")
+                                .value("Parents are required to attend all PTMs without fail.")
+                                .build(),
+                            LetterClause.builder()
+                                .clause("Code of Conduct")
+                                .value("Students must follow the prescribed uniform and maintain proper discipline and conduct at all times.")
+                                .build()
+                        )
+                    )
+                );
+                return jasperService.generatePdf(inputStream, map, Arrays.asList(enrollmentLetterDTO));
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Attach enrollment letter to a student record
+     *
+     * @param id                the student ID
+     * @param enrollment_letter the file upload details
+     */
+    public void attachEnrollment(Long id, FileUploadVM enrollment_letter) {
+        Student student = studentRepository.findById(id)
+            .orElse(null);
+        if (student != null) {
+            Upload model = uploadMapper.toModel(enrollment_letter);
+            student.setEnrolLetter(model);
+            studentRepository.saveAndFlush(student);
+        }
+    }
+
+    /**
+     * Fetch or generate enrollment letter for a student
+     *
+     * @param studentId the student ID
+     * @return URL of the enrollment letter
+     * @throws IOException if there's an error generating the letter
+     */
+    @Transactional
+    public String fetchEnrollment(Long studentId) throws IOException {
+        Student student = studentRepository.findById(studentId)
+            .orElseThrow();
+        Upload enrollmentLetter = student.getEnrolLetter();
+        if (enrollmentLetter != null) {
+            return uploadService.getURL(enrollmentLetter.getUid());
+        } else {
+            byte[] bytes = generateEnrollmentLetter(studentId);
+            FileUploadVM enrollment_letter = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, ENROLLMENT_LETTER);
+            enrollment_letter.setName(student.getName());
+            attachEnrollment(studentId, enrollment_letter);
+            return uploadService.getURL(enrollment_letter.getUid());
+        }
+    }
+
+    @Transactional
+    public void notifyParent(Long studentId) {
+        studentRepository.findById(studentId)
+            .ifPresent(student -> {
+
+                Map<String, Object> map = Map.of("studentName", student.getName(),
+                    "className", student.getClassDetails()
+                        .first()
+                        .getStd());
+                outboundCommunicationService.send(CommunicationRequest.builder()
+                    .channel(CommunicationChannel.SMS)
+                    .recipient(new String[]{student.getPhoneNumber()})
+                    .content(mailService.renderTemplate("mail/student_enroll.vm", map))
+                    .entityType(student.getClass()
+                        .getName())
+                    .subject("Enrollment Successful")
+                    .entityId(student.getId())
+                    .build());
+            });
+
     }
 }
