@@ -78,7 +78,7 @@ public class StudentController {
         studentService.deactivate(vm);
     }
 
-    @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")
+    @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN') or hasAuthority('UG_STAFF')")
     @GetMapping("/enrollmentLetter")
     public String generateEnrollmentLetter(@RequestParam Long studentId) throws IOException {
         return studentService.fetchEnrollment(studentId);
