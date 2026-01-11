@@ -50,6 +50,10 @@ public class OutboundCommunicationService {
     @Transactional
     @Async
     public void send(CommunicationRequest request) {
+        log.info("Preparing to send outbound communication: channel={}, recipient={}, entityType={}, entityId={}",
+            request.getChannel(), Arrays.toString(request.getRecipient()), request.getEntityType(),
+            request.getEntityId());
+        log.info("IS DEV PROFILE: {}", isDevProfile(env.getDefaultProfiles()));
         if (!isDevProfile(env.getDefaultProfiles())) {
             OutboundCommunication comm = outboundCommunicationMapper.toEntity(request);
             comm = outboundCommunicationRepository.save(comm);
@@ -62,7 +66,7 @@ public class OutboundCommunicationService {
 
                 log.info("Sending {} to {}", request.getChannel()
                     .name(), Arrays.toString(request.getRecipient()));
-                strategy.send(request);
+                strategy.send(request, comm);
 
                 comm.setStatus(OutboundCommunicationStatus.SENT);
                 outboundCommunicationRepository.save(comm);
