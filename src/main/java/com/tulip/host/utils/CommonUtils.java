@@ -95,6 +95,6 @@ public class CommonUtils {
 
     public static boolean isDevProfile(String[] profiles) {
         return Arrays.stream(profiles)
-            .anyMatch(n -> n.equals("dev"));
+            .anyMatch(n -> n.toLowerCase().equals("dev"));
     }
 }

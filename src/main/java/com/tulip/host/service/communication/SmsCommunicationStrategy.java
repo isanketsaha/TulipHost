@@ -2,6 +2,7 @@ package com.tulip.host.service.communication;
 
 import java.util.Arrays;
 
+import com.tulip.host.domain.OutboundCommunication;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 import org.springframework.core.env.Environment;
@@ -38,7 +39,7 @@ public class SmsCommunicationStrategy implements CommunicationStrategy {
     }
 
     @Override
-    public void send(CommunicationRequest request) {
+    public void send(CommunicationRequest request, OutboundCommunication outboundCommunication) {
         boolean isDev = isDevProfile(env.getDefaultProfiles());
         Arrays.stream(request.getRecipient())
             .forEach(to -> {
@@ -48,6 +49,7 @@ public class SmsCommunicationStrategy implements CommunicationStrategy {
                             .getMessageSid(), request.getContent())
                     .create();
                 System.out.println(message.getSid());
+                outboundCommunication.setProviderMessageId(message.getSid());
             });
     }
 }

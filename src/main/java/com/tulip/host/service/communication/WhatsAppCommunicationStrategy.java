@@ -1,5 +1,6 @@
 package com.tulip.host.service.communication;
 
+import com.tulip.host.domain.OutboundCommunication;
 import org.springframework.stereotype.Component;
 
 import com.tulip.host.enums.CommunicationChannel;
@@ -13,7 +14,7 @@ public class WhatsAppCommunicationStrategy implements CommunicationStrategy {
     }
 
     @Override
-    public void send(CommunicationRequest request) {
+    public void send(CommunicationRequest request, OutboundCommunication outboundCommunication) {
         throw new UnsupportedOperationException("WhatsApp sending not implemented yet");
     }
 }
