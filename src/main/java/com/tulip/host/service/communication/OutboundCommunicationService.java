@@ -18,8 +18,7 @@ import com.tulip.host.mapper.OutboundCommunicationMapper;
 import com.tulip.host.repository.OutboundCommunicationRepository;
 
 import lombok.extern.slf4j.Slf4j;
-
-import static com.tulip.host.utils.CommonUtils.isDevProfile;
+import static com.tulip.host.utils.CommonUtils.isProdProfile;
 
 @Service
 @Slf4j
@@ -53,8 +52,8 @@ public class OutboundCommunicationService {
         log.info("Preparing to send outbound communication: channel={}, recipient={}, entityType={}, entityId={}",
             request.getChannel(), Arrays.toString(request.getRecipient()), request.getEntityType(),
             request.getEntityId());
-        log.info("IS DEV PROFILE: {}", isDevProfile(env.getActiveProfiles()));
-        if (!isDevProfile(env.getDefaultProfiles())) {
+        log.info("IS DEV PROFILE: {}", isProdProfile(env.getActiveProfiles()));
+        if (isProdProfile(env.getDefaultProfiles())) {
             OutboundCommunication comm = outboundCommunicationMapper.toEntity(request);
             comm = outboundCommunicationRepository.save(comm);
             try {
