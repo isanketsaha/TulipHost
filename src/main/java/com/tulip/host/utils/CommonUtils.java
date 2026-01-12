@@ -93,7 +93,7 @@ public class CommonUtils {
             .collect(Collectors.toList());
     }
 
-    public static boolean isDevProfile(String[] profiles) {
+    public static boolean isProdProfile(String[] profiles) {
         log.info("Active profiles: {}", Arrays.toString(profiles));
         return Arrays.stream(profiles)
             .anyMatch(n -> n.toLowerCase().equals("dev"));
