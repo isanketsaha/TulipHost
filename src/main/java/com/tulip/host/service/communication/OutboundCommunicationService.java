@@ -53,7 +53,7 @@ public class OutboundCommunicationService {
             request.getChannel(), Arrays.toString(request.getRecipient()), request.getEntityType(),
             request.getEntityId());
         log.info("IS DEV PROFILE: {}", isProdProfile(env.getActiveProfiles()));
-        if (isProdProfile(env.getDefaultProfiles())) {
+        if (isProdProfile(env.getActiveProfiles())) {
             OutboundCommunication comm = outboundCommunicationMapper.toEntity(request);
             comm = outboundCommunicationRepository.save(comm);
             try {

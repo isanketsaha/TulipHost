@@ -41,11 +41,11 @@ public class SmsCommunicationStrategy implements CommunicationStrategy {
 
     @Override
     public void send(CommunicationRequest request, OutboundCommunication outboundCommunication) {
-        boolean isDev = !isProdProfile(env.getDefaultProfiles());
+        boolean isProd = isProdProfile(env.getActiveProfiles());
         String sid = Arrays.stream(request.getRecipient())
             .map(to -> {
                 Message message = Message.creator(
-                        new PhoneNumber(COUNTRY_CODE + (!isDev ? to : properties.getTwilioConfig()
+                        new PhoneNumber(COUNTRY_CODE + (isProd ? to : properties.getTwilioConfig()
                             .getDefaultPhone())), properties.getTwilioConfig()
                             .getMessageSid(), request.getContent())
                     .create();

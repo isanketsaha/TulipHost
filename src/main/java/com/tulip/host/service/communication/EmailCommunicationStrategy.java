@@ -27,7 +27,7 @@ public class EmailCommunicationStrategy implements CommunicationStrategy {
 
     @Override
     public void send(CommunicationRequest request, OutboundCommunication outboundCommunication) {
-        if (isProdProfile(env.getDefaultProfiles())) {
+        if (!isProdProfile(env.getActiveProfiles())) {
             request.setRecipient(new String[]{properties.getTwilioConfig().getDefaultEmail()});
             request.setCc(new String[]{});
         }
