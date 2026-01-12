@@ -94,13 +94,13 @@ management:
   prometheus:
     metrics:
       export:
-        enabled: true
+        enabled: false
         step: 60
     enable:
       http: true
       jvm: true
-      logback: true
-      process: true
+      logback: false
+      process: false
       system: true
     distribution:
       percentiles-histogram:
