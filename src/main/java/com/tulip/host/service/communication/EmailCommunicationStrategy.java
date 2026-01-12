@@ -9,10 +9,7 @@ import com.tulip.host.enums.CommunicationChannel;
 import com.tulip.host.service.MailService;
 
 import lombok.RequiredArgsConstructor;
-
-import java.util.Arrays;
-
-import static com.tulip.host.utils.CommonUtils.isDevProfile;
+import static com.tulip.host.utils.CommonUtils.isProdProfile;
 
 @Component
 @RequiredArgsConstructor
@@ -30,7 +27,7 @@ public class EmailCommunicationStrategy implements CommunicationStrategy {
 
     @Override
     public void send(CommunicationRequest request, OutboundCommunication outboundCommunication) {
-        if (isDevProfile(env.getDefaultProfiles())) {
+        if (isProdProfile(env.getDefaultProfiles())) {
             request.setRecipient(new String[]{properties.getTwilioConfig().getDefaultEmail()});
             request.setCc(new String[]{});
         }

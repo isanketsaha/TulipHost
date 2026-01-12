@@ -16,8 +16,8 @@ public class ScheduledController {
     private final ScheduledService scheduledService;
 
     @GetMapping("/notifyFeesDues")
-    private void notifyOnFeesDues() {
-        scheduledService.notifyOnFeesDues();
+    public void notifyOnFeesDues() {
+        this.scheduledService.notifyOnFeesDues();
     }
 
 }
