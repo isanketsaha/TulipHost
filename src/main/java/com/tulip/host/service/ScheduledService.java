@@ -8,6 +8,7 @@ import com.tulip.host.enums.CommunicationChannel;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.service.communication.CommunicationRequest;
 import com.tulip.host.service.communication.OutboundCommunicationService;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,11 +33,15 @@ public class ScheduledService {
     private final OutboundCommunicationService outboundCommunicationService;
     private final MailService mailService;
 
+    private final EntityManager em;
+
     @Scheduled(cron = "0 30 14 2 * ?")
     @Transactional
     public void notifyOnFeesDues() {
         log.info("Starting scheduled task: notifyOnFeesDues");
+        org.hibernate.Session unwrap = em.unwrap(org.hibernate.Session.class);
         Session session = sessionService.currentSession();
+        unwrap.enableFilter("activeStudent").setParameter("flag", true);
         List<ClassDetail> allBySessionId = classDetailRepository.findAllBySessionId(session.getId());
         Collections.sort(allBySessionId, Comparator.comparing(ClassDetail::getStd));
         allBySessionId.stream()
@@ -51,6 +56,7 @@ public class ScheduledService {
                     .filter(entry -> entry.getValue() > 2)
                     .forEach(entry -> sendNotification(entry.getKey()));
             });
+        unwrap.disableFilter("activeStudent");
     }
 
     private void sendNotification(Long studentId) {
