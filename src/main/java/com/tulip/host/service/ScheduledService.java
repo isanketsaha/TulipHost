@@ -49,7 +49,6 @@ public class ScheduledService {
                 longIntegerMap.entrySet()
                     .stream()
                     .filter(entry -> entry.getValue() > 2)
-                    .limit(2)
                     .forEach(entry -> sendNotification(entry.getKey()));
             });
     }
