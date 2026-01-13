@@ -1,7 +1,6 @@
 package com.tulip.host.web.rest;
 
 import com.tulip.host.service.ProfileService;
-import com.tulip.host.service.WhatsappNotificationService;
 import com.tulip.host.web.rest.vm.CredentialVM;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ public class ProfileController {
 
     private final ProfileService profileService;
 
-    private final WhatsappNotificationService notificationService;
 
     @PostMapping("/resetCredential")
     public void reset(@Valid @RequestBody CredentialVM credentialVM) {
@@ -32,8 +30,4 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.checkUserId(userId));
     }
 
-    @GetMapping("/send")
-    public void send() {
-        notificationService.send();
-    }
 }
