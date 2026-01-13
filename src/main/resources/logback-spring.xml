@@ -4,13 +4,13 @@
 <configuration scan="true">
     <!-- Patterns based on https://github.com/spring-projects/spring-boot/blob/v3.0.0/spring-boot-project/spring-boot/src/main/resources/org/springframework/boot/logging/logback/defaults.xml -->
     <conversionRule conversionWord="crlf" converterClass="com.tulip.host.config.CRLFLogConverter" />
-    
+
     <!-- Enhanced console pattern with more structured information -->
     <property name="CONSOLE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %crlf(%m){red} %n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
-    
+
     <!-- Enhanced file pattern for production -->
     <property name="FILE_LOG_PATTERN" value="${FILE_LOG_PATTERN:-%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}} [%thread] %-5level %logger{50} - %msg%n}"/>
-    
+
     <!-- JSON pattern for structured logging -->
     <property name="JSON_LOG_PATTERN" value="${JSON_LOG_PATTERN:-{&quot;timestamp&quot;:&quot;%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}&quot;,&quot;level&quot;:&quot;%level&quot;,&quot;thread&quot;:&quot;%thread&quot;,&quot;logger&quot;:&quot;%logger{50}&quot;,&quot;message&quot;:&quot;%msg&quot;,&quot;exception&quot;:&quot;%ex&quot;}%n}"/>
 
@@ -73,6 +73,24 @@
         </encoder>
     </appender>
 
+    <!-- Loki appender for log aggregation -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>https://logs.tulipschool.duckdns.org/loki/api/v1/push</url>
+        </http>
+        <format>
+            <label>
+                <pattern>app=tulip-host,host=${HOSTNAME},level=%level</pattern>
+            </label>
+            <message>
+                <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            </message>
+        </format>
+        <batchSize>100</batchSize>
+        <batchTimeoutMs>10000</batchTimeoutMs>
+        <encoder class="com.github.loki4j.logback.JsonEncoder" />
+    </appender>
+
     <!-- Async appender for better performance -->
     <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>512</queueSize>
@@ -93,6 +111,13 @@
         <discardingThreshold>0</discardingThreshold>
         <includeCallerData>true</includeCallerData>
         <appender-ref ref="ERROR_FILE"/>
+    </appender>
+
+    <appender name="ASYNC_LOKI" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+        <appender-ref ref="LOKI"/>
     </appender>
 
     <!-- Third-party library loggers -->
@@ -129,67 +154,69 @@
     <logger name="sun.rmi" level="WARN"/>
     <logger name="sun.net.www" level="INFO"/>
     <logger name="sun.rmi.transport" level="WARN"/>
-    <!-- See https://github.com/jhipster/generator-jhipster/issues/13835 -->
     <logger name="Validator" level="INFO"/>
-    <!-- See https://github.com/jhipster/generator-jhipster/issues/14444 -->
     <logger name="_org.springframework.web.servlet.HandlerMapping.Mappings" level="INFO"/>
     <logger name="liquibase" level="WARN"/>
     <logger name="LiquibaseSchemaResolver" level="INFO"/>
-    
+
     <!-- Application-specific loggers -->
     <logger name="com.tulip.host" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="ASYNC_JSON"/>
         <appender-ref ref="ASYNC_ERROR"/>
+        <appender-ref ref="ASYNC_LOKI"/>
     </logger>
-    
+
     <!-- Security logging -->
     <logger name="com.tulip.host.security" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="ASYNC_JSON"/>
         <appender-ref ref="ASYNC_ERROR"/>
+        <appender-ref ref="ASYNC_LOKI"/>
     </logger>
-    
+
     <!-- Database logging -->
     <logger name="com.tulip.host.repository" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="ASYNC_JSON"/>
+        <appender-ref ref="ASYNC_LOKI"/>
     </logger>
-    
+
     <!-- Service layer logging -->
     <logger name="com.tulip.host.service" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="ASYNC_JSON"/>
         <appender-ref ref="ASYNC_ERROR"/>
+        <appender-ref ref="ASYNC_LOKI"/>
     </logger>
-    
+
     <!-- REST API logging -->
     <logger name="com.tulip.host.web.rest" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="ASYNC_JSON"/>
         <appender-ref ref="ASYNC_ERROR"/>
+        <appender-ref ref="ASYNC_LOKI"/>
     </logger>
-    
+
     <!-- Exception handling logging -->
     <logger name="com.tulip.host.web.rest.errors" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="ASYNC_JSON"/>
         <appender-ref ref="ASYNC_ERROR"/>
+        <appender-ref ref="ASYNC_LOKI"/>
     </logger>
 
-    <!-- jhipster-needle-logback-add-log - JHipster will add a new log with level -->
-
-    <springProperty name="log.level" source="logging.level.root" defaultValue="INFO" />
-    <root level="${log.level}">
+    <root level="INFO">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="ASYNC" />
         <appender-ref ref="ASYNC_ERROR" />
+        <appender-ref ref="ASYNC_LOKI" />
     </root>
 
     <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
