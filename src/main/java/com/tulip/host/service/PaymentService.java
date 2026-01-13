@@ -560,6 +560,8 @@ public class PaymentService {
                 .recipient(new String[]{transaction.getStudent().getPhoneNumber()})
                 .content(mailService.renderTemplate("mail/payment_successful.vm", map))
                 .entityType("PAYMENT")
+                .entityId(transaction.getId())
+                .subject("PAYMENT_SUCCESS_NOTIFICATION")
                 .build());
         }
     }
