@@ -10,17 +10,16 @@ import com.tulip.host.data.StudentBasicDTO;
 import com.tulip.host.data.StudentExportDTO;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Inventory;
+import com.tulip.host.domain.ProductCatalog;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.domain.Upload;
-import com.tulip.host.enums.CommunicationChannel;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.mapper.InventoryMapper;
 import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.mapper.TransactionMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.InventoryRepository;
-import com.tulip.host.service.communication.CommunicationRequest;
 import com.tulip.host.service.communication.OutboundCommunicationService;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.FileUploadVM;
@@ -30,7 +29,6 @@ import jakarta.validation.constraints.Size;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,8 +73,11 @@ public class ExportService {
 
     @Transactional
     public XSSFWorkbook exportStock() {
-        List<Inventory> stockReport = inventoryRepository.stockReport();
-        List<StockExportDTO> stockExportDTOS = inventoryMapper.toExportEntityList(stockReport);
+        Map<ProductCatalog, List<Inventory>> catalogGrouped = inventoryRepository.findLatestInventoryByProductCatalogGrouped();
+        List<StockExportDTO> stockExportDTOS = catalogGrouped.entrySet()
+            .stream()
+            .map(entry -> inventoryMapper.toAggregatedStockExportDTO(entry.getKey(), entry.getValue()))
+            .toList();
         List<Object> list = new ArrayList<>(stockExportDTOS);
         return excelExporterService.export(list, "Inventory");
     }

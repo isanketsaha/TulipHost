@@ -41,14 +41,12 @@ public abstract class ProductCatalogMapper {
 
     @AfterMapping
     protected void setPrice(ProductCatalog source, @MappingTarget ProductDTO target) {
-        if (source.getPrice() != null) {
-            target.setPrice(source.getPrice()); // Fallback to catalog price if no inventory
-        } else {
-            double highestPrice = source.getInventories().stream()
-                    .mapToDouble(inventory -> inventory.getUnitPrice())
-                    .max()
-                    .orElse(source.getPrice());
-            target.setPrice(highestPrice);
-        }
+        double highestPrice = source.getInventories()
+                .stream()
+                .filter(inv -> inv.getActive()) // Only consider active inventory batches
+                .mapToDouble(inventory -> inventory.getUnitPrice())
+                .max()
+                .orElse(0.0);
+        target.setPrice(highestPrice > 0 ? highestPrice : null);
     }
 }

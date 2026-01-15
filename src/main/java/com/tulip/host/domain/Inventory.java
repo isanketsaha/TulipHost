@@ -64,4 +64,5 @@ public class Inventory extends AbstractAuditingEntity {
 
     @OneToMany(mappedBy = "inventory", fetch = FetchType.LAZY)
     private Set<PurchaseLineItem> purchaseLineItems;
+
 }

@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.tulip.host.web.rest.vm.InventoryUpdateVM;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +19,6 @@ import com.tulip.host.data.ProductDTO;
 import com.tulip.host.data.TransportCatalogDto;
 import com.tulip.host.service.CatalogService;
 import com.tulip.host.service.ProductService;
-import com.tulip.host.web.rest.vm.StockUpdateVM;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +52,7 @@ public class CatalogController {
         return catalogService.productCatalogWithUnifiedPricing(classID);
     }
     @PostMapping("/updateStock")
-    public void updateProduct(@Valid @RequestBody StockUpdateVM stockUpdateVM) {
+    public void updateProduct(@Valid @RequestBody InventoryUpdateVM stockUpdateVM) {
         catalogService.updateProduct(stockUpdateVM);
     }
 

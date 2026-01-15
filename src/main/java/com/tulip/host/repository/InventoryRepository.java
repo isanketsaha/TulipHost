@@ -1,6 +1,7 @@
 package com.tulip.host.repository;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,4 +14,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     List<Inventory> stockReportWithIndex();
 
     List<Inventory> findByProductOrderByCreatedDateAsc(ProductCatalog product);
+
+    List<Inventory> findLatestInventoryByProductCatalog();
+
+    Map<ProductCatalog, List<Inventory>> findLatestInventoryByProductCatalogGrouped();
 }

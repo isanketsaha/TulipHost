@@ -44,10 +44,6 @@ public class ProductCatalog extends AbstractAuditingEntity {
     @Column(name = "item_name", nullable = false)
     private String itemName;
 
-    @NotNull
-    @Column(name = "price", nullable = false)
-    private Double price;
-
     @Size(max = 100)
     @Column(name = "tag", nullable = false, length = 100)
     private String tag;

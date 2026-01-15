@@ -25,7 +25,7 @@ import org.mapstruct.MappingTarget;
         PurchaseLineItemMapper.class,
         ExpenseMapper.class,
         UploadMapper.class,
-        DuesMapper.class,
+        DuesMapper.class
     }
 )
 public interface TransactionMapper {
