@@ -103,33 +103,6 @@ public class CatalogService {
         return transportMapper.toDtoList(allBySession);
     }
 
-//    @Transactional
-//    public List<ProductDTO> productCatalog(Long classId) {
-//        // Use batch processing to avoid N+1 queries
-//        List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveProduct(classId);
-//
-//        try {
-//            // Use the new inventory tracking system to calculate available stock
-//            List<ProductCatalog> availableProducts = new ArrayList<>();
-//
-//            for (ProductCatalog catalog : catalogs) {
-//                // Use the InventoryService to get total available quantity
-//                // This now uses pre-loaded inventory data (filtered to active only)
-//                int totalAvailableQty = inventoryService.getTotalAvailableQuantity(catalog);
-//
-//                // Only include products that have available stock
-//                if (totalAvailableQty > 0) {
-//                    availableProducts.add(catalog);
-//                }
-//            }
-//
-//            return catalogMapper.toModelList(availableProducts);
-//        } finally {
-//            // Clear references to help GC
-//            catalogs.clear();
-//        }
-//    }
-
     /**
      * Get product catalog with unified pricing - shows highest price when multiple
      * inventory batches exist
