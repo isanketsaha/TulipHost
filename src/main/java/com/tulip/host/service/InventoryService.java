@@ -28,17 +28,19 @@ public class InventoryService {
      */
     public int calculateAvailableQuantity(Inventory inventory) {
         return inventory.getQty() - inventory.getPurchaseLineItems()
-                .stream()
-                .mapToInt(item -> item.getQty())
-                .sum();
+            .stream()
+            .mapToInt(item -> item.getQty())
+            .sum();
     }
 
     /**
      * Get total available quantity for a product across all inventory batches
      */
     public int getTotalAvailableQuantity(ProductCatalog product) {
-        return product.getInventories().stream()
-                .mapToInt(this::calculateAvailableQuantity)
-                .sum();
+        return product.getInventories()
+            .stream()
+            .filter(Inventory::getActive)
+            .mapToInt(this::calculateAvailableQuantity)
+            .sum();
     }
 }

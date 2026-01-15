@@ -3,10 +3,10 @@ package com.tulip.host.service;
 import static com.tulip.host.config.Constants.TRANSPORT_FEES;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.tulip.host.web.rest.vm.InventoryUpdateVM;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,13 +27,11 @@ import com.tulip.host.mapper.ProductCatalogMapper;
 import com.tulip.host.mapper.StudentToTransportMapper;
 import com.tulip.host.mapper.TransportCatalogMapper;
 import com.tulip.host.repository.ClassDetailRepository;
-import com.tulip.host.repository.FeesCatalogRepository;
 import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.repository.ProductCatalogRepository;
 import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransportCatalogRepository;
-import com.tulip.host.web.rest.vm.StockUpdateVM;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +44,8 @@ public class CatalogService {
     private final StudentRepository studentRepository;
     private final SessionRepository sessionRepository;
 
-    private final FeesCatalogRepository feesCatalogRepository;
+    // FeesCatalogRepository - kept for future use if needed
+    // private final FeesCatalogRepository feesCatalogRepository;
 
     private final ClassDetailRepository classDetailRepository;
 
@@ -69,6 +68,9 @@ public class CatalogService {
     @Transactional
     public List<FeesCatalogDTO> fetchFeesCatalog(Long id) {
         ClassDetail std = classDetailRepository.findById(id).orElse(null);
+        if (std == null || std.getFeesCatalogs() == null) {
+            return Collections.emptyList();
+        }
         return feesCatalogMapper.toEntityList(std.getFeesCatalogs());
     }
 
@@ -87,7 +89,7 @@ public class CatalogService {
                     .amount(transportOptDTO.getAmount())
                     .type(TRANSPORT_FEES.replace(" ", "_"))
                     .build();
-                return Arrays.asList(feesCatalogDTO);
+                return Collections.singletonList(feesCatalogDTO);
             }
         }
 
@@ -101,32 +103,32 @@ public class CatalogService {
         return transportMapper.toDtoList(allBySession);
     }
 
-    @Transactional
-    public List<ProductDTO> productCatalog(Long classId) {
-        // Use batch processing to avoid N+1 queries
-        List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveProduct(classId);
-
-        try {
-            // Use the new inventory tracking system to calculate available stock
-            List<ProductCatalog> availableProducts = new ArrayList<>();
-
-            for (ProductCatalog catalog : catalogs) {
-                // Use the InventoryService to get total available quantity
-                // This now uses pre-loaded inventory data (filtered to active only)
-                int totalAvailableQty = inventoryService.getTotalAvailableQuantity(catalog);
-
-                // Only include products that have available stock
-                if (totalAvailableQty > 0) {
-                    availableProducts.add(catalog);
-                }
-            }
-
-            return catalogMapper.toModelList(availableProducts);
-        } finally {
-            // Clear references to help GC
-            catalogs.clear();
-        }
-    }
+//    @Transactional
+//    public List<ProductDTO> productCatalog(Long classId) {
+//        // Use batch processing to avoid N+1 queries
+//        List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveProduct(classId);
+//
+//        try {
+//            // Use the new inventory tracking system to calculate available stock
+//            List<ProductCatalog> availableProducts = new ArrayList<>();
+//
+//            for (ProductCatalog catalog : catalogs) {
+//                // Use the InventoryService to get total available quantity
+//                // This now uses pre-loaded inventory data (filtered to active only)
+//                int totalAvailableQty = inventoryService.getTotalAvailableQuantity(catalog);
+//
+//                // Only include products that have available stock
+//                if (totalAvailableQty > 0) {
+//                    availableProducts.add(catalog);
+//                }
+//            }
+//
+//            return catalogMapper.toModelList(availableProducts);
+//        } finally {
+//            // Clear references to help GC
+//            catalogs.clear();
+//        }
+//    }
 
     /**
      * Get product catalog with unified pricing - shows highest price when multiple
@@ -141,7 +143,9 @@ public class CatalogService {
 
             for (ProductCatalog catalog : catalogs) {
                 int totalAvailableQty = inventoryService.getTotalAvailableQuantity(catalog);
-
+                if(catalog.getItemName().equals("ADMISSION FORM")) {
+                    log.info("Debug: Product {} has available qty {}", catalog.getItemName(), totalAvailableQty);
+                }
                 if (totalAvailableQty > 0) {
                     ProductDTO productDTO = catalogMapper.toEntity(catalog);
                     productDTO.setAvailableStock(totalAvailableQty);
@@ -155,15 +159,44 @@ public class CatalogService {
         }
     }
 
+    /**
+     * Creates a new inventory refill entry for a product.
+     * This follows the pattern: ProductCatalog (read-only reference) -> Multiple Inventory entries (refills).
+     * Each refill is tracked as a separate Inventory record with its own:
+     * - unitPrice (selling price at time of refill)
+     * - qty (quantity in this batch)
+     * - discountPercent (discount type for this batch)
+     * - vendor (supplier for this batch)
+     *
+     * @param stockUpdateVM contains inventory refill details
+     */
     @Transactional
-    public void updateProduct(StockUpdateVM stockUpdateVM) {
-        Inventory stockReport = inventoryRepository.findById(stockUpdateVM.getStockId()).orElse(null);
-        if (stockReport != null) {
-            ProductCatalog product = stockReport.getProduct();
-            product.setItemName(stockUpdateVM.getProduct().getItemName().toUpperCase());
-            product.setPrice(stockUpdateVM.getProduct().getPrice());
-            stockReport.setQty(stockUpdateVM.getPurchasedQty());
-            inventoryRepository.saveAndFlush(stockReport);
+    public void updateProduct(InventoryUpdateVM stockUpdateVM) {
+        // Get existing inventory to access the product reference
+        Inventory existingInventory = inventoryRepository.findById(stockUpdateVM.getInventoryId())
+                .orElseThrow(() -> new RuntimeException("Inventory not found with id: " + stockUpdateVM.getInventoryId()));
+
+        ProductCatalog product = existingInventory.getProduct();
+
+        // Create a NEW inventory entry for this refill (never update existing records)
+        Inventory newInventoryRefill = Inventory.builder()
+                .product(product)
+                .unitPrice(stockUpdateVM.getUnitPrice())
+                .qty(stockUpdateVM.getPurchasedQty())
+                .discountPercent(stockUpdateVM.getDiscountPercent())
+                .vendor(stockUpdateVM.getVendor())
+                .active(true)
+                .build();
+
+        // If wanting to deactivate old batch, mark it inactive
+        if (stockUpdateVM.isDeactivateOld()) {
+            existingInventory.setActive(false);
+            inventoryRepository.saveAndFlush(existingInventory);
         }
+
+        // Save new refill entry
+        inventoryRepository.saveAndFlush(newInventoryRefill);
+        log.info("New inventory refill created for product {} with qty {} at price {}",
+                product.getItemName(), stockUpdateVM.getPurchasedQty(), stockUpdateVM.getUnitPrice());
     }
 }

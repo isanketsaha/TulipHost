@@ -40,7 +40,7 @@ public class InventoryAllocationService {
         int totalAvailable = inventoryService.getTotalAvailableQuantity(product);
         if (totalAvailable < requiredQty) {
             throw new RuntimeException("Insufficient stock for product: " + product.getItemName() +
-                    ". Required: " + requiredQty + ", Available: " + totalAvailable);
+                ". Required: " + requiredQty + ", Available: " + totalAvailable);
         }
 
         // Use FIFO allocation
@@ -64,21 +64,25 @@ public class InventoryAllocationService {
                 return inventory;
             }
         }
-        return null;
+        throw new RuntimeException("No single inventory batch has sufficient quantity for required qty: " + requiredQty);
     }
 
     /**
-     * Calculate the expected price for a product (same logic as UI)
+     * Calculate the expected price for a product from active inventory batches.
+     * Returns the highest price available across all active inventory.
+     * ProductCatalog price field is never used - pricing is always from Inventory entities.
      */
     public double calculateExpectedPrice(ProductCatalog product) {
-        // Get the highest price from all inventory batches
-        if (product.getPrice() != null) {
-            return product.getPrice();
+        if (product == null || product.getInventories()
+            .isEmpty()) {
+            throw new RuntimeException("No inventory available for product: " + (product != null ? product.getItemName() : "unknown"));
         }
 
-        return product.getInventories().stream()
-                .mapToDouble(Inventory::getUnitPrice)
-                .max()
-                .orElse(product.getPrice());
+        return product.getInventories()
+            .stream()
+            .filter(inv -> inv.getActive())
+            .mapToDouble(Inventory::getUnitPrice)
+            .max()
+            .orElseThrow(() -> new RuntimeException("No active inventory available for product: " + product.getItemName()));
     }
 }

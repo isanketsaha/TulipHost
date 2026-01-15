@@ -499,7 +499,7 @@ public class PaymentService {
 
     public void deleteTransaction(long transactionId) {
         transactionRepository.delete(transactionRepository.findById(transactionId)
-            .orElse(null));
+            .orElseThrow());
     }
 
     @Transactional
@@ -541,10 +541,11 @@ public class PaymentService {
         Upload upload = uploadMapper.toModel(save);
         transaction.setInvoice(upload);
         transactionRepository.saveAndFlush(transaction);
-        notifyTransaction(transaction);
     }
 
-    private void notifyTransaction(Transaction transaction) {
+    public void notifyTransaction(Long transactionId) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+            .orElseThrow();
         if (List.of(PayTypeEnum.PURCHASE.name(), PayTypeEnum.FEES.name())
             .contains(transaction.getType())) {
             String url = urlShortener.shortenUrl(uploadService.getURL(transaction.getInvoice()
