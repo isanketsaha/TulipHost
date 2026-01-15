@@ -41,7 +41,7 @@ public class OnboardingController {
                     byte[] bytes = employeeService.generateJoiningLetter(id);
                     FileUploadVM joining_letter = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, JOINING_LETTER);
                     employeeService.attachEmployment(id, joining_letter);
-                    employeeService.notifyOnboard(id);
+                  //  employeeService.notifyOnboard(id);
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to generate joining letter", e);
                 }
@@ -55,7 +55,7 @@ public class OnboardingController {
                     byte[] bytes = studentService.generateEnrollmentLetter(id);
                     FileUploadVM enrollment_letter = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, ENROLLMENT_LETTER);
                     studentService.attachEnrollment(id, enrollment_letter);
-                    studentService.notifyParent(id);
+//                    studentService.notifyParent(id);
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to generate enrollment letter", e);
                 }

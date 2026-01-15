@@ -54,7 +54,11 @@ public class ScheduledService {
                 longIntegerMap.entrySet()
                     .stream()
                     .filter(entry -> entry.getValue() > 2)
-                    .forEach(entry -> sendNotification(entry.getKey()));
+                    .forEach(entry -> {
+                        log.info("Sending dues notification to studentId={} with pending months={}",
+                            entry.getKey(), entry.getValue());
+//                        sendNotification(entry.getKey());
+                    });
             });
         unwrap.disableFilter("activeStudent");
     }
