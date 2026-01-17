@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/report")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('UG_ADMIN') or hasAuthority('UG_PRINCIPAL')")
+@PreAuthorize("hasAuthority('UG_ADMIN') or hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_STAFF')")
 public class ReportController {
 
     private final ReportService dashboardService;
