@@ -1,10 +1,10 @@
 package com.tulip.host.security;
 
+import com.tulip.host.enums.UserRoleEnum;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -13,8 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import com.tulip.host.enums.UserRoleEnum;
-
 /**
  * Utility class for Spring Security.
  */
@@ -22,7 +20,7 @@ public final class SecurityUtils {
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
 
-    public static final String AUTHORITIES_KEY = "auth";
+    public static final String AUTHORITIES_CLAIM = "auth";
 
     private SecurityUtils() {}
 
@@ -83,8 +81,7 @@ public final class SecurityUtils {
      */
     public static Optional<String> getCurrentUserJWT() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional
-            .ofNullable(securityContext.getAuthentication())
+        return Optional.ofNullable(securityContext.getAuthentication())
             .filter(authentication -> authentication.getCredentials() instanceof String)
             .map(authentication -> (String) authentication.getCredentials());
     }
@@ -137,8 +134,7 @@ public final class SecurityUtils {
     }
 
     public static List<UserRoleEnum> extractRoles(Authentication authentication) {
-        return Arrays
-            .stream(UserRoleEnum.values())
+        return Arrays.stream(UserRoleEnum.values())
             .filter(role -> getAuthorities(authentication).toList().contains(role.getValue()))
             .toList();
     }

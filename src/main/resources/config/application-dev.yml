@@ -15,14 +15,9 @@
 
 logging:
   level:
-    org:
-      springframework:
-        statemachine: INFO
-#        hibernate:
-#          type:
-#            descriptor:
-#              sql: trace
-    ROOT: INFO
+    ROOT: debug
+    org.springframework.web.cors: DEBUG
+    org.springframework.security.web.cors: DEBUG
 
 eureka:
   instance:
@@ -40,11 +35,6 @@ management:
       probability: 1.0 # report 100% of traces
 
 spring:
-  #  jpa:
-  #    show-sql: true
-  #    properties:
-  #      hibernate:
-  #        format_sql: true
   devtools:
     restart:
       enabled: true
@@ -55,9 +45,6 @@ spring:
     serialization:
       indent-output: true
   cloud:
-    loadbalancer:
-      cache:
-        enabled: false
     config:
       uri: http://admin:${jhipster.registry.password}@localhost:8761/config
       # name of the config server's property source (file.yml) that we want to use
@@ -71,78 +58,13 @@ spring:
     username: root
     password: Rakhi@06
     hikari:
-      poolName: TulipHikariPool
-      maximum-pool-size: 20
-      minimum-idle: 5
-      idle-timeout: 300000 # 5 minutes
-      max-lifetime: 1200000 # 20 minutes
-      connection-timeout: 20000 # 20 seconds
-      leak-detection-threshold: 60000 # 1 minute
+      poolName: Hikari
       auto-commit: false
-      connection-test-query: SELECT 1
-      validation-timeout: 5000 # 5 seconds
       data-source-properties:
         cachePrepStmts: true
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
-        useLocalSessionState: true
-        rewriteBatchedStatements: true
-        cacheResultSetMetadata: true
-        cacheServerConfiguration: true
-        elideSetAutoCommits: true
-        maintainTimeStats: false
-        useLocalTransactionState: true
-        useUnbufferedInput: false
-        useReadAheadInput: false
-        tcpKeepAlive: true
-        useFastDateParsing: false
-        useTimezone: false
-        useLegacyDatetimeCode: false
-        zeroDateTimeBehavior: convertToNull
-        characterEncoding: utf8
-        characterSetResults: utf8
-        connectionTimeZone: SERVER
-        forceConnectionTimeZoneToSession: true
-  jpa:
-    open-in-view: false
-    properties:
-      hibernate:
-        jdbc:
-          batch_size: 50
-          batch_versioned_data: true
-          use_get_generated_keys: true
-          use_scrollable_resultset: false
-          wrap_result_sets: false
-          time_zone: UTC
-        connection:
-          provider_disables_autocommit: true
-          release_mode: after_transaction
-          handling_mode: DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION
-        cache:
-          use_second_level_cache: false
-          use_query_cache: false
-        order_inserts: true
-        order_updates: true
-        query:
-          fail_on_pagination_over_collection_fetch: true
-          in_clause_parameter_padding: true
-        session:
-          events:
-            log: false
-            log.LOG_QUERIES_SLOWER_THAN_MS: 1000
-        generate_statistics: false
-        timezone:
-          default_storage: NORMALIZE
-        type:
-          preferred_instant_jdbc_type: TIMESTAMP
-        id:
-          new_generator_mappings: true
-        naming:
-          physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
-          implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
-    hibernate:
-      ddl-auto: none
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
@@ -153,6 +75,8 @@ spring:
 
 server:
   port: 8081
+  # make sure requests the proxy uri instead of the server one
+  forward-headers-strategy: native
 
 # ===================================================================
 # JHipster specific properties
@@ -163,13 +87,11 @@ server:
 jhipster:
   registry:
     password: admin
-  # CORS is disabled by default on microservices, as you should access them through a gateway.
-  # If you want to enable it, please uncomment the configuration below.
   cors:
-    allowed-origins: "http://localhost:5173"
-    allowed-methods: "*"
-    allowed-headers: "*"
-    exposed-headers: "Authorization,Link,X-Total-Count"
+    allowed-origins: 'http://localhost:5173'
+    allowed-methods: '*'
+    allowed-headers: '*'
+    exposed-headers: 'Authorization,Link,X-Total-Count'
     allow-credentials: true
     max-age: 1800
   security:

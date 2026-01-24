@@ -1,10 +1,11 @@
 package com.tulip.host.config;
 
-import com.tulip.host.security.AuthoritiesConstants;
+import static org.springframework.security.config.Customizer.withDefaults;
+
+import com.tulip.host.security.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -44,13 +45,17 @@ public class SecurityConfiguration {
             .csrf(csrf -> csrf.disable())
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(authz ->
-                // prettier-ignore
                 authz
-                    .requestMatchers(mvc.pattern(HttpMethod.POST,"/authenticate")).permitAll()
-                    .requestMatchers(mvc.pattern("/admin/**")).hasAuthority(AuthoritiesConstants.ADMIN)
-                    .requestMatchers(mvc.pattern("/v3/api-docs/**")).hasAuthority(AuthoritiesConstants.ADMIN)
-                    .requestMatchers(mvc.pattern("/management/**")).permitAll()
-                    .anyRequest().authenticated()
+                    .requestMatchers(mvc.pattern(HttpMethod.POST, "/authenticate"))
+                    .permitAll()
+                    .requestMatchers(mvc.pattern("/admin/**"))
+                    .hasAuthority(AuthoritiesConstants.ADMIN)
+                    .requestMatchers(mvc.pattern("/v3/api-docs/**"))
+                    .hasAuthority(AuthoritiesConstants.ADMIN)
+                    .requestMatchers(mvc.pattern("/management/**"))
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .exceptionHandling(exceptions ->
@@ -58,7 +63,7 @@ public class SecurityConfiguration {
                     .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                     .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
             )
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
         return http.build();
     }
 

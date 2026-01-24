@@ -13,8 +13,6 @@ npm-debug.log.*
 ######################
 .sass-cache/
 
-/data
-
 ######################
 # Eclipse
 ######################
@@ -66,7 +64,7 @@ out/
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
-.vscode/launch.json
+!.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
 
@@ -81,6 +79,8 @@ out/
 ######################
 .gradle/
 /build/
+/buildSrc/.gradle/
+/buildSrc/build/
 
 ######################
 # Package Files
@@ -149,5 +149,5 @@ Desktop.ini
 ######################
 # Code coverage
 ######################
-/coverage/
-/.nyc_output/
+coverage/
+.nyc_output/
