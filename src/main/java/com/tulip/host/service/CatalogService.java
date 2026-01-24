@@ -6,8 +6,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.tulip.host.domain.PurchaseLineItem;
+import com.tulip.host.repository.PurchaseLineItemRepository;
 import com.tulip.host.web.rest.vm.InventoryUpdateVM;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class CatalogService {
+    private final PurchaseLineItemRepository purchaseLineItemRepository;
 
     private final StudentRepository studentRepository;
     private final SessionRepository sessionRepository;
@@ -67,7 +72,10 @@ public class CatalogService {
 
     @Transactional
     public List<FeesCatalogDTO> fetchFeesCatalog(Long id) {
-        ClassDetail std = classDetailRepository.findById(id).orElse(null);
+        setIncentoryPrice();
+        refreshFeesCatalogCache();
+        ClassDetail std = classDetailRepository.findById(id)
+            .orElse(null);
         if (std == null || std.getFeesCatalogs() == null) {
             return Collections.emptyList();
         }
@@ -76,7 +84,8 @@ public class CatalogService {
 
     @Transactional
     public List<FeesCatalogDTO> fetchFeesCatalogByStudent(Long id) {
-        Student student = studentRepository.findById(id).orElseThrow();
+        Student student = studentRepository.findById(id)
+            .orElseThrow();
         if (CollectionUtils.isNotEmpty(student.getTransports())) {
             TransportOptDTO transportOptDTO = toTransportMapper.fromEntityList(student.getTransports());
             if (transportOptDTO != null) {
@@ -96,9 +105,37 @@ public class CatalogService {
         return Collections.emptyList();
     }
 
+
+    @Transactional
+    public void setIncentoryPrice() {
+        List<Inventory> all = inventoryRepository.findAll();
+        for (Inventory inventory : all) {
+            inventory.setMrp(inventory.getProduct()
+                .getPrice());
+            inventoryRepository.saveAndFlush(inventory);
+        }
+    }
+
+    @Transactional
+    @Async
+    public void refreshFeesCatalogCache() {
+        List<PurchaseLineItem> all = purchaseLineItemRepository.findAll();
+        all.stream()
+            .forEach(item -> {
+                Inventory inventory = item.getProduct()
+                    .getInventories()
+                    .stream()
+                    .findAny()
+                    .orElse(null);
+                item.setInventory(inventory);
+                purchaseLineItemRepository.saveAndFlush(item);
+            });
+    }
+
     @Transactional
     public List<TransportCatalogDto> fetchTransportCatalog(Long sessionId) {
-        Session session = sessionRepository.findById(sessionId).orElseThrow();
+        Session session = sessionRepository.findById(sessionId)
+            .orElseThrow();
         List<TransportCatalog> allBySession = transportCatalogRepository.findAllBySession(session);
         return transportMapper.toDtoList(allBySession);
     }
@@ -116,7 +153,8 @@ public class CatalogService {
 
             for (ProductCatalog catalog : catalogs) {
                 int totalAvailableQty = inventoryService.getTotalAvailableQuantity(catalog);
-                if(catalog.getItemName().equals("ADMISSION FORM")) {
+                if (catalog.getItemName()
+                    .equals("ADMISSION FORM")) {
                     log.info("Debug: Product {} has available qty {}", catalog.getItemName(), totalAvailableQty);
                 }
                 if (totalAvailableQty > 0) {
@@ -147,19 +185,19 @@ public class CatalogService {
     public void updateProduct(InventoryUpdateVM stockUpdateVM) {
         // Get existing inventory to access the product reference
         Inventory existingInventory = inventoryRepository.findById(stockUpdateVM.getInventoryId())
-                .orElseThrow(() -> new RuntimeException("Inventory not found with id: " + stockUpdateVM.getInventoryId()));
+            .orElseThrow(() -> new RuntimeException("Inventory not found with id: " + stockUpdateVM.getInventoryId()));
 
         ProductCatalog product = existingInventory.getProduct();
 
         // Create a NEW inventory entry for this refill (never update existing records)
         Inventory newInventoryRefill = Inventory.builder()
-                .product(product)
-                .unitPrice(stockUpdateVM.getUnitPrice())
-                .qty(stockUpdateVM.getPurchasedQty())
-                .discountPercent(stockUpdateVM.getDiscountPercent())
-                .vendor(stockUpdateVM.getVendor())
-                .active(true)
-                .build();
+            .product(product)
+            .purchasePrice(stockUpdateVM.getUnitPrice())
+            .qty(stockUpdateVM.getPurchasedQty())
+            .discountPercent(stockUpdateVM.getDiscountPercent())
+            .vendor(stockUpdateVM.getVendor())
+            .active(true)
+            .build();
 
         // If wanting to deactivate old batch, mark it inactive
         if (stockUpdateVM.isDeactivateOld()) {
@@ -170,6 +208,6 @@ public class CatalogService {
         // Save new refill entry
         inventoryRepository.saveAndFlush(newInventoryRefill);
         log.info("New inventory refill created for product {} with qty {} at price {}",
-                product.getItemName(), stockUpdateVM.getPurchasedQty(), stockUpdateVM.getUnitPrice());
+            product.getItemName(), stockUpdateVM.getPurchasedQty(), stockUpdateVM.getUnitPrice());
     }
 }

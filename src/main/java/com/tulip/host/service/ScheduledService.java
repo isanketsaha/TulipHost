@@ -2,12 +2,15 @@ package com.tulip.host.service;
 
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.ClassDetail;
+import com.tulip.host.domain.Inventory;
 import com.tulip.host.domain.Session;
 import com.tulip.host.domain.Student;
 import com.tulip.host.enums.CommunicationChannel;
 import com.tulip.host.repository.ClassDetailRepository;
+import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.service.communication.CommunicationRequest;
 import com.tulip.host.service.communication.OutboundCommunicationService;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +35,6 @@ public class ScheduledService {
     private final SessionService sessionService;
     private final OutboundCommunicationService outboundCommunicationService;
     private final MailService mailService;
-
     private final EntityManager em;
 
     @Scheduled(cron = "0 30 14 2 * ?")
@@ -62,6 +64,7 @@ public class ScheduledService {
             });
         unwrap.disableFilter("activeStudent");
     }
+
 
     private void sendNotification(Long studentId) {
         StudentDetailsDTO studentDetailsDTO = studentService.searchStudent(studentId);

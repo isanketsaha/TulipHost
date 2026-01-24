@@ -165,7 +165,9 @@
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="ASYNC_JSON"/>
         <appender-ref ref="ASYNC_ERROR"/>
-        <appender-ref ref="ASYNC_LOKI"/>
+        <springProfile name="prod">
+            <appender-ref ref="ASYNC_LOKI" />
+        </springProfile>
     </logger>
 
     <!-- Security logging -->
@@ -174,7 +176,9 @@
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="ASYNC_JSON"/>
         <appender-ref ref="ASYNC_ERROR"/>
-        <appender-ref ref="ASYNC_LOKI"/>
+        <springProfile name="prod">
+            <appender-ref ref="ASYNC_LOKI" />
+        </springProfile>
     </logger>
 
     <!-- Database logging -->
@@ -182,7 +186,9 @@
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="ASYNC_JSON"/>
-        <appender-ref ref="ASYNC_LOKI"/>
+        <springProfile name="prod">
+            <appender-ref ref="ASYNC_LOKI" />
+        </springProfile>
     </logger>
 
     <!-- Service layer logging -->
@@ -191,7 +197,9 @@
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="ASYNC_JSON"/>
         <appender-ref ref="ASYNC_ERROR"/>
-        <appender-ref ref="ASYNC_LOKI"/>
+        <springProfile name="prod">
+            <appender-ref ref="ASYNC_LOKI" />
+        </springProfile>
     </logger>
 
     <!-- REST API logging -->
@@ -200,7 +208,9 @@
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="ASYNC_JSON"/>
         <appender-ref ref="ASYNC_ERROR"/>
-        <appender-ref ref="ASYNC_LOKI"/>
+        <springProfile name="prod">
+            <appender-ref ref="ASYNC_LOKI" />
+        </springProfile>
     </logger>
 
     <!-- Exception handling logging -->
@@ -209,14 +219,18 @@
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="ASYNC_JSON"/>
         <appender-ref ref="ASYNC_ERROR"/>
-        <appender-ref ref="ASYNC_LOKI"/>
+        <springProfile name="prod">
+            <appender-ref ref="ASYNC_LOKI" />
+        </springProfile>
     </logger>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="ASYNC" />
         <appender-ref ref="ASYNC_ERROR" />
-        <appender-ref ref="ASYNC_LOKI" />
+        <springProfile name="prod">
+            <appender-ref ref="ASYNC_LOKI" />
+        </springProfile>
     </root>
 
     <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">

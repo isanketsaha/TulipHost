@@ -43,8 +43,12 @@ public class Inventory extends AbstractAuditingEntity {
     private ProductCatalog product;
 
     @NotNull
-    @Column(name = "unit_price", nullable = false)
-    private Double unitPrice;
+    @Column(name = "purchase_price", nullable = false)
+    private Double purchasePrice;
+
+    @NotNull
+    @Column(name = "mrp", nullable = false)
+    private Double mrp;
 
     @NotNull
     @Column(name = "qty", nullable = false)
