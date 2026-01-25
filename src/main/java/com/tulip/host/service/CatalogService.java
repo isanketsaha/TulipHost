@@ -72,8 +72,6 @@ public class CatalogService {
 
     @Transactional
     public List<FeesCatalogDTO> fetchFeesCatalog(Long id) {
-        setIncentoryPrice();
-        refreshFeesCatalogCache();
         ClassDetail std = classDetailRepository.findById(id)
             .orElse(null);
         if (std == null || std.getFeesCatalogs() == null) {
@@ -104,34 +102,9 @@ public class CatalogService {
 
         return Collections.emptyList();
     }
-
-
-    @Transactional
-    public void setIncentoryPrice() {
-        List<Inventory> all = inventoryRepository.findAll();
-        for (Inventory inventory : all) {
-            inventory.setMrp(inventory.getProduct()
-                .getPrice());
-            inventoryRepository.saveAndFlush(inventory);
-        }
-    }
-
-    @Transactional
-    @Async
-    public void refreshFeesCatalogCache() {
-        List<PurchaseLineItem> all = purchaseLineItemRepository.findAll();
-        all.stream()
-            .forEach(item -> {
-                Inventory inventory = item.getProduct()
-                    .getInventories()
-                    .stream()
-                    .findAny()
-                    .orElse(null);
-                item.setInventory(inventory);
-                purchaseLineItemRepository.saveAndFlush(item);
-            });
-    }
-
+    /**
+     * Fetch transport catalog for a given session
+     */
     @Transactional
     public List<TransportCatalogDto> fetchTransportCatalog(Long sessionId) {
         Session session = sessionRepository.findById(sessionId)
