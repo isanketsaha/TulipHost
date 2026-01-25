@@ -184,7 +184,7 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
                                     LeaveEvents.APPROVE.name(), role, null, leave.getEmployee()
                                     .getName());
                 }
-//                sendEmail(leave, "mail/leave-applied.vm", leaveVm.getTid() != null ? "Auto-approved" : "Submitted");
+                sendEmail(leave, "mail/leave-applied.vm", leaveVm.getTid() != null ? "Auto-approved" : "Submitted");
             } catch (Exception e) {
                 log.error("Error during leave submission: {}", e.getMessage(), e);
                 throw e;
@@ -233,7 +233,7 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
                 actionNotificationService.markAction(machineId);
                 if(!autoApproved) {
                     EmployeeLeave byId = employeeLeaveService.findById(leaveId);
-//                    sendEmail(byId, "mail/leave-applied.vm", event.name());
+                    sendEmail(byId, "mail/leave-applied.vm", event.name());
                 }
             } catch (Exception e) {
                 log.error("Error during leave approval: {}", e.getMessage(), e);

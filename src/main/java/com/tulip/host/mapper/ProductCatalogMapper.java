@@ -44,7 +44,7 @@ public abstract class ProductCatalogMapper {
         double highestPrice = source.getInventories()
                 .stream()
                 .filter(inv -> inv.getActive()) // Only consider active inventory batches
-                .mapToDouble(inventory -> inventory.getUnitPrice())
+                .mapToDouble(inventory -> inventory.getMrp())
                 .max()
                 .orElse(0.0);
         target.setPrice(highestPrice > 0 ? highestPrice : null);

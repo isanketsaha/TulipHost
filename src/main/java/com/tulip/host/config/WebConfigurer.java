@@ -60,8 +60,8 @@ public class WebConfigurer implements ServletContextInitializer {
     @Bean
     public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setMaxFileSize(DataSize.ofBytes(20000000L));
-        factory.setMaxRequestSize(DataSize.ofBytes(20000000L));
+        factory.setMaxFileSize(DataSize.ofBytes(200000L));
+        factory.setMaxRequestSize(DataSize.ofBytes(200000L));
         return factory.createMultipartConfig();
     }
 }

@@ -41,29 +41,11 @@ public interface InventoryMapper {
             ".CommonUtils.calculateDiscountPercent(source.getPurchasePrice(),source.getPrice()) : String.valueOf(source.getDiscountPercent()))"
     )
     @Mapping(
-        target = "unitPrice",
+        target = "purchasePrice",
         expression = "java(source.getPurchasePrice() == null ? com.tulip.host.utils" +
             ".CommonUtils.calculatePurchasePrice(source.getDiscountPercent(), source.getPrice()) : source.getPurchasePrice())"
     )
     Inventory toModel(ProductLoadVM source);
-//
-//    @Mapping(target = "purchasedQty", source = "qty")
-//    @Mapping(
-//        target = "availableQty",
-//        expression = "java(source.getQty() - source.getPurchaseLineItems()\n" +
-//            "            .stream()\n" +
-//            "            .mapToInt(lineItem -> lineItem.getQty())\n" +
-//            "            .sum())"
-//    )
-//    @Mapping(target = "productID", source = "product.id")
-//    @Mapping(target = "productName", source = "product.itemName")
-//    @Mapping(target = "price", expression = "java(calculateHighestInventoryPrice(source.getProduct()))")
-//    @Mapping(target = "tag", source = "product.tag")
-//    @Mapping(target = "std", source = "product.std.std")
-//    @Mapping(target = "size", source = "product.size")
-//    StockExportDTO toExportEntity(Inventory source);
-//
-//    List<StockExportDTO> toExportEntityList(List<Inventory> source);
 
     /**
      * Create aggregated InventoryItemDTO from product catalog and inventory list
@@ -148,7 +130,7 @@ public interface InventoryMapper {
         double maxPrice = inventories
             .stream()
             .filter(Inventory::getActive)
-            .mapToDouble(Inventory::getUnitPrice)
+            .mapToDouble(Inventory::getMrp)
             .max()
             .orElse(0.0);
         return maxPrice > 0 ? maxPrice : null;

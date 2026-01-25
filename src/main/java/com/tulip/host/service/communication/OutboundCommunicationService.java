@@ -48,7 +48,7 @@ public class OutboundCommunicationService {
      */
     @Transactional
     @Async
-    public void send(CommunicationRequest request) {
+    public void  send(CommunicationRequest request) {
         log.info("Preparing to send outbound communication: channel={}, recipient={}, entityType={}, entityId={}",
             request.getChannel(), Arrays.toString(request.getRecipient()), request.getEntityType(),
             request.getEntityId());

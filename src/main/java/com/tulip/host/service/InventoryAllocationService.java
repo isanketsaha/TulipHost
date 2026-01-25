@@ -81,7 +81,7 @@ public class InventoryAllocationService {
         return product.getInventories()
             .stream()
             .filter(inv -> inv.getActive())
-            .mapToDouble(Inventory::getUnitPrice)
+            .mapToDouble(Inventory::getMrp)
             .max()
             .orElseThrow(() -> new RuntimeException("No active inventory available for product: " + product.getItemName()));
     }
