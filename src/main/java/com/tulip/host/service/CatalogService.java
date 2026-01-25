@@ -2,19 +2,6 @@ package com.tulip.host.service;
 
 import static com.tulip.host.config.Constants.TRANSPORT_FEES;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import com.tulip.host.domain.PurchaseLineItem;
-import com.tulip.host.repository.PurchaseLineItemRepository;
-import com.tulip.host.web.rest.vm.InventoryUpdateVM;
-import jakarta.annotation.PostConstruct;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.tulip.host.data.FeesCatalogDTO;
 import com.tulip.host.data.ProductDTO;
 import com.tulip.host.data.TransportCatalogDto;
@@ -22,6 +9,7 @@ import com.tulip.host.data.TransportOptDTO;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Inventory;
 import com.tulip.host.domain.ProductCatalog;
+import com.tulip.host.domain.PurchaseLineItem;
 import com.tulip.host.domain.Session;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.TransportCatalog;
@@ -33,17 +21,27 @@ import com.tulip.host.mapper.TransportCatalogMapper;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.repository.ProductCatalogRepository;
+import com.tulip.host.repository.PurchaseLineItemRepository;
 import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransportCatalogRepository;
-
+import com.tulip.host.web.rest.vm.InventoryUpdateVM;
+import jakarta.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CatalogService {
+
     private final PurchaseLineItemRepository purchaseLineItemRepository;
 
     private final StudentRepository studentRepository;
@@ -72,10 +70,7 @@ public class CatalogService {
 
     @Transactional
     public List<FeesCatalogDTO> fetchFeesCatalog(Long id) {
-        setIncentoryPrice();
-        refreshFeesCatalogCache();
-        ClassDetail std = classDetailRepository.findById(id)
-            .orElse(null);
+        ClassDetail std = classDetailRepository.findById(id).orElse(null);
         if (std == null || std.getFeesCatalogs() == null) {
             return Collections.emptyList();
         }
@@ -84,13 +79,11 @@ public class CatalogService {
 
     @Transactional
     public List<FeesCatalogDTO> fetchFeesCatalogByStudent(Long id) {
-        Student student = studentRepository.findById(id)
-            .orElseThrow();
+        Student student = studentRepository.findById(id).orElseThrow();
         if (CollectionUtils.isNotEmpty(student.getTransports())) {
             TransportOptDTO transportOptDTO = toTransportMapper.fromEntityList(student.getTransports());
             if (transportOptDTO != null) {
-                FeesCatalogDTO feesCatalogDTO = FeesCatalogDTO
-                    .builder()
+                FeesCatalogDTO feesCatalogDTO = FeesCatalogDTO.builder()
                     .id(transportOptDTO.getId())
                     .name(TRANSPORT_FEES)
                     .applicableRule(FeesRuleType.MONTHLY.name())
@@ -105,37 +98,9 @@ public class CatalogService {
         return Collections.emptyList();
     }
 
-
-    @Transactional
-    public void setIncentoryPrice() {
-        List<Inventory> all = inventoryRepository.findAll();
-        for (Inventory inventory : all) {
-            inventory.setMrp(inventory.getProduct()
-                .getPrice());
-            inventoryRepository.saveAndFlush(inventory);
-        }
-    }
-
-    @Transactional
-    @Async
-    public void refreshFeesCatalogCache() {
-        List<PurchaseLineItem> all = purchaseLineItemRepository.findAll();
-        all.stream()
-            .forEach(item -> {
-                Inventory inventory = item.getProduct()
-                    .getInventories()
-                    .stream()
-                    .findAny()
-                    .orElse(null);
-                item.setInventory(inventory);
-                purchaseLineItemRepository.saveAndFlush(item);
-            });
-    }
-
     @Transactional
     public List<TransportCatalogDto> fetchTransportCatalog(Long sessionId) {
-        Session session = sessionRepository.findById(sessionId)
-            .orElseThrow();
+        Session session = sessionRepository.findById(sessionId).orElseThrow();
         List<TransportCatalog> allBySession = transportCatalogRepository.findAllBySession(session);
         return transportMapper.toDtoList(allBySession);
     }
@@ -153,8 +118,7 @@ public class CatalogService {
 
             for (ProductCatalog catalog : catalogs) {
                 int totalAvailableQty = inventoryService.getTotalAvailableQuantity(catalog);
-                if (catalog.getItemName()
-                    .equals("ADMISSION FORM")) {
+                if (catalog.getItemName().equals("ADMISSION FORM")) {
                     log.info("Debug: Product {} has available qty {}", catalog.getItemName(), totalAvailableQty);
                 }
                 if (totalAvailableQty > 0) {
@@ -184,7 +148,8 @@ public class CatalogService {
     @Transactional
     public void updateProduct(InventoryUpdateVM stockUpdateVM) {
         // Get existing inventory to access the product reference
-        Inventory existingInventory = inventoryRepository.findById(stockUpdateVM.getInventoryId())
+        Inventory existingInventory = inventoryRepository
+            .findById(stockUpdateVM.getInventoryId())
             .orElseThrow(() -> new RuntimeException("Inventory not found with id: " + stockUpdateVM.getInventoryId()));
 
         ProductCatalog product = existingInventory.getProduct();
@@ -207,7 +172,11 @@ public class CatalogService {
 
         // Save new refill entry
         inventoryRepository.saveAndFlush(newInventoryRefill);
-        log.info("New inventory refill created for product {} with qty {} at price {}",
-            product.getItemName(), stockUpdateVM.getPurchasedQty(), stockUpdateVM.getUnitPrice());
+        log.info(
+            "New inventory refill created for product {} with qty {} at price {}",
+            product.getItemName(),
+            stockUpdateVM.getPurchasedQty(),
+            stockUpdateVM.getUnitPrice()
+        );
     }
 }
