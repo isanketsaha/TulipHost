@@ -2,8 +2,6 @@ package com.tulip.host.web.rest.errors;
 
 import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
 
-import com.tulip.host.domain.Audit;
-import com.tulip.host.repository.AuditRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.Arrays;
@@ -11,10 +9,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.ConcurrencyFailureException;
@@ -22,7 +19,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.lang.Nullable;
@@ -35,7 +31,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import tech.jhipster.config.JHipsterConstants;
@@ -48,7 +43,6 @@ import tech.jhipster.web.util.HeaderUtil;
  * The error response follows RFC7807 - Problem Details for HTTP APIs (https://tools.ietf.org/html/rfc7807).
  */
 @ControllerAdvice
-@Slf4j
 public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
     private static final String FIELD_ERRORS_KEY = "fieldErrors";
@@ -56,11 +50,10 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     private static final String PATH_KEY = "path";
     private static final boolean CASUAL_CHAIN_ENABLED = false;
 
+    private static final Logger LOG = LoggerFactory.getLogger(ExceptionTranslator.class);
+
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
-
-    @Autowired
-    AuditRepository auditRepository;
 
     private final Environment env;
 
@@ -70,11 +63,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<Object> handleAnyException(Throwable ex, NativeWebRequest request) {
-        String errorMessage = ex.getMessage();
-        if (errorMessage == null || errorMessage.trim().isEmpty()) {
-            errorMessage = "Unknown error occurred";
-        }
-        log.error("Exception occurred: {}", errorMessage, ex);
+        LOG.debug("Converting Exception to Problem Details:", ex);
         ProblemDetailWithCause pdCause = wrapAndCustomizeProblem(ex, request);
         return handleExceptionInternal((Exception) ex, pdCause, buildHeaders(ex), HttpStatusCode.valueOf(pdCause.getStatus()), request);
     }
@@ -88,57 +77,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         HttpStatusCode statusCode,
         WebRequest request
     ) {
-        //        log.error(" Body :  %s , \n Header = %s ,\n StatusCode = %s , \n Request = %s \n",body, headers, statusCode, request);
         body = body == null ? wrapAndCustomizeProblem((Throwable) ex, (NativeWebRequest) request) : body;
-        if (body instanceof ProblemDetailWithCause) {
-            String description = ((ProblemDetailWithCause) body).getDetail();
-            if (description == null || description.trim().isEmpty()) {
-                description = "Unknown error occurred";
-            }
-
-            String metadata = ((ProblemDetailWithCause) body).getProperties()
-                    .values()
-                    .stream()
-                    .map(Object::toString)
-                    .collect(Collectors.joining(" - "));
-
-            if (metadata == null || metadata.trim().isEmpty()) {
-                metadata = "No additional metadata available";
-            }
-
-            Audit error = Audit
-                    .builder()
-                    .description(description)
-                    .type("ERROR")
-                    .metadata(metadata)
-                .build();
-            try {
-                auditRepository.save(error);
-            } catch (Exception auditException) {
-                log.error("Failed to save audit entry: {}", auditException.getMessage());
-            }
-        } else if (body instanceof ProblemDetail) {
-            String description = ((ProblemDetail) body).getTitle();
-            if (description == null || description.trim().isEmpty()) {
-                description = "Unknown error occurred";
-            }
-
-            String detail = ((ProblemDetail) body).getDetail();
-            String requestUri = ((ServletWebRequest) request).getRequest().getRequestURI();
-            String metadata = (detail != null ? detail : "No detail") + " - " + requestUri;
-
-            Audit error = Audit
-                .builder()
-                    .description(description)
-                .type("ERROR")
-                    .metadata(metadata)
-                .build();
-            try {
-                auditRepository.save(error);
-            } catch (Exception auditException) {
-                log.error("Failed to save audit entry: {}", auditException.getMessage());
-            }
-        }
         return super.handleExceptionInternal(ex, body, headers, statusCode, request);
     }
 
@@ -221,11 +160,9 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         // Let the ErrorResponse take this responsibility
         if (throwable instanceof ErrorResponse err) return HttpStatus.valueOf(err.getBody().getStatus());
 
-        return Optional
-            .ofNullable(getMappedStatus(throwable))
-            .orElse(
-                Optional.ofNullable(resolveResponseStatus(throwable)).map(ResponseStatus::value).orElse(HttpStatus.INTERNAL_SERVER_ERROR)
-            );
+        return Optional.ofNullable(getMappedStatus(throwable)).orElse(
+            Optional.ofNullable(resolveResponseStatus(throwable)).map(ResponseStatus::value).orElse(HttpStatus.INTERNAL_SERVER_ERROR)
+        );
     }
 
     private ResponseStatus extractResponseStatus(final Throwable throwable) {

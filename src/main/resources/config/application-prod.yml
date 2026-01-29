@@ -16,28 +16,9 @@
 logging:
   level:
     ROOT: INFO
-#    tech.jhipster: WARN
-#    com.tulip.host: INFO
-#    # Minimal logging for different layers - only errors and important events
-#    com.tulip.host.web.rest: WARN
-#    com.tulip.host.service: WARN
-#    com.tulip.host.repository: WARN
-#    com.tulip.host.security: INFO
-#    com.tulip.host.web.rest.errors: INFO
-#    # Performance monitoring - only slow queries
-#    org.hibernate.SQL: ERROR
-#    org.hibernate.type.descriptor.sql.BasicBinder: ERROR
-#    # Security logging - only failures
-#    org.springframework.security: WARN
-#    # Database connection logging - only errors
-#    com.zaxxer.hikari: ERROR
-#    # HTTP request logging - only errors
-#    org.springframework.web: WARN
-#    # Cache logging - only errors
-#    org.springframework.cache: ERROR
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n'
 
 #eureka:
 #  instance:

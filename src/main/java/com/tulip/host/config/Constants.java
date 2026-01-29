@@ -1,5 +1,7 @@
 package com.tulip.host.config;
 
+import java.time.format.DateTimeFormatter;
+
 /**
  * Application constants.
  */
@@ -39,6 +41,7 @@ public final class Constants {
     public static final String TRANSPORT_FEES = "TRANSPORT FEES";
 
     public static final String INVOICE = "INVOICE";
+    public static final DateTimeFormatter DD_MM_YYYY_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private Constants() {}
 }

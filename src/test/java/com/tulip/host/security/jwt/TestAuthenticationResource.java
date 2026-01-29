@@ -1,5 +1,7 @@
 package com.tulip.host.security.jwt;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -11,11 +13,9 @@ public class TestAuthenticationResource {
 
     /**
      * {@code GET  /authenticate} : check if the authentication token correctly validates
-     *
-     * @return ok.
      */
     @GetMapping("/authenticate")
-    public String isAuthenticated() {
-        return "ok";
+    public ResponseEntity<Void> isAuthenticated() {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

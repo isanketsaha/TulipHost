@@ -12,11 +12,9 @@ import com.tulip.host.domain.Employee;
 import com.tulip.host.domain.Student;
 import com.tulip.host.service.UploadService;
 import com.tulip.host.web.rest.vm.OnboardingVM;
-
+import com.tulip.host.web.rest.vm.UserEditVM;
 import java.util.Collections;
 import java.util.List;
-
-import com.tulip.host.web.rest.vm.UserEditVM;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.AfterMapping;
@@ -30,14 +28,13 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(
     componentModel = "spring",
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-    uses = {DependentMapper.class, BankMapper.class, InterviewMapper.class, CredentialMapper.class, UploadMapper.class}
+    uses = { DependentMapper.class, BankMapper.class, InterviewMapper.class, CredentialMapper.class, UploadMapper.class }
 )
 public interface EmployeeMapper {
     @Mapping(target = "authority", source = "group.authority")
     @Mapping(target = "dependent", source = "dependents")
     @Mapping(target = "userName", source = "credential.userId")
     EmployeeDetailsDTO toEntity(Employee source, @Context UploadService service);
-
 
     void toUpdateModel(UserEditVM editVM, @MappingTarget Employee employee);
 
@@ -60,15 +57,11 @@ public interface EmployeeMapper {
 
     List<EmployeeDetailsDTO> toEntityList(List<Employee> source);
 
-
     List<EmployeeBasicDTO> toBasicEntityList(List<Employee> source);
 
     @Named("findClassTeacher")
     default String getClassTeacher(Employee source) {
-        ClassDetail classDetail = source.getClassDetails()
-            .stream()
-            .findFirst()
-            .orElse(null);
+        ClassDetail classDetail = source.getClassDetails().stream().findFirst().orElse(null);
         return classDetail != null ? classDetail.getStd() : NOT_AVAILABLE;
     }
 
@@ -87,10 +80,7 @@ public interface EmployeeMapper {
 
     @AfterMapping
     default void map(@MappingTarget JoiningLetterDTO target, Employee source) {
-        Dependent dependent = source.getDependents()
-            .stream()
-            .findFirst()
-            .orElse(null);
+        Dependent dependent = source.getDependents().stream().findFirst().orElse(null);
         if (dependent != null) {
             target.setDependentName(dependent.getName());
             target.setDependentAadhar(dependent.getAadhaarNo());
@@ -101,24 +91,21 @@ public interface EmployeeMapper {
     @AfterMapping
     default void map(@MappingTarget EmployeeBasicDTO target, Employee source, @Context UploadService service) {
         target.setProfilePictureUrl(
-            source.getProfilePicture() != null ? service.getURL(source.getProfilePicture()
-                .getUid()) : StringUtils.EMPTY
+            source.getProfilePicture() != null ? service.getURL(source.getProfilePicture().getUid()) : StringUtils.EMPTY
         );
     }
 
     @AfterMapping
     default void map(@MappingTarget EmployeeDetailsDTO target, Employee source, @Context UploadService service) {
         target.setProfilePictureUrl(
-            source.getProfilePicture() != null ? service.getURL(source.getProfilePicture()
-                .getUid()) : StringUtils.EMPTY
+            source.getProfilePicture() != null ? service.getURL(source.getProfilePicture().getUid()) : StringUtils.EMPTY
         );
     }
 
     @AfterMapping
     default void map(UserEditVM editVM, @MappingTarget Employee employee) {
         if (editVM.getBloodGroup() != null) {
-            employee.setBloodGroup(editVM.getBloodGroup()
-                .getDisplayType());
+            employee.setBloodGroup(editVM.getBloodGroup().getDisplayType());
         }
     }
 }

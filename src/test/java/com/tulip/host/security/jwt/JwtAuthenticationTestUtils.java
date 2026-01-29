@@ -1,6 +1,7 @@
 package com.tulip.host.security.jwt;
 
-import static com.tulip.host.security.SecurityUtils.AUTHORITIES_KEY;
+import static com.tulip.host.security.AuthoritiesConstants.ADMIN;
+import static com.tulip.host.security.SecurityUtils.AUTHORITIES_CLAIM;
 import static com.tulip.host.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
@@ -49,12 +50,11 @@ public class JwtAuthenticationTestUtils {
 
         var now = Instant.now();
 
-        JwtClaimsSet claims = JwtClaimsSet
-            .builder()
+        JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuedAt(now)
             .expiresAt(now.plusSeconds(60))
             .subject(user)
-            .claims(customClain -> customClain.put(AUTHORITIES_KEY, Collections.singletonList("ROLE_ADMIN")))
+            .claims(customClaim -> customClaim.put(AUTHORITIES_CLAIM, Collections.singletonList(ADMIN)))
             .build();
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
@@ -85,7 +85,7 @@ public class JwtAuthenticationTestUtils {
         return encoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }
 
-    public static String createInvalidToken(String jwtKey) throws Exception {
+    public static String createInvalidToken(String jwtKey) {
         return createValidToken(jwtKey).substring(1);
     }
 

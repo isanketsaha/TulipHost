@@ -1,37 +1,37 @@
 package com.tulip.host;
 
+import com.tulip.host.config.ApplicationProperties;
+import com.tulip.host.config.CRLFLogConverter;
+import jakarta.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.statemachine.config.EnableStateMachine;
-
-import com.tulip.host.config.ApplicationProperties;
-import com.tulip.host.config.CRLFLogConverter;
-
-import jakarta.annotation.PostConstruct;
 import tech.jhipster.config.DefaultProfileUtil;
 import tech.jhipster.config.JHipsterConstants;
 
 @SpringBootApplication
-@EnableConfigurationProperties({ ApplicationProperties.class })
+@EnableConfigurationProperties({ ApplicationProperties.class, LiquibaseProperties.class })
 @EnableStateMachine
 @EnableJpaRepositories("com.tulip.host.repository")
 @EntityScan("com.tulip.host.domain")
+@EnableFeignClients
 public class TulipHostApp {
 
-    private static final Logger log = LoggerFactory.getLogger(TulipHostApp.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TulipHostApp.class);
 
     private final Environment env;
 
@@ -53,15 +53,15 @@ public class TulipHostApp {
             activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT) &&
             activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_PRODUCTION)
         ) {
-            log.error(
-                "You misconfigured your application! It should not run " + "with both the 'dev' and 'prod' profiles at the same time."
+            LOG.error(
+                "You have misconfigured your application! It should not run " + "with both the 'dev' and 'prod' profiles at the same time."
             );
         }
         if (
             activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT) &&
             activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_CLOUD)
         ) {
-            log.error(
+            LOG.error(
                 "You have misconfigured your application! It should not " + "run with both the 'dev' and 'cloud' profiles at the same time."
             );
         }
@@ -83,17 +83,16 @@ public class TulipHostApp {
         String protocol = Optional.ofNullable(env.getProperty("server.ssl.key-store")).map(key -> "https").orElse("http");
         String applicationName = env.getProperty("spring.application.name");
         String serverPort = env.getProperty("server.port");
-        String contextPath = Optional
-            .ofNullable(env.getProperty("server.servlet.context-path"))
+        String contextPath = Optional.ofNullable(env.getProperty("server.servlet.context-path"))
             .filter(StringUtils::isNotBlank)
             .orElse("/");
         String hostAddress = "localhost";
         try {
             hostAddress = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
-            log.warn("The host name could not be determined, using `localhost` as fallback");
+            LOG.warn("The host name could not be determined, using `localhost` as fallback");
         }
-        log.info(
+        LOG.info(
             CRLFLogConverter.CRLF_SAFE_MARKER,
             """
 
@@ -118,7 +117,7 @@ public class TulipHostApp {
         if (configServerStatus == null) {
             configServerStatus = "Not found or not setup for this application";
         }
-        log.info(
+        LOG.info(
             CRLFLogConverter.CRLF_SAFE_MARKER,
             "\n----------------------------------------------------------\n\t" +
             "Config Server: \t{}\n----------------------------------------------------------",

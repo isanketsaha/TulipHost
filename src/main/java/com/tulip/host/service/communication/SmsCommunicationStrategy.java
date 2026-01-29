@@ -1,22 +1,19 @@
 package com.tulip.host.service.communication;
 
+import static com.tulip.host.utils.CommonUtils.isProdProfile;
+
+import com.tulip.host.client.MessageCommunication;
+import com.tulip.host.client.SmsRequest;
+import com.tulip.host.config.ApplicationProperties;
+import com.tulip.host.domain.OutboundCommunication;
+import com.tulip.host.enums.CommunicationChannel;
+import jakarta.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.tulip.host.domain.OutboundCommunication;
-import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.type.PhoneNumber;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-
-import com.tulip.host.config.ApplicationProperties;
-import com.tulip.host.enums.CommunicationChannel;
-import com.twilio.Twilio;
-
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import static com.tulip.host.utils.CommonUtils.isProdProfile;
 
 @Service
 @RequiredArgsConstructor
@@ -25,14 +22,11 @@ public class SmsCommunicationStrategy implements CommunicationStrategy {
     public static final int COUNTRY_CODE = +91;
     private final ApplicationProperties properties;
 
+    private MessageCommunication messageCommunication;
     private final Environment env;
 
     @PostConstruct
-    void init() {
-        Twilio.init(properties.getTwilioConfig()
-            .getAccountSid(), properties.getTwilioConfig()
-            .getKey());
-    }
+    void init() {}
 
     @Override
     public CommunicationChannel channel() {
@@ -44,14 +38,15 @@ public class SmsCommunicationStrategy implements CommunicationStrategy {
         boolean isProd = isProdProfile(env.getActiveProfiles());
         String sid = Arrays.stream(request.getRecipient())
             .map(to -> {
-                Message message = Message.creator(
-                        new PhoneNumber(COUNTRY_CODE + (isProd ? to : properties.getTwilioConfig()
-                            .getDefaultPhone())), properties.getTwilioConfig()
-                            .getMessageSid(), request.getContent())
-                    .create();
-                System.out.println(message.getSid());
-                outboundCommunication.setProviderMessageId(message.getSid());
-                return message.getSid();
+                //                Message message = Message.creator(
+                //                        new PhoneNumber(COUNTRY_CODE + (isProd ? to : properties.getTwilioConfig()
+                //                            .getDefaultPhone())), properties.getTwilioConfig()
+                //                            .getMessageSid(), request.getContent())
+                //                    .create();
+                //                System.out.println(message.getSid());
+                //                outboundCommunication.setProviderMessageId(message.getSid());
+                //                return message.getSid();
+                return "SMxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
             })
             .collect(Collectors.joining(", "));
         outboundCommunication.setProviderMessageId(sid);

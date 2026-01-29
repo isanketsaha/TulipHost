@@ -1,5 +1,7 @@
 package com.tulip.host.service;
 
+import com.tulip.host.domain.Employee;
+import jakarta.mail.internet.MimeMessage;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -7,8 +9,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
-
 import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -21,11 +23,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import com.tulip.host.domain.Employee;
-
-import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import tech.jhipster.config.JHipsterProperties;
 
 /**
@@ -57,6 +54,7 @@ public class MailService {
     @lombok.Getter
     @Builder
     public static class EmailAttachment {
+
         private final String filename;
         private final byte[] content;
 
@@ -72,15 +70,24 @@ public class MailService {
     }
 
     @Async
-    public void sendEmail(String[] to, String[] cc, String subject, String content, boolean isMultipart, boolean isHtml, List<EmailAttachment> attachments) {
+    public void sendEmail(
+        String[] to,
+        String[] cc,
+        String subject,
+        String content,
+        boolean isMultipart,
+        boolean isHtml,
+        List<EmailAttachment> attachments
+    ) {
         subject = appendEnvToSubjectIfNotProd(subject);
-        log.debug(
-                "Send email[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}",
-                isMultipart,
-                isHtml,
-                to,
-                subject,
-                content);
+        log.info(
+            "Send email[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}",
+            isMultipart,
+            isHtml,
+            to,
+            subject,
+            content
+        );
 
         // Prepare message using a Spring helper
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -129,39 +136,42 @@ public class MailService {
     }
 
     public void sendEmailFromTemplate(
-            String[] to,
-            String[] cc,
-            String templateName,
-            String titleKey,
-            Map<String, Object> variables,
-            Locale locale,
-            boolean isMultipart) {
+        String[] to,
+        String[] cc,
+        String templateName,
+        String titleKey,
+        Map<String, Object> variables,
+        Locale locale,
+        boolean isMultipart
+    ) {
         sendEmailFromTemplate(to, cc, templateName, titleKey, variables, locale, isMultipart, null);
     }
 
     public void sendEmailFromTemplate(
-            String[] to,
-            String[] cc,
-            String templateName,
-            String titleKey,
-            Map<String, Object> variables,
-            Locale locale,
-            boolean isMultipart,
-            List<EmailAttachment> attachments) {
+        String[] to,
+        String[] cc,
+        String templateName,
+        String titleKey,
+        Map<String, Object> variables,
+        Locale locale,
+        boolean isMultipart,
+        List<EmailAttachment> attachments
+    ) {
         String subject = messageSource.getMessage(titleKey, null, locale);
         String content = renderTemplate(templateName, variables);
         sendEmail(to, cc, subject, content, isMultipart, true, attachments);
     }
 
     private String appendEnvToSubjectIfNotProd(String subject) {
-       String label = !env.getDefaultProfiles()[0].equalsIgnoreCase("prod") ? env.getDefaultProfiles()[0].toUpperCase() : "";
+        String label = !env.getDefaultProfiles()[0].equalsIgnoreCase("prod") ? env.getDefaultProfiles()[0].toUpperCase() : "";
         return "[" + label + "] " + subject;
     }
 
     public String renderTemplate(String templateName, Map<String, Object> variables) {
         try {
             Template template = templateEngine.getTemplate(templateName, StandardCharsets.UTF_8.name());
-            VelocityContext context = new VelocityContext(variables);
+            VelocityContext context = new VelocityContext();
+            variables.entrySet().stream().forEach(item -> context.put(item.getKey(), item.getValue()));
             StringWriter writer = new StringWriter();
             template.merge(context, writer);
             return writer.toString();
@@ -176,13 +186,14 @@ public class MailService {
      */
     @Async
     public void sendEmailFromTemplate(
-            String[] to,
-            String[] cc,
-            Employee user,
-            String templateName,
-            String titleKey,
-            Locale locale,
-            boolean isMultipart) {
+        String[] to,
+        String[] cc,
+        Employee user,
+        String templateName,
+        String titleKey,
+        Locale locale,
+        boolean isMultipart
+    ) {
         Map<String, Object> model = new HashMap<>();
         model.put("user", user);
         sendEmailFromTemplate(to, cc, templateName, titleKey, model, locale, isMultipart, null);
@@ -193,18 +204,17 @@ public class MailService {
      */
     @Async
     public void sendEmailFromTemplate(
-            String[] to,
-            String[] cc,
-            Employee user,
-            String templateName,
-            String titleKey,
-            Locale locale,
-            boolean isMultipart,
-            List<EmailAttachment> attachments) {
+        String[] to,
+        String[] cc,
+        Employee user,
+        String templateName,
+        String titleKey,
+        Locale locale,
+        boolean isMultipart,
+        List<EmailAttachment> attachments
+    ) {
         Map<String, Object> model = new HashMap<>();
         model.put("user", user);
         sendEmailFromTemplate(to, cc, templateName, titleKey, model, locale, isMultipart, attachments);
     }
-
 }
-
