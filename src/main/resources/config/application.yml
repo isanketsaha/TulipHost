@@ -254,11 +254,19 @@ info:
 jhipster:
   clientApp:
     name: 'tulipHostApp'
+  # By default CORS is disabled. Uncomment to enable.
+  cors:
+    allowed-origins: 'https://www.tulipschool.co.in/,https://tulipschool.co.in/'
+    allowed-methods: '*'
+    allowed-headers: '*'
+    exposed-headers: 'Authorization,Link,X-Total-Count,X-${jhipster.clientApp.name}-alert,X-${jhipster.clientApp.name}-error,X-${jhipster.clientApp.name}-params'
+    allow-credentials: true
+    max-age: 1800
   mail:
     from: bot@tulipschool.co.in
   api-docs:
-    default-include-pattern: /api/**
-    management-include-pattern: /management/**
+    default-include-pattern: ${server.servlet.context-path:}/api/**
+    management-include-pattern: ${server.servlet.context-path:}/management/**
     title: Tulip Host API
     description: Tulip Host API documentation
     version: 0.0.1
