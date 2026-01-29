@@ -2,7 +2,7 @@ package com.tulip.host.utils;
 
 import com.tulip.host.domain.Employee;
 import com.tulip.host.enums.UserRoleEnum;
-
+import com.tulip.host.repository.EmployeeRepository;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Period;
@@ -11,8 +11,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.tulip.host.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -28,8 +26,7 @@ public class CommonUtils {
 
     public static Integer calculateAge(LocalDate birthday) {
         if (birthday != null) {
-            return Period.between(birthday, LocalDate.now())
-                .getYears();
+            return Period.between(birthday, LocalDate.now()).getYears();
         }
         return 0;
     }
@@ -73,29 +70,22 @@ public class CommonUtils {
     }
 
     public static String getMonthName(int month) {
-        return Month.of(month)
-            .name();
+        return Month.of(month).name();
     }
 
     public static List<UserRoleEnum> findEligibleUG() {
-        Authentication authentication = SecurityContextHolder.getContext()
-            .getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        String UG = authorities.stream()
-            .map(GrantedAuthority::getAuthority)
-            .findFirst()
-            .orElseThrow();
+        String UG = authorities.stream().map(GrantedAuthority::getAuthority).findFirst().orElseThrow();
 
         UserRoleEnum userRoleEnum = UserRoleEnum.valueOf(UG.split("_")[1]);
-        return Arrays
-            .stream(UserRoleEnum.values())
+        return Arrays.stream(UserRoleEnum.values())
             .filter(group -> group.getPriority() <= userRoleEnum.getPriority())
             .collect(Collectors.toList());
     }
 
     public static boolean isProdProfile(String[] profiles) {
-        log.info("Active profiles: {}", Arrays.toString(profiles));
-        return Arrays.stream(profiles)
-            .anyMatch(n -> n.toLowerCase().equals("prod"));
+        log.debug("Active profiles: {}", Arrays.toString(profiles));
+        return Arrays.stream(profiles).anyMatch(n -> n.toLowerCase().equals("prod"));
     }
 }

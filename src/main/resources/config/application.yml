@@ -56,6 +56,24 @@ feign:
       default:
         connectTimeout: 5000
         readTimeout: 5000
+        loggerLevel: basic
+      # Service-specific config
+      eOffice:
+        url: https://api.etimeoffice.com/api/
+        connectTimeout: 5000
+        readTimeout: 5000
+      msg-gateway:
+        url: https://control.msg91.com/api/v5
+        connectTimeout: 5000
+        readTimeout: 5000
+
+# Application Feign auth configuration
+app:
+  feign:
+    auth:
+      tokens:
+        eoffice: 'Basic VHVsaXBTY2hvb2w6dHVsaXBhZG1pbjpSYWtoaUAwNjp0cnVlOg=='
+        msg-gateway: 'Bearer payment-token-abc'
 management:
   endpoints:
     web:
@@ -93,7 +111,7 @@ management:
       enabled: true
   health:
     mail:
-      enabled: false # When using the MailService, configure an SMTP server and set this to true
+      enabled: true # When using the MailService, configure an SMTP server and set this to true
   prometheus:
     metrics:
       export:
@@ -273,7 +291,7 @@ application:
     account_sid: ${twilio.asid}
     key: ${twilio.key}
     message_sid: ${twilio.msid}
-    default_email: ${default.email:null}
+    default_email: ${default.email:sanketsaha@gmail.com}
     default_phone: ${default.phone:null}
   tinyurl:
     key: ${tinyurl.key}

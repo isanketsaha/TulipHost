@@ -2,6 +2,8 @@ package com.tulip.host.service.communication;
 
 import static com.tulip.host.utils.CommonUtils.isProdProfile;
 
+import com.tulip.host.client.MessageCommunication;
+import com.tulip.host.client.SmsRequest;
 import com.tulip.host.config.ApplicationProperties;
 import com.tulip.host.domain.OutboundCommunication;
 import com.tulip.host.enums.CommunicationChannel;
@@ -20,6 +22,7 @@ public class SmsCommunicationStrategy implements CommunicationStrategy {
     public static final int COUNTRY_CODE = +91;
     private final ApplicationProperties properties;
 
+    private MessageCommunication messageCommunication;
     private final Environment env;
 
     @PostConstruct

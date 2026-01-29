@@ -1,19 +1,17 @@
 package com.tulip.host.repository;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
 import com.tulip.host.data.LeaveBalanceDTO;
 import com.tulip.host.domain.EmployeeLeave;
 import com.tulip.host.domain.Session;
 import com.tulip.host.enums.LeaveStatus;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EmployeeLeaveRepository extends JpaRepository<EmployeeLeave, Long> {
-
     Map<String, List<LeaveBalanceDTO>> findLeaveBalance();
     List<EmployeeLeave> findByEmployeeId(Long employeeId);
 
@@ -26,4 +24,6 @@ public interface EmployeeLeaveRepository extends JpaRepository<EmployeeLeave, Lo
     List<EmployeeLeave> findByDateRange(String fromDate, String toDate);
 
     List<EmployeeLeave> findByStatus(LeaveStatus status);
+
+    List<EmployeeLeave> findLeaveBalanceByTid(String tid, LocalDate fromDate, LocalDate toDate);
 }
