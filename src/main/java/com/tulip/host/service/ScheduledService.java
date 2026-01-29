@@ -91,7 +91,7 @@ public class ScheduledService {
         );
     }
 
-    @Scheduled(cron = "* * * * * ?")
+    @Scheduled(cron = "* * * 2 * ?")
     @Transactional
     public void createAttendance() {
         log.info("Starting scheduled task: createAttendance");
