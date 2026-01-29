@@ -98,6 +98,9 @@ public class CatalogService {
         return Collections.emptyList();
     }
 
+    /**
+     * Fetch transport catalog for a given session
+     */
     @Transactional
     public List<TransportCatalogDto> fetchTransportCatalog(Long sessionId) {
         Session session = sessionRepository.findById(sessionId).orElseThrow();
