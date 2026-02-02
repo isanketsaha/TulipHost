@@ -79,19 +79,19 @@ public class ScheduledService {
             "className",
             studentDetailsDTO.getClassDetails().stream().findFirst().orElseThrow().getStd()
         );
-        outboundCommunicationService.send(
-            CommunicationRequest.builder()
-                .channel(CommunicationChannel.SMS)
-                .recipient(new String[] { studentDetailsDTO.getPhoneNumber() })
-                .content(mailService.renderTemplate("mail/due.vm", map))
-                .subject("FEES_DUES_NOTIFICATION")
-                .entityType("STUDENT")
-                .entityId(studentDetailsDTO.getId())
-                .build()
-        );
+        //        outboundCommunicationService.send(
+        //            CommunicationRequest.builder()
+        //                .channel(CommunicationChannel.SMS)
+        //                .recipient(new String[] { studentDetailsDTO.getPhoneNumber() })
+        //                .content(mailService.renderTemplate("mail/due.vm", map))
+        //                .subject("FEES_DUES_NOTIFICATION")
+        //                .entityType("STUDENT")
+        //                .entityId(studentDetailsDTO.getId())
+        //                .build()
+        //        );
     }
 
-    @Scheduled(cron = "* * * 2 * ?")
+    @Scheduled(cron = "0 0 6 3 * ?")
     @Transactional
     public void createAttendance() {
         log.info("Starting scheduled task: createAttendance");
