@@ -70,19 +70,19 @@ public class ScheduledService {
             "className",
             studentDetailsDTO.getClassDetails().stream().findFirst().orElseThrow().getStd()
         );
-        // outboundCommunicationService.send(
-        // CommunicationRequest.builder()
-        // .channel(CommunicationChannel.SMS)
-        // .recipient(new String[] { studentDetailsDTO.getPhoneNumber() })
-        // .content(mailService.renderTemplate("mail/due.vm", map))
-        // .subject("FEES_DUES_NOTIFICATION")
-        // .entityType("STUDENT")
-        // .entityId(studentDetailsDTO.getId())
-        // .build()
-        // );
+        //        outboundCommunicationService.send(
+        //            CommunicationRequest.builder()
+        //                .channel(CommunicationChannel.SMS)
+        //                .recipient(new String[] { studentDetailsDTO.getPhoneNumber() })
+        //                .content(mailService.renderTemplate("mail/due.vm", map))
+        //                .subject("FEES_DUES_NOTIFICATION")
+        //                .entityType("STUDENT")
+        //                .entityId(studentDetailsDTO.getId())
+        //                .build()
+        //        );
     }
 
-    @Scheduled(cron = "0 0 6 4 * ?")
+    @Scheduled(cron = "0 0 6 3 * ?")
     @Transactional
     public void createAttendance() {
         log.info("Starting scheduled task: createAttendance");
@@ -91,7 +91,7 @@ public class ScheduledService {
             LocalDate lastMonthStart = month.withDayOfMonth(1);
             LocalDate lastMonthEnd = month.with(TemporalAdjusters.lastDayOfMonth());
 
-            log.info("Fetching attendance data for period: {} to {}", lastMonthStart, lastMonthEnd);
+            log.debug("Fetching attendance data for period: {} to {}", lastMonthStart, lastMonthEnd);
 
             Map<String, AttendanceSummaryDTO> attendanceSummary = eOfficeApiService.getTimesheetSummary(
                 "ALL",
