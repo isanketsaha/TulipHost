@@ -3,30 +3,21 @@ package com.tulip.host.service;
 import com.tulip.host.data.AttendanceSummaryDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.ClassDetail;
-import com.tulip.host.domain.Inventory;
 import com.tulip.host.domain.Session;
 import com.tulip.host.domain.Student;
-import com.tulip.host.enums.CommunicationChannel;
 import com.tulip.host.repository.ClassDetailRepository;
-import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.service.communication.CommunicationRequest;
 import com.tulip.host.service.communication.OutboundCommunicationService;
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.velocity.VelocityContext;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -79,19 +70,19 @@ public class ScheduledService {
             "className",
             studentDetailsDTO.getClassDetails().stream().findFirst().orElseThrow().getStd()
         );
-        //        outboundCommunicationService.send(
-        //            CommunicationRequest.builder()
-        //                .channel(CommunicationChannel.SMS)
-        //                .recipient(new String[] { studentDetailsDTO.getPhoneNumber() })
-        //                .content(mailService.renderTemplate("mail/due.vm", map))
-        //                .subject("FEES_DUES_NOTIFICATION")
-        //                .entityType("STUDENT")
-        //                .entityId(studentDetailsDTO.getId())
-        //                .build()
-        //        );
+        // outboundCommunicationService.send(
+        // CommunicationRequest.builder()
+        // .channel(CommunicationChannel.SMS)
+        // .recipient(new String[] { studentDetailsDTO.getPhoneNumber() })
+        // .content(mailService.renderTemplate("mail/due.vm", map))
+        // .subject("FEES_DUES_NOTIFICATION")
+        // .entityType("STUDENT")
+        // .entityId(studentDetailsDTO.getId())
+        // .build()
+        // );
     }
 
-    @Scheduled(cron = "0 0 6 3 * ?")
+    @Scheduled(cron = "0 0 6 4 * ?")
     @Transactional
     public void createAttendance() {
         log.info("Starting scheduled task: createAttendance");
@@ -100,7 +91,7 @@ public class ScheduledService {
             LocalDate lastMonthStart = month.withDayOfMonth(1);
             LocalDate lastMonthEnd = month.with(TemporalAdjusters.lastDayOfMonth());
 
-            log.debug("Fetching attendance data for period: {} to {}", lastMonthStart, lastMonthEnd);
+            log.info("Fetching attendance data for period: {} to {}", lastMonthStart, lastMonthEnd);
 
             Map<String, AttendanceSummaryDTO> attendanceSummary = eOfficeApiService.getTimesheetSummary(
                 "ALL",
