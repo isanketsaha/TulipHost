@@ -257,7 +257,7 @@ public class EmployeeService {
                     MediaType.APPLICATION_PDF_VALUE,
                     JOINING_LETTER,
                     uploadService.getDocsBucket(),
-                    "employee/" + employeeName
+                    "employee/enrollment" + employeeName
                 );
                 joining_letter.setName(byId.getName());
                 attachEmployment(empId, joining_letter);

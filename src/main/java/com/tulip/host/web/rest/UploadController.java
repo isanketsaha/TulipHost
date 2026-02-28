@@ -26,7 +26,7 @@ public class UploadController {
 
     private final UploadService uploadService;
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
     public String save(@RequestParam("documents") MultipartFile documents, @RequestParam(required = false) String prefix)
         throws FileUploadException {
         log.info(documents.toString());
