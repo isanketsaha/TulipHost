@@ -14,12 +14,10 @@ import com.tulip.host.web.rest.vm.ExpenseVm;
 import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.PayVM;
 import jakarta.validation.Valid;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.xml.bind.ValidationException;
-
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.fileupload.FileUploadException;
 import org.springframework.data.domain.PageImpl;
@@ -44,8 +42,7 @@ public class PaymentController {
     private final UploadService uploadService;
 
     @PostMapping
-    public Long pay(@Valid @RequestBody PayVM payVM)
-        throws jakarta.xml.bind.ValidationException {
+    public Long pay(@Valid @RequestBody PayVM payVM) throws jakarta.xml.bind.ValidationException {
         Long paymentId;
         if (payVM.getPayType() == PayTypeEnum.FEES) {
             paymentId = paymentService.payFees(payVM);
@@ -56,11 +53,10 @@ public class PaymentController {
             try {
                 byte[] bytes = exportService.paymentReceipt(paymentId);
                 FileUploadVM save = null;
-                save = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, INVOICE);
+                save = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, INVOICE, uploadService.getInvoiceBucket(), null);
                 save.setName("INVOICE-" + paymentId);
                 paymentService.attachInvoice(paymentId, save);
-                //paymentService.notifyTransaction(paymentId);
-
+                paymentService.notifyTransaction(paymentId);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

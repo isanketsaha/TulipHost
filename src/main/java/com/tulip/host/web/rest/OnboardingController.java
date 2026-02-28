@@ -8,6 +8,8 @@ import com.tulip.host.service.StudentService;
 import com.tulip.host.service.UploadService;
 import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.OnboardingVM;
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/onboarding")
@@ -33,29 +32,39 @@ public class OnboardingController {
 
     @PostMapping
     public ResponseEntity<Long> onboard(@RequestBody OnboardingVM onboardingVM) throws Exception {
-        if (onboardingVM.getType()
-            .equals("employee")) {
+        if (onboardingVM.getType().equals("employee")) {
             Long id = employeeService.addEmployee(onboardingVM);
+            String employeeName = onboardingVM.getName().replaceAll("[^a-zA-Z0-9]", "_");
             CompletableFuture.runAsync(() -> {
                 try {
                     byte[] bytes = employeeService.generateJoiningLetter(id);
-                    FileUploadVM joining_letter = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, JOINING_LETTER);
+                    FileUploadVM joining_letter = uploadService.save(
+                        bytes,
+                        MediaType.APPLICATION_PDF_VALUE,
+                        JOINING_LETTER,
+                        uploadService.getDocsBucket(),
+                        "employee/" + employeeName
+                    );
                     employeeService.attachEmployment(id, joining_letter);
-                  //  employeeService.notifyOnboard(id);
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to generate joining letter", e);
                 }
             });
             return ResponseEntity.ok(id);
-        } else if (onboardingVM.getType()
-            .equals("student")) {
+        } else if (onboardingVM.getType().equals("student")) {
             Long id = studentService.addStudent(onboardingVM);
+            String studentName = onboardingVM.getName().replaceAll("[^a-zA-Z0-9]", "_");
             CompletableFuture.runAsync(() -> {
                 try {
                     byte[] bytes = studentService.generateEnrollmentLetter(id);
-                    FileUploadVM enrollment_letter = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, ENROLLMENT_LETTER);
+                    FileUploadVM enrollment_letter = uploadService.save(
+                        bytes,
+                        MediaType.APPLICATION_PDF_VALUE,
+                        ENROLLMENT_LETTER,
+                        uploadService.getDocsBucket(),
+                        "student/" + studentName
+                    );
                     studentService.attachEnrollment(id, enrollment_letter);
-//                    studentService.notifyParent(id);
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to generate enrollment letter", e);
                 }
@@ -64,9 +73,9 @@ public class OnboardingController {
         }
         throw new Exception("No Match found for onboard type.");
     }
-//
-//    @Scheduled(cron = "0 01 17 26 * ?")
-//    public void notifyOnboard() {
-//        employeeService.notifyOnboard(58L);
-//    }
+    //
+    //    @Scheduled(cron = "0 01 17 26 * ?")
+    //    public void notifyOnboard() {
+    //        employeeService.notifyOnboard(58L);
+    //    }
 }

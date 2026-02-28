@@ -50,6 +50,7 @@ public class ApplicationProperties {
             private String secret;
             private String profileName;
             private String bucketName;
+            private String invoiceBucketName;
         }
 
         @Data
@@ -61,6 +62,7 @@ public class ApplicationProperties {
 
     @Data
     public static class TwilioConfig {
+
         private String accountSid;
         private String key;
         private String messageSid;
@@ -70,7 +72,7 @@ public class ApplicationProperties {
 
     @Data
     public static class TinyUrl {
+
         private String key;
     }
-
 }

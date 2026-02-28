@@ -40,19 +40,24 @@ public class ObjectStorageService {
     }
 
     public URL createURL(String key) {
+        return createURL(key, getDocsBucket());
+    }
+
+    public URL createURL(String key, String bucketName) {
         LocalDate date = LocalDate.now().plusDays(6);
-        URL url = amazonS3Client.generatePresignedUrl(
-            properties.getAws().getCredential().getBucketName(),
+        return amazonS3Client.generatePresignedUrl(
+            bucketName,
             key,
             Date.from(date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
         );
-
-        // log.info("Generated the signature " + url);
-        return url;
     }
 
     public byte[] downloadObject(String keys) {
-        S3Object s3object = amazonS3Client.getObject(properties.getAws().getCredential().getBucketName(), keys);
+        return downloadObject(keys, getDocsBucket());
+    }
+
+    public byte[] downloadObject(String keys, String bucketName) {
+        S3Object s3object = amazonS3Client.getObject(bucketName, keys);
         S3ObjectInputStream objectContent = s3object.getObjectContent();
         try {
             return IOUtils.toByteArray(objectContent);
@@ -63,39 +68,57 @@ public class ObjectStorageService {
     }
 
     public void deleteObject(String key) {
-        amazonS3Client.deleteObject(properties.getAws().getCredential().getBucketName(), key);
+        deleteObject(key, getDocsBucket());
+    }
+
+    public void deleteObject(String key, String bucketName) {
+        amazonS3Client.deleteObject(bucketName, key);
     }
 
     public String save(MultipartFile file) throws FileUploadException {
-        final String FOLDER = CommonUtils.formatFromDate(LocalDate.now(), "MMM-yyyy") + "/";
+        return save(file, getDocsBucket(), null);
+    }
+
+    public String save(MultipartFile file, String bucketName, String prefix) throws FileUploadException {
+        // Always include date folder (MMM/dd), with optional prefix prepended
+        String dateFolder = CommonUtils.formatFromDate(LocalDate.now(), "MMM-yyyy");
+        final String FOLDER = (prefix != null ? CommonUtils.sanitizeFileName(prefix) + "/" + dateFolder + "/" : dateFolder + "/");
         try {
-            String uuid = UUID.randomUUID().toString().replace("-", "");
+            String fileName = file.getOriginalFilename();
+            if (fileName == null || fileName.isBlank()) {
+                fileName = UUID.randomUUID().toString().replace("-", "");
+            }
+            // Sanitize filename before storing to prevent injection and ensure key consistency
+            fileName = CommonUtils.sanitizeFileName(fileName);
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentType(file.getContentType());
             objectMetadata.setContentLength(file.getSize());
-            amazonS3Client.putObject(
-                properties.getAws().getCredential().getBucketName(),
-                FOLDER + uuid,
-                file.getInputStream(),
-                objectMetadata
-            );
-            return FOLDER + uuid;
+            amazonS3Client.putObject(bucketName, FOLDER + fileName, file.getInputStream(), objectMetadata);
+            return FOLDER + fileName;
         } catch (IOException e) {
             e.printStackTrace();
             throw new FileUploadException("Unable to Upload");
         }
     }
 
-    public String save(byte[] file, ObjectMetadata objectMetadata){
-        final String FOLDER = CommonUtils.formatFromDate(LocalDate.now(), "MMM-yyyy") + "/";
+    public String save(byte[] file, ObjectMetadata objectMetadata) {
+        return save(file, objectMetadata, getDocsBucket(), null);
+    }
+
+    public String save(byte[] file, ObjectMetadata objectMetadata, String bucketName, String prefix) {
+        // If prefix provided, use directly; otherwise use month folder
+        final String FOLDER = (prefix != null ? prefix + "/" : CommonUtils.formatFromDate(LocalDate.now(), "MMM-yyyy") + "/");
         String uuid = UUID.randomUUID().toString().replace("-", "");
         objectMetadata.setContentLength(file.length);
-        amazonS3Client.putObject(
-            properties.getAws().getCredential().getBucketName(),
-            FOLDER + uuid,
-            new ByteArrayInputStream(file),
-            objectMetadata
-        );
+        amazonS3Client.putObject(bucketName, FOLDER + uuid, new ByteArrayInputStream(file), objectMetadata);
         return FOLDER + uuid;
+    }
+
+    public String getDocsBucket() {
+        return properties.getAws().getCredential().getBucketName();
+    }
+
+    public String getInvoiceBucket() {
+        return properties.getAws().getCredential().getInvoiceBucketName();
     }
 }
