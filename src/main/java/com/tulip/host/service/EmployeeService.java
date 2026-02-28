@@ -1,5 +1,12 @@
 package com.tulip.host.service;
 
+import static com.tulip.host.config.Constants.AADHAAR_CARD;
+import static com.tulip.host.config.Constants.DEFAULT_PASSWORD;
+import static com.tulip.host.config.Constants.HIGHEST_QUALIFICATION;
+import static com.tulip.host.config.Constants.JASPER_FOLDER;
+import static com.tulip.host.config.Constants.JOINING_LETTER;
+import static com.tulip.host.config.Constants.PAN_CARD;
+
 import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.data.JoiningLetterDTO;
@@ -28,13 +35,6 @@ import com.tulip.host.web.rest.vm.CredentialVM;
 import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import com.tulip.host.web.rest.vm.UserEditVM;
-import lombok.RequiredArgsConstructor;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -43,13 +43,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.tulip.host.config.Constants.AADHAAR_CARD;
-import static com.tulip.host.config.Constants.DEFAULT_PASSWORD;
-import static com.tulip.host.config.Constants.HIGHEST_QUALIFICATION;
-import static com.tulip.host.config.Constants.JASPER_FOLDER;
-import static com.tulip.host.config.Constants.JOINING_LETTER;
-import static com.tulip.host.config.Constants.PAN_CARD;
+import lombok.RequiredArgsConstructor;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -75,8 +74,7 @@ public class EmployeeService {
 
     @Transactional
     public List<EmployeeBasicDTO> fetchAllEmployee(boolean isActive, UserRoleEnum role) {
-        Long id = sessionRepository.fetchCurrentSession()
-            .getId();
+        Long id = sessionRepository.fetchCurrentSession().getId();
         List<Employee> employees = employeeRepository.fetchAll(isActive, role == null ? CommonUtils.findEligibleUG() : Arrays.asList(role));
         return employeeMapper.toBasicEntityList(employees);
     }
@@ -89,19 +87,13 @@ public class EmployeeService {
 
     @Transactional
     public Long addEmployee(OnboardingVM employeeVM) throws Exception {
-        UserGroup userGroupByAuthority = userGroupRepository.findUserGroupByAuthority(employeeVM.getInterview()
-            .getRole()
-            .getValue());
+        UserGroup userGroupByAuthority = userGroupRepository.findUserGroupByAuthority(employeeVM.getInterview().getRole().getValue());
         if (userGroupByAuthority != null) {
             Employee employee = employeeMapper.toModel(employeeVM);
             employee.setResetCredential(true);
             employee.setGroup(userGroupByAuthority);
             Credential credential = credentialMapper.toEntity(
-                CredentialVM.builder()
-                    .password(DEFAULT_PASSWORD)
-                    .userId(employeeVM.getInterview()
-                        .getUserId())
-                    .build()
+                CredentialVM.builder().password(DEFAULT_PASSWORD).userId(employeeVM.getInterview().getUserId()).build()
             );
             addUpload(employee, employeeVM);
             employee.setCredential(credential);
@@ -112,12 +104,11 @@ public class EmployeeService {
     }
 
     public void addUpload(Employee employee, OnboardingVM onboardingVM) {
-        employee.getDependents()
+        employee
+            .getDependents()
             .stream()
-            .filter(dep -> dep.getUploadedDocuments() != null && dep.getUploadedDocuments()
-                .size() > 0)
-            .forEach(dep -> dep.getUploadedDocuments()
-                .forEach(docs -> docs.setDependent(dep)));
+            .filter(dep -> dep.getUploadedDocuments() != null && dep.getUploadedDocuments().size() > 0)
+            .forEach(dep -> dep.getUploadedDocuments().forEach(docs -> docs.setDependent(dep)));
         if (onboardingVM.getAadhaarCard() != null) {
             employee.addDocuments(uploadMapper.toModelList(onboardingVM.getAadhaarCard()));
         }
@@ -137,8 +128,7 @@ public class EmployeeService {
 
     @Transactional
     public EmployeeBasicDTO searchByUserId(String userId) {
-        Employee employee = employeeRepository.findByUserId(userId)
-            .orElse(null);
+        Employee employee = employeeRepository.findByUserId(userId).orElse(null);
         if (employee != null) {
             return employeeMapper.toBasicEntity(employee, uploadService);
         }
@@ -160,26 +150,19 @@ public class EmployeeService {
         byId
             .getUploadedDocuments()
             .forEach(item -> {
-                if (item.getDocumentType()
-                    .equals(AADHAAR_CARD)) {
-                    employeeDetailsDTO.getAadhaarCard()
-                        .add(uploadMapper.toEntity(item));
-                } else if (item.getDocumentType()
-                    .equals(PAN_CARD)) {
-                    employeeDetailsDTO.getPanCard()
-                        .add(uploadMapper.toEntity(item));
-                } else if (item.getDocumentType()
-                    .equals(HIGHEST_QUALIFICATION)) {
-                    employeeDetailsDTO.getHighestQualification()
-                        .add(uploadMapper.toEntity(item));
+                if (item.getDocumentType().equals(AADHAAR_CARD)) {
+                    employeeDetailsDTO.getAadhaarCard().add(uploadMapper.toEntity(item));
+                } else if (item.getDocumentType().equals(PAN_CARD)) {
+                    employeeDetailsDTO.getPanCard().add(uploadMapper.toEntity(item));
+                } else if (item.getDocumentType().equals(HIGHEST_QUALIFICATION)) {
+                    employeeDetailsDTO.getHighestQualification().add(uploadMapper.toEntity(item));
                 }
             });
     }
 
     @Transactional
     public void editEmployee(UserEditVM editVM) {
-        Employee byId = employeeRepository.findById(editVM.getId())
-            .orElseThrow();
+        Employee byId = employeeRepository.findById(editVM.getId()).orElseThrow();
         employeeMapper.toUpdateModel(editVM, byId);
         if (editVM.getAadhaarCard() != null) {
             byId.addDocuments(uploadMapper.toModelList(editVM.getAadhaarCard()));
@@ -195,13 +178,11 @@ public class EmployeeService {
             editVM
                 .getDependent()
                 .forEach(dependentVM -> {
-                    Dependent dependent = dependentRepository.findById(dependentVM.getId())
-                        .orElse(null);
+                    Dependent dependent = dependentRepository.findById(dependentVM.getId()).orElse(null);
 
                     dependentMapper.toUpdateModel(dependentVM, dependent);
                     if (dependentVM.getAadhaarCard() != null) {
-                        dependent.getUploadedDocuments()
-                            .forEach(item -> item.setDependent(dependent));
+                        dependent.getUploadedDocuments().forEach(item -> item.setDependent(dependent));
                     }
                     dependentRepository.saveAndFlush(dependent);
                 });
@@ -209,8 +190,7 @@ public class EmployeeService {
     }
 
     public void terminate(long id) {
-        Employee byId = employeeRepository.findById(id)
-            .orElse(null);
+        Employee byId = employeeRepository.findById(id).orElse(null);
         if (byId != null) {
             byId.setActive(Boolean.FALSE);
             byId.setTerminationDate(LocalDateTime.now());
@@ -221,11 +201,9 @@ public class EmployeeService {
 
     @Transactional
     public void forgotPassword(long id) {
-        Employee byId = employeeRepository.findById(id)
-            .orElse(null);
+        Employee byId = employeeRepository.findById(id).orElse(null);
         if (byId != null) {
-            byId.getCredential()
-                .setPassword(encoderMapper.encode(DEFAULT_PASSWORD));
+            byId.getCredential().setPassword(encoderMapper.encode(DEFAULT_PASSWORD));
             byId.setResetCredential(true);
             employeeRepository.save(byId);
         }
@@ -233,8 +211,7 @@ public class EmployeeService {
 
     @Transactional
     public byte[] generateJoiningLetter(Long empId) throws IOException {
-        Employee byId = employeeRepository.findById(empId)
-            .orElse(null);
+        Employee byId = employeeRepository.findById(empId).orElse(null);
         if (byId != null) {
             JoiningLetterDTO joiningLetterDTO = employeeMapper.toPrintEntity(byId);
             try (InputStream inputStream = getClass().getResourceAsStream(JASPER_FOLDER + "Appointment_Letter.jrxml")) {
@@ -243,22 +220,10 @@ public class EmployeeService {
                     "terms",
                     new JRBeanCollectionDataSource(
                         Arrays.asList(
-                            LetterClause.builder()
-                                .clause("PROBATIONARY PERIOD")
-                                .value("3 MONTHS")
-                                .build(),
-                            LetterClause.builder()
-                                .clause("NOTICE PERIOD")
-                                .value("1 MONTH")
-                                .build(),
-                            LetterClause.builder()
-                                .clause("CASUAL LEAVE")
-                                .value("12 DAYS")
-                                .build(),
-                            LetterClause.builder()
-                                .clause("MEDICAL LEAVE")
-                                .value("4 DAYS")
-                                .build()
+                            LetterClause.builder().clause("PROBATIONARY PERIOD").value("3 MONTHS").build(),
+                            LetterClause.builder().clause("NOTICE PERIOD").value("1 MONTH").build(),
+                            LetterClause.builder().clause("CASUAL LEAVE").value("12 DAYS").build(),
+                            LetterClause.builder().clause("MEDICAL LEAVE").value("4 DAYS").build()
                         )
                     )
                 );
@@ -269,8 +234,7 @@ public class EmployeeService {
     }
 
     public void attachEmployment(Long id, FileUploadVM joining_letter) {
-        Employee byId = employeeRepository.findById(id)
-            .orElse(null);
+        Employee byId = employeeRepository.findById(id).orElse(null);
         joining_letter.setName(byId.getName());
         if (byId != null) {
             byId.setAppointmentLetter(uploadMapper.toModel(joining_letter));
@@ -280,19 +244,24 @@ public class EmployeeService {
 
     @Transactional
     public String fetchAppointment(Long empId) {
-        Employee byId = employeeRepository.findById(empId)
-            .orElseThrow();
+        Employee byId = employeeRepository.findById(empId).orElseThrow();
         Upload appointmentLetter = byId.getAppointmentLetter();
         if (appointmentLetter != null) {
-            return uploadService.getURL(appointmentLetter.getUid());
+            return uploadService.getURL(appointmentLetter.getUid(), uploadService.getDocsBucket());
         } else {
             try {
                 byte[] bytes = generateJoiningLetter(empId);
-
-                FileUploadVM joining_letter = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, JOINING_LETTER);
+                String employeeName = byId.getName().replaceAll("[^a-zA-Z0-9]", "_");
+                FileUploadVM joining_letter = uploadService.save(
+                    bytes,
+                    MediaType.APPLICATION_PDF_VALUE,
+                    JOINING_LETTER,
+                    uploadService.getDocsBucket(),
+                    "employee/" + employeeName
+                );
                 joining_letter.setName(byId.getName());
                 attachEmployment(empId, joining_letter);
-                return uploadService.getURL(joining_letter.getUid());
+                return uploadService.getURL(joining_letter.getUid(), uploadService.getDocsBucket());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -301,43 +270,54 @@ public class EmployeeService {
 
     @Transactional
     public void notifyOnboard(Long id) {
-        employeeRepository.findById(id)
+        employeeRepository
+            .findById(id)
             .ifPresent(employee -> {
                 String[] ccEmails = getCCEmails(employee.getGroup().getAuthority());
-                Map<String, Object> map = Map.of("employeeName", employee.getName(),
-                    "designation", employee.getGroup()
-                        .getAuthority(),
-                    "joiningDate", CommonUtils.formatFromDate(employee.getInterview()
-                        .getDoj()
-                        .toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate(), "dd MMMM yyyy"),
-                    "username", employee.getCredential()
-                        .getUserId(),
-                    "password", DEFAULT_PASSWORD,
-                    "portalUrl", "https://tulipschool.co.in/");
-                outboundCommunicationService.send(CommunicationRequest.builder()
-                    .recipient(new String[]{employee.getEmail()})
-                    .cc(ccEmails)
-                    .content(mailService.renderTemplate("mail/employee_onboard.vm", map))
-                    .entityType(employee.getClass()
-                        .getName())
-                    .subject(employee.getName() + " - Welcome to Tulip Family")
-                    .entityId(employee.getId())
-                    .attachments(List.of(MailService.EmailAttachment.builder()
-                        .filename("Appointment_Letter.pdf")
-                        .content(uploadService.download(employee.getAppointmentLetter()
-                            .getUid()))
-                        .build()))
-                    .build());
+                Map<String, Object> map = Map.of(
+                    "employeeName",
+                    employee.getName(),
+                    "designation",
+                    employee.getGroup().getAuthority(),
+                    "joiningDate",
+                    CommonUtils.formatFromDate(
+                        employee.getInterview().getDoj().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+                        "dd MMMM yyyy"
+                    ),
+                    "username",
+                    employee.getCredential().getUserId(),
+                    "password",
+                    DEFAULT_PASSWORD,
+                    "portalUrl",
+                    "https://tulipschool.co.in/"
+                );
+                outboundCommunicationService.send(
+                    CommunicationRequest.builder()
+                        .recipient(new String[] { employee.getEmail() })
+                        .cc(ccEmails)
+                        .content(mailService.renderTemplate("mail/employee_onboard.vm", map))
+                        .entityType(employee.getClass().getName())
+                        .subject(employee.getName() + " - Welcome to Tulip Family")
+                        .entityId(employee.getId())
+                        .attachments(
+                            List.of(
+                                MailService.EmailAttachment.builder()
+                                    .filename("Appointment_Letter.pdf")
+                                    .content(
+                                        uploadService.download(employee.getAppointmentLetter().getUid(), uploadService.getDocsBucket())
+                                    )
+                                    .build()
+                            )
+                        )
+                        .build()
+                );
             });
-
     }
 
     public String[] getCCEmails(String role) {
-        UserRoleEnum userRoleEnum = role.equalsIgnoreCase(UserRoleEnum.PRINCIPAL.name())
-            ? UserRoleEnum.ADMIN : UserRoleEnum.PRINCIPAL;
-        return employeeRepository.findByUserGroup(userRoleEnum)
+        UserRoleEnum userRoleEnum = role.equalsIgnoreCase(UserRoleEnum.PRINCIPAL.name()) ? UserRoleEnum.ADMIN : UserRoleEnum.PRINCIPAL;
+        return employeeRepository
+            .findByUserGroup(userRoleEnum)
             .stream()
             .filter(emp -> StringUtils.isNotBlank(emp.getEmail()))
             .map(Employee::getEmail)

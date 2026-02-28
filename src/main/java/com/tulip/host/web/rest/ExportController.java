@@ -58,12 +58,14 @@ public class ExportController {
     @PostMapping("/receipt")
     public String paymentReceipt(@RequestParam Long paymentId) throws IOException, FileUploadException {
         String uid = exportService.downloadReceipt(paymentId);
-        return uploadService.getURL(uid);
+        return uploadService.getURL(uid, uploadService.getInvoiceBucket());
     }
 
     @GetMapping("/download")
-    public String download(@RequestParam String uid) throws IOException, FileUploadException {
-        return uploadService.getURL(uid);
+    public String download(@RequestParam String uid, @RequestParam(required = false) String bucket)
+        throws IOException, FileUploadException {
+        String bucketName = bucket != null ? bucket : uploadService.getDocsBucket();
+        return uploadService.getURL(uid, bucketName);
     }
 
     @PostMapping("/transactionHistory")
