@@ -14,14 +14,12 @@ import com.tulip.host.web.rest.vm.dataload.ProductLoadVM;
 import com.tulip.host.web.rest.vm.dataload.SessionLoadVM;
 import io.github.rushuat.ocell.document.Document;
 import io.github.rushuat.ocell.document.DocumentOOXML;
-
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -51,7 +49,7 @@ public class DataLoadController {
     @PostMapping(value = "/add", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<String> load(@RequestBody UploadVM vm) {
         try (Document document = new DocumentOOXML()) {
-            byte[] download = Optional.of(uploadService.download(vm.getFile().getUid())).orElseThrow();
+            byte[] download = Optional.of(uploadService.download(vm.getFile().getUid(), uploadService.getDocsBucket())).orElseThrow();
             document.fromBytes(download);
             List<? extends Object> data = map(vm.getType(), document);
             if (CollectionUtils.isNotEmpty(data)) {
@@ -59,8 +57,7 @@ public class DataLoadController {
                     productService.loadProducts((List<ProductLoadVM>) data);
                 } else if (vm.getType().equals(UploadTypeEnum.FEES)) {
                     dataLoadService.loadFees((List<FeesLoadVM>) data);
-                }
-                else if (vm.getType().equals(UploadTypeEnum.CALENDER)) {
+                } else if (vm.getType().equals(UploadTypeEnum.CALENDER)) {
                     calendarService.createEvent((List<CalenderLoadVM>) data);
                 }
                 dataLoadService.addToUpload(vm.getFile());
@@ -82,14 +79,11 @@ public class DataLoadController {
         }
 
         // Filter out blank rows
-        List<Object> filteredRows = rows.stream()
-            .filter(row -> isRowBlank(row))
-            .collect(Collectors.toList());
+        List<Object> filteredRows = rows.stream().filter(row -> isRowBlank(row)).collect(Collectors.toList());
 
         log.debug("Filtered {} blank rows, {} valid rows remain.", rows.size() - filteredRows.size(), filteredRows.size());
         return filteredRows;
     }
-
 
     private boolean isRowBlank(Object row) {
         if (row == null) {
@@ -130,6 +124,6 @@ public class DataLoadController {
 
     @GetMapping(value = "/url")
     public String preSignedURL(@RequestParam String uuid) {
-        return uploadService.getURL(uuid);
+        return uploadService.getURL(uuid, uploadService.getDocsBucket());
     }
 }

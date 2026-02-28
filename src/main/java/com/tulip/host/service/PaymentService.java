@@ -5,31 +5,6 @@ import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
 import static com.tulip.host.config.Constants.TRANSPORT_FEES;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import com.tulip.host.enums.CommunicationChannel;
-import com.tulip.host.service.communication.CommunicationRequest;
-import com.tulip.host.service.communication.OutboundCommunicationService;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
 import com.querydsl.core.BooleanBuilder;
 import com.tulip.host.data.FeesGraphDTO;
 import com.tulip.host.data.FeesItemSummaryDTO;
@@ -47,6 +22,7 @@ import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.domain.TransportCatalog;
 import com.tulip.host.domain.Upload;
+import com.tulip.host.enums.CommunicationChannel;
 import com.tulip.host.enums.DueStatusEnum;
 import com.tulip.host.enums.FeesRuleType;
 import com.tulip.host.enums.PayTypeEnum;
@@ -66,6 +42,8 @@ import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionPagedRepository;
 import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.repository.TransportCatalogRepository;
+import com.tulip.host.service.communication.CommunicationRequest;
+import com.tulip.host.service.communication.OutboundCommunicationService;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.DuePaymentVm;
 import com.tulip.host.web.rest.vm.DueVM;
@@ -73,11 +51,30 @@ import com.tulip.host.web.rest.vm.EditOrderVm;
 import com.tulip.host.web.rest.vm.ExpenseVm;
 import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.PayVM;
-
 import jakarta.transaction.Transactional;
 import jakarta.xml.bind.ValidationException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -103,11 +100,9 @@ public class PaymentService {
 
     private final FeesLineItemRepository feesLineItemRepository;
 
-
     private final CouponService couponService;
 
     private final ExpenseMapper expenseMapper;
-
 
     private final DuesMapper duesMapper;
 
@@ -197,11 +192,9 @@ public class PaymentService {
                     .stream()
                     .map(item -> {
                         double amount = item.getQty() * item.getUnitPrice();
-                        ProductCatalog productCatalog = productCatalogRepository.findById(item.getProductId())
-                            .orElse(null);
+                        ProductCatalog productCatalog = productCatalogRepository.findById(item.getProductId()).orElse(null);
                         double expectedPrice = inventoryAllocationService.calculateExpectedPrice(productCatalog);
-                        if (Math.abs(expectedPrice - item.getUnitPrice()) > 0.01
-                            || Math.abs(amount - item.getAmount()) > 0.01) {
+                        if (Math.abs(expectedPrice - item.getUnitPrice()) > 0.01 || Math.abs(amount - item.getAmount()) > 0.01) {
                             errors.add("Incorrect LineItem Amount");
                         }
                         return item;
@@ -209,9 +202,9 @@ public class PaymentService {
                     .mapToDouble(lineItem -> lineItem.getAmount())
                     .sum();
 
-                if (sum != payVM.getTotal() + (payVM.isDueOpted() ? payVM.getDueInfo()
-                    .getDueAmount() : 0)
-                    || sum != payVM.getSubTotal()) errors.add("Incorrect Total");
+                if (
+                    sum != payVM.getTotal() + (payVM.isDueOpted() ? payVM.getDueInfo().getDueAmount() : 0) || sum != payVM.getSubTotal()
+                ) errors.add("Incorrect Total");
             }
         }
         if (payVM.getPayType() == PayTypeEnum.FEES) {
@@ -222,25 +215,20 @@ public class PaymentService {
                     .getFeeItem()
                     .stream()
                     .map(item -> {
-                        if (item.getType()
-                            .equals("CLASS_FEES")) {
-                            FeesCatalog feesCatalog = feesCatalogRepository.findById(item.getFeesId())
-                                .orElse(null);
+                        if (item.getType().equals("CLASS_FEES")) {
+                            FeesCatalog feesCatalog = feesCatalogRepository.findById(item.getFeesId()).orElse(null);
                             Student student = studentRepository.checkIfFeesPaid(payVM.getStudentId(), item.getFeesId(), item.getMonth());
                             if (feesCatalog.getPrice() != item.getUnitPrice()) {
                                 errors.add("Incorrect Fees Price ");
                             }
                             if (student != null) {
-                                String monthString = feesCatalog.getApplicableRule()
-                                    .equals(FeesRuleType.MONTHLY)
+                                String monthString = feesCatalog.getApplicableRule().equals(FeesRuleType.MONTHLY)
                                     ? "for month -  " + item.getMonth()
                                     : "";
                                 errors.add(feesCatalog.getFeesName() + " is already paid " + monthString);
                             }
-                        } else if (item.getType()
-                            .equals(TRANSPORT_FEES.replace(" ", "_"))) {
-                            TransportCatalog transportCatalog = transportCatalogRepository.findById(item.getFeesId())
-                                .orElseThrow();
+                        } else if (item.getType().equals(TRANSPORT_FEES.replace(" ", "_"))) {
+                            TransportCatalog transportCatalog = transportCatalogRepository.findById(item.getFeesId()).orElseThrow();
                             if (transportCatalog.getAmount() != item.getUnitPrice()) {
                                 errors.add("Incorrect Fees Price ");
                             }
@@ -257,15 +245,17 @@ public class PaymentService {
                     })
                     .mapToDouble(lineItem -> lineItem.getAmount())
                     .sum();
-                if (sum != payVM.getTotal() + (payVM.isDueOpted() ? payVM.getDueInfo()
-                    .getDueAmount() : 0)
-                    + (StringUtils.isNotEmpty(payVM.getCouponCode()) ? payVM.getDiscountAmount() : 0) || sum != payVM.getSubTotal())
-                    errors.add("Incorrect  Total");
+                if (
+                    sum !=
+                        payVM.getTotal() +
+                        (payVM.isDueOpted() ? payVM.getDueInfo().getDueAmount() : 0) +
+                        (StringUtils.isNotEmpty(payVM.getCouponCode()) ? payVM.getDiscountAmount() : 0) ||
+                    sum != payVM.getSubTotal()
+                ) errors.add("Incorrect  Total");
             }
         }
         if (!CollectionUtils.isEmpty(errors)) {
-            throw new ValidationException(errors.toString(), payVM.getClass()
-                .getName());
+            throw new ValidationException(errors.toString(), payVM.getClass().getName());
         }
     }
 
@@ -287,8 +277,7 @@ public class PaymentService {
     }
 
     public Transaction getTransactionRecord(Long paymentId) {
-        return transactionRepository.findById(paymentId)
-            .orElse(null);
+        return transactionRepository.findById(paymentId).orElse(null);
     }
 
     @Transactional
@@ -323,18 +312,14 @@ public class PaymentService {
             PaySummaryDTO paySummaryDTO = transactionMapper.toEntity(feesOrder);
             Collections.sort(
                 paySummaryDTO.getFeesItem(),
-                Comparator
-                    .comparing(FeesItemSummaryDTO::getFeesTitle)
-                    .thenComparing((o1, o2) -> {
-                        try {
-                            SimpleDateFormat fmt = new SimpleDateFormat(MONTH_YEAR_FORMAT, Locale.US);
-                            return fmt.parse(o1.getMonth())
-                                .compareTo(fmt.parse(o2.getMonth()));
-                        } catch (ParseException ex) {
-                            return o1.getMonth()
-                                .compareTo(o2.getMonth());
-                        }
-                    })
+                Comparator.comparing(FeesItemSummaryDTO::getFeesTitle).thenComparing((o1, o2) -> {
+                    try {
+                        SimpleDateFormat fmt = new SimpleDateFormat(MONTH_YEAR_FORMAT, Locale.US);
+                        return fmt.parse(o1.getMonth()).compareTo(fmt.parse(o2.getMonth()));
+                    } catch (ParseException ex) {
+                        return o1.getMonth().compareTo(o2.getMonth());
+                    }
+                })
             );
             return paySummaryDTO;
         }
@@ -343,8 +328,7 @@ public class PaymentService {
 
     @Transactional
     public PageImpl<PaySummaryDTO> getTransactionHistory(int pageNo, Long studentId, int pageSize) {
-        BooleanBuilder booleanBuilder = new BooleanBuilder()
-            .and(QTransaction.transaction.student().id.eq(studentId));
+        BooleanBuilder booleanBuilder = new BooleanBuilder().and(QTransaction.transaction.student().id.eq(studentId));
 
         Page<Transaction> transactionPage = transactionPagedRepository.findAll(
             booleanBuilder.getValue(),
@@ -353,11 +337,7 @@ public class PaymentService {
 
         List<PaySummaryDTO> paySummaryDTOS = transactionMapper.toEntityList(transactionPage.getContent());
 
-        return new PageImpl<PaySummaryDTO>(
-            paySummaryDTOS,
-            transactionPage.getPageable(),
-            transactionPage.getTotalElements());
-
+        return new PageImpl<PaySummaryDTO>(paySummaryDTOS, transactionPage.getPageable(), transactionPage.getTotalElements());
     }
 
     @Transactional
@@ -368,9 +348,7 @@ public class PaymentService {
                     .student()
                     .id.eq(studentId)
                     .and(QTransaction.transaction.type.eq(PayTypeEnum.FEES.name()))
-                    .and(QTransaction.transaction.feesLineItem.any()
-                        .feesProduct()
-                        .std().id.eq(classId))
+                    .and(QTransaction.transaction.feesLineItem.any().feesProduct().std().id.eq(classId))
             );
 
         List<Transaction> transactionList = (List<Transaction>) transactionPagedRepository.findAll(
@@ -393,22 +371,18 @@ public class PaymentService {
                         TransportCatalog transportCatalog = item.getTransport();
                         if (feesProduct != null) {
                             if (
-                                feesProduct.getApplicableRule()
-                                    .equals(FeesRuleType.MONTHLY) &&
-                                    feesProduct.getFeesName()
-                                        .startsWith(TUITION_FEES)
+                                feesProduct.getApplicableRule().equals(FeesRuleType.MONTHLY) &&
+                                feesProduct.getFeesName().startsWith(TUITION_FEES)
                             ) {
                                 months.add(item.getMonth());
-                            } else if (feesProduct.getApplicableRule()
-                                .equals(FeesRuleType.YEARLY)) {
+                            } else if (feesProduct.getApplicableRule().equals(FeesRuleType.YEARLY)) {
                                 annual.add(feesProduct.getId());
                             }
                         }
                     });
             }
 
-            return FeesGraphDTO
-                .builder()
+            return FeesGraphDTO.builder()
                 .admissionDate(student.getCreatedDate())
                 .paidMonths(months)
                 .annualFeesPaid(annual)
@@ -421,20 +395,14 @@ public class PaymentService {
     @Transactional
     public Long registerExpense(ExpenseVm expenseItems) {
         Set<Expense> expenses = expenseMapper.toModelList(expenseItems.getExpenseItem());
-        if (expenses.stream()
-            .mapToDouble(Expense::getAmount)
-            .sum() == expenseItems.getTotal()) {
-            Transaction transaction = Transaction
-                .builder()
+        if (expenses.stream().mapToDouble(Expense::getAmount).sum() == expenseItems.getTotal()) {
+            Transaction transaction = Transaction.builder()
                 .expenseItems(expenses)
                 .paymentMode(expenseItems.getPaymentMode())
-                .amount(expenses.stream()
-                    .mapToDouble(Expense::getAmount)
-                    .sum() * (-1))
+                .amount(expenses.stream().mapToDouble(Expense::getAmount).sum() * (-1))
                 .type(PayTypeEnum.EXPENSE.name())
                 .build();
-            expenses.forEach(item -> item.setReceivedBy(expenseItems.getReceivedBy()
-                .toUpperCase()));
+            expenses.forEach(item -> item.setReceivedBy(expenseItems.getReceivedBy().toUpperCase()));
             if (CollectionUtils.isNotEmpty(expenseItems.getExpenseDocs())) {
                 Set<Upload> uploadSet = uploadMapper.toModelList(expenseItems.getExpenseDocs());
                 transaction.setUploadList(uploadSet);
@@ -455,20 +423,14 @@ public class PaymentService {
 
     @Transactional
     public void edit(EditOrderVm editOrderVm) {
-        Transaction transaction = transactionRepository.findById(editOrderVm.getPaymentId())
-            .orElse(null);
+        Transaction transaction = transactionRepository.findById(editOrderVm.getPaymentId()).orElse(null);
         double sum = 0;
         if (editOrderVm.getPayTypeEnum() == PayTypeEnum.FEES) {
-            FeesLineItem feesLineItem = feesLineItemRepository.findById(editOrderVm.getItemId())
-                .orElse(null);
+            FeesLineItem feesLineItem = feesLineItemRepository.findById(editOrderVm.getItemId()).orElse(null);
             assert transaction != null;
             transaction.removeFeesLineItem(feesLineItem);
-            if (!transaction.getFeesLineItem()
-                .isEmpty()) {
-                sum = transaction.getFeesLineItem()
-                    .stream()
-                    .mapToDouble(FeesLineItem::getAmount)
-                    .sum();
+            if (!transaction.getFeesLineItem().isEmpty()) {
+                sum = transaction.getFeesLineItem().stream().mapToDouble(FeesLineItem::getAmount).sum();
                 transaction.setAmount(sum);
                 transactionRepository.saveAndFlush(transaction);
             } else {
@@ -477,16 +439,11 @@ public class PaymentService {
             assert feesLineItem != null;
             feesLineItemRepository.delete(feesLineItem);
         } else if (editOrderVm.getPayTypeEnum() == PayTypeEnum.PURCHASE) {
-            PurchaseLineItem purchaseLineItem = purchaseLineItemRepository.findById(editOrderVm.getItemId())
-                .orElse(null);
+            PurchaseLineItem purchaseLineItem = purchaseLineItemRepository.findById(editOrderVm.getItemId()).orElse(null);
             assert transaction != null;
             transaction.removePurchaseLineItems(purchaseLineItem);
-            if (!transaction.getPurchaseLineItems()
-                .isEmpty()) {
-                sum = transaction.getPurchaseLineItems()
-                    .stream()
-                    .mapToDouble(PurchaseLineItem::getAmount)
-                    .sum();
+            if (!transaction.getPurchaseLineItems().isEmpty()) {
+                sum = transaction.getPurchaseLineItems().stream().mapToDouble(PurchaseLineItem::getAmount).sum();
                 transaction.setAmount(sum);
                 transactionRepository.saveAndFlush(transaction);
             } else {
@@ -498,8 +455,7 @@ public class PaymentService {
     }
 
     public void deleteTransaction(long transactionId) {
-        transactionRepository.delete(transactionRepository.findById(transactionId)
-            .orElseThrow());
+        transactionRepository.delete(transactionRepository.findById(transactionId).orElseThrow());
     }
 
     @Transactional
@@ -510,14 +466,9 @@ public class PaymentService {
 
     @Transactional
     public long payDues(DuePaymentVm duePaymentVm) throws ValidationException {
-        Dues dues = duesRepository.findById(duePaymentVm.getDueId())
-            .orElse(null);
-        if (dues != null && !dues.getStatus()
-            .equals(DueStatusEnum.PAID)) {
-            final Double paidAmount = dues.getDuesPayment()
-                .stream()
-                .map(item -> item.getAmount())
-                .reduce(0.0, Double::sum);
+        Dues dues = duesRepository.findById(duePaymentVm.getDueId()).orElse(null);
+        if (dues != null && !dues.getStatus().equals(DueStatusEnum.PAID)) {
+            final Double paidAmount = dues.getDuesPayment().stream().map(item -> item.getAmount()).reduce(0.0, Double::sum);
             if (paidAmount + duePaymentVm.getAmount() <= dues.getDueAmount()) {
                 DuesPayment duesPayment = duesPaymentMapper.toEntity(duePaymentVm);
                 dues.addDuesPayment(duesPayment);
@@ -536,34 +487,44 @@ public class PaymentService {
 
     @Transactional
     public void attachInvoice(Long paymentId, FileUploadVM save) {
-        Transaction transaction = transactionRepository.findById(paymentId)
-            .orElseThrow();
+        Transaction transaction = transactionRepository.findById(paymentId).orElseThrow();
         Upload upload = uploadMapper.toModel(save);
         transaction.setInvoice(upload);
         transactionRepository.saveAndFlush(transaction);
     }
 
+    @Transactional
     public void notifyTransaction(Long transactionId) {
-        Transaction transaction = transactionRepository.findById(transactionId)
-            .orElseThrow();
-        if (List.of(PayTypeEnum.PURCHASE.name(), PayTypeEnum.FEES.name())
-            .contains(transaction.getType())) {
-            String url = urlShortener.shortenUrl(uploadService.getURL(transaction.getInvoice()
-                    .getUid()),
-                "TRANSACTION_SLIP");
-            Map<String, Object> map = Map.of("studentName", transaction.getStudent()
-                    .getName(),
-                "amount", transaction.getAfterDiscount(), "receiptNo", transaction.getId(),
-                "paymentType", transaction.getType(), "shortUrl", url,
-                "paymentMode", transaction.getPaymentMode());
-            outboundCommunicationService.send(CommunicationRequest.builder()
-                .channel(CommunicationChannel.SMS)
-                .recipient(new String[]{transaction.getStudent().getPhoneNumber()})
-                .content(mailService.renderTemplate("mail/payment_successful.vm", map))
-                .entityType("PAYMENT")
-                .entityId(transaction.getId())
-                .subject("PAYMENT_SUCCESS_NOTIFICATION")
-                .build());
+        Transaction transaction = transactionRepository.findById(transactionId).orElseThrow();
+        if (List.of(PayTypeEnum.PURCHASE.name(), PayTypeEnum.FEES.name()).contains(transaction.getType())) {
+            String url = urlShortener.shortenUrl(
+                uploadService.getURL(transaction.getInvoice().getUid(), uploadService.getInvoiceBucket()),
+                "TRANSACTION_SLIP"
+            );
+            Map<String, Object> map = Map.of(
+                "studentName",
+                transaction.getStudent().getName(),
+                "amount",
+                transaction.getAfterDiscount(),
+                "receiptNo",
+                transaction.getId(),
+                "paymentType",
+                transaction.getType(),
+                "shortUrl",
+                url,
+                "paymentMode",
+                transaction.getPaymentMode()
+            );
+            outboundCommunicationService.send(
+                CommunicationRequest.builder()
+                    .channel(CommunicationChannel.SMS)
+                    .recipient(new String[] { transaction.getStudent().getPhoneNumber() })
+                    .content(mailService.renderTemplate("mail/payment_successful.vm", map))
+                    .entityType("PAYMENT")
+                    .entityId(transaction.getId())
+                    .subject("PAYMENT_SUCCESS_NOTIFICATION")
+                    .build()
+            );
         }
     }
 }

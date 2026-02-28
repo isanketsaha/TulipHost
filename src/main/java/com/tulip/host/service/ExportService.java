@@ -26,7 +26,6 @@ import com.tulip.host.web.rest.vm.FileUploadVM;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -37,7 +36,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.apache.commons.fileupload.FileUploadException;
@@ -74,7 +72,8 @@ public class ExportService {
     @Transactional
     public XSSFWorkbook exportStock() {
         Map<ProductCatalog, List<Inventory>> catalogGrouped = inventoryRepository.findLatestInventoryByProductCatalogGrouped();
-        List<StockExportDTO> stockExportDTOS = catalogGrouped.entrySet()
+        List<StockExportDTO> stockExportDTOS = catalogGrouped
+            .entrySet()
             .stream()
             .map(entry -> inventoryMapper.toAggregatedStockExportDTO(entry.getKey(), entry.getValue()))
             .toList();
@@ -104,7 +103,7 @@ public class ExportService {
             return invoice.getUid();
         } else {
             byte[] bytes = paymentReceipt(paymentId);
-            FileUploadVM save = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, INVOICE);
+            FileUploadVM save = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, INVOICE, uploadService.getInvoiceBucket(), null);
             save.setName("INVOICE-" + paymentId);
             paymentService.attachInvoice(paymentId, save);
             return save.getUid();
@@ -120,16 +119,14 @@ public class ExportService {
             try (
                 InputStream inputStream = getClass()
                     .getResourceAsStream(
-                        transaction.getPayType()
-                            .equals(PayTypeEnum.FEES)
+                        transaction.getPayType().equals(PayTypeEnum.FEES)
                             ? JASPER_FOLDER + "Fees_Receipt.jrxml"
                             : JASPER_FOLDER + "Purchase_Receipt.jrxml"
                     )
             ) {
                 transaction.setStd(basicDTO.getStd());
                 Map<String, Object> map = new HashMap<>();
-                if (transaction.getPayType()
-                    .equals(PayTypeEnum.FEES)) {
+                if (transaction.getPayType().equals(PayTypeEnum.FEES)) {
                     map.put("feesLineItem", new JRBeanCollectionDataSource(transaction.getFeesItem()));
                 } else {
                     map.put("purchaseLineItems", new JRBeanCollectionDataSource(transaction.getPurchaseItems()));
@@ -145,10 +142,9 @@ public class ExportService {
         for (LocalDate months : transactionMonths) {
             List<PaySummaryDTO> month = paymentService.getTransactionRecordByDate(months, "MONTH");
             List<Object> list = new ArrayList<>(month);
-            export =
-                (export == null)
-                    ? excelExporterService.export(list, CommonUtils.formatFromDate(months, "MMM-yyyy"))
-                    : excelExporterService.export(export, CommonUtils.formatFromDate(months, "MMM-yyyy"), list);
+            export = (export == null)
+                ? excelExporterService.export(list, CommonUtils.formatFromDate(months, "MMM-yyyy"))
+                : excelExporterService.export(export, CommonUtils.formatFromDate(months, "MMM-yyyy"), list);
         }
         return export;
     }

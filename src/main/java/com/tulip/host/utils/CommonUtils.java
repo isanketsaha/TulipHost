@@ -88,4 +88,44 @@ public class CommonUtils {
         log.debug("Active profiles: {}", Arrays.toString(profiles));
         return Arrays.stream(profiles).anyMatch(n -> n.toLowerCase().equals("prod"));
     }
+
+    /**
+     * Sanitizes input strings for safe use in file names.
+     * Removes characters unsafe for HTML/JS contexts to prevent XSS injection.
+     * Allows only alphanumeric characters, hyphens, underscores, and periods.
+     */
+    public static String sanitizeFileName(String input) {
+        if (input == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder(input.length());
+        for (char c : input.toCharArray()) {
+            if (Character.isLetterOrDigit(c) || c == '-' || c == '_' || c == '.') {
+                sb.append(c);
+            } else {
+                sb.append('_');
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Sanitizes S3 keys for safe use in client responses.
+     * Removes characters unsafe for HTML/JS contexts to prevent XSS injection.
+     * Allows alphanumeric characters, hyphens, underscores, periods, and forward slashes.
+     */
+    public static String sanitizeKey(String input) {
+        if (input == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder(input.length());
+        for (char c : input.toCharArray()) {
+            if (Character.isLetterOrDigit(c) || c == '-' || c == '_' || c == '.' || c == '/') {
+                sb.append(c);
+            } else {
+                sb.append('_');
+            }
+        }
+        return sb.toString();
+    }
 }

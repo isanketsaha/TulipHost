@@ -22,6 +22,7 @@ import com.tulip.host.domain.Student;
 import com.tulip.host.domain.StudentToTransport;
 import com.tulip.host.domain.StudentToTransportId;
 import com.tulip.host.domain.Transaction;
+import com.tulip.host.domain.Upload;
 import com.tulip.host.enums.CommunicationChannel;
 import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.exceptions.ResourceNotFoundException;
@@ -40,11 +41,11 @@ import com.tulip.host.service.communication.CommunicationRequest;
 import com.tulip.host.service.communication.OutboundCommunicationService;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.DeactivateVm;
+import com.tulip.host.web.rest.vm.FileUploadVM;
 import com.tulip.host.web.rest.vm.OnboardingVM;
 import com.tulip.host.web.rest.vm.TransportVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
@@ -57,22 +58,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.tulip.host.web.rest.vm.FileUploadVM;
-import com.tulip.host.domain.Upload;
-
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -108,8 +104,7 @@ public class StudentService {
 
     @Transactional
     public Long addStudent(OnboardingVM onboardingVM) {
-        ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(onboardingVM.getSession(), onboardingVM.getStd()
-            .name());
+        ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(onboardingVM.getSession(), onboardingVM.getStd().name());
         Student student = studentMapper.toModel(onboardingVM);
         student.addClass(classDetail);
         addUpload(student, onboardingVM);
@@ -117,18 +112,16 @@ public class StudentService {
         return save.getId();
     }
 
-
     public void notify(Student student) {
-        Map<String, Object> map = Map.of("studentName", student.getName(),
-            "className", student.getClassDetails()
-                .first()
-                .getStd());
-        outboundCommunicationService.send(CommunicationRequest.builder()
-            .channel(CommunicationChannel.SMS)
-            .recipient(new String[]{student.getPhoneNumber()})
-            .content(mailService.renderTemplate("mail/student_enroll.vm", map))
-            .entityType("PAYMENT")
-            .build());
+        Map<String, Object> map = Map.of("studentName", student.getName(), "className", student.getClassDetails().first().getStd());
+        outboundCommunicationService.send(
+            CommunicationRequest.builder()
+                .channel(CommunicationChannel.SMS)
+                .recipient(new String[] { student.getPhoneNumber() })
+                .content(mailService.renderTemplate("mail/student_enroll.vm", map))
+                .entityType("PAYMENT")
+                .build()
+        );
     }
 
     @Transactional
@@ -157,26 +150,19 @@ public class StudentService {
         byId
             .getUploadedDocuments()
             .forEach(item -> {
-                if (item.getDocumentType()
-                    .equals(AADHAAR_CARD)) {
-                    studentDetailsDTO.getAadhaarCard()
-                        .add(uploadMapper.toEntity(item));
-                } else if (item.getDocumentType()
-                    .equals(BIRTH_CERTIFICATE)) {
-                    studentDetailsDTO.getBirthCertificate()
-                        .add(uploadMapper.toEntity(item));
-                } else if (item.getDocumentType()
-                    .equals(PAN_CARD)) {
-                    studentDetailsDTO.getPanCard()
-                        .add(uploadMapper.toEntity(item));
+                if (item.getDocumentType().equals(AADHAAR_CARD)) {
+                    studentDetailsDTO.getAadhaarCard().add(uploadMapper.toEntity(item));
+                } else if (item.getDocumentType().equals(BIRTH_CERTIFICATE)) {
+                    studentDetailsDTO.getBirthCertificate().add(uploadMapper.toEntity(item));
+                } else if (item.getDocumentType().equals(PAN_CARD)) {
+                    studentDetailsDTO.getPanCard().add(uploadMapper.toEntity(item));
                 }
             });
     }
 
     @Transactional
     public StudentBasicDTO basicSearchStudent(long id) {
-        Student byId = studentRepository.findById(id)
-            .orElse(null);
+        Student byId = studentRepository.findById(id).orElse(null);
         if (byId != null) {
             return studentMapper.toBasicEntity(byId);
         }
@@ -194,8 +180,7 @@ public class StudentService {
 
     @Transactional
     public void editStudentDetails(UserEditVM editVM) {
-        Student byId = studentRepository.findById(editVM.getId())
-            .orElse(null);
+        Student byId = studentRepository.findById(editVM.getId()).orElse(null);
         if (byId != null) {
             studentMapper.toUpdateModel(editVM, byId);
             if (editVM.getAadhaarCard() != null) {
@@ -212,13 +197,11 @@ public class StudentService {
                 editVM
                     .getDependent()
                     .forEach(dependentVM -> {
-                        Dependent dependent = dependentRepository.findById(dependentVM.getId())
-                            .orElse(null);
+                        Dependent dependent = dependentRepository.findById(dependentVM.getId()).orElse(null);
 
                         dependentMapper.toUpdateModel(dependentVM, dependent);
                         if (dependentVM.getAadhaarCard() != null) {
-                            dependent.getUploadedDocuments()
-                                .forEach(item -> item.setDependent(dependent));
+                            dependent.getUploadedDocuments().forEach(item -> item.setDependent(dependent));
                         }
                         dependentRepository.saveAndFlush(dependent);
                     });
@@ -227,8 +210,7 @@ public class StudentService {
     }
 
     public void deactivate(DeactivateVm vm) {
-        Student byId = studentRepository.findById(vm.getId())
-            .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        Student byId = studentRepository.findById(vm.getId()).orElseThrow(() -> new ResourceNotFoundException("Student not found"));
         byId.setActive(Boolean.FALSE);
         byId.setTerminationDate(LocalDateTime.now());
         byId.setTc(vm.getTc());
@@ -247,47 +229,37 @@ public class StudentService {
             .getDependents()
             .stream()
             .filter(item -> !CollectionUtils.isEmpty(item.getUploadedDocuments()))
-            .forEach(item -> item.getUploadedDocuments()
-                .forEach(upload -> upload.setDependent(item)));
+            .forEach(item -> item.getUploadedDocuments().forEach(upload -> upload.setDependent(item)));
     }
 
     @Transactional
     public int calculatePendingMonthFees(StudentBasicDTO student, Long classId, @NotNull Session sessionFrom) {
         List<Transaction> transactionList = transactionRepository.fetchStudentFeesTransactionByClassId(student.getId(), classId);
-        LocalDateTime date = student.getCreatedDate()
-            .isBefore(sessionFrom.getFromDate()
-                .atStartOfDay())
-            ? sessionFrom.getFromDate()
-            .atStartOfDay()
+        LocalDateTime date = student.getCreatedDate().isBefore(sessionFrom.getFromDate().atStartOfDay())
+            ? sessionFrom.getFromDate().atStartOfDay()
             : student.getCreatedDate();
         if (!CollectionUtils.isEmpty(transactionList)) {
             for (Transaction transaction : transactionList) {
                 Optional<LocalDate> tuition_fees = transaction
                     .getFeesLineItem()
                     .stream()
-                    .filter(fees -> fees.getFeesProduct() != null && fees.getFeesProduct()
-                        .getFeesName()
-                        .equals("TUITION FEES"))
-                    .map(u -> YearMonth.parse(u.getMonth(), DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT))
-                        .atEndOfMonth())
+                    .filter(fees -> fees.getFeesProduct() != null && fees.getFeesProduct().getFeesName().equals("TUITION FEES"))
+                    .map(u -> YearMonth.parse(u.getMonth(), DateTimeFormatter.ofPattern(MONTH_YEAR_FORMAT)).atEndOfMonth())
                     .max(LocalDate::compareTo);
                 if (tuition_fees.isPresent()) {
-                    return Period
-                        .between(tuition_fees.orElseThrow()
-                            .withDayOfMonth(1), isDateAfterCurrent(sessionFrom.getToDate()))
-                        .getMonths();
+                    return Period.between(
+                        tuition_fees.orElseThrow().withDayOfMonth(1),
+                        isDateAfterCurrent(sessionFrom.getToDate())
+                    ).getMonths();
                 }
             }
         }
-        return Period.between(date.withDayOfMonth(1)
-                .toLocalDate(), isDateAfterCurrent(sessionFrom.getToDate()))
-            .getMonths();
+        return Period.between(date.withDayOfMonth(1).toLocalDate(), isDateAfterCurrent(sessionFrom.getToDate())).getMonths();
     }
 
     @Transactional
     public void addTransport(TransportVm transport) {
-        Student student = studentRepository.findById(transport.getStudentId())
-            .orElseThrow();
+        Student student = studentRepository.findById(transport.getStudentId()).orElseThrow();
         StudentToTransport studentToTransport = studentToTransportMapper.toEntity(transport);
         studentToTransport.setStudent(student);
         student.addTransport(studentToTransport);
@@ -295,12 +267,8 @@ public class StudentService {
     }
 
     public void discontinueTransport(Long id, Long locationId) {
-        StudentToTransportId toTransportId = StudentToTransportId.builder()
-            .studentId(id)
-            .transportId(locationId)
-            .build();
-        StudentToTransport studentToTransport = studentToTransportRepository.findById(toTransportId)
-            .orElseThrow();
+        StudentToTransportId toTransportId = StudentToTransportId.builder().studentId(id).transportId(locationId).build();
+        StudentToTransport studentToTransport = studentToTransportRepository.findById(toTransportId).orElseThrow();
         studentToTransport.setEndDate(Instant.now());
         studentToTransportRepository.saveAndFlush(studentToTransport);
     }
@@ -310,8 +278,7 @@ public class StudentService {
         Map<Long, Integer> result = new HashMap<>();
 
         // Batch query to get all pending fees for students in one go
-        List<Object[]> pendingFeesData = transactionRepository.fetchPendingFeesBatch(studentIds, classId,
-            session.getId());
+        List<Object[]> pendingFeesData = transactionRepository.fetchPendingFeesBatch(studentIds, classId, session.getId());
 
         for (Object[] data : pendingFeesData) {
             Long studentId = (Long) data[0];
@@ -336,8 +303,7 @@ public class StudentService {
      */
     @Transactional
     public byte[] generateEnrollmentLetter(Long studentId) throws IOException {
-        Student student = studentRepository.findById(studentId)
-            .orElse(null);
+        Student student = studentRepository.findById(studentId).orElse(null);
         if (student != null) {
             EnrollmentLetterDTO enrollmentLetterDTO = studentMapper.toPrintEntity(student);
             try (InputStream inputStream = getClass().getResourceAsStream(JASPER_FOLDER + "Enrollment_Letter.jrxml")) {
@@ -350,17 +316,16 @@ public class StudentService {
                                 .clause("Fee Payment")
                                 .value("Monthly fees must be cleared by the 20th of each month; late payments will attract a fine.")
                                 .build(),
-                            LetterClause.builder()
-                                .clause("Attendance")
-                                .value("Student must maintain a minimum of 80% attendance.")
-                                .build(),
+                            LetterClause.builder().clause("Attendance").value("Student must maintain a minimum of 80% attendance.").build(),
                             LetterClause.builder()
                                 .clause("Parent–Teacher Meetings")
                                 .value("Parents are required to attend all PTMs without fail.")
                                 .build(),
                             LetterClause.builder()
                                 .clause("Code of Conduct")
-                                .value("Students must follow the prescribed uniform and maintain proper discipline and conduct at all times.")
+                                .value(
+                                    "Students must follow the prescribed uniform and maintain proper discipline and conduct at all times."
+                                )
                                 .build()
                         )
                     )
@@ -378,8 +343,7 @@ public class StudentService {
      * @param enrollment_letter the file upload details
      */
     public void attachEnrollment(Long id, FileUploadVM enrollment_letter) {
-        Student student = studentRepository.findById(id)
-            .orElse(null);
+        Student student = studentRepository.findById(id).orElse(null);
         if (student != null) {
             Upload model = uploadMapper.toModel(enrollment_letter);
             student.setEnrolLetter(model);
@@ -396,39 +360,42 @@ public class StudentService {
      */
     @Transactional
     public String fetchEnrollment(Long studentId) throws IOException {
-        Student student = studentRepository.findById(studentId)
-            .orElseThrow();
+        Student student = studentRepository.findById(studentId).orElseThrow();
         Upload enrollmentLetter = student.getEnrolLetter();
         if (enrollmentLetter != null) {
-            return uploadService.getURL(enrollmentLetter.getUid());
+            return uploadService.getURL(enrollmentLetter.getUid(), uploadService.getDocsBucket());
         } else {
             byte[] bytes = generateEnrollmentLetter(studentId);
-            FileUploadVM enrollment_letter = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, ENROLLMENT_LETTER);
+            String studentName = student.getName().replaceAll("[^a-zA-Z0-9]", "_");
+            FileUploadVM enrollment_letter = uploadService.save(
+                bytes,
+                MediaType.APPLICATION_PDF_VALUE,
+                ENROLLMENT_LETTER,
+                uploadService.getDocsBucket(),
+                "student/" + studentName
+            );
             enrollment_letter.setName(student.getName());
             attachEnrollment(studentId, enrollment_letter);
-            return uploadService.getURL(enrollment_letter.getUid());
+            return uploadService.getURL(enrollment_letter.getUid(), uploadService.getDocsBucket());
         }
     }
 
     @Transactional
     public void notifyParent(Long studentId) {
-        studentRepository.findById(studentId)
+        studentRepository
+            .findById(studentId)
             .ifPresent(student -> {
-
-                Map<String, Object> map = Map.of("studentName", student.getName(),
-                    "className", student.getClassDetails()
-                        .first()
-                        .getStd());
-                outboundCommunicationService.send(CommunicationRequest.builder()
-                    .channel(CommunicationChannel.SMS)
-                    .recipient(new String[]{student.getPhoneNumber()})
-                    .content(mailService.renderTemplate("mail/student_enroll.vm", map))
-                    .entityType(student.getClass()
-                        .getName())
-                    .subject("Enrollment Successful")
-                    .entityId(student.getId())
-                    .build());
+                Map<String, Object> map = Map.of("studentName", student.getName(), "className", student.getClassDetails().first().getStd());
+                outboundCommunicationService.send(
+                    CommunicationRequest.builder()
+                        .channel(CommunicationChannel.SMS)
+                        .recipient(new String[] { student.getPhoneNumber() })
+                        .content(mailService.renderTemplate("mail/student_enroll.vm", map))
+                        .entityType(student.getClass().getName())
+                        .subject("Enrollment Successful")
+                        .entityId(student.getId())
+                        .build()
+                );
             });
-
     }
 }

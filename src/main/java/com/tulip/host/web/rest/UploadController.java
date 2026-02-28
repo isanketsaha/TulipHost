@@ -2,6 +2,8 @@ package com.tulip.host.web.rest;
 
 import com.tulip.host.service.UploadService;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileUploadException;
@@ -16,9 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/file")
 @RequiredArgsConstructor
@@ -27,25 +26,30 @@ public class UploadController {
 
     private final UploadService uploadService;
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String save(@ModelAttribute MultipartFile documents) throws FileUploadException {
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+    public String save(@RequestParam("documents") MultipartFile documents, @RequestParam(required = false) String prefix)
+        throws FileUploadException {
         log.info(documents.toString());
-        return uploadService.save(documents);
+        return uploadService.save(documents, prefix);
     }
 
     @GetMapping
-    public String preSignedURL(@RequestParam String uuid) {
-        return uploadService.getURL(uuid);
+    public String preSignedURL(@RequestParam String uuid, @RequestParam(required = false) String bucket) {
+        String bucketName = bucket != null ? bucket : uploadService.getDocsBucket();
+        return uploadService.getURL(uuid, bucketName);
     }
 
     @DeleteMapping
-    public void delete(@RequestParam String uuid) {
-        uploadService.delete(uuid);
+    public void delete(@RequestParam String uuid, @RequestParam(required = false) String bucket) {
+        String bucketName = bucket != null ? bucket : uploadService.getDocsBucket();
+        uploadService.delete(uuid, bucketName);
     }
 
     @GetMapping("/download")
-    public void download(@RequestParam String uuid, HttpServletResponse response) throws IOException {
-        byte[] download = uploadService.download(uuid);
+    public void download(@RequestParam String uuid, @RequestParam(required = false) String bucket, HttpServletResponse response)
+        throws IOException {
+        String bucketName = bucket != null ? bucket : uploadService.getDocsBucket();
+        byte[] download = uploadService.download(uuid, bucketName);
         ByteArrayInputStream output = new ByteArrayInputStream(download);
         IOUtils.copy(output, response.getOutputStream());
         IOUtils.closeQuietly(output);
