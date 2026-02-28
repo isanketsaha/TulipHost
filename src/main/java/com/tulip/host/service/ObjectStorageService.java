@@ -82,12 +82,14 @@ public class ObjectStorageService {
     public String save(MultipartFile file, String bucketName, String prefix) throws FileUploadException {
         // Always include date folder (MMM/dd), with optional prefix prepended
         String dateFolder = CommonUtils.formatFromDate(LocalDate.now(), "MMM-yyyy");
-        final String FOLDER = (prefix != null ? prefix + "/" + dateFolder + "/" : dateFolder + "/");
+        final String FOLDER = (prefix != null ? CommonUtils.sanitizeFileName(prefix) + "/" + dateFolder + "/" : dateFolder + "/");
         try {
             String fileName = file.getOriginalFilename();
             if (fileName == null || fileName.isBlank()) {
                 fileName = UUID.randomUUID().toString().replace("-", "");
             }
+            // Sanitize filename before storing to prevent injection and ensure key consistency
+            fileName = CommonUtils.sanitizeFileName(fileName);
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentType(file.getContentType());
             objectMetadata.setContentLength(file.getSize());

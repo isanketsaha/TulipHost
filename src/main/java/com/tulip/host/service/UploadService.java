@@ -1,6 +1,7 @@
 package com.tulip.host.service;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.FileUploadVM;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
@@ -21,32 +22,13 @@ public class UploadService {
         try {
             log.info("Starting file upload for: {}", documents.getOriginalFilename());
             String result = storageService.save(documents, storageService.getDocsBucket(), prefix);
-            String sanitizedResult = sanitizeKeyForClient(result);
+            String sanitizedResult = CommonUtils.sanitizeKey(result);
             log.info("File upload completed successfully: {}", sanitizedResult);
             return sanitizedResult;
         } catch (Exception e) {
             log.error("File upload failed for: {}", documents.getOriginalFilename(), e);
             throw new FileUploadException("Failed to upload file: " + e.getMessage());
         }
-    }
-
-    /**
-     * Sanitizes S3 keys before returning them to clients to prevent XSS injection.
-     * Removes or replaces characters that are unsafe in HTML/JS contexts.
-     */
-    private String sanitizeKeyForClient(String key) {
-        if (key == null) {
-            return null;
-        }
-        StringBuilder sb = new StringBuilder(key.length());
-        for (char c : key.toCharArray()) {
-            if (Character.isLetterOrDigit(c) || c == '-' || c == '_' || c == '.' || c == '/') {
-                sb.append(c);
-            } else {
-                sb.append('_');
-            }
-        }
-        return sb.toString();
     }
 
     @Async
