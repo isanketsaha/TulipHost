@@ -1,5 +1,6 @@
 package com.tulip.host.service;
 
+import static com.tulip.host.config.Constants.CALLING_CODE;
 import static com.tulip.host.config.Constants.DUES;
 import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
 import static com.tulip.host.config.Constants.TRANSPORT_FEES;
@@ -61,6 +62,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -501,16 +503,18 @@ public class PaymentService {
                 uploadService.getURL(transaction.getInvoice().getUid(), uploadService.getInvoiceBucket()),
                 "TRANSACTION_SLIP"
             );
-            Map<String, Object> map = Map.of(
-                "studentName",
+            Map<String, String> map = Map.of(
+                "mobiles",
+                CALLING_CODE + transaction.getStudent().getPhoneNumber(),
+                "name",
                 transaction.getStudent().getName(),
                 "amount",
-                transaction.getAfterDiscount(),
+                String.valueOf(transaction.getAfterDiscount()),
                 "receiptNo",
-                transaction.getId(),
+                String.valueOf(transaction.getId()),
                 "paymentType",
                 transaction.getType(),
-                "shortUrl",
+                "url",
                 url,
                 "paymentMode",
                 transaction.getPaymentMode()
@@ -518,8 +522,8 @@ public class PaymentService {
             outboundCommunicationService.send(
                 CommunicationRequest.builder()
                     .channel(CommunicationChannel.SMS)
-                    .recipient(new String[] { transaction.getStudent().getPhoneNumber() })
-                    .content(mailService.renderTemplate("mail/payment_successful.vm", map))
+                    .smsRecipient(List.of(new HashMap<>(map)))
+                    .content("69a3e0cf6a78689b5c044dd3")
                     .entityType("PAYMENT")
                     .entityId(transaction.getId())
                     .subject("PAYMENT_SUCCESS_NOTIFICATION")

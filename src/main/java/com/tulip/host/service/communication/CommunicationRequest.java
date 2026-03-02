@@ -15,7 +15,8 @@ public class CommunicationRequest {
     @Builder.Default
     CommunicationChannel channel = CommunicationChannel.EMAIL;
 
-    String[] recipient;
+    String[] mailRecipient;
+    List<Map<String, String>> smsRecipient;
 
     @Builder.Default
     String[] cc = new String[] {};
@@ -23,7 +24,6 @@ public class CommunicationRequest {
     String subject;
     String content;
     String entityType;
-    String templateId;
     Long entityId;
     List<MailService.EmailAttachment> attachments;
 }

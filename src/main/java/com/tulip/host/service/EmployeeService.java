@@ -293,7 +293,7 @@ public class EmployeeService {
                 );
                 outboundCommunicationService.send(
                     CommunicationRequest.builder()
-                        .recipient(new String[] { employee.getEmail() })
+                        .mailRecipient(new String[] { employee.getEmail() })
                         .cc(ccEmails)
                         .content(mailService.renderTemplate("mail/employee_onboard.vm", map))
                         .entityType(employee.getClass().getName())

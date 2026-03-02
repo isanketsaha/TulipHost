@@ -73,7 +73,7 @@ app:
     auth:
       tokens:
         eoffice: 'Basic VHVsaXBTY2hvb2w6dHVsaXBhZG1pbjpSYWtoaUAwNjp0cnVlOg=='
-        msg-gateway: 'Bearer payment-token-abc'
+        msg-gateway: '488258AEXxpo8SgEVu69739eebP1'
 management:
   endpoints:
     web:
@@ -300,6 +300,7 @@ application:
     key: ${twilio.key}
     message_sid: ${twilio.msid}
     default_email: ${default.email:sanketsaha@gmail.com}
-    default_phone: ${default.phone:null}
+    default_phone: ${default.phone:8886860461}
+    communication_enabled: false
   tinyurl:
     key: ${tinyurl.key}

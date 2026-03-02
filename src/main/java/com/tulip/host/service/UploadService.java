@@ -20,10 +20,8 @@ public class UploadService {
 
     public String save(MultipartFile documents, String prefix) throws FileUploadException {
         try {
-            log.info("Starting file upload for: {}", documents.getOriginalFilename());
             String result = storageService.save(documents, storageService.getDocsBucket(), prefix);
             String sanitizedResult = CommonUtils.sanitizeKey(result);
-            log.info("File upload completed successfully: {}", sanitizedResult);
             return sanitizedResult;
         } catch (Exception e) {
             log.error("File upload failed for: {}", documents.getOriginalFilename(), e);
@@ -58,24 +56,33 @@ public class UploadService {
         return FileUploadVM.builder().status("done").type(mediaType).uid(uid).documentType(docsType).build();
     }
 
+    /**
+     * Get URL for docs bucket (default)
+     */
     public String getURL(String uuid) {
-        return storageService.createURL(uuid).toString();
+        return getURL(uuid, storageService.getDocsBucket());
     }
 
     public String getURL(String uuid, String bucketName) {
         return storageService.createURL(uuid, bucketName).toString();
     }
 
+    /**
+     * Delete from docs bucket (default)
+     */
     public void delete(String uuid) {
-        storageService.deleteObject(uuid);
+        delete(uuid, storageService.getDocsBucket());
     }
 
     public void delete(String uuid, String bucketName) {
         storageService.deleteObject(uuid, bucketName);
     }
 
+    /**
+     * Download from docs bucket (default)
+     */
     public byte[] download(String uuid) {
-        return storageService.downloadObject(uuid);
+        return download(uuid, storageService.getDocsBucket());
     }
 
     public byte[] download(String uuid, String bucketName) {

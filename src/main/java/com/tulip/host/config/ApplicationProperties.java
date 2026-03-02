@@ -1,8 +1,6 @@
 package com.tulip.host.config;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -68,6 +66,7 @@ public class ApplicationProperties {
         private String messageSid;
         private String defaultEmail;
         private String defaultPhone;
+        private boolean communicationEnabled = false;
     }
 
     @Data

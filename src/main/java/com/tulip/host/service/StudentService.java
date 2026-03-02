@@ -117,7 +117,7 @@ public class StudentService {
         outboundCommunicationService.send(
             CommunicationRequest.builder()
                 .channel(CommunicationChannel.SMS)
-                .recipient(new String[] { student.getPhoneNumber() })
+                //                .recipient(new String[] { student.getPhoneNumber() })
                 .content(mailService.renderTemplate("mail/student_enroll.vm", map))
                 .entityType("PAYMENT")
                 .build()
@@ -385,12 +385,12 @@ public class StudentService {
         studentRepository
             .findById(studentId)
             .ifPresent(student -> {
-                Map<String, Object> map = Map.of("studentName", student.getName(), "className", student.getClassDetails().first().getStd());
+                Map<String, String> map = Map.of("studentName", student.getName(), "className", student.getClassDetails().first().getStd());
                 outboundCommunicationService.send(
                     CommunicationRequest.builder()
                         .channel(CommunicationChannel.SMS)
-                        .recipient(new String[] { student.getPhoneNumber() })
-                        .content(mailService.renderTemplate("mail/student_enroll.vm", map))
+                        .smsRecipient(List.of(map))
+                        .content("")
                         .entityType(student.getClass().getName())
                         .subject("Enrollment Successful")
                         .entityId(student.getId())

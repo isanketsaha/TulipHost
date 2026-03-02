@@ -75,6 +75,7 @@ public class ExportService {
         List<StockExportDTO> stockExportDTOS = catalogGrouped
             .entrySet()
             .stream()
+            .sorted(Comparator.comparing(entry -> entry.getKey().getId()))
             .map(entry -> inventoryMapper.toAggregatedStockExportDTO(entry.getKey(), entry.getValue()))
             .toList();
         List<Object> list = new ArrayList<>(stockExportDTOS);

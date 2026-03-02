@@ -3,6 +3,7 @@ package com.tulip.host.client;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,10 +22,11 @@ public class SmsRequest {
     private Integer shortUrl; // 1 or 0
 
     @JsonProperty("short_url_expiry")
-    private Integer shortUrlExpiry; // seconds (optional)
+    private Integer shortUrlExpiry = 150;
 
     @JsonProperty("realTimeResponse")
-    private Integer realTimeResponse; // 1 (optional)
+    private Integer realTimeResponse;
 
-    private HashMap<String, String> recipients;
+    @JsonProperty("recipients")
+    private List<Map<String, String>> recipients;
 }

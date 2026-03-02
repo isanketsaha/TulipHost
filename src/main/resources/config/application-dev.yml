@@ -125,3 +125,5 @@ application:
       secret: ${s3.secret}
       bucket-name: ${s3.bucket}
       invoice-bucket-name: ${s3.invoice.bucket}
+  twilio_config:
+    communication_enabled: true
