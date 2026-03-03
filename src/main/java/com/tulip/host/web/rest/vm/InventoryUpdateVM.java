@@ -7,10 +7,13 @@ import lombok.Data;
 public class InventoryUpdateVM {
 
     @NotNull
-    Long inventoryId;
+    Long productCatalogId;
 
     @NotNull
     Double unitPrice;
+
+    @NotNull
+    Double mrp;
 
     @NotNull
     Integer purchasedQty;
@@ -19,6 +22,6 @@ public class InventoryUpdateVM {
 
     String vendor;
 
-    // Flag to deactivate the old inventory batch when creating a new refill
+    // Flag to deactivate all active inventory batches for this product when creating a new refill
     boolean deactivateOld = false;
 }

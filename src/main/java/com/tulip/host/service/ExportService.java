@@ -15,6 +15,7 @@ import com.tulip.host.domain.Student;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.domain.Upload;
 import com.tulip.host.enums.PayTypeEnum;
+import com.tulip.host.enums.UploadTypeEnum;
 import com.tulip.host.mapper.InventoryMapper;
 import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.mapper.TransactionMapper;
@@ -23,11 +24,13 @@ import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.service.communication.OutboundCommunicationService;
 import com.tulip.host.utils.CommonUtils;
 import com.tulip.host.web.rest.vm.FileUploadVM;
+import io.github.rushuat.ocell.annotation.FieldName;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -136,6 +139,51 @@ public class ExportService {
             }
         }
         return null;
+    }
+
+    /**
+     * Generates an empty Excel template with headers derived from @FieldName annotations
+     * on the upload type's VM class (and its superclasses). The sheet is named after the
+     * upload type so the ocell parser can locate it during import.
+     */
+    public XSSFWorkbook downloadTemplate(UploadTypeEnum uploadType) {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        org.apache.poi.xssf.usermodel.XSSFSheet sheet = workbook.createSheet(uploadType.name());
+        org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
+
+        org.apache.poi.ss.usermodel.CellStyle style = workbook.createCellStyle();
+        org.apache.poi.xssf.usermodel.XSSFFont font = workbook.createFont();
+        font.setBold(true);
+        font.setFontHeight(12);
+        style.setFont(font);
+        style.setFillForegroundColor(org.apache.poi.ss.usermodel.IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+        style.setFillPattern(org.apache.poi.ss.usermodel.FillPatternType.SOLID_FOREGROUND);
+        style.setBorderBottom(org.apache.poi.ss.usermodel.BorderStyle.THIN);
+
+        List<String> headers = new ArrayList<>();
+        Class<?> clazz = uploadType.getFormat();
+        // Walk class hierarchy to collect @FieldName annotations (superclass first)
+        List<Class<?>> hierarchy = new ArrayList<>();
+        while (clazz != null && clazz != Object.class) {
+            hierarchy.add(0, clazz);
+            clazz = clazz.getSuperclass();
+        }
+        for (Class<?> c : hierarchy) {
+            for (Field field : c.getDeclaredFields()) {
+                FieldName annotation = field.getAnnotation(FieldName.class);
+                if (annotation != null) {
+                    headers.add(annotation.value());
+                }
+            }
+        }
+
+        for (int i = 0; i < headers.size(); i++) {
+            org.apache.poi.ss.usermodel.Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers.get(i));
+            cell.setCellStyle(style);
+            sheet.autoSizeColumn(i);
+        }
+        return workbook;
     }
 
     public XSSFWorkbook transactionHistory(List<LocalDate> transactionMonths) {

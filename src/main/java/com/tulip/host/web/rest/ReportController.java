@@ -4,6 +4,7 @@ import static com.tulip.host.config.Constants.DATE_PATTERN;
 
 import com.tulip.host.data.DashBoardStaffDTO;
 import com.tulip.host.data.DashBoardStudentDTO;
+import com.tulip.host.data.InventoryBatchDTO;
 import com.tulip.host.data.InventoryItemDTO;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.service.ProductService;
@@ -58,5 +59,10 @@ public class ReportController {
     @GetMapping("/sales")
     public Map<String, Map<String, Double>> salesReport(@RequestParam @DateTimeFormat(pattern = DATE_PATTERN) LocalDate date) {
         return dashboardService.salesReport(date);
+    }
+
+    @GetMapping("/inventoryBatches")
+    public List<InventoryBatchDTO> inventoryBatches(@RequestParam Long productCatalogId) {
+        return dashboardService.inventoryBatches(productCatalogId);
     }
 }

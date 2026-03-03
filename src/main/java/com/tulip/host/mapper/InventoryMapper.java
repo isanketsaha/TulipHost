@@ -1,5 +1,6 @@
 package com.tulip.host.mapper;
 
+import com.tulip.host.data.InventoryBatchDTO;
 import com.tulip.host.data.InventoryItemDTO;
 import com.tulip.host.data.ProductDTO;
 import com.tulip.host.data.StockExportDTO;
@@ -93,6 +94,28 @@ public interface InventoryMapper {
      */
     @Mapping(target = "std", source = "std.std")
     ProductDTO toProductDTO(ProductCatalog source);
+
+    /**
+     * Map a single Inventory batch to InventoryBatchDTO, computing available qty inline.
+     */
+    default InventoryBatchDTO toBatchDTO(Inventory inv) {
+        if (inv == null) return null;
+        int used = inv.getPurchaseLineItems() == null
+            ? 0
+            : inv.getPurchaseLineItems().stream().mapToInt(com.tulip.host.domain.PurchaseLineItem::getQty).sum();
+        InventoryBatchDTO dto = new InventoryBatchDTO();
+        dto.setId(inv.getId());
+        dto.setPurchasedQty(inv.getQty());
+        dto.setAvailableQty(inv.getQty() - used);
+        dto.setPurchasePrice(inv.getPurchasePrice());
+        dto.setMrp(inv.getMrp());
+        dto.setVendor(inv.getVendor());
+        dto.setDiscountPercent(inv.getDiscountPercent());
+        dto.setActive(inv.getActive());
+        dto.setCreatedDate(inv.getCreatedDate());
+        dto.setCreatedBy(inv.getCreatedBy());
+        return dto;
+    }
 
     /**
      * Calculate the highest inventory price for a product.

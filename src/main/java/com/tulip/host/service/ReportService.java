@@ -5,6 +5,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import com.querydsl.core.BooleanBuilder;
 import com.tulip.host.data.DashBoardStaffDTO;
 import com.tulip.host.data.DashBoardStudentDTO;
+import com.tulip.host.data.InventoryBatchDTO;
 import com.tulip.host.data.InventoryItemDTO;
 import com.tulip.host.data.PaySummaryDTO;
 import com.tulip.host.domain.Inventory;
@@ -132,5 +133,14 @@ public class ReportService {
     public Map<String, Map<String, Double>> salesReport(java.time.LocalDate date) {
         Map<String, Map<String, Double>> stringMapMap = transactionRepository.fetchSalesReport(date);
         return stringMapMap;
+    }
+
+    @Transactional
+    public List<InventoryBatchDTO> inventoryBatches(Long productCatalogId) {
+        return inventoryRepository
+            .findAllByProduct_IdOrderByCreatedDateDesc(productCatalogId)
+            .stream()
+            .map(inventoryMapper::toBatchDTO)
+            .toList();
     }
 }
