@@ -1,5 +1,6 @@
 package com.tulip.host.web.rest;
 
+import com.tulip.host.enums.UploadTypeEnum;
 import com.tulip.host.service.ExportService;
 import com.tulip.host.service.UploadService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -66,6 +67,18 @@ public class ExportController {
         throws IOException, FileUploadException {
         String bucketName = bucket != null ? bucket : uploadService.getDocsBucket();
         return uploadService.getURL(uid, bucketName);
+    }
+
+    @GetMapping("/template")
+    public void downloadTemplate(@RequestParam UploadTypeEnum type, HttpServletResponse response) throws IOException {
+        XSSFWorkbook workbook = exportService.downloadTemplate(type);
+        response.setContentType(
+            MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8").toString()
+        );
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=TEMPLATE_" + type.name() + ".xlsx");
+        workbook.write(response.getOutputStream());
+        workbook.close();
+        response.getOutputStream().close();
     }
 
     @PostMapping("/transactionHistory")
