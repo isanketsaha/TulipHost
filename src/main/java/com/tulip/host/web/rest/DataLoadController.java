@@ -2,14 +2,17 @@ package com.tulip.host.web.rest;
 
 import com.tulip.host.enums.UploadTypeEnum;
 import com.tulip.host.service.CalendarService;
+import com.tulip.host.service.CatalogService;
 import com.tulip.host.service.DataLoadService;
 import com.tulip.host.service.ProductService;
 import com.tulip.host.service.UploadService;
 import com.tulip.host.web.rest.vm.FileUploadVM;
+import com.tulip.host.web.rest.vm.InventoryUpdateVM;
 import com.tulip.host.web.rest.vm.UploadVM;
 import com.tulip.host.web.rest.vm.dataload.CalenderLoadVM;
 import com.tulip.host.web.rest.vm.dataload.DataLoadVM;
 import com.tulip.host.web.rest.vm.dataload.FeesLoadVM;
+import com.tulip.host.web.rest.vm.dataload.InventoryRefillLoadVM;
 import com.tulip.host.web.rest.vm.dataload.ProductLoadVM;
 import com.tulip.host.web.rest.vm.dataload.SessionLoadVM;
 import io.github.rushuat.ocell.document.Document;
@@ -45,6 +48,7 @@ public class DataLoadController {
     private final UploadService uploadService;
     private final ProductService productService;
     private final CalendarService calendarService;
+    private final CatalogService catalogService;
 
     @PostMapping(value = "/add", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<String> load(@RequestBody UploadVM vm) {
@@ -59,6 +63,17 @@ public class DataLoadController {
                     dataLoadService.loadFees((List<FeesLoadVM>) data);
                 } else if (vm.getType().equals(UploadTypeEnum.CALENDER)) {
                     calendarService.createEvent((List<CalenderLoadVM>) data);
+                } else if (vm.getType().equals(UploadTypeEnum.INVENTORY_REFILL)) {
+                    ((List<InventoryRefillLoadVM>) data).forEach(row -> {
+                            InventoryUpdateVM payload = new InventoryUpdateVM();
+                            payload.setProductCatalogId(row.getProductCatalogId());
+                            payload.setUnitPrice(row.getUnitPrice());
+                            payload.setMrp(row.getMrp());
+                            payload.setPurchasedQty(row.getPurchasedQty());
+                            payload.setVendor(row.getVendor());
+                            payload.setDiscountPercent(row.getDiscountPercent());
+                            catalogService.updateProduct(payload);
+                        });
                 }
                 dataLoadService.addToUpload(vm.getFile());
                 return ResponseEntity.ok().build();

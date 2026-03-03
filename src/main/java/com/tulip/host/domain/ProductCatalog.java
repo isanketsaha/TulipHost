@@ -1,9 +1,5 @@
 package com.tulip.host.domain;
 
-import java.util.Set;
-
-import org.hibernate.annotations.FilterDef;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,12 +12,14 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.FilterDef;
 
 @Builder
 @AllArgsConstructor
@@ -43,10 +41,6 @@ public class ProductCatalog extends AbstractAuditingEntity {
     @NotNull
     @Column(name = "item_name", nullable = false)
     private String itemName;
-
-    @NotNull
-    @Column(name = "price", nullable = false)
-    private Double price;
 
     @Size(max = 100)
     @Column(name = "tag", nullable = false, length = 100)

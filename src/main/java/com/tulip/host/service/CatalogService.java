@@ -150,36 +150,38 @@ public class CatalogService {
      */
     @Transactional
     public void updateProduct(InventoryUpdateVM stockUpdateVM) {
-        // Get existing inventory to access the product reference
-        Inventory existingInventory = inventoryRepository
-            .findById(stockUpdateVM.getInventoryId())
-            .orElseThrow(() -> new RuntimeException("Inventory not found with id: " + stockUpdateVM.getInventoryId()));
+        ProductCatalog product = productCatalogRepository
+            .findById(stockUpdateVM.getProductCatalogId())
+            .orElseThrow(() -> new RuntimeException("Product not found with id: " + stockUpdateVM.getProductCatalogId()));
 
-        ProductCatalog product = existingInventory.getProduct();
+        // If deactivateOld, mark all active inventory batches for this product as inactive
+        if (stockUpdateVM.isDeactivateOld()) {
+            inventoryRepository
+                .findByProductAndActiveTrue(product)
+                .forEach(inv -> {
+                    inv.setActive(false);
+                    inventoryRepository.saveAndFlush(inv);
+                });
+        }
 
         // Create a NEW inventory entry for this refill (never update existing records)
         Inventory newInventoryRefill = Inventory.builder()
             .product(product)
             .purchasePrice(stockUpdateVM.getUnitPrice())
+            .mrp(stockUpdateVM.getMrp())
             .qty(stockUpdateVM.getPurchasedQty())
             .discountPercent(stockUpdateVM.getDiscountPercent())
             .vendor(stockUpdateVM.getVendor())
             .active(true)
             .build();
 
-        // If wanting to deactivate old batch, mark it inactive
-        if (stockUpdateVM.isDeactivateOld()) {
-            existingInventory.setActive(false);
-            inventoryRepository.saveAndFlush(existingInventory);
-        }
-
-        // Save new refill entry
         inventoryRepository.saveAndFlush(newInventoryRefill);
         log.info(
-            "New inventory refill created for product {} with qty {} at price {}",
+            "New inventory refill created for product {} with qty {} at purchase price {} / mrp {}",
             product.getItemName(),
             stockUpdateVM.getPurchasedQty(),
-            stockUpdateVM.getUnitPrice()
+            stockUpdateVM.getUnitPrice(),
+            stockUpdateVM.getMrp()
         );
     }
 }
