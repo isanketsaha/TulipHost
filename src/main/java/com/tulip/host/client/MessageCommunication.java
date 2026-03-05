@@ -11,6 +11,9 @@ public interface MessageCommunication {
     @PostMapping("/flow")
     String sendSMS(@RequestBody SmsRequest request);
 
+    @PostMapping("/whatsapp/whatsapp-outbound-message/bulk/")
+    String sendWhatsApp(@RequestBody WhatsAppBulkRequest request);
+
     @GetMapping("/report/analytics/p/sms")
     JsonNode getReport();
 }

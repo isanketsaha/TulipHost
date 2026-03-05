@@ -299,8 +299,11 @@ application:
     account_sid: ${twilio.asid}
     key: ${twilio.key}
     message_sid: ${twilio.msid}
-    default_email: ${default.email:sanketsaha@gmail.com}
-    default_phone: ${default.phone:8886860461}
+    default_email: ${default.email}
+    default_phone: ${default.phone}
     communication_enabled: false
   tinyurl:
     key: ${tinyurl.key}
+  whatsapp:
+    integrated-number: ${whatsapp.integrated.number}
+    namespace: ${whatsapp.namespace}

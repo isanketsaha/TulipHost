@@ -138,6 +138,11 @@ public class CommonUtils {
                 .filter(entry -> "mobiles".equalsIgnoreCase(entry.getKey()))
                 .map(entry -> String.valueOf(entry.getValue()))
                 .collect(Collectors.joining(", "));
+        } else if (request.getChannel().equals(CommunicationChannel.WHATSAPP)) {
+            if (request.getWhatsAppRecipient() == null || request.getWhatsAppRecipient().isEmpty()) {
+                return null;
+            }
+            return String.join(", ", request.getWhatsAppRecipient());
         }
         return null;
     }

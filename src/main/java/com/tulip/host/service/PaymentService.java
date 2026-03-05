@@ -499,36 +499,62 @@ public class PaymentService {
     public void notifyTransaction(Long transactionId) {
         Transaction transaction = transactionRepository.findById(transactionId).orElseThrow();
         if (List.of(PayTypeEnum.PURCHASE.name(), PayTypeEnum.FEES.name()).contains(transaction.getType())) {
-            String url = urlShortener.shortenUrl(
-                uploadService.getURL(transaction.getInvoice().getUid(), uploadService.getInvoiceBucket()),
-                "TRANSACTION_SLIP"
-            );
-            Map<String, String> map = Map.of(
-                "mobiles",
-                CALLING_CODE + transaction.getStudent().getPhoneNumber(),
-                "name",
-                transaction.getStudent().getName(),
-                "amount",
-                String.valueOf(transaction.getAfterDiscount()),
-                "receiptNo",
-                String.valueOf(transaction.getId()),
-                "paymentType",
-                transaction.getType(),
-                "url",
-                url,
-                "paymentMode",
-                transaction.getPaymentMode()
-            );
-            outboundCommunicationService.send(
-                CommunicationRequest.builder()
-                    .channel(CommunicationChannel.SMS)
-                    .smsRecipient(List.of(new HashMap<>(map)))
-                    .content("69a3e0cf6a78689b5c044dd3")
-                    .entityType("PAYMENT")
-                    .entityId(transaction.getId())
-                    .subject("PAYMENT_SUCCESS_NOTIFICATION")
-                    .build()
-            );
+            Student student = transaction.getStudent();
+            String invoiceUrl = uploadService.getURL(transaction.getInvoice().getUid(), uploadService.getInvoiceBucket());
+
+            if (Boolean.TRUE.equals(student.getWhatsappAvailable())) {
+                outboundCommunicationService.send(
+                    CommunicationRequest.builder()
+                        .channel(CommunicationChannel.WHATSAPP)
+                        .whatsAppRecipient(List.of(CALLING_CODE + student.getPhoneNumber()))
+                        .templateId("payment_confirmation")
+                        .templateVariables(
+                            Map.of(
+                                "name",
+                                student.getName(),
+                                "amount",
+                                String.valueOf(transaction.getAfterDiscount()),
+                                "payment_type",
+                                transaction.getType(),
+                                "payment_mode",
+                                transaction.getPaymentMode()
+                            )
+                        )
+                        .documentUrl(invoiceUrl)
+                        .documentFilename("Receipt_" + transaction.getId() + ".pdf")
+                        .entityType("PAYMENT")
+                        .entityId(transaction.getId())
+                        .build()
+                );
+            } else {
+                String shortUrl = urlShortener.shortenUrl(invoiceUrl, "TRANSACTION_SLIP");
+                Map<String, String> smsVars = Map.of(
+                    "mobiles",
+                    CALLING_CODE + student.getPhoneNumber(),
+                    "name",
+                    student.getName(),
+                    "amount",
+                    String.valueOf(transaction.getAfterDiscount()),
+                    "receiptNo",
+                    String.valueOf(transaction.getId()),
+                    "paymentType",
+                    transaction.getType(),
+                    "url",
+                    shortUrl,
+                    "paymentMode",
+                    transaction.getPaymentMode()
+                );
+                outboundCommunicationService.send(
+                    CommunicationRequest.builder()
+                        .channel(CommunicationChannel.SMS)
+                        .smsRecipient(List.of(new HashMap<>(smsVars)))
+                        .content("69a3e0cf6a78689b5c044dd3")
+                        .entityType("PAYMENT")
+                        .entityId(transaction.getId())
+                        .subject("PAYMENT_SUCCESS_NOTIFICATION")
+                        .build()
+                );
+            }
         }
     }
 }

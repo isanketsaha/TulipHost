@@ -2,6 +2,7 @@ package com.tulip.host.service;
 
 import static com.tulip.host.config.Constants.AADHAAR_CARD;
 import static com.tulip.host.config.Constants.BIRTH_CERTIFICATE;
+import static com.tulip.host.config.Constants.CALLING_CODE;
 import static com.tulip.host.config.Constants.ENROLLMENT_LETTER;
 import static com.tulip.host.config.Constants.JASPER_FOLDER;
 import static com.tulip.host.config.Constants.MONTH_YEAR_FORMAT;
@@ -24,7 +25,6 @@ import com.tulip.host.domain.StudentToTransportId;
 import com.tulip.host.domain.Transaction;
 import com.tulip.host.domain.Upload;
 import com.tulip.host.enums.CommunicationChannel;
-import com.tulip.host.enums.PayTypeEnum;
 import com.tulip.host.exceptions.ResourceNotFoundException;
 import com.tulip.host.mapper.ClassMapper;
 import com.tulip.host.mapper.DependentMapper;
@@ -385,17 +385,33 @@ public class StudentService {
         studentRepository
             .findById(studentId)
             .ifPresent(student -> {
-                Map<String, String> map = Map.of("studentName", student.getName(), "className", student.getClassDetails().first().getStd());
-                outboundCommunicationService.send(
-                    CommunicationRequest.builder()
-                        .channel(CommunicationChannel.SMS)
-                        .smsRecipient(List.of(map))
-                        .content("")
-                        .entityType(student.getClass().getName())
-                        .subject("Enrollment Successful")
-                        .entityId(student.getId())
-                        .build()
-                );
+                if (Boolean.TRUE.equals(student.getWhatsappAvailable())) {
+                    ClassDetail classDetails = student.getClassDetails().first();
+                    String enrollementUrl = uploadService.getURL(student.getEnrolLetter().getUid(), uploadService.getDocsBucket());
+                    outboundCommunicationService.send(
+                        CommunicationRequest.builder()
+                            .channel(CommunicationChannel.WHATSAPP)
+                            .whatsAppRecipient(List.of(CALLING_CODE + student.getPhoneNumber()))
+                            .templateId("student_enrollment")
+                            .templateVariables(
+                                Map.of(
+                                    "name",
+                                    student.getName(),
+                                    "std",
+                                    String.valueOf(classDetails.getStd()),
+                                    "parent_name",
+                                    student.getDependents().stream().findFirst().orElseThrow().getName(),
+                                    "year",
+                                    classDetails.getSession().getDisplayText()
+                                )
+                            )
+                            .documentUrl(enrollementUrl)
+                            .documentFilename("Enrollement - " + student.getName() + ".pdf")
+                            .entityType("ENROLLMENT")
+                            .entityId(student.getId())
+                            .build()
+                    );
+                }
             });
     }
 }
