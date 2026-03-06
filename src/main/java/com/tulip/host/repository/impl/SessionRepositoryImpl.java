@@ -24,7 +24,7 @@ public class SessionRepositoryImpl extends BaseRepositoryImpl<Session, Long> imp
 
     @Override
     public List<Session> listAllFinancialYears() {
-        return jpaQueryFactory.selectFrom(SESSION).fetch();
+        return jpaQueryFactory.selectFrom(SESSION).where(SESSION.toDate.goe(LocalDate.now())).fetch();
     }
 
     public Session sessionByDate(Date date) {

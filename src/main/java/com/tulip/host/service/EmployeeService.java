@@ -66,6 +66,7 @@ public class EmployeeService {
     private final JasperService jasperService;
 
     private final EmployeeMapper employeeMapper;
+    private final AppraisalService appraisalService;
     private final CredentialRepository credentialRepository;
     private final SessionRepository sessionRepository;
     private final OutboundCommunicationService outboundCommunicationService;
@@ -141,6 +142,7 @@ public class EmployeeService {
         if (employee != null) {
             EmployeeDetailsDTO employeeDetailsDTO = employeeMapper.toEntity(employee, uploadService);
             mapUpload(employeeDetailsDTO, employee);
+            employeeDetailsDTO.setAppraisals(appraisalService.getAppraisalsForEmployee(id));
             return employeeDetailsDTO;
         }
         return null;
