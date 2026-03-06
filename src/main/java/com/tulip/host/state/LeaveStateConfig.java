@@ -189,7 +189,7 @@ public class LeaveStateConfig extends StateMachineConfigurerAdapter<LeaveStatus,
             outboundCommunicationService.send(
                 CommunicationRequest.builder()
                     .channel(com.tulip.host.enums.CommunicationChannel.EMAIL)
-                    .recipient(to)
+                    .mailRecipient(to)
                     .cc(ccEmails)
                     .subject(employee.getName() + " - Leave applied of " + leave.getStartDate() + " to " + leave.getEndDate())
                     .content(mailService.renderTemplate(templatePath, model))

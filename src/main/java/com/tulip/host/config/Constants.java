@@ -39,7 +39,7 @@ public final class Constants {
     public static final String MONTH_YEAR_PATTERN = "MM/uuuu";
 
     public static final String TRANSPORT_FEES = "TRANSPORT FEES";
-
+    public static final String CALLING_CODE = "91";
     public static final String INVOICE = "INVOICE";
     public static final DateTimeFormatter DD_MM_YYYY_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 

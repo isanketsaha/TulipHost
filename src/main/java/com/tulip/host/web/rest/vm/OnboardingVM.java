@@ -69,6 +69,8 @@ public class OnboardingVM {
     StdEnum std;
     String tid;
 
+    Integer workingDaysInWeek;
+
     public void setProfilePicture(List<FileUploadVM> profilePhoto) {
         FileUploadVM uploadVM = profilePhoto.stream().findFirst().orElse(null);
         if (uploadVM != null) {
@@ -78,46 +80,42 @@ public class OnboardingVM {
     }
 
     public void setAadhaarCard(List<FileUploadVM> aadhaarCard) {
-        this.aadhaarCard =
-            aadhaarCard
-                .stream()
-                .map(item -> {
-                    item.setDocumentType(AADHAAR_CARD);
-                    return item;
-                })
-                .collect(Collectors.toList());
+        this.aadhaarCard = aadhaarCard
+            .stream()
+            .map(item -> {
+                item.setDocumentType(AADHAAR_CARD);
+                return item;
+            })
+            .collect(Collectors.toList());
     }
 
     public void setPanCard(List<FileUploadVM> panCard) {
-        this.panCard =
-            panCard
-                .stream()
-                .map(item -> {
-                    item.setDocumentType(PAN_CARD);
-                    return item;
-                })
-                .collect(Collectors.toList());
+        this.panCard = panCard
+            .stream()
+            .map(item -> {
+                item.setDocumentType(PAN_CARD);
+                return item;
+            })
+            .collect(Collectors.toList());
     }
 
     public void setBirthCertificate(List<FileUploadVM> birthCertificate) {
-        this.birthCertificate =
-            birthCertificate
-                .stream()
-                .map(item -> {
-                    item.setDocumentType(BIRTH_CERTIFICATE);
-                    return item;
-                })
-                .collect(Collectors.toList());
+        this.birthCertificate = birthCertificate
+            .stream()
+            .map(item -> {
+                item.setDocumentType(BIRTH_CERTIFICATE);
+                return item;
+            })
+            .collect(Collectors.toList());
     }
 
     public void setHighestQualification(List<FileUploadVM> highestQualification) {
-        this.highestQualification =
-            highestQualification
-                .stream()
-                .map(item -> {
-                    item.setDocumentType(HIGHEST_QUALIFICATION);
-                    return item;
-                })
-                .collect(Collectors.toList());
+        this.highestQualification = highestQualification
+            .stream()
+            .map(item -> {
+                item.setDocumentType(HIGHEST_QUALIFICATION);
+                return item;
+            })
+            .collect(Collectors.toList());
     }
 }

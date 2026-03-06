@@ -58,6 +58,8 @@ public class EmployeeDetailsDTO implements Serializable {
 
     private Boolean whatsappAvailable;
 
+    private Integer workingDaysInWeek;
+
     @NotNull
     private String phoneNumber;
 
@@ -86,4 +88,6 @@ public class EmployeeDetailsDTO implements Serializable {
     private String profilePictureUrl;
 
     private LocalDateTime createdDate;
+
+    private List<EmployeeAppraisalDTO> appraisals = new ArrayList<>();
 }

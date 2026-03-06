@@ -2,13 +2,14 @@ package com.tulip.host.service.communication;
 
 import static com.tulip.host.utils.CommonUtils.isProdProfile;
 
+import com.tulip.host.config.ApplicationProperties;
 import com.tulip.host.domain.OutboundCommunication;
 import com.tulip.host.enums.CommunicationChannel;
 import com.tulip.host.enums.OutboundCommunicationStatus;
 import com.tulip.host.mapper.OutboundCommunicationMapper;
 import com.tulip.host.repository.OutboundCommunicationRepository;
+import com.tulip.host.utils.CommonUtils;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -24,17 +25,20 @@ public class OutboundCommunicationService {
     private final OutboundCommunicationRepository outboundCommunicationRepository;
     private final Environment env;
     private final OutboundCommunicationMapper outboundCommunicationMapper;
+    private final ApplicationProperties properties;
     private final EnumMap<CommunicationChannel, CommunicationStrategy> strategies = new EnumMap<>(CommunicationChannel.class);
 
     public OutboundCommunicationService(
         OutboundCommunicationRepository outboundCommunicationRepository,
         OutboundCommunicationMapper outboundCommunicationMapper,
         Environment env,
+        ApplicationProperties properties,
         List<CommunicationStrategy> communicationStrategies
     ) {
         this.outboundCommunicationRepository = outboundCommunicationRepository;
         this.outboundCommunicationMapper = outboundCommunicationMapper;
         this.env = env;
+        this.properties = properties;
         for (CommunicationStrategy s : communicationStrategies) {
             strategies.put(s.channel(), s);
         }
@@ -50,12 +54,19 @@ public class OutboundCommunicationService {
         log.info(
             "Preparing to send outbound communication: channel={}, recipient={}, entityType={}, entityId={}",
             request.getChannel(),
-            Arrays.toString(request.getRecipient()),
+            CommonUtils.formatRecipient(request),
             request.getEntityType(),
             request.getEntityId()
         );
-        log.info("IS DEV PROFILE: {}", isProdProfile(env.getActiveProfiles()));
-        if (isProdProfile(env.getActiveProfiles())) {
+        boolean communicationEnabled = properties.getTwilioConfig().isCommunicationEnabled();
+        boolean shouldSend = isProdProfile(env.getActiveProfiles(), communicationEnabled);
+        log.info(
+            "IS PROD PROFILE: {}, communicationEnabled: {}, shouldSend: {}",
+            isProdProfile(env.getActiveProfiles()),
+            communicationEnabled,
+            shouldSend
+        );
+        if (shouldSend) {
             OutboundCommunication comm = outboundCommunicationMapper.toEntity(request);
             comm = outboundCommunicationRepository.save(comm);
             try {
@@ -65,7 +76,7 @@ public class OutboundCommunicationService {
                 }
                 comm.setSentDate(LocalDateTime.now());
 
-                log.info("Sending {} to {}", request.getChannel().name(), Arrays.toString(request.getRecipient()));
+                log.info("Sending {} to {}", request.getChannel().name(), CommonUtils.formatRecipient(request));
                 strategy.send(request, comm);
 
                 comm.setStatus(OutboundCommunicationStatus.SENT);
@@ -74,7 +85,7 @@ public class OutboundCommunicationService {
                 log.error(
                     "Outbound communication failed: channel={}, recipient={}, entityType={}, entityId={}, err={}",
                     request.getChannel(),
-                    request.getRecipient(),
+                    CommonUtils.formatRecipient(request),
                     request.getEntityType(),
                     request.getEntityId(),
                     e.getMessage(),

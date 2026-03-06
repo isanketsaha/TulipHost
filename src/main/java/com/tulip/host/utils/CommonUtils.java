@@ -1,8 +1,11 @@
 package com.tulip.host.utils;
 
 import com.tulip.host.domain.Employee;
+import com.tulip.host.enums.CommunicationChannel;
+import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.repository.EmployeeRepository;
+import com.tulip.host.service.communication.CommunicationRequest;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Period;
@@ -12,6 +15,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
@@ -87,6 +92,59 @@ public class CommonUtils {
     public static boolean isProdProfile(String[] profiles) {
         log.debug("Active profiles: {}", Arrays.toString(profiles));
         return Arrays.stream(profiles).anyMatch(n -> n.toLowerCase().equals("prod"));
+    }
+
+    /**
+     * Checks if communication should be sent based on profile and communication
+     * enabled flag.
+     * Logic:
+     * - If profile is prod: always returns true (communication always sent in
+     * production, flag is ignored)
+     * - If profile is NOT prod: returns the value of communicationEnabled flag
+     * - communicationEnabled = true: communication is sent (for testing in dev)
+     * - communicationEnabled = false: communication is skipped (default for dev)
+     *
+     * @param profiles             Active Spring profiles
+     * @param communicationEnabled Flag indicating if communication is enabled (only
+     *                             applies in non-prod environments)
+     * @return true if communication should be sent, false otherwise
+     */
+    public static boolean isProdProfile(String[] profiles, boolean communicationEnabled) {
+        boolean isProd = isProdProfile(profiles);
+        if (isProd) {
+            // In production, always send communication regardless of flag
+            return true;
+        }
+        // In non-prod, only send if explicitly enabled via flag
+        if (communicationEnabled) {
+            log.debug("Communication enabled in non-prod environment via communicationEnabled flag");
+            return true;
+        }
+        log.debug("Communication disabled in non-prod environment. Set communication_enabled: true to enable");
+        return false;
+    }
+
+    public static String formatRecipient(CommunicationRequest request) {
+        if (request.getChannel().equals(CommunicationChannel.EMAIL)) {
+            return StringUtils.join(request.getMailRecipient(), ", ");
+        } else if (request.getChannel().equals(CommunicationChannel.SMS)) {
+            if (request.getSmsRecipient() == null || request.getSmsRecipient().isEmpty()) {
+                return null;
+            }
+            return request
+                .getSmsRecipient()
+                .stream()
+                .flatMap(item -> item.entrySet().stream())
+                .filter(entry -> "mobiles".equalsIgnoreCase(entry.getKey()))
+                .map(entry -> String.valueOf(entry.getValue()))
+                .collect(Collectors.joining(", "));
+        } else if (request.getChannel().equals(CommunicationChannel.WHATSAPP)) {
+            if (request.getWhatsAppRecipient() == null || request.getWhatsAppRecipient().isEmpty()) {
+                return null;
+            }
+            return String.join(", ", request.getWhatsAppRecipient());
+        }
+        return null;
     }
 
     /**

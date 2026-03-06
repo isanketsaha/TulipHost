@@ -1,30 +1,24 @@
 package com.tulip.host.web.rest;
 
-
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.tulip.host.data.CouponDTO;
 import com.tulip.host.data.CouponRequestDTO;
 import com.tulip.host.service.CouponService;
 import com.tulip.host.web.rest.vm.CouponValidationRequestVM;
 import com.tulip.host.web.rest.vm.CouponValidationResponseVM;
 import com.tulip.host.web.rest.vm.GenericFilterVM;
-
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -40,15 +34,17 @@ public class CouponController {
         return ResponseEntity.ok(couponService.getAllCoupons());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CouponDTO> getCouponById(@PathVariable Long id) {
-        return ResponseEntity.ok(couponService.getCouponById(id));
-    }
+    // Not used by UI
+    //    @GetMapping("/{id}")
+    //    public ResponseEntity<CouponDTO> getCouponById(@PathVariable Long id) {
+    //        return ResponseEntity.ok(couponService.getCouponById(id));
+    //    }
 
-    @GetMapping("/code/{code}")
-    public ResponseEntity<CouponDTO> getCouponByCode(@PathVariable String code) {
-        return ResponseEntity.ok(couponService.getCouponByCode(code));
-    }
+    // Not used by UI
+    //    @GetMapping("/code/{code}")
+    //    public ResponseEntity<CouponDTO> getCouponByCode(@PathVariable String code) {
+    //        return ResponseEntity.ok(couponService.getCouponByCode(code));
+    //    }
 
     @PostMapping
     public ResponseEntity<CouponDTO> createCoupon(@Valid @RequestBody CouponRequestDTO requestDTO) {
@@ -56,19 +52,21 @@ public class CouponController {
         return new ResponseEntity<>(couponService.createCoupon(requestDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<CouponDTO> updateCoupon(
-            @PathVariable Long id,
-            @Valid @RequestBody CouponRequestDTO requestDTO) {
-        log.info("Attempting to update coupon: {}", requestDTO.getCode());
-        return ResponseEntity.ok(couponService.updateCoupon(id, requestDTO));
-    }
+    // Not used by UI
+    //    @PutMapping("/{id}")
+    //    public ResponseEntity<CouponDTO> updateCoupon(
+    //            @PathVariable Long id,
+    //            @Valid @RequestBody CouponRequestDTO requestDTO) {
+    //        log.info("Attempting to update coupon: {}", requestDTO.getCode());
+    //        return ResponseEntity.ok(couponService.updateCoupon(id, requestDTO));
+    //    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCoupon(@PathVariable Long id) {
-        couponService.deleteCoupon(id);
-        return ResponseEntity.noContent().build();
-    }
+    // Not used by UI
+    //    @DeleteMapping("/{id}")
+    //    public ResponseEntity<Void> deleteCoupon(@PathVariable Long id) {
+    //        couponService.deleteCoupon(id);
+    //        return ResponseEntity.noContent().build();
+    //    }
 
     @PostMapping("/{id}/deactivate")
     public ResponseEntity<CouponDTO> deactivateCoupon(@PathVariable Long id) {
@@ -78,8 +76,7 @@ public class CouponController {
 
     @PostMapping("/validate")
     @PreAuthorize("hasAuthority('UG_STAFF') or hasAuthority('UG_ADMIN') or hasAuthority('UG_PRINCIPAL')")
-    public ResponseEntity<CouponValidationResponseVM> validateCoupon(
-        @Valid @RequestBody CouponValidationRequestVM requestDTO) {
+    public ResponseEntity<CouponValidationResponseVM> validateCoupon(@Valid @RequestBody CouponValidationRequestVM requestDTO) {
         return ResponseEntity.ok(couponService.validateCoupon(requestDTO));
     }
 
@@ -89,5 +86,4 @@ public class CouponController {
         log.info("Filtering coupons with filters: {}", filterDTO);
         return ResponseEntity.ok(couponService.filterCoupons(filterDTO));
     }
-
 }

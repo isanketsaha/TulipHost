@@ -108,3 +108,5 @@ public interface StudentMapper {
 4. Use QueryDSL for database queries
 5. Place utilities in `utils/` and constants in dedicated classes
 6. Implement happy path first, iterate incrementally - don't over-engineer
+7. Always follow SOLID principal.
+8. comment code those are sitting idle and have no importance.

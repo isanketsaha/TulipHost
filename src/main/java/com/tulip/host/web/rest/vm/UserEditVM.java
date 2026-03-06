@@ -24,6 +24,7 @@ public class UserEditVM {
 
     @NotNull
     Long id;
+
     String type;
     String qualification;
     String email;
@@ -47,6 +48,9 @@ public class UserEditVM {
     Long session;
     StdEnum std;
     private FileUploadVM profilePicture;
+    Integer workingDaysInWeek;
+    Double weight;
+    Double height;
 
     public void setProfilePicture(List<FileUploadVM> profilePhoto) {
         FileUploadVM uploadVM = profilePhoto.stream().findFirst().orElse(null);
@@ -57,35 +61,32 @@ public class UserEditVM {
     }
 
     public void setAadhaarCard(List<FileUploadVM> aadhaarCard) {
-        this.aadhaarCard =
-            aadhaarCard
-                .stream()
-                .map(item -> {
-                    item.setDocumentType(AADHAAR_CARD);
-                    return item;
-                })
-                .collect(Collectors.toList());
+        this.aadhaarCard = aadhaarCard
+            .stream()
+            .map(item -> {
+                item.setDocumentType(AADHAAR_CARD);
+                return item;
+            })
+            .collect(Collectors.toList());
     }
 
     public void setPanCard(List<FileUploadVM> panCard) {
-        this.panCard =
-            panCard
-                .stream()
-                .map(item -> {
-                    item.setDocumentType(PAN_CARD);
-                    return item;
-                })
-                .collect(Collectors.toList());
+        this.panCard = panCard
+            .stream()
+            .map(item -> {
+                item.setDocumentType(PAN_CARD);
+                return item;
+            })
+            .collect(Collectors.toList());
     }
 
     public void setBirthCertificate(List<FileUploadVM> birthCertificate) {
-        this.birthCertificate =
-            birthCertificate
-                .stream()
-                .map(item -> {
-                    item.setDocumentType(BIRTH_CERTIFICATE);
-                    return item;
-                })
-                .collect(Collectors.toList());
+        this.birthCertificate = birthCertificate
+            .stream()
+            .map(item -> {
+                item.setDocumentType(BIRTH_CERTIFICATE);
+                return item;
+            })
+            .collect(Collectors.toList());
     }
 }

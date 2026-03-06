@@ -27,6 +27,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -111,6 +112,7 @@ public class ReportService {
         return catalogGrouped
             .entrySet()
             .stream()
+            .sorted(Comparator.comparing(entry -> entry.getKey().getId()))
             .map(entry -> {
                 return inventoryMapper.toAggregatedInventoryItemDTO(entry.getKey(), entry.getValue());
             })

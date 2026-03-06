@@ -42,6 +42,14 @@ public class eOfficeApiService {
     private final EmployeeLeaveRepository employeeLeaveRepository;
 
     /**
+     * Fetch raw in/out punch data from eOffice service. Dates must be in dd/MM/yyyy format.
+     */
+    public AttendanceResponseDTO getInOutPunchData(String empcode, String fromDate, String toDate) {
+        LOG.debug("Fetching raw punch data from eOffice - Empcode: {}, FromDate: {}, ToDate: {}", empcode, fromDate, toDate);
+        return eOfficeClient.downloadInOutPunchData(empcode, fromDate, toDate);
+    }
+
+    /**
      * Fetch timesheet data from eOffice service and group by employee.
      * Groups all attendance records by employee code and calculates present/absent days.
      *

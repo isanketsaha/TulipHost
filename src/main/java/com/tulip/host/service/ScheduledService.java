@@ -1,15 +1,20 @@
 package com.tulip.host.service;
 
+import static com.tulip.host.config.Constants.CALLING_CODE;
+import static java.util.stream.Collectors.toList;
+
 import com.tulip.host.data.AttendanceSummaryDTO;
 import com.tulip.host.data.StudentDetailsDTO;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Session;
 import com.tulip.host.domain.Student;
+import com.tulip.host.enums.CommunicationChannel;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.service.communication.CommunicationRequest;
 import com.tulip.host.service.communication.OutboundCommunicationService;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
@@ -34,7 +39,7 @@ public class ScheduledService {
     private final EntityManager em;
     private final eOfficeApiService eOfficeApiService;
 
-    @Scheduled(cron = "0 30 14 2 * ?")
+    @Scheduled(cron = "0 31 17 1 * ?")
     @Transactional
     public void notifyOnFeesDues() {
         log.info("Starting scheduled task: notifyOnFeesDues");
@@ -51,38 +56,45 @@ public class ScheduledService {
                     std.getId(),
                     session
                 );
-                longIntegerMap
+                List<Map<String, String>> collect = longIntegerMap
                     .entrySet()
                     .stream()
                     .filter(entry -> entry.getValue() > 2)
-                    .forEach(entry -> {
+                    .map(entry -> {
                         log.info("Sending dues notification to studentId={} with pending months={}", entry.getKey(), entry.getValue());
-                    });
+                        StudentDetailsDTO studentDetailsDTO = studentService.searchStudent(entry.getKey());
+                        return Map.of(
+                            "mobiles",
+                            CALLING_CODE + studentDetailsDTO.getPhoneNumber(),
+                            "name",
+                            studentDetailsDTO.getName(),
+                            "std",
+                            std.getStd(),
+                            "pendingMonth",
+                            String.valueOf(entry.getValue())
+                        );
+                    })
+                    .collect(toList());
+                if (!collect.isEmpty()) {
+                    log.debug("Sending dues notification for class {} to {} students", std.getStd(), collect.size());
+                }
             });
         unwrap.disableFilter("activeStudent");
     }
 
-    private void sendNotification(Long studentId) {
-        StudentDetailsDTO studentDetailsDTO = studentService.searchStudent(studentId);
-        Map<String, Object> map = Map.of(
-            "studentName",
-            studentDetailsDTO.getName(),
-            "className",
-            studentDetailsDTO.getClassDetails().stream().findFirst().orElseThrow().getStd()
+    private void sendNotification(List<Map<String, @NotNull String>> pendingFeesRecipients) {
+        outboundCommunicationService.send(
+            CommunicationRequest.builder()
+                .channel(CommunicationChannel.SMS)
+                .smsRecipient(pendingFeesRecipients)
+                .content("1707176917687795143")
+                .subject("FEES_DUES_NOTIFICATION")
+                .entityType("STUDENT")
+                .build()
         );
-        //        outboundCommunicationService.send(
-        //            CommunicationRequest.builder()
-        //                .channel(CommunicationChannel.SMS)
-        //                .recipient(new String[] { studentDetailsDTO.getPhoneNumber() })
-        //                .content(mailService.renderTemplate("mail/due.vm", map))
-        //                .subject("FEES_DUES_NOTIFICATION")
-        //                .entityType("STUDENT")
-        //                .entityId(studentDetailsDTO.getId())
-        //                .build()
-        //        );
     }
 
-    @Scheduled(cron = "0 0 6 4 * ?")
+    @Scheduled(cron = "0 20 10 2 * ?")
     @Transactional
     public void createAttendance() {
         log.info("Starting scheduled task: createAttendance");
@@ -109,7 +121,7 @@ public class ScheduledService {
             outboundCommunicationService.send(
                 CommunicationRequest.builder()
                     .channel(com.tulip.host.enums.CommunicationChannel.EMAIL)
-                    .recipient(to)
+                    .mailRecipient(to)
                     .subject("Attendance for Month - " + month.getMonth().name() + "/" + month.getYear())
                     .content(mailService.renderTemplate("mail/salary.vm", model))
                     .entityType(AttendanceSummaryDTO.class.getName())

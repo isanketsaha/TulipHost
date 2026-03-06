@@ -127,10 +127,11 @@ public class DataLoadController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(value = "/session")
-    public void removeSession(@RequestParam Long id) {
-        dataLoadService.removeSession(id);
-    }
+    // Not used by UI
+    //    @DeleteMapping(value = "/session")
+    //    public void removeSession(@RequestParam Long id) {
+    //        dataLoadService.removeSession(id);
+    //    }
 
     @GetMapping(value = "/all")
     public List<FileUploadVM> get(@RequestParam(required = false) String type) {

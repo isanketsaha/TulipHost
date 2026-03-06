@@ -1,17 +1,6 @@
 package com.tulip.host.domain;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
-import jakarta.validation.constraints.Email;
-import org.hibernate.annotations.SortComparator;
-
 import com.tulip.host.utils.ClassComparatorBySession;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,13 +16,21 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SortComparator;
 
 @Builder
 @AllArgsConstructor
@@ -81,9 +78,9 @@ public class Employee extends AbstractAuditingEntity {
     @Email
     private String email;
 
-//    @Size(max = 255)
-//    @Column(name = "alt_email")
-//    private String altEmail;
+    //    @Size(max = 255)
+    //    @Column(name = "alt_email")
+    //    private String altEmail;
 
     @Column(name = "whatsapp_available")
     @Builder.Default
@@ -169,6 +166,9 @@ public class Employee extends AbstractAuditingEntity {
 
     @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private Set<Upload> uploadedDocuments;
+
+    @Column(name = "working_days_in_week")
+    private Integer workingDaysInWeek;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "organizer")
     private List<AcademicCalendar> events;

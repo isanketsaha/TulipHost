@@ -1,9 +1,11 @@
 package com.tulip.host.client;
 
+import com.tulip.host.config.FeignAuthProperties;
 import feign.Logger;
 import feign.RequestInterceptor;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,10 +15,10 @@ import org.springframework.context.annotation.Configuration;
  */
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class FeignClientConfiguration {
 
-    @Value("${app.feign.auth.tokens.eoffice:}")
-    private String eofficeToken;
+    private final FeignAuthProperties feignAuthProperties;
 
     /**
      * Set Feign logging level to FULL for debugging.
@@ -28,19 +30,28 @@ public class FeignClientConfiguration {
     }
 
     /**
-     * Configure request interceptor to add authentication headers.
+     * Configure request interceptor to add authentication headers based on client name.
      */
     @Bean
     public RequestInterceptor feignRequestInterceptor() {
         return requestTemplate -> {
-            // Add authentication header for eOffice service
-            if (requestTemplate.url().contains("api.etimeoffice.com") || requestTemplate.url().contains("DownloadInOutPunchData")) {
-                if (eofficeToken != null && !eofficeToken.isEmpty()) {
-                    requestTemplate.header("Authorization", eofficeToken);
-                    log.debug("Added Authorization header for eOffice service");
-                } else {
-                    log.warn("eOffice authentication token is not configured. Service may fail.");
-                }
+            String clientName = requestTemplate.feignTarget().name();
+            Map<String, String> tokens = feignAuthProperties.getTokens();
+
+            // Look up token by client name (case-insensitive)
+            String token = tokens
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().equalsIgnoreCase(clientName))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
+
+            if (token != null && !token.isEmpty()) {
+                requestTemplate.header(clientName.equals("msg-gateway") ? "authkey" : "Authorization", token);
+                log.debug("Added Authorization header for {} service", clientName);
+            } else {
+                log.warn("Authentication token not configured for client: {}. Service may fail.", clientName);
             }
 
             // Add common headers
@@ -51,7 +62,12 @@ public class FeignClientConfiguration {
                 requestTemplate.header("Content-Type", "application/json");
             }
 
-            log.debug("Feign request prepared - URL: {}, Method: {}", requestTemplate.url(), requestTemplate.method());
+            log.info(
+                "Feign request prepared - Client: {}, URL: {}, Method: {}",
+                clientName,
+                requestTemplate.url(),
+                requestTemplate.method()
+            );
         };
     }
 }
