@@ -121,9 +121,9 @@ application:
     region:
       value: ${s3.region:ap-northeast-1}
     credential:
-      accessKey: ${s3.key:AKIAVHI7JUOUCRMTYOKK}
-      secret: ${s3.secret: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}
-      bucket-name: ${s3.bucket:tulip-docs-test}
-      invoice-bucket-name: ${s3.invoice.bucket:tulip-invoice-test}
+      accessKey: ${s3.key}
+      secret: ${s3.secret}
+      bucket-name: ${s3.bucket}
+      invoice-bucket-name: ${s3.invoice.bucket}
   twilio_config:
     communication_enabled: true
