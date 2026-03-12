@@ -53,7 +53,7 @@ public class EmployeeLeaveService {
         }
         return employeeLeaves
             .stream()
-            .filter(el -> el.getEmployee().getCredential().getUserId().equals(SecurityUtils.getCurrentUserId().get()))
+            .filter(el -> el.getEmployee().getCredential().getUserId().equals(SecurityUtils.getCurrentUserId().orElseThrow()))
             .map(employeeLeaveMapper::toDto)
             .collect(Collectors.toList());
     }
