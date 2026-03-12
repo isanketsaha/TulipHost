@@ -43,7 +43,7 @@ public class ClassroomAttendance extends AbstractAuditingEntity<Long> {
     @Column(name = "holiday_count", nullable = false)
     private int holidayCount;
 
-    // S3 reference for the uploaded Excel file
-    @Column(name = "file_uid")
-    private String fileUid;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "s3_upload_id")
+    private UploadRecord s3Upload;
 }

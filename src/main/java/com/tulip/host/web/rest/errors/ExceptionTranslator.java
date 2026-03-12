@@ -63,9 +63,40 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<Object> handleAnyException(Throwable ex, NativeWebRequest request) {
-        LOG.debug("Converting Exception to Problem Details:", ex);
         ProblemDetailWithCause pdCause = wrapAndCustomizeProblem(ex, request);
-        return handleExceptionInternal((Exception) ex, pdCause, buildHeaders(ex), HttpStatusCode.valueOf(pdCause.getStatus()), request);
+        HttpStatusCode status = HttpStatusCode.valueOf(pdCause.getStatus());
+        if (status.is5xxServerError()) {
+            LOG.error("Unhandled server error on {}: {}", getPathValue(request), ex.getMessage(), ex);
+        } else if (status.is4xxClientError()) {
+            LOG.warn("Client error {} on {}: {}", status.value(), getPathValue(request), ex.getMessage());
+        }
+        return handleExceptionInternal((Exception) ex, pdCause, buildHeaders(ex), status, request);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException ex, NativeWebRequest request) {
+        LOG.warn("Bad request on {}: {}", getPathValue(request), ex.getMessage());
+        ProblemDetailWithCause pd = ProblemDetailWithCauseBuilder.instance()
+            .withStatus(HttpStatus.BAD_REQUEST.value())
+            .withDetail(ex.getMessage())
+            .withTitle("Bad Request")
+            .build();
+        pd.setProperty(MESSAGE_KEY, "error.badRequest");
+        pd.setProperty(PATH_KEY, getPathValue(request));
+        return handleExceptionInternal(ex, pd, null, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Object> handleIllegalState(IllegalStateException ex, NativeWebRequest request) {
+        LOG.warn("Conflict on {}: {}", getPathValue(request), ex.getMessage());
+        ProblemDetailWithCause pd = ProblemDetailWithCauseBuilder.instance()
+            .withStatus(HttpStatus.CONFLICT.value())
+            .withDetail(ex.getMessage())
+            .withTitle("Conflict")
+            .build();
+        pd.setProperty(MESSAGE_KEY, "error.conflict");
+        pd.setProperty(PATH_KEY, getPathValue(request));
+        return handleExceptionInternal(ex, pd, null, HttpStatus.CONFLICT, request);
     }
 
     @Nullable

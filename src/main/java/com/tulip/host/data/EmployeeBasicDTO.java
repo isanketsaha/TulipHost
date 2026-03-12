@@ -45,4 +45,6 @@ public class EmployeeBasicDTO {
     private String tid;
 
     private String profilePictureUrl;
+
+    private Integer workingDaysInWeek;
 }

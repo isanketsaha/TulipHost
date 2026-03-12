@@ -16,9 +16,10 @@
 logging:
   level:
     ROOT: INFO
-  pattern:
-    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n'
-    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n'
+    # Activate HTTP request tracing at WARN level in prod (logs slow/erroring requests)
+    '[org.springframework.web.filter.CommonsRequestLoggingFilter]': WARN
+  # No logging.pattern override — JSON format is applied by LoggingConfiguration
+  # when jhipster.logging.use-json-format=true (see jhipster section below).
 
 #eureka:
 #  instance:

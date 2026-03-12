@@ -3,6 +3,7 @@ package com.tulip.host.repository;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.domain.Employee;
 import com.tulip.host.enums.UserRoleEnum;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,6 +25,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findByUserId(String userId);
 
     Optional<Employee> findByTid(String tid);
+
+    List<Employee> findByTidIn(Collection<String> tids);
 
     List<Employee> findByUserGroup(UserRoleEnum role);
 }

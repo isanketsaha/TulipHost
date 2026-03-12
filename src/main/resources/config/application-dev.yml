@@ -15,7 +15,11 @@
 
 logging:
   level:
-    ROOT: info
+    ROOT: INFO
+    '[com.tulip.host]': INFO
+    '[javax.management.remote.rmi]': WARN
+    # Logs every incoming API request with method, URI, client IP, and query string
+    '[org.springframework.web.filter.CommonsRequestLoggingFilter]': INFO
 
 eureka:
   instance:
@@ -86,7 +90,7 @@ jhipster:
   registry:
     password: admin
   cors:
-    allowed-origins: 'http://localhost:5173, http://localhost:5173/'
+    allowed-origins: 'http://localhost:5173, http://localhost:5173/, http://192.168.0.111:5173, http://192.168.0.111:5173/'
     allowed-methods: '*'
     allowed-headers: '*'
     exposed-headers: 'Authorization,Link,X-Total-Count'

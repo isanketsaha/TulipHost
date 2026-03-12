@@ -21,6 +21,8 @@ public class AttendanceSummaryDTO {
     private Integer presentDays;
     private Integer absentDays;
     private Integer appliedLeaveDays;
+    /** Employee's configured working days per week (null = full week / 5 days) */
+    private Integer workingDaysInWeek;
     private Set<String> presentDates;
     private Set<String> absentDates;
     private Set<String> leaveApplied;

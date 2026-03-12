@@ -86,11 +86,14 @@ public class ExportService {
     }
 
     @Transactional
-    public XSSFWorkbook exportClassDetails(Long classroomId) {
+    public XSSFWorkbook exportClassDetails(Long classroomId, List<Long> studentIds) {
         ClassDetail classDetail = classDetailRepository.findByClass(classroomId);
         if (classDetail != null) {
             Set<Student> students = classDetail.getStudents();
             List<Student> studentList = new ArrayList<>(students);
+            if (studentIds != null && !studentIds.isEmpty()) {
+                studentList = studentList.stream().filter(s -> studentIds.contains(s.getId())).toList();
+            }
             studentList.sort(Comparator.comparing(Student::getName));
             List<StudentExportDTO> studentExportDTOS = studentMapper.toBasicEntityExportList(studentList);
             List<Object> list = new ArrayList<>(studentExportDTOS);

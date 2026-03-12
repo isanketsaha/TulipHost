@@ -21,4 +21,12 @@ public class ProductCatalogRepositoryImpl extends BaseRepositoryImpl<ProductCata
             .where(PRODUCT_CATALOG.active.eq(true).and(PRODUCT_CATALOG.std().isNull()).or(PRODUCT_CATALOG.std().id.eq(classId)))
             .fetch();
     }
+
+    @Override
+    public List<ProductCatalog> findBySubjectAndStd_Id(String subject, Long stdId) {
+        return jpaQueryFactory
+            .selectFrom(PRODUCT_CATALOG)
+            .where(PRODUCT_CATALOG.subject.eq(subject).and(PRODUCT_CATALOG.std().id.eq(stdId)))
+            .fetch();
+    }
 }

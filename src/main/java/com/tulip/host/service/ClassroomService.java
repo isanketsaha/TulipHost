@@ -2,14 +2,19 @@ package com.tulip.host.service;
 
 import com.tulip.host.data.ClassDetailDTO;
 import com.tulip.host.data.ClassListDTO;
+import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.FeesCatalogDTO;
 import com.tulip.host.domain.ClassDetail;
+import com.tulip.host.domain.Employee;
 import com.tulip.host.domain.Student;
 import com.tulip.host.enums.ClassTypeEnum;
+import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.mapper.ClassMapper;
+import com.tulip.host.mapper.EmployeeMapper;
 import com.tulip.host.mapper.FeesCatalogMapper;
 import com.tulip.host.mapper.StudentMapper;
 import com.tulip.host.repository.ClassDetailRepository;
+import com.tulip.host.repository.EmployeeRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransactionRepository;
 import com.tulip.host.web.rest.vm.FeesFilterVM;
@@ -21,7 +26,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -37,7 +41,9 @@ public class ClassroomService {
     private final ClassDetailRepository classDetailRepository;
 
     private final StudentRepository studentRepository;
+    private final EmployeeRepository employeeRepository;
     private final ClassMapper classMapper;
+    private final EmployeeMapper employeeMapper;
 
     private final FeesCatalogMapper feesCatalogMapper;
 
@@ -63,27 +69,28 @@ public class ClassroomService {
                 ClassDetailDTO classDetailDTO = classMapper.toEntity(classDetail);
 
                 // Batch process fees calculations to avoid N+1 queries
-                List<Long> studentIds = classDetailDTO.getStudents().stream()
-                        .map(student -> student.getId())
-                        .collect(Collectors.toList());
+                List<Long> studentIds = classDetailDTO.getStudents().stream().map(student -> student.getId()).collect(Collectors.toList());
 
                 // Batch fetch pending fees for all students
-                Map<Long, Integer> pendingFeesMap = studentService.calculatePendingMonthFeesBatch(studentIds,
-                        classDetail.getId(), classDetail.getSession());
+                Map<Long, Integer> pendingFeesMap = studentService.calculatePendingMonthFeesBatch(
+                    studentIds,
+                    classDetail.getId(),
+                    classDetail.getSession()
+                );
 
                 // Batch fetch annual fees for all students
-                Map<Long, List<String>> annualFeesMap = transactionRepository.fetchAnnualFeesByClassBatch(studentIds,
-                        classroomId);
+                Map<Long, List<String>> annualFeesMap = transactionRepository.fetchAnnualFeesByClassBatch(studentIds, classroomId);
 
                 // Apply batch results to students
-                classDetailDTO.getStudents().forEach(item -> {
-                    item.setPendingFees(pendingFeesMap.getOrDefault(item.getId(), 0));
-                    item.setAnnualPaidFees(annualFeesMap.getOrDefault(item.getId(), new ArrayList<>()));
-                });
+                classDetailDTO
+                    .getStudents()
+                    .forEach(item -> {
+                        item.setPendingFees(pendingFeesMap.getOrDefault(item.getId(), 0));
+                        item.setAnnualPaidFees(annualFeesMap.getOrDefault(item.getId(), new ArrayList<>()));
+                    });
 
                 // Sort students by name (case-insensitive)
-                classDetailDTO.getStudents()
-                        .sort((s1, s2) -> s1.getName().toUpperCase().compareTo(s2.getName().toUpperCase()));
+                classDetailDTO.getStudents().sort((s1, s2) -> s1.getName().toUpperCase().compareTo(s2.getName().toUpperCase()));
 
                 return classDetailDTO;
             }
@@ -135,6 +142,39 @@ public class ClassroomService {
         }
     }
 
+    @Transactional
+    public List<EmployeeBasicDTO> fetchAvailableTeachers(Long classroomId) {
+        ClassDetail classroom = classDetailRepository
+            .findById(classroomId)
+            .orElseThrow(() -> new IllegalArgumentException("Classroom not found: " + classroomId));
+        Long sessionId = classroom.getSession().getId();
+
+        // All classrooms in the same session, excluding this one
+        List<Long> assignedTeacherIds = classDetailRepository
+            .findAllBySessionId(sessionId)
+            .stream()
+            .filter(cd -> !cd.getId().equals(classroomId) && cd.getHeadTeacher() != null)
+            .map(cd -> cd.getHeadTeacher().getId())
+            .collect(Collectors.toList());
+
+        List<Employee> teachers = employeeRepository.fetchAll(true, List.of(UserRoleEnum.TEACHER));
+        List<Employee> available = teachers.stream().filter(e -> !assignedTeacherIds.contains(e.getId())).collect(Collectors.toList());
+
+        return employeeMapper.toBasicEntityList(available);
+    }
+
+    @Transactional
+    public void updateHeadTeacher(Long classroomId, Long employeeId) {
+        ClassDetail classDetail = classDetailRepository
+            .findById(classroomId)
+            .orElseThrow(() -> new IllegalArgumentException("Classroom not found: " + classroomId));
+        Employee employee = employeeRepository
+            .findById(employeeId)
+            .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+        classDetail.setHeadTeacher(employee);
+        classDetailRepository.save(classDetail);
+    }
+
     public Long fetchClassDetails(String std, Long sessionId) {
         ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(sessionId, std);
         return classDetail.getId();
@@ -146,9 +186,8 @@ public class ClassroomService {
         return classDetail
             .stream()
             .collect(
-                Collectors.toMap(
-                    ClassDetail::getStd,
-                    item -> feesCatalogMapper.toEntityList(item.getFeesCatalogs().stream().collect(Collectors.toList()))
+                Collectors.toMap(ClassDetail::getStd, item ->
+                    feesCatalogMapper.toEntityList(item.getFeesCatalogs().stream().collect(Collectors.toList()))
                 )
             );
     }
