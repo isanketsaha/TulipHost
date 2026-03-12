@@ -2,16 +2,17 @@ package com.tulip.host.service;
 
 import static com.tulip.host.config.Constants.DD_MM_YYYY_FORMATTER;
 
-import com.tulip.host.client.FeignErrorDecoder;
 import com.tulip.host.client.eOffice;
 import com.tulip.host.data.AttendanceResponseDTO;
 import com.tulip.host.data.AttendanceSummaryDTO;
 import com.tulip.host.data.EofficeAttendanceDTO;
 import com.tulip.host.domain.AcademicCalendar;
+import com.tulip.host.domain.Employee;
 import com.tulip.host.domain.EmployeeLeave;
 import com.tulip.host.enums.TypeEnum;
 import com.tulip.host.repository.AcademicCalendarRepository;
 import com.tulip.host.repository.EmployeeLeaveRepository;
+import com.tulip.host.repository.EmployeeRepository;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -40,6 +41,7 @@ public class eOfficeApiService {
     private final eOffice eOfficeClient;
     private final AcademicCalendarRepository academicCalendarRepository;
     private final EmployeeLeaveRepository employeeLeaveRepository;
+    private final EmployeeRepository employeeRepository;
 
     /**
      * Fetch raw in/out punch data from eOffice service. Dates must be in dd/MM/yyyy format.
@@ -98,10 +100,13 @@ public class eOfficeApiService {
         LocalDate startDate,
         LocalDate endDate
     ) {
-        // Calculate total working days (Monday to Friday)
-        int totalWorkingDays = calculateWorkingDays(startDate, endDate);
+        // Total Mon-Fri working days in period (baseline for scaling)
+        int baseWorkingDays = calculateWorkingDays(startDate, endDate);
+        // Number of full/partial ISO weeks in period (used to scale part-time employee quotas)
+        int weeksInPeriod = (int) Math.ceil(baseWorkingDays / 5.0);
 
-        LOG.debug("Total working days in period ({} to {}): {}", startDate, endDate, totalWorkingDays);
+        LOG.debug("Base working days ({} to {}): {}, weeks: {}", startDate, endDate, baseWorkingDays, weeksInPeriod);
+
         List<AcademicCalendar> holiday = academicCalendarRepository
             .findByDateRange(startDate, endDate)
             .stream()
@@ -113,6 +118,16 @@ public class eOfficeApiService {
             .stream()
             .collect(Collectors.groupingBy(EofficeAttendanceDTO::getEmpcode));
 
+        // Fetch working-days-per-week config for all employees in one query
+        Map<String, Integer> workingDaysConfig = employeeRepository
+            .findByTidIn(byEmployee.keySet())
+            .stream()
+            .filter(e -> e.getTid() != null && e.getWorkingDaysInWeek() != null)
+            .collect(Collectors.toMap(Employee::getTid, Employee::getWorkingDaysInWeek));
+
+        // Get all Mon-Fri working days in the period (shared across employees)
+        Set<String> allWorkingDays = getAllWorkingDaysInPeriod(startDate, endDate);
+
         Map<String, AttendanceSummaryDTO> summary = new HashMap<>();
 
         for (Map.Entry<String, List<EofficeAttendanceDTO>> entry : byEmployee.entrySet()) {
@@ -120,65 +135,77 @@ public class eOfficeApiService {
             List<EmployeeLeave> leaveBalanceByTid = employeeLeaveRepository.findLeaveBalanceByTid(empcode, startDate, endDate);
             List<EofficeAttendanceDTO> records = entry.getValue();
 
-            // Get employee name from first record
             String empName = records.get(0).getName();
 
-            // Separate present dates
+            // Collect present dates (only "P" status)
             Set<String> presentDates = new TreeSet<>(Comparator.comparing(s -> LocalDate.parse(s, DATE_FORMATTER)));
-
             for (EofficeAttendanceDTO record : records) {
-                String status = record.getStatus();
-                String dateStr = record.getDateString();
-
-                // Only "P" status is considered present
-                if ("P".equalsIgnoreCase(status)) {
-                    presentDates.add(dateStr);
+                if ("P".equalsIgnoreCase(record.getStatus())) {
+                    presentDates.add(record.getDateString());
                 }
             }
 
-            // Get all applied leave dates for this employee
             Set<String> appliedLeaveDates = getAppliedLeaveDates(leaveBalanceByTid);
 
-            LOG.debug("Employee {} has {} days of applied leave", empcode, appliedLeaveDates.size());
-
-            // Get all working days in the period
-            Set<String> allWorkingDays = getAllWorkingDaysInPeriod(startDate, endDate);
-
-            // Absent days = all working days minus present days minus applied leave days (excludes holidays)
+            // Absent = working days not present, not on leave, not a holiday
             Set<String> absentDates = new TreeSet<>(Comparator.comparing(s -> LocalDate.parse(s, DATE_FORMATTER)));
             for (String workingDay : allWorkingDays) {
                 LocalDate date = LocalDate.parse(workingDay, DATE_FORMATTER);
-                boolean isPresent = presentDates.contains(workingDay);
-                boolean isOnLeave = appliedLeaveDates.contains(workingDay);
-                boolean isHoliday = isDateWithinHoliday(date, holiday);
-
-                // Mark as absent only if: not present AND not on leave AND not a holiday
-                if (!isPresent && !isOnLeave && !isHoliday) {
+                if (!presentDates.contains(workingDay) && !appliedLeaveDates.contains(workingDay) && !isDateWithinHoliday(date, holiday)) {
                     absentDates.add(workingDay);
                 }
             }
 
+            // Per-employee total working days: scale their weekly quota to the period length
+            Integer configuredDaysPerWeek = workingDaysConfig.get(empcode);
+            int effectiveTotalWorkingDays;
+            if (configuredDaysPerWeek != null) {
+                // Cap at baseWorkingDays so we never exceed actual Mon-Fri days in period
+                effectiveTotalWorkingDays = Math.min(configuredDaysPerWeek * weeksInPeriod, baseWorkingDays);
+            } else {
+                effectiveTotalWorkingDays = baseWorkingDays;
+            }
+
+            // Cap absent days for part-time employees: quota - present - leave = max absent allowed
             int presentCount = presentDates.size();
-            int absentCount = absentDates.size();
             int appliedLeaveCount = appliedLeaveDates.size();
+            int maxAbsent = Math.max(0, effectiveTotalWorkingDays - presentCount - appliedLeaveCount);
+            int absentCount = Math.min(absentDates.size(), maxAbsent);
+
+            // For part-time employees, also trim the absentDates set so the email/report only
+            // shows the dates that actually count (last N dates — same logic as the UI).
+            if (configuredDaysPerWeek != null && absentDates.size() > absentCount) {
+                List<String> allAbsent = new java.util.ArrayList<>(absentDates);
+                // absentDates is sorted ascending; take the last `absentCount` entries
+                absentDates = allAbsent
+                    .subList(allAbsent.size() - absentCount, allAbsent.size())
+                    .stream()
+                    .collect(
+                        java.util.stream.Collectors.toCollection(() ->
+                            new TreeSet<>(Comparator.comparing(s -> LocalDate.parse(s, DATE_FORMATTER)))
+                        )
+                    );
+            }
 
             LOG.debug(
-                "Employee {} - Present: {} days, Absent: {} days, Applied Leave: {} days out of {} working days",
+                "Employee {} (quota={}/week) - Present: {}, Absent: {}, Leave: {} out of {} effective working days",
                 empcode,
+                configuredDaysPerWeek != null ? configuredDaysPerWeek : "all",
                 presentCount,
                 absentCount,
                 appliedLeaveCount,
-                totalWorkingDays
+                effectiveTotalWorkingDays
             );
 
             summary.put(
                 empcode,
                 AttendanceSummaryDTO.builder()
                     .empName(empName)
-                    .totalWorkingDays(totalWorkingDays)
+                    .totalWorkingDays(effectiveTotalWorkingDays)
                     .presentDays(presentCount)
                     .absentDays(absentCount)
                     .appliedLeaveDays(appliedLeaveCount)
+                    .workingDaysInWeek(configuredDaysPerWeek)
                     .presentDates(presentDates)
                     .absentDates(absentDates)
                     .leaveApplied(appliedLeaveDates)

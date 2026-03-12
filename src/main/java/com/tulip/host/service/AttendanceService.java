@@ -8,12 +8,14 @@ import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.ClassroomAttendance;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.StudentAttendance;
+import com.tulip.host.domain.UploadRecord;
 import com.tulip.host.enums.AttendanceStatus;
 import com.tulip.host.repository.AcademicCalendarRepository;
 import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.ClassroomAttendanceRepository;
 import com.tulip.host.repository.StudentAttendanceRepository;
 import com.tulip.host.repository.StudentRepository;
+import com.tulip.host.repository.UploadRecordRepository;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -60,6 +62,7 @@ public class AttendanceService {
     private final StudentAttendanceRepository studentAttendanceRepository;
     private final AcademicCalendarRepository academicCalendarRepository;
     private final UploadService uploadService;
+    private final UploadRecordRepository uploadRecordRepository;
 
     // ─────────────────────────────────────────────────────────────
     // TEMPLATE GENERATION
@@ -223,8 +226,18 @@ public class AttendanceService {
 
         LocalDate weekEnd = weekStart.plusDays(4);
 
-        // Save raw file to S3 (reuse existing upload infrastructure)
-        String fileUid = uploadService.save(file, "attendance");
+        // Save raw file to S3 and persist an UploadRecord for normalization
+        String fileUid = uploadService.save(file, "academic/attendance");
+        UploadRecord uploadRecord = uploadRecordRepository.save(
+            UploadRecord.builder()
+                .uid(fileUid)
+                .name(file.getOriginalFilename())
+                .type(file.getContentType())
+                .size((int) file.getSize())
+                .status("done")
+                .uploadType("attendance")
+                .build()
+        );
 
         // Resolve holidays for this week
         List<AcademicCalendar> holidays = academicCalendarRepository.findByDateRange(weekStart, weekEnd);
@@ -268,7 +281,7 @@ public class AttendanceService {
             .leaveCount(leaveCount)
             .totalWorkingDays(totalWorkingDays)
             .holidayCount(holidayCount)
-            .fileUid(fileUid)
+            .s3Upload(uploadRecord)
             .build();
         classroomAttendance = classroomAttendanceRepository.save(classroomAttendance);
 
@@ -522,7 +535,7 @@ public class AttendanceService {
             .leaveCount(entity.getLeaveCount())
             .totalWorkingDays(entity.getTotalWorkingDays())
             .holidayCount(entity.getHolidayCount())
-            .fileUid(entity.getFileUid())
+            .fileUid(entity.getS3Upload() != null ? entity.getS3Upload().getUid() : null)
             .uploadedBy(entity.getCreatedBy())
             .createdDate(entity.getCreatedDate() != null ? entity.getCreatedDate().toString() : null)
             .build();

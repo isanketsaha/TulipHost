@@ -17,6 +17,8 @@
 ---
 # Conditionally disable springdoc on missing api-docs profile
 spring:
+  liquibase:
+    enabled: false
   config:
     activate:
       on-profile: '!api-docs'
@@ -299,11 +301,11 @@ application:
     account_sid: ${twilio.asid}
     key: ${twilio.key}
     message_sid: ${twilio.msid}
-    default_email: ${default.email:sanketsaha@gmail.com}
-    default_phone: ${default.phone:918886860461}
+    default_email: ${default.email}
+    default_phone: ${default.phone}
     communication_enabled: false
   tinyurl:
     key: ${tinyurl.key}
   whatsapp:
-    integrated-number: ${whatsapp.integrated.number:919059635061}
-    namespace: ${whatsapp.namespace:9cb732f3_fd20_47b0_b428_410069a48ce2}
+    integrated-number: ${whatsapp.integrated.number}
+    namespace: ${whatsapp.namespace}

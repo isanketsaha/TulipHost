@@ -10,12 +10,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "s3_upload")
 @Data
-public class UploadRecord extends AbstractAuditingEntity  {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class UploadRecord extends AbstractAuditingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,14 +36,16 @@ public class UploadRecord extends AbstractAuditingEntity  {
     @Column(name = "status", length = 50)
     private String status;
 
-    @Column(name = "file_type", length = 50)
+    @Column(name = "file_type", length = 255)
     private String type;
 
     @Column(name = "file_size")
     private Integer size;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade =  {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
-    @JoinColumn(name = "system_document_id",nullable = false)
-    private SystemDocument systemDocument;
+    @Column(name = "upload_type", length = 30)
+    private String uploadType;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = true, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
+    @JoinColumn(name = "system_document_id", nullable = true)
+    private SystemDocument systemDocument;
 }
