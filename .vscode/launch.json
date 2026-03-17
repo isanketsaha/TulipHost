@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-TulipHostApp<tulip-host>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.tulip.host.TulipHostApp",
+      "projectName": "tulip-host",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
