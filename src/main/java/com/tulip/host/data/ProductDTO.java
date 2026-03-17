@@ -1,9 +1,7 @@
 package com.tulip.host.data;
 
 import java.io.Serializable;
-
 import javax.xml.catalog.Catalog;
-
 import lombok.Data;
 
 /**
@@ -29,4 +27,5 @@ public class ProductDTO implements Serializable {
     private Integer availableStock;
     private Boolean lowStock;
     private String category;
+    private String subject;
 }

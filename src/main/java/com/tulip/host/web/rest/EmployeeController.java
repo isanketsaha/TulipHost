@@ -1,26 +1,26 @@
 package com.tulip.host.web.rest;
 
+import com.tulip.host.data.AttendanceResponseDTO;
 import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.EmployeeDetailsDTO;
 import com.tulip.host.enums.UserRoleEnum;
 import com.tulip.host.service.EmployeeService;
+import com.tulip.host.service.eOfficeApiService;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/employee")
@@ -28,7 +28,12 @@ import java.util.List;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final eOfficeApiService eOfficeApiService;
 
+    @GetMapping("/attendance")
+    public AttendanceResponseDTO getAttendance(@RequestParam String Empcode, @RequestParam String FromDate, @RequestParam String ToDate) {
+        return eOfficeApiService.getInOutPunchData(Empcode, FromDate, ToDate);
+    }
 
     @RequestMapping("/all/active")
     public List<EmployeeBasicDTO> fetchActive(@RequestParam(required = false) UserRoleEnum role) {

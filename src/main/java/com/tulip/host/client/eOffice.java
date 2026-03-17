@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * Feign client for eOffice service.
  * Requires authentication token configured in application.yml under app.feign.auth.tokens.eoffice
  */
-@FeignClient(name = "eOffice", url = "${feign.client.config.eOffice.url}", configuration = FeignClientConfiguration.class)
+@FeignClient(name = "eOffice", url = "${feign.client.config.eOffice.url}")
 public interface eOffice {
     /**
      * Download in/out punch data for employee(s) within a date range.

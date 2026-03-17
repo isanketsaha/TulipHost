@@ -44,8 +44,12 @@ public class ExportController {
     }
 
     @PostMapping("/classStudents")
-    public void toExcelStudent(@RequestParam Long classroomId, HttpServletResponse response) throws IOException {
-        XSSFWorkbook sheets = exportService.exportClassDetails(classroomId);
+    public void toExcelStudent(
+        @RequestParam Long classroomId,
+        @RequestParam(required = false) List<Long> studentIds,
+        HttpServletResponse response
+    ) throws IOException {
+        XSSFWorkbook sheets = exportService.exportClassDetails(classroomId, studentIds);
         HttpHeaders header = new HttpHeaders();
         response.setContentType(
             MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8").toString()

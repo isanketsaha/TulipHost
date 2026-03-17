@@ -46,6 +46,7 @@ public class OnboardingController {
                         "employee/" + employeeName
                     );
                     employeeService.attachEmployment(id, joining_letter);
+                    employeeService.notifyOnboard(id);
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to generate joining letter", e);
                 }
@@ -65,6 +66,7 @@ public class OnboardingController {
                         "student/" + studentName
                     );
                     studentService.attachEnrollment(id, enrollment_letter);
+                    studentService.notifyParent(id);
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to generate enrollment letter", e);
                 }
@@ -73,9 +75,4 @@ public class OnboardingController {
         }
         throw new Exception("No Match found for onboard type.");
     }
-    //
-    //    @Scheduled(cron = "0 01 17 26 * ?")
-    //    public void notifyOnboard() {
-    //        employeeService.notifyOnboard(58L);
-    //    }
 }

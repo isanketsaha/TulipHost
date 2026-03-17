@@ -108,3 +108,8 @@ public interface StudentMapper {
 4. Use QueryDSL for database queries
 5. Place utilities in `utils/` and constants in dedicated classes
 6. Implement happy path first, iterate incrementally - don't over-engineer
+7. Always follow SOLID principal.
+8. comment code those are sitting idle and have no importance.
+9. Always decide on the tables and fields and then create table post that services and later the api. You should ask question if you need.
+10. what all api we need and tables we need to create to bring capability will be understood by reviewing the ui .
+11. suggest to create UI if that applicable.

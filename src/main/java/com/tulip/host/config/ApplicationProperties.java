@@ -1,8 +1,6 @@
 package com.tulip.host.config;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -34,7 +32,14 @@ public class ApplicationProperties {
     @Data
     public static class Whatsapp {
 
+        /** MSG91 authkey — kept for reference; auth is injected via {@code FeignAuthProperties}. */
         private String key;
+
+        /** WhatsApp-registered sender number in E.164 format (e.g. {@code 919059635061}). */
+        private String integratedNumber;
+
+        /** MSG91 namespace GUID that scopes the approved template library. */
+        private String namespace;
     }
 
     @Data
@@ -68,6 +73,7 @@ public class ApplicationProperties {
         private String messageSid;
         private String defaultEmail;
         private String defaultPhone;
+        private boolean communicationEnabled = false;
     }
 
     @Data

@@ -9,9 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,11 +37,12 @@ public class UploadController {
         return uploadService.getURL(uuid, bucketName);
     }
 
-    @DeleteMapping
-    public void delete(@RequestParam String uuid, @RequestParam(required = false) String bucket) {
-        String bucketName = bucket != null ? bucket : uploadService.getDocsBucket();
-        uploadService.delete(uuid, bucketName);
-    }
+    // Not used by UI
+    //    @DeleteMapping
+    //    public void delete(@RequestParam String uuid, @RequestParam(required = false) String bucket) {
+    //        String bucketName = bucket != null ? bucket : uploadService.getDocsBucket();
+    //        uploadService.delete(uuid, bucketName);
+    //    }
 
     @GetMapping("/download")
     public void download(@RequestParam String uuid, @RequestParam(required = false) String bucket, HttpServletResponse response)

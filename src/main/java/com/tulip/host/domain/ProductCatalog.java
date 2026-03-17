@@ -63,6 +63,10 @@ public class ProductCatalog extends AbstractAuditingEntity {
     @Column(name = "category", length = 20)
     private String category;
 
+    @Size(max = 50)
+    @Column(name = "subject", length = 50)
+    private String subject;
+
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private Set<PurchaseLineItem> purchaseLineItems;
 

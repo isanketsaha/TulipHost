@@ -64,6 +64,8 @@ public class StudentDetailsDTO {
 
     private String religion;
     private int age;
+    private Double weight;
+    private Double height;
     List<FileUploadVM> aadhaarCard;
 
     List<FileUploadVM> profilePicture;

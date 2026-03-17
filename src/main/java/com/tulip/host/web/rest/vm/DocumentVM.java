@@ -4,13 +4,12 @@ import com.tulip.host.enums.DocumentCategoryEnum;
 import com.tulip.host.enums.UploadEnum;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
@@ -35,11 +34,12 @@ public class DocumentVM {
 
     String className;
 
+    String subjectKey;
+
     @NotNull
     List<FileUploadVM> files;
 
     String createdBy;
 
     LocalDateTime createdDate;
-
 }

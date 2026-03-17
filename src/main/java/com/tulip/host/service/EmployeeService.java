@@ -66,6 +66,7 @@ public class EmployeeService {
     private final JasperService jasperService;
 
     private final EmployeeMapper employeeMapper;
+    private final AppraisalService appraisalService;
     private final CredentialRepository credentialRepository;
     private final SessionRepository sessionRepository;
     private final OutboundCommunicationService outboundCommunicationService;
@@ -141,6 +142,7 @@ public class EmployeeService {
         if (employee != null) {
             EmployeeDetailsDTO employeeDetailsDTO = employeeMapper.toEntity(employee, uploadService);
             mapUpload(employeeDetailsDTO, employee);
+            employeeDetailsDTO.setAppraisals(appraisalService.getAppraisalsForEmployee(id));
             return employeeDetailsDTO;
         }
         return null;
@@ -293,7 +295,7 @@ public class EmployeeService {
                 );
                 outboundCommunicationService.send(
                     CommunicationRequest.builder()
-                        .recipient(new String[] { employee.getEmail() })
+                        .mailRecipient(new String[] { employee.getEmail() })
                         .cc(ccEmails)
                         .content(mailService.renderTemplate("mail/employee_onboard.vm", map))
                         .entityType(employee.getClass().getName())

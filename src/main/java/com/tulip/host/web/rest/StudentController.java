@@ -1,13 +1,22 @@
 package com.tulip.host.web.rest;
 
+import com.tulip.host.data.StudentAttendanceDTO;
+import com.tulip.host.data.StudentAttendanceSummaryDTO;
 import com.tulip.host.data.StudentBasicDTO;
+import com.tulip.host.data.StudentBehaviourReviewDTO;
 import com.tulip.host.data.StudentDetailsDTO;
+import com.tulip.host.data.StudentExamResultDTO;
+import com.tulip.host.service.AttendanceService;
+import com.tulip.host.service.BehaviourService;
+import com.tulip.host.service.MarksService;
 import com.tulip.host.service.StudentService;
 import com.tulip.host.web.rest.vm.DeactivateVm;
+import com.tulip.host.web.rest.vm.LeaveRequestVM;
 import com.tulip.host.web.rest.vm.TransportVm;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +35,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudentController {
 
     private final StudentService studentService;
+    private final AttendanceService attendanceService;
+    private final BehaviourService behaviourService;
+    private final MarksService marksService;
 
     @RequestMapping("/all")
     public Page<StudentBasicDTO> fetchAll(
@@ -83,5 +95,26 @@ public class StudentController {
     public String generateEnrollmentLetter(@RequestParam Long studentId) throws IOException {
         return studentService.fetchEnrollment(studentId);
     }
-}
 
+    // ── Attendance ────────────────────────────────────────────────
+
+    @GetMapping("/{id}/attendance")
+    public StudentAttendanceSummaryDTO getAttendanceSummary(@PathVariable Long id) {
+        return attendanceService.getStudentAttendanceSummary(id);
+    }
+
+    @PostMapping("/{id}/leave")
+    public StudentAttendanceDTO submitLeave(@PathVariable Long id, @Valid @RequestBody LeaveRequestVM vm) {
+        return attendanceService.submitLeave(id, vm.getStartDate(), vm.getNumberOfDays(), vm.getRemarks());
+    }
+
+    @GetMapping("/{id}/behaviour")
+    public StudentBehaviourReviewDTO getBehaviourReview(@PathVariable Long id) {
+        return behaviourService.getStudentReview(id);
+    }
+
+    @GetMapping("/{id}/marks")
+    public List<StudentExamResultDTO> getStudentMarks(@PathVariable Long id) {
+        return marksService.getStudentMarks(id);
+    }
+}

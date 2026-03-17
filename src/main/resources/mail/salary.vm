@@ -57,6 +57,7 @@
     <thead>
         <tr>
             <th>Employee Name</th>
+            <th>Weekly<br/>Quota</th>
             <th>Total<br/>Working Days</th>
             <th>Present<br/>Days</th>
             <th>Absent<br/>Days</th>
@@ -71,6 +72,7 @@
     #foreach($emp in $employees)
         <tr>
             <td>$emp.empName</td>
+            <td>#if($emp.workingDaysInWeek)$emp.workingDaysInWeek/wk#else Full #end</td>
             <td>$emp.totalWorkingDays</td>
             <td>$emp.presentDays</td>
             <td>$emp.absentDays</td>
