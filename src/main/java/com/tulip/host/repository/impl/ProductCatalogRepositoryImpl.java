@@ -35,4 +35,12 @@ public class ProductCatalogRepositoryImpl extends BaseRepositoryImpl<ProductCata
             .where(PRODUCT_CATALOG.subject.eq(subject).and(PRODUCT_CATALOG.std().id.eq(stdId)))
             .fetch();
     }
+
+    @Override
+    public ProductCatalog findByItemNameAndTag(String itemName, String tag) {
+        return jpaQueryFactory
+            .selectFrom(PRODUCT_CATALOG)
+            .where(PRODUCT_CATALOG.itemName.eq(itemName).and(PRODUCT_CATALOG.tag.eq(tag)))
+            .fetchOne();
+    }
 }
