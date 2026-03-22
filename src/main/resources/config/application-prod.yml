@@ -71,9 +71,9 @@ spring:
       # it can be set to any label, branch or commit of the configuration source Git repository
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://${MYSQLUSER}:${MYSQLPASSWORD}@${MYSQLHOST}:${MYSQLPORT}/tulip?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true&rewriteBatchedStatements=true&cachePrepStmts=true&useServerPrepStmts=true&maintainTimeStats=false&elideSetAutoCommits=true&useLocalSessionState=true&cacheResultSetMetadata=true&cacheServerConfiguration=true&useLocalTransactionState=true&nullCatalogMeansCurrent=true&readOnlyPropagatesToServer=false&useUnbufferedInput=false&useReadAheadInput=false&tcpKeepAlive=true&useFastDateParsing=false&useTimezone=false&useLegacyDatetimeCode=false&zeroDateTimeBehavior=convertToNull&characterEncoding=utf8&characterSetResults=utf8&connectionTimeZone=SERVER&forceConnectionTimeZoneToSession=true
-    username: root
-    password:
+    url: jdbc:mysql://${MYSQLHOST}:${MYSQLPORT}/tulip?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: ${MYSQLUSER}
+    password: ${MYSQLPASSWORD}
     hikari:
       poolName: TulipHikariPool
       maximum-pool-size: 30
@@ -149,10 +149,8 @@ server:
 
 jhipster:
   http:
-    cache: # Used by the CachingHttpHeadersFilter
+    cache:
       timeToLiveInDays: 1461
-  registry:
-    password: admin
   security:
     authentication:
       jwt:
@@ -161,7 +159,7 @@ jhipster:
         # - In the JHipster Registry (which includes a Spring Cloud Config server)
         # - In a separate `application-prod.yml` file, in the same folder as your executable JAR file
         # - In the `JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET` environment variable
-        base64-secret: ${JKS_SECRET}
+        base64-secret: ${JWT_SECRET}
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
@@ -190,43 +188,3 @@ application:
       secret: ${s3.secret}
       bucket-name: ${s3.bucket}
       invoice-bucket-name: ${s3.invoice.bucket}
-
-jpa:
-  open-in-view: false
-  properties:
-    hibernate:
-      jdbc:
-        batch_size: 50
-        batch_versioned_data: true
-        use_get_generated_keys: true
-        use_scrollable_resultset: false
-        wrap_result_sets: false
-        time_zone: UTC
-      connection:
-        provider_disables_autocommit: true
-        release_mode: after_transaction
-        handling_mode: DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION
-      cache:
-        use_second_level_cache: false
-        use_query_cache: false
-      order_inserts: true
-      order_updates: true
-      query:
-        fail_on_pagination_over_collection_fetch: true
-        in_clause_parameter_padding: true
-      session:
-        events:
-          log: false
-          log.LOG_QUERIES_SLOWER_THAN_MS: 1000
-      generate_statistics: false
-      timezone:
-        default_storage: NORMALIZE
-      type:
-        preferred_instant_jdbc_type: TIMESTAMP
-      id:
-        new_generator_mappings: true
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
-        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
-  hibernate:
-    ddl-auto: none

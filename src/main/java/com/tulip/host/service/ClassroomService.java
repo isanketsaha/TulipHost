@@ -118,11 +118,9 @@ public class ClassroomService {
 
     @Transactional
     public void promoteStudents(PromoteStudentVM promoteStudentVM) throws ValidationException {
-        ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(
-            promoteStudentVM.getSessionId(),
-            promoteStudentVM.getStd().name()
-        );
+        ClassDetail classDetail = classDetailRepository.findById(promoteStudentVM.getClassId()).orElse(null);
         if (classDetail != null) {
+            Long targetSessionId = classDetail.getSession().getId();
             promoteStudentVM
                 .getStudentId()
                 .stream()
@@ -132,7 +130,7 @@ public class ClassroomService {
                         SortedSet<ClassDetail> classDetails = student
                             .getClassDetails()
                             .stream()
-                            .filter(classDetail1 -> classDetail1.getSession().getId() != promoteStudentVM.getSessionId())
+                            .filter(cd -> !cd.getSession().getId().equals(targetSessionId))
                             .collect(Collectors.toCollection(TreeSet::new));
                         classDetails.add(classDetail);
                         student.setClassDetails(classDetails);

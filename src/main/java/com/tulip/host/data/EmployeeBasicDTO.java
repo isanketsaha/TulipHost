@@ -47,4 +47,7 @@ public class EmployeeBasicDTO {
     private String profilePictureUrl;
 
     private Integer workingDaysInWeek;
+
+    @Size(max = 20)
+    private String qualification;
 }

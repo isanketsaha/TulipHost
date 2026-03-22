@@ -1,13 +1,12 @@
 package com.tulip.host.data;
 
-import java.util.List;
-
 import com.tulip.host.web.rest.vm.FileUploadVM;
-
+import java.util.List;
 import lombok.Data;
 
 @Data
 public class EmployeeLeaveDto {
+
     private Long id;
     private String employeeId;
     private String employeeTid;
@@ -27,5 +26,7 @@ public class EmployeeLeaveDto {
     private String lastModifiedBy;
     private String createdDate;
     private String lastModifiedDate;
-
+    // Populated only for approval-queue responses so the UI can call /action
+    // without a separate notification lookup (same pattern as InventoryRequestDTO)
+    private String machineId;
 }

@@ -9,7 +9,6 @@ import com.tulip.host.data.TransportOptDTO;
 import com.tulip.host.domain.ClassDetail;
 import com.tulip.host.domain.Inventory;
 import com.tulip.host.domain.ProductCatalog;
-import com.tulip.host.domain.PurchaseLineItem;
 import com.tulip.host.domain.Session;
 import com.tulip.host.domain.Student;
 import com.tulip.host.domain.TransportCatalog;
@@ -26,14 +25,12 @@ import com.tulip.host.repository.SessionRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.TransportCatalogRepository;
 import com.tulip.host.web.rest.vm.InventoryUpdateVM;
-import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -112,26 +109,30 @@ public class CatalogService {
      * Get product catalog with unified pricing - shows highest price when multiple
      * inventory batches exist
      */
+    /**
+     * @param classId  filters by class when category is null (standard student catalog)
+     * @param category when non-null, filters by category instead (e.g. "STAFF") and includes 0-stock items
+     */
     @Transactional
-    public List<ProductDTO> productCatalogWithUnifiedPricing(Long classId) {
-        List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveProduct(classId);
+    public List<ProductDTO> productCatalogWithUnifiedPricing(Long classId, String category) {
+        List<ProductCatalog> catalogs = productCatalogRepository.findAllByActiveProduct(classId, category);
 
         try {
-            List<ProductDTO> productsWithUnifiedPricing = new ArrayList<>();
-
+            List<ProductDTO> result = new ArrayList<>();
             for (ProductCatalog catalog : catalogs) {
-                int totalAvailableQty = inventoryService.getTotalAvailableQuantity(catalog);
+                int stock = inventoryService.getTotalAvailableQuantity(catalog);
                 if (catalog.getItemName().equals("ADMISSION FORM")) {
-                    log.info("Debug: Product {} has available qty {}", catalog.getItemName(), totalAvailableQty);
+                    log.info("Debug: Product {} has available qty {}", catalog.getItemName(), stock);
                 }
-                if (totalAvailableQty > 0) {
-                    ProductDTO productDTO = catalogMapper.toEntity(catalog);
-                    productDTO.setAvailableStock(totalAvailableQty);
-                    productDTO.setLowStock(totalAvailableQty < 10);
-                    productsWithUnifiedPricing.add(productDTO);
+                // For class catalogs skip 0-stock; for category views (e.g. STAFF) include them so UI can show disabled state
+                if (stock > 0 || category != null) {
+                    ProductDTO dto = catalogMapper.toEntity(catalog);
+                    dto.setAvailableStock(stock);
+                    dto.setLowStock(stock > 0 && stock < 10);
+                    result.add(dto);
                 }
             }
-            return productsWithUnifiedPricing;
+            return result;
         } finally {
             catalogs.clear();
         }

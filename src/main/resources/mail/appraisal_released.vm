@@ -1,0 +1,17 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body style="font-family: Arial, Helvetica, sans-serif;">
+
+#parse("mail/_header.vm")
+
+<p>Your appraisal has been completed and the results are now available.</p>
+
+<p>Please log in to the portal to view your appraisal details.</p>
+
+#parse("mail/_signature.vm")
+
+</body>
+</html>

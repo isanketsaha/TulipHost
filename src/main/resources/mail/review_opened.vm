@@ -1,0 +1,65 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #333; line-height: 1.6;">
+
+#parse("mail/_header.vm")
+
+<p>
+  A <strong>$reviewType</strong> review has been initiated for you as part of your appraisal for
+  <strong>$sessionName</strong>. You are required to complete your <strong>self-assessment</strong>
+  and submit it through the portal before your review meeting.
+</p>
+
+<hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
+
+<h3 style="color: #444;">Evaluation Parameters</h3>
+<p>You will be assessed on the following parameters. Make sure your self-assessment addresses each one:</p>
+
+<ol>
+#foreach($param in $parameters)
+  <li style="margin-bottom: 6px;"><strong>$param</strong></li>
+#end
+</ol>
+
+<hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
+
+<h3 style="color: #444;">How to Write a Strong Self-Assessment</h3>
+<p>Your self-assessment should be specific, honest, and evidence-based. For each parameter above, describe what you did, the impact it had, and any areas where you want to grow.</p>
+
+<p><strong>Tips:</strong></p>
+<ul>
+  <li>
+    <strong>Be specific, not generic.</strong><br/>
+    <em>Weak:</em> "I worked hard this year."<br/>
+    <em>Strong:</em> "I completed all lesson plans two weeks ahead of schedule and received positive feedback from parents during PTM."
+  </li>
+  <li style="margin-top: 10px;">
+    <strong>Use numbers and outcomes where possible.</strong><br/>
+    <em>Example:</em> "Average class performance improved from 68% to 79% in Term 2."
+  </li>
+  <li style="margin-top: 10px;">
+    <strong>Address each evaluation parameter directly.</strong><br/>
+    <em>Example:</em> "Regarding <em>Classroom Management</em> — I introduced a seating rotation system that reduced disruptions by approximately 40%."
+  </li>
+  <li style="margin-top: 10px;">
+    <strong>Acknowledge areas for improvement honestly.</strong><br/>
+    <em>Example:</em> "I would like to improve my use of technology in lessons and plan to complete an online course in the next quarter."
+  </li>
+  <li style="margin-top: 10px;">
+    <strong>Keep it structured.</strong> Use one short paragraph per parameter so the reviewer can follow your response easily.
+  </li>
+</ul>
+
+<hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
+
+<p>
+  Please log in to the portal to submit your self-assessment. Completing it before your scheduled review will give your manager the best context for a productive conversation.
+</p>
+
+#parse("mail/_signature.vm")
+
+</body>
+</html>

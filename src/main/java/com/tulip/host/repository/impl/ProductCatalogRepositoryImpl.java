@@ -15,7 +15,13 @@ public class ProductCatalogRepositoryImpl extends BaseRepositoryImpl<ProductCata
     }
 
     @Override
-    public List<ProductCatalog> findAllByActiveProduct(Long classId) {
+    public List<ProductCatalog> findAllByActiveProduct(Long classId, String category) {
+        if (category != null) {
+            return jpaQueryFactory
+                .selectFrom(PRODUCT_CATALOG)
+                .where(PRODUCT_CATALOG.active.eq(true).and(PRODUCT_CATALOG.category.eq(category)))
+                .fetch();
+        }
         return jpaQueryFactory
             .selectFrom(PRODUCT_CATALOG)
             .where(PRODUCT_CATALOG.active.eq(true).and(PRODUCT_CATALOG.std().isNull()).or(PRODUCT_CATALOG.std().id.eq(classId)))

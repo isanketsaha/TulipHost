@@ -74,8 +74,8 @@ app:
   feign:
     auth:
       tokens:
-        eoffice: 'Basic VHVsaXBTY2hvb2w6dHVsaXBhZG1pbjpSYWtoaUAwNjp0cnVlOg=='
-        msg-gateway: '488258AEXxpo8SgEVu69739eebP1'
+        eoffice: ${EOFFICE_TOKEN}
+        msg-gateway: ${MSG_GATEWAY_TOKEN}
 management:
   endpoints:
     web:
@@ -145,16 +145,16 @@ spring:
   application:
     name: tulipHost
   mail:
-    host: smtp.zoho.in
-    port: 587
-    username: bot@tulipschool.co.in
-    password: Rakhi@06
+    host: ${MAIL_HOST:smtp.zoho.in}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     protocol: smtp
     tls: true
     properties.mail.smtp:
       auth: true
       starttls.enable: true
-      ssl.trust: smtp.zoho.in
+      ssl.trust: ${MAIL_HOST:smtp.zoho.in}
   docker:
     compose:
       enabled: true

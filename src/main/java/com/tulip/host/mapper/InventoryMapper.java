@@ -24,6 +24,7 @@ public interface InventoryMapper {
         expression = "java(source.getPurchasePrice() == null ? com.tulip.host.utils" +
         ".CommonUtils.calculatePurchasePrice(source.getDiscountPercent(), source.getPrice()) : source.getPurchasePrice())"
     )
+    @Mapping(target = "mrp", source = "price")
     Inventory toModel(ProductLoadVM source);
 
     /**

@@ -77,7 +77,7 @@ public class EmployeeService {
     public List<EmployeeBasicDTO> fetchAllEmployee(boolean isActive, UserRoleEnum role) {
         Long id = sessionRepository.fetchCurrentSession().getId();
         List<Employee> employees = employeeRepository.fetchAll(isActive, role == null ? CommonUtils.findEligibleUG() : Arrays.asList(role));
-        return employeeMapper.toBasicEntityList(employees);
+        return employeeMapper.toBasicEntityList(employees, uploadService);
     }
 
     @Transactional

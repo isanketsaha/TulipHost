@@ -42,6 +42,7 @@ public class EmployeeLeaveService {
     public final LeaveBalanceMapper leaveBalanceMapper;
     public final ActionNotificationRepository actionNotificationRepository;
     public final UploadMapper uploadMapper;
+    public final ActionNotificationService actionNotificationService;
 
     public List<EmployeeLeaveDto> getAllEmployeeLeavesAsDto(LeaveStatus status) {
         List<EmployeeLeave> employeeLeaves;
@@ -55,6 +56,43 @@ public class EmployeeLeaveService {
             .stream()
             .filter(el -> !el.getEmployee().getCredential().getUserId().equals(SecurityUtils.getCurrentUserId().orElseThrow()))
             .map(employeeLeaveMapper::toDto)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Approval-queue view: returns only the leaves that have a PENDING
+     * ActionNotification routed to the current user's role.
+     *
+     * A principal who submits their own leave will NOT see it here, because
+     * that notification is routed to ADMIN — not to PRINCIPAL.
+     * This replaces the old pattern of loading all leaves by status and
+     * filtering out the current user's own records.
+     */
+    public List<EmployeeLeaveDto> getApprovalQueueLeaves() {
+        List<Long> leaveIds = actionNotificationService.getApprovalQueueEntityIds("LEAVE");
+        if (leaveIds.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        // Fetch each leave's PENDING notification to populate machineId in the DTO
+        Map<Long, String> machineIds = leaveIds
+            .stream()
+            .flatMap(id ->
+                actionNotificationRepository
+                    .findByEntityTypeAndEntityId("LEAVE", id)
+                    .stream()
+                    .filter(n -> n.getStatus() == NotificationStatus.PENDING)
+                    .findFirst()
+                    .stream()
+            )
+            .collect(Collectors.toMap(ActionNotification::getEntityId, ActionNotification::getMachineId));
+        return employeeLeaveRepository
+            .findAllById(leaveIds)
+            .stream()
+            .map(leave -> {
+                EmployeeLeaveDto dto = employeeLeaveMapper.toDto(leave);
+                dto.setMachineId(machineIds.get(leave.getId()));
+                return dto;
+            })
             .collect(Collectors.toList());
     }
 

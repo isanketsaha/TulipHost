@@ -4,6 +4,7 @@ import com.tulip.host.data.AcademicUploadDTO;
 import com.tulip.host.data.ClassDetailDTO;
 import com.tulip.host.data.ClassListDTO;
 import com.tulip.host.data.ClassroomAttendanceDTO;
+import com.tulip.host.data.ClassroomInsightsDTO;
 import com.tulip.host.data.EmployeeBasicDTO;
 import com.tulip.host.data.ExamMarksUploadDTO;
 import com.tulip.host.data.FeesCatalogDTO;
@@ -194,6 +195,14 @@ public class ClassroomController {
     @GetMapping("/marks/history")
     public List<ExamMarksUploadDTO> getMarksHistory(@RequestParam Long classroomId) {
         return marksService.getExamHistory(classroomId);
+    }
+
+    @GetMapping("/{classroomId}/insights")
+    public ClassroomInsightsDTO getInsights(@PathVariable Long classroomId) {
+        return ClassroomInsightsDTO.builder()
+            .exams(marksService.getClassroomExamInsights(classroomId))
+            .behaviour(behaviourService.getClassroomBehaviourInsights(classroomId))
+            .build();
     }
 
     @PostMapping("/marks/upload")

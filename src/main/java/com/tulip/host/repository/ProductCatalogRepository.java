@@ -6,7 +6,9 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductCatalogRepository extends JpaRepository<ProductCatalog, Long> {
-    List<ProductCatalog> findAllByActiveProduct(Long classId);
+    List<ProductCatalog> findAllByActiveProduct(Long classId, String category);
 
     List<ProductCatalog> findBySubjectAndStd_Id(String subject, Long stdId);
+
+    ProductCatalog findByItemNameAndTag(String itemName, String tag);
 }

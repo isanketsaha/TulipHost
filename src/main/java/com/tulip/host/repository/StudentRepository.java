@@ -24,4 +24,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     Student checkIfFeesPaid(Long studentId, Long feesId, String month);
 
     Map<String, Long> admissionStats(LocalDate startDate, LocalDate endDate);
+
+    // Returns [name, std, dob, photoUid] for all active students in the current session
+    List<Object[]> findActiveStudentsBirthdayData(Long sessionId);
 }

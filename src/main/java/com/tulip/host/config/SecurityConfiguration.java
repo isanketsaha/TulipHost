@@ -48,6 +48,8 @@ public class SecurityConfiguration {
                 authz
                     .requestMatchers(mvc.pattern(HttpMethod.POST, "/authenticate"))
                     .permitAll()
+                    .requestMatchers(mvc.pattern("/public/**"))
+                    .permitAll()
                     .requestMatchers(mvc.pattern("/admin/**"))
                     .hasAuthority(AuthoritiesConstants.ADMIN)
                     .requestMatchers(mvc.pattern("/v3/api-docs/**"))

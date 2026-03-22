@@ -7,6 +7,10 @@ import lombok.Data;
 @Data
 public class DataLoadVM {
 
+    public boolean isEmpty() {
+        return itemName == null || itemName.isBlank();
+    }
+
     @FieldName("Product Name")
     private String itemName;
 

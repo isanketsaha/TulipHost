@@ -45,8 +45,8 @@ public class CatalogController {
     }
 
     @GetMapping("/product/{classID}")
-    public List<ProductDTO> productCatalog(@PathVariable Long classID) {
-        return catalogService.productCatalogWithUnifiedPricing(classID);
+    public List<ProductDTO> productCatalog(@PathVariable Long classID, @RequestParam(required = false) String category) {
+        return catalogService.productCatalogWithUnifiedPricing(classID, category);
     }
 
     @PostMapping("/updateStock")

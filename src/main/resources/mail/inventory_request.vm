@@ -1,0 +1,50 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body style="font-family: Arial, Helvetica, sans-serif;">
+
+#parse("mail/_header.vm")
+
+#if($action == 'SUBMITTED')
+  <p>Hi <b>$requesterName</b>,</p>
+  <p>Your inventory request has been submitted successfully and is pending approval.</p>
+#elseif($action == 'APPROVAL_PENDING')
+  <p>An inventory request has been submitted and requires your approval.</p>
+#elseif($action == 'APPROVED')
+  <p>Hi <b>$requesterName</b>,</p>
+  <p>Your inventory request has been <b>approved</b>.</p>
+#elseif($action == 'REJECTED')
+  <p>Hi <b>$requesterName</b>,</p>
+  <p>Your inventory request has been <b>rejected</b>.</p>
+#elseif($action == 'FULFILLED')
+  <p>Hi <b>$requesterName</b>,</p>
+  <p>Your inventory request has been <b>fulfilled</b>. The item has been issued.</p>
+#end
+
+<p>
+  <b>Item:</b> $productName<br/>
+  <b>Quantity:</b> $qty<br/>
+  <b>Requested by:</b> $requesterName<br/>
+  <b>Status:</b> $status
+</p>
+
+#if($justification)
+  <p>
+    <b>Justification:</b><br/>
+    $justification
+  </p>
+#end
+
+#if($remarks)
+  <p>
+    <b>Remarks:</b><br/>
+    $remarks
+  </p>
+#end
+
+#parse("mail/_signature.vm")
+
+</body>
+</html>

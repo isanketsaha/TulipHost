@@ -15,9 +15,9 @@ import com.tulip.host.web.rest.vm.dataload.FeesLoadVM;
 import com.tulip.host.web.rest.vm.dataload.InventoryRefillLoadVM;
 import com.tulip.host.web.rest.vm.dataload.ProductLoadVM;
 import com.tulip.host.web.rest.vm.dataload.SessionLoadVM;
+import com.tulip.host.web.rest.vm.dataload.UpdateSessionVM;
 import io.github.rushuat.ocell.document.Document;
 import io.github.rushuat.ocell.document.DocumentOOXML;
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +32,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -93,37 +94,25 @@ public class DataLoadController {
             return Collections.emptyList();
         }
 
-        // Filter out blank rows
-        List<Object> filteredRows = rows.stream().filter(row -> isRowBlank(row)).collect(Collectors.toList());
+        // Filter out rows with no item name
+        List<Object> filteredRows = rows
+            .stream()
+            .filter(row -> row instanceof DataLoadVM && !((DataLoadVM) row).isEmpty())
+            .collect(Collectors.toList());
 
         log.debug("Filtered {} blank rows, {} valid rows remain.", rows.size() - filteredRows.size(), filteredRows.size());
         return filteredRows;
     }
 
-    private boolean isRowBlank(Object row) {
-        if (row == null) {
-            return true;
-        }
-
-        try {
-            // Use reflection to check all fields
-            for (Field field : row.getClass().getDeclaredFields()) {
-                field.setAccessible(true); // Allow access to private fields
-                Object value = field.get(row);
-                if (value != null) {
-                    return true; // Found a non-empty value, row is not blank
-                }
-            }
-            return false; // All fields are null or empty
-        } catch (IllegalAccessException e) {
-            log.warn("Failed to inspect row object: {}. Treating as non-blank.", row.getClass().getName(), e);
-            return false;
-        }
-    }
-
     @PostMapping(value = "/addSession")
     public ResponseEntity addSession(@RequestBody SessionLoadVM loadVM) {
         dataLoadService.loadSession(loadVM);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping(value = "/updateSession")
+    public ResponseEntity updateSession(@RequestBody UpdateSessionVM vm) {
+        dataLoadService.updateSession(vm);
         return ResponseEntity.ok().build();
     }
 
