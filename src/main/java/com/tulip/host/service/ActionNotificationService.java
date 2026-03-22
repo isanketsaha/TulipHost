@@ -83,7 +83,7 @@ public class ActionNotificationService {
                 actionNotificationRepository.findByStatusAndEntityTypeAndApproverUserIdOrderByCreatedDateDesc(
                     NotificationStatus.PENDING,
                     entityType,
-                    userId.get()
+                    userId.orElseThrow()
                 )
             );
         }
