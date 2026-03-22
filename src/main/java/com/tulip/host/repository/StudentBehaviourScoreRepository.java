@@ -19,4 +19,12 @@ public interface StudentBehaviourScoreRepository extends JpaRepository<StudentBe
         "ORDER BY a.weekStartDate DESC"
     )
     List<StudentBehaviourScore> findByStudentIdWithDetails(@Param("studentId") Long studentId);
+
+    @Query(
+        "SELECT s FROM StudentBehaviourScore s " +
+        "JOIN FETCH s.student " +
+        "JOIN FETCH s.academicUpload a " +
+        "WHERE a.classDetail.id = :classroomId AND a.uploadType = 'BEHAVIOUR'"
+    )
+    List<StudentBehaviourScore> findAllByClassroomId(@Param("classroomId") Long classroomId);
 }

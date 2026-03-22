@@ -18,6 +18,7 @@ import com.tulip.host.repository.EmployeeAppraisalRepository;
 import com.tulip.host.repository.EmployeeRepository;
 import com.tulip.host.repository.SessionAppraisalParameterRepository;
 import com.tulip.host.repository.SessionRepository;
+import com.tulip.host.security.SecurityUtils;
 import com.tulip.host.web.rest.vm.AppraisalReviewVM;
 import com.tulip.host.web.rest.vm.AppraisalVM;
 import com.tulip.host.web.rest.vm.CloseReviewVM;
@@ -26,8 +27,12 @@ import com.tulip.host.web.rest.vm.SelfAssessmentVM;
 import com.tulip.host.web.rest.vm.SessionParameterVM;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -37,6 +42,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AppraisalService {
 
+    private final Logger log = LoggerFactory.getLogger(AppraisalService.class);
+
     private final AppraisalParameterRepository parameterRepository;
     private final SessionAppraisalParameterRepository sessionParamRepository;
     private final AppraisalSelectedParameterRepository selectedParamRepository;
@@ -45,6 +52,7 @@ public class AppraisalService {
     private final SessionRepository sessionRepository;
     private final EmployeeRepository employeeRepository;
     private final EmployeeAppraisalMapper appraisalMapper;
+    private final MailService mailService;
 
     public List<AppraisalParameterDTO> getParameters() {
         return parameterRepository
@@ -107,6 +115,49 @@ public class AppraisalService {
             .reviewStatus("OPEN")
             .build();
         reviewRepository.save(review);
+        sendReviewOpenedEmail(appraisal, vm.getReviewType());
+    }
+
+    private void sendReviewOpenedEmail(EmployeeAppraisal appraisal, String reviewType) {
+        try {
+            Employee employee = employeeRepository.search(appraisal.getEmployeeId());
+            if (StringUtils.isEmpty(employee.getEmail())) {
+                return;
+            }
+            List<String> parameterNames = selectedParamRepository
+                .findByAppraisalId(appraisal.getId())
+                .stream()
+                .map(sp -> sp.getParameter().getName())
+                .collect(Collectors.toList());
+            Map<String, Object> model = Map.of(
+                "user",
+                employee,
+                "employeeName",
+                employee.getName(),
+                "reviewType",
+                reviewType,
+                "sessionName",
+                appraisal.getSession().getDisplayText(),
+                "parameters",
+                parameterNames
+            );
+            String[] cc = SecurityUtils.getCurrentUserId()
+                .flatMap(employeeRepository::findByTid)
+                .filter(releaser -> StringUtils.isNotEmpty(releaser.getEmail()))
+                .map(releaser -> new String[] { releaser.getEmail() })
+                .orElse(new String[] {});
+            String content = mailService.renderTemplate("mail/review_opened.vm", model);
+            mailService.sendEmail(
+                new String[] { employee.getEmail() },
+                cc,
+                "Action Required: Self-Assessment for " + appraisal.getSession().getDisplayText(),
+                content,
+                false,
+                true
+            );
+        } catch (Exception e) {
+            log.warn("Review opened email failed for appraisal {}: {}", appraisal.getId(), e.getMessage());
+        }
     }
 
     @Transactional
@@ -148,6 +199,33 @@ public class AppraisalService {
             appraisal.setNewSalary(vm.getNewSalary());
         }
         appraisalRepository.save(appraisal);
+        sendAppraisalReleasedEmail(appraisal.getEmployeeId(), appraisal.getSession().getDisplayText());
+    }
+
+    private void sendAppraisalReleasedEmail(Long employeeId, String sessionDisplayText) {
+        try {
+            Employee employee = employeeRepository.search(employeeId);
+            if (StringUtils.isEmpty(employee.getEmail())) {
+                return;
+            }
+            String[] cc = SecurityUtils.getCurrentUserId()
+                .flatMap(employeeRepository::findByUserId)
+                .filter(releaser -> StringUtils.isNotEmpty(releaser.getEmail()))
+                .map(releaser -> new String[] { releaser.getEmail() })
+                .orElse(new String[] {});
+            Map<String, Object> model = Map.of("user", employee, "employeeName", employee.getName());
+            String content = mailService.renderTemplate("mail/appraisal_released.vm", model);
+            mailService.sendEmail(
+                new String[] { employee.getEmail() },
+                cc,
+                "Appraisal Available - " + sessionDisplayText,
+                content,
+                false,
+                true
+            );
+        } catch (Exception e) {
+            log.warn("Appraisal release email failed for employee {}: {}", employeeId, e.getMessage());
+        }
     }
 
     @Transactional(readOnly = true)

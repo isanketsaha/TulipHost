@@ -1,9 +1,17 @@
 package com.tulip.host.web.rest;
 
+import com.tulip.host.data.EmployeeLeaveDto;
+import com.tulip.host.data.LeaveBalanceDTO;
+import com.tulip.host.domain.EmployeeLeave;
+import com.tulip.host.enums.LeaveEvents;
+import com.tulip.host.enums.LeaveStatus;
+import com.tulip.host.service.EmployeeLeaveService;
+import com.tulip.host.web.rest.vm.ApplyLeaveVM;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,17 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.tulip.host.data.EmployeeLeaveDto;
-import com.tulip.host.data.LeaveBalanceDTO;
-import com.tulip.host.domain.EmployeeLeave;
-import com.tulip.host.enums.LeaveEvents;
-import com.tulip.host.enums.LeaveStatus;
-import com.tulip.host.service.EmployeeLeaveService;
-import com.tulip.host.web.rest.vm.ApplyLeaveVM;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -65,10 +62,9 @@ public class LeaveController {
     public ResponseEntity<Void> applyLeave(@Valid @RequestBody ApplyLeaveVM applyLeaveVM) {
         String id = UUID.randomUUID().toString();
         StateMachine<LeaveStatus, LeaveEvents> stateMachine = stateMachineService.acquireStateMachine(id);
-        stateMachine.sendEvent(Mono.just(MessageBuilder
-                .withPayload(LeaveEvents.SUBMIT)
-                .setHeader("leaveVm", applyLeaveVM)
-                .build())).subscribe();
+        stateMachine
+            .sendEvent(Mono.just(MessageBuilder.withPayload(LeaveEvents.SUBMIT).setHeader("leaveVm", applyLeaveVM).build()))
+            .subscribe();
         stateMachineService.releaseStateMachine(id);
         return ResponseEntity.ok().build();
     }
@@ -79,44 +75,54 @@ public class LeaveController {
             List<EmployeeLeaveDto> allEmployeeLeaves = employeeLeaveService.getAllEmployeeLeavesAsDto(null);
             return ResponseEntity.ok(allEmployeeLeaves);
         } else {
-            List<EmployeeLeaveDto> employeeLeaves = employeeLeaveService
-                    .getEmployeeLeaveByEmployeeIdAsDto(Long.parseLong(employeeId));
+            List<EmployeeLeaveDto> employeeLeaves = employeeLeaveService.getEmployeeLeaveByEmployeeIdAsDto(Long.parseLong(employeeId));
             return ResponseEntity.ok(employeeLeaves);
         }
     }
 
     @PostMapping("/action")
     @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")
-    public ResponseEntity<Void> processLeaveAction(
-            @Valid @RequestBody com.tulip.host.web.rest.vm.LeaveActionVM actionVM) {
-        StateMachine<LeaveStatus, LeaveEvents> stateMachine = stateMachineService
-                .acquireStateMachine(actionVM.getMachineId());
-        stateMachine.sendEvent(Mono.just(MessageBuilder
-                .withPayload(actionVM.getAction())
-                .setHeader("leaveId", actionVM.getLeaveId())
-                .setHeader("comments", actionVM.getComments())
-                .build())).subscribe();
+    public ResponseEntity<Void> processLeaveAction(@Valid @RequestBody com.tulip.host.web.rest.vm.LeaveActionVM actionVM) {
+        StateMachine<LeaveStatus, LeaveEvents> stateMachine = stateMachineService.acquireStateMachine(actionVM.getMachineId());
+        stateMachine
+            .sendEvent(
+                Mono.just(
+                    MessageBuilder.withPayload(actionVM.getAction())
+                        .setHeader("leaveId", actionVM.getLeaveId())
+                        .setHeader("comments", actionVM.getComments())
+                        .build()
+                )
+            )
+            .subscribe();
         stateMachineService.releaseStateMachine(actionVM.getMachineId());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/applied-leaves")
-    public ResponseEntity<List<EmployeeLeaveDto>> getAllEmployeeLeaves(
-            @RequestParam(required = false) LeaveStatus status) {
+    public ResponseEntity<List<EmployeeLeaveDto>> getAllEmployeeLeaves(@RequestParam(required = false) LeaveStatus status) {
         return ResponseEntity.ok(employeeLeaveService.getAllEmployeeLeavesAsDto(status));
     }
 
+    /**
+     * GET /leave/queue
+     * Returns only the leaves that have a PENDING ActionNotification for the
+     * current user's role — the correct approval queue.
+     * Replaces the old pattern where the UI loaded all PENDING leaves.
+     */
+    @GetMapping("/queue")
+    @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")
+    public ResponseEntity<List<EmployeeLeaveDto>> getApprovalQueue() {
+        return ResponseEntity.ok(employeeLeaveService.getApprovalQueueLeaves());
+    }
+
     @GetMapping("/applied-leaves/date-range")
-    public ResponseEntity<List<EmployeeLeaveDto>> getEmployeeLeavesByDateRange(
-            @RequestParam String fromDate,
-            @RequestParam String toDate) {
+    public ResponseEntity<List<EmployeeLeaveDto>> getEmployeeLeavesByDateRange(@RequestParam String fromDate, @RequestParam String toDate) {
         return ResponseEntity.ok(employeeLeaveService.getEmployeeLeavesByDateRangeAsDto(fromDate, toDate));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLeave(@PathVariable Long id) {
         employeeLeaveService.deleteEmployeeLeave(id);
-        return ResponseEntity.ok()
-                .build();
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,6 +1,8 @@
 package com.tulip.host.service;
 
 import com.tulip.host.data.AcademicUploadDTO;
+import com.tulip.host.data.ClassroomInsightsDTO.BehaviourStudentInsightDTO;
+import com.tulip.host.data.ClassroomInsightsDTO.BehaviourSubjectInsightDTO;
 import com.tulip.host.data.StudentBehaviourReviewDTO;
 import com.tulip.host.data.StudentBehaviourReviewDTO.ParameterScore;
 import com.tulip.host.data.StudentBehaviourReviewDTO.SubjectReview;
@@ -52,6 +54,66 @@ public class BehaviourService {
     private final StudentBehaviourScoreRepository behaviourScoreRepository;
     private final UploadService uploadService;
     private final UploadRecordRepository uploadRecordRepository;
+
+    // ─────────────────────────────────────────────────────────────
+    // CLASSROOM INSIGHTS
+    // ─────────────────────────────────────────────────────────────
+
+    private static final double LOW_BEHAVIOUR_THRESHOLD = 4.0; // out of 10
+
+    @Transactional(readOnly = true)
+    public List<BehaviourSubjectInsightDTO> getClassroomBehaviourInsights(Long classroomId) {
+        List<StudentBehaviourScore> allScores = behaviourScoreRepository.findAllByClassroomId(classroomId);
+        if (allScores.isEmpty()) return List.of();
+
+        // Group by subject
+        Map<String, List<StudentBehaviourScore>> bySubject = allScores
+            .stream()
+            .collect(Collectors.groupingBy(s -> s.getAcademicUpload().getSubjectKey()));
+
+        return bySubject
+            .entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(entry -> {
+                String subjectKey = entry.getKey();
+                List<StudentBehaviourScore> subjectScores = entry.getValue();
+
+                // Count distinct weeks for this subject
+                long weekCount = subjectScores.stream().map(s -> s.getAcademicUpload().getWeekStartDate()).distinct().count();
+
+                // Per-student avg score
+                Map<Long, List<StudentBehaviourScore>> byStudent = subjectScores
+                    .stream()
+                    .collect(Collectors.groupingBy(s -> s.getStudent().getId()));
+
+                double subjectAvg = subjectScores.stream().mapToInt(s -> s.getScore()).average().orElse(0);
+
+                List<BehaviourStudentInsightDTO> lowStudents = byStudent
+                    .entrySet()
+                    .stream()
+                    .map(se -> {
+                        double avg = se.getValue().stream().mapToInt(s -> s.getScore()).average().orElse(0);
+                        String name = se.getValue().get(0).getStudent().getName();
+                        return BehaviourStudentInsightDTO.builder()
+                            .studentId(se.getKey())
+                            .studentName(name)
+                            .avgScore(Math.round(avg * 10.0) / 10.0)
+                            .build();
+                    })
+                    .filter(s -> s.getAvgScore() < LOW_BEHAVIOUR_THRESHOLD)
+                    .sorted(Comparator.comparingDouble(BehaviourStudentInsightDTO::getAvgScore))
+                    .collect(Collectors.toList());
+
+                return BehaviourSubjectInsightDTO.builder()
+                    .subjectKey(subjectKey)
+                    .weekCount((int) weekCount)
+                    .avgScore(Math.round(subjectAvg * 10.0) / 10.0)
+                    .lowScoreStudents(lowStudents)
+                    .build();
+            })
+            .collect(Collectors.toList());
+    }
 
     // ─────────────────────────────────────────────────────────────
     // TEMPLATE GENERATION

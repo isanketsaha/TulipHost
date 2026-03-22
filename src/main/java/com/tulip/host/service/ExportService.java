@@ -92,7 +92,10 @@ public class ExportService {
             Set<Student> students = classDetail.getStudents();
             List<Student> studentList = new ArrayList<>(students);
             if (studentIds != null && !studentIds.isEmpty()) {
-                studentList = studentList.stream().filter(s -> studentIds.contains(s.getId())).toList();
+                studentList = studentList
+                    .stream()
+                    .filter(s -> studentIds.contains(s.getId()))
+                    .collect(java.util.stream.Collectors.toList());
             }
             studentList.sort(Comparator.comparing(Student::getName));
             List<StudentExportDTO> studentExportDTOS = studentMapper.toBasicEntityExportList(studentList);

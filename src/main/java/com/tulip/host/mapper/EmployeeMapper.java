@@ -19,6 +19,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Context;
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -45,11 +46,13 @@ public interface EmployeeMapper {
     @Mapping(target = "tid", source = "tid")
     Employee toModel(OnboardingVM source);
 
+    @Named("toBasicEntityWithService")
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(source.getDob()))")
     @Mapping(target = "classTeacher", source = ".", qualifiedByName = "findClassTeacher")
     @Mapping(target = "authority", source = "group.authority")
     EmployeeBasicDTO toBasicEntity(Employee source, @Context UploadService service);
 
+    @Named("toBasicEntity")
     @Mapping(target = "age", expression = "java(com.tulip.host.utils.CommonUtils.calculateAge(source.getDob()))")
     @Mapping(target = "classTeacher", source = ".", qualifiedByName = "findClassTeacher")
     @Mapping(target = "authority", source = "group.authority")
@@ -57,7 +60,11 @@ public interface EmployeeMapper {
 
     List<EmployeeDetailsDTO> toEntityList(List<Employee> source);
 
+    @IterableMapping(qualifiedByName = "toBasicEntity")
     List<EmployeeBasicDTO> toBasicEntityList(List<Employee> source);
+
+    @IterableMapping(qualifiedByName = "toBasicEntityWithService")
+    List<EmployeeBasicDTO> toBasicEntityList(List<Employee> source, @Context UploadService service);
 
     @Named("findClassTeacher")
     default String getClassTeacher(Employee source) {

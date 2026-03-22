@@ -55,14 +55,8 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
     @Override
     public long fetchStudentCount(boolean active, BooleanBuilder condition) {
         return condition != null
-            ? jpaQueryFactory
-                .selectFrom(STUDENT)
-                .where(STUDENT.active.eq(active).and(condition))
-                .fetchCount()
-            : jpaQueryFactory
-                .selectFrom(STUDENT)
-                .where(STUDENT.active.eq(active))
-                .fetchCount();
+            ? jpaQueryFactory.selectFrom(STUDENT).where(STUDENT.active.eq(active).and(condition)).fetchCount()
+            : jpaQueryFactory.selectFrom(STUDENT).where(STUDENT.active.eq(active)).fetchCount();
     }
 
     @Override
@@ -98,12 +92,27 @@ public class StudentRepositoryImpl extends BaseRepositoryImpl<Student, Long> imp
     }
 
     @Override
+    public List<Object[]> findActiveStudentsBirthdayData(Long sessionId) {
+        return em
+            .createQuery(
+                "SELECT s.name, cd.std, s.dob, p.uid " +
+                "FROM Student s JOIN s.classDetails cd LEFT JOIN s.profilePicture p " +
+                "WHERE s.active = true AND cd.session.id = :sessionId",
+                Object[].class
+            )
+            .setParameter("sessionId", sessionId)
+            .getResultList();
+    }
+
+    @Override
     public Student searchWithDetails(long id) {
         return jpaQueryFactory
-                .selectFrom(STUDENT)
-                .leftJoin(STUDENT.classDetails, CLASS_DETAIL).fetchJoin()
-                .leftJoin(STUDENT.transports, STUDENT_TO_TRANSPORT).fetchJoin()
-                .where(STUDENT.id.eq(id))
-                .fetchOne();
+            .selectFrom(STUDENT)
+            .leftJoin(STUDENT.classDetails, CLASS_DETAIL)
+            .fetchJoin()
+            .leftJoin(STUDENT.transports, STUDENT_TO_TRANSPORT)
+            .fetchJoin()
+            .where(STUDENT.id.eq(id))
+            .fetchOne();
     }
 }

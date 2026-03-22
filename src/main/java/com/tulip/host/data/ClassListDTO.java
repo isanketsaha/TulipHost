@@ -10,4 +10,6 @@ public class ClassListDTO {
     private String std;
 
     private int studentStrength;
+
+    private Long headTeacherId;
 }

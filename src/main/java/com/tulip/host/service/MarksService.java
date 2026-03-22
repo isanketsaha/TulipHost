@@ -1,5 +1,9 @@
 package com.tulip.host.service;
 
+import com.tulip.host.data.ClassroomInsightsDTO;
+import com.tulip.host.data.ClassroomInsightsDTO.ExamInsightDTO;
+import com.tulip.host.data.ClassroomInsightsDTO.StudentInsightDTO;
+import com.tulip.host.data.ClassroomInsightsDTO.SubjectInsightDTO;
 import com.tulip.host.data.ExamMarksUploadDTO;
 import com.tulip.host.data.StudentExamResultDTO;
 import com.tulip.host.data.StudentMarkEntryDTO;
@@ -131,6 +135,151 @@ public class MarksService {
             .findByClassDetailIdAndSubjectKey(classroomId, subjectKey)
             .map(s -> s.getTermMarkType() == TermMarkType.HALF ? TERM_EXT_HALF_MAX : TERM_EXT_FULL_MAX)
             .orElse(TERM_EXT_FULL_MAX);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // CLASSROOM INSIGHTS
+    // ─────────────────────────────────────────────────────────────
+
+    private static final double PASS_THRESHOLD = 33.0;
+
+    @Transactional(readOnly = true)
+    public List<ExamInsightDTO> getClassroomExamInsights(Long classroomId) {
+        List<StudentExamScore> allScores = examScoreRepository.findAllByClassroomId(classroomId);
+        if (allScores.isEmpty()) return List.of();
+
+        // Preload subject configs for max-marks computation
+        Map<String, ClassSubject> subjectMap = classSubjectRepository
+            .findAllByClassDetailId(classroomId)
+            .stream()
+            .collect(Collectors.toMap(ClassSubject::getSubjectKey, s -> s));
+
+        // Group by exam upload
+        Map<ExamMarksUpload, List<StudentExamScore>> byUpload = allScores
+            .stream()
+            .collect(Collectors.groupingBy(StudentExamScore::getExamUpload));
+
+        return byUpload
+            .entrySet()
+            .stream()
+            .sorted(Comparator.comparing(e -> e.getKey().getCreatedDate()))
+            .map(e -> buildExamInsight(e.getKey(), e.getValue(), subjectMap))
+            .collect(Collectors.toList());
+    }
+
+    private ExamInsightDTO buildExamInsight(ExamMarksUpload upload, List<StudentExamScore> scores, Map<String, ClassSubject> subjectMap) {
+        Long classroomId = upload.getClassDetail().getId();
+        ExamType examType = upload.getExamType();
+
+        // Group scores by student
+        Map<Long, List<StudentExamScore>> byStudent = scores.stream().collect(Collectors.groupingBy(s -> s.getStudent().getId()));
+
+        // Compute per-student overall percent and weak subjects
+        List<StudentInsightDTO> allStudents = byStudent
+            .entrySet()
+            .stream()
+            .map(entry -> {
+                List<StudentExamScore> studentScores = entry.getValue();
+                String name = studentScores.get(0).getStudent().getName();
+
+                // Group by subject, sum marks and maxMarks
+                Map<String, int[]> subjectTotals = new java.util.HashMap<>();
+                for (StudentExamScore s : studentScores) {
+                    int max = resolveMaxMarks(s.getSubjectKey(), examType, s.getScoreType(), subjectMap);
+                    subjectTotals.computeIfAbsent(s.getSubjectKey(), k -> new int[] { 0, 0 });
+                    subjectTotals.get(s.getSubjectKey())[0] += s.getMarks();
+                    subjectTotals.get(s.getSubjectKey())[1] += max;
+                }
+
+                int totalMarks = subjectTotals.values().stream().mapToInt(v -> v[0]).sum();
+                int totalMax = subjectTotals.values().stream().mapToInt(v -> v[1]).sum();
+                double overallPct = totalMax > 0 ? ((totalMarks * 100.0) / totalMax) : 0;
+
+                List<String> weakSubjects = subjectTotals
+                    .entrySet()
+                    .stream()
+                    .filter(s -> s.getValue()[1] > 0 && (s.getValue()[0] * 100.0) / s.getValue()[1] < PASS_THRESHOLD)
+                    .map(Map.Entry::getKey)
+                    .sorted()
+                    .collect(Collectors.toList());
+
+                return StudentInsightDTO.builder()
+                    .studentId(entry.getKey())
+                    .studentName(name)
+                    .scorePercent(Math.round(overallPct * 10.0) / 10.0)
+                    .weakSubjects(weakSubjects)
+                    .build();
+            })
+            .collect(Collectors.toList());
+
+        int passCount = (int) allStudents.stream().filter(s -> s.getScorePercent() >= PASS_THRESHOLD).count();
+        double passPercent = allStudents.isEmpty() ? 0 : Math.round((passCount * 1000.0) / allStudents.size()) / 10.0;
+
+        List<StudentInsightDTO> lowPerformers = allStudents
+            .stream()
+            .filter(s -> s.getScorePercent() < PASS_THRESHOLD)
+            .sorted(Comparator.comparingDouble(StudentInsightDTO::getScorePercent))
+            .collect(Collectors.toList());
+
+        // Per-subject aggregation
+        Map<String, List<StudentExamScore>> bySubject = scores.stream().collect(Collectors.groupingBy(StudentExamScore::getSubjectKey));
+
+        List<SubjectInsightDTO> subjects = bySubject
+            .entrySet()
+            .stream()
+            .map(entry -> {
+                String subjectKey = entry.getKey();
+                List<StudentExamScore> subjectScores = entry.getValue();
+                int max = resolveMaxMarks(subjectKey, examType, subjectScores.get(0).getScoreType(), subjectMap);
+
+                // Group by student to get per-student subject total
+                Map<Long, Integer> studentSubjectMarks = subjectScores
+                    .stream()
+                    .collect(Collectors.groupingBy(s -> s.getStudent().getId(), Collectors.summingInt(s -> (int) s.getMarks())));
+                // Max per student = sum of max for all scoreTypes of this subject
+                Map<Long, Integer> studentSubjectMax = new java.util.HashMap<>();
+                for (StudentExamScore s : subjectScores) {
+                    int m = resolveMaxMarks(subjectKey, examType, s.getScoreType(), subjectMap);
+                    studentSubjectMax.merge(s.getStudent().getId(), m, Integer::sum);
+                }
+
+                int subjectPassCount = 0;
+                double totalPct = 0;
+                for (Long sid : studentSubjectMarks.keySet()) {
+                    int sMax = studentSubjectMax.getOrDefault(sid, max);
+                    double pct = sMax > 0 ? (studentSubjectMarks.get(sid) * 100.0) / sMax : 0;
+                    totalPct += pct;
+                    if (pct >= PASS_THRESHOLD) subjectPassCount++;
+                }
+                double avgPct = studentSubjectMarks.isEmpty() ? 0 : Math.round((totalPct / studentSubjectMarks.size()) * 10.0) / 10.0;
+
+                return SubjectInsightDTO.builder()
+                    .subjectKey(subjectKey)
+                    .avgPercent(avgPct)
+                    .passCount(subjectPassCount)
+                    .totalCount(studentSubjectMarks.size())
+                    .build();
+            })
+            .sorted(Comparator.comparing(SubjectInsightDTO::getSubjectKey))
+            .collect(Collectors.toList());
+
+        return ExamInsightDTO.builder()
+            .examName(upload.getExamName())
+            .examType(upload.getExamType().name())
+            .totalStudents(allStudents.size())
+            .passCount(passCount)
+            .passPercent(passPercent)
+            .subjects(subjects)
+            .lowPerformers(lowPerformers)
+            .build();
+    }
+
+    private int resolveMaxMarks(String subjectKey, ExamType examType, ScoreType scoreType, Map<String, ClassSubject> subjectMap) {
+        if (examType == ExamType.CT) return CT_MAX;
+        if (scoreType == ScoreType.INTERNAL) return TERM_INT_MAX;
+        ClassSubject cs = subjectMap.get(subjectKey);
+        if (cs == null) return TERM_EXT_FULL_MAX;
+        return cs.getTermMarkType() == TermMarkType.HALF ? TERM_EXT_HALF_MAX : TERM_EXT_FULL_MAX;
     }
 
     // ─────────────────────────────────────────────────────────────

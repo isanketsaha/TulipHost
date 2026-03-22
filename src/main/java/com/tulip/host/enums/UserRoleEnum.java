@@ -20,4 +20,12 @@ public enum UserRoleEnum {
         this.value = value;
         this.priority = priority;
     }
+
+    /** Parse from the authority string stored in user_group.authority (e.g. "UG_PRINCIPAL"). */
+    public static UserRoleEnum fromValue(String authority) {
+        for (UserRoleEnum role : values()) {
+            if (role.value.equals(authority)) return role;
+        }
+        throw new IllegalArgumentException("Unknown authority: " + authority);
+    }
 }

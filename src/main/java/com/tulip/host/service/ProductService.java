@@ -9,7 +9,9 @@ import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.InventoryRepository;
 import com.tulip.host.repository.ProductCatalogPagedRepository;
 import com.tulip.host.web.rest.vm.dataload.ProductLoadVM;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,20 +32,25 @@ public class ProductService {
 
     @Transactional
     public void loadProducts(List<ProductLoadVM> products) {
+        // Deduplicate ProductCatalog within this batch by itemName+tag
+        Map<String, ProductCatalog> catalogCache = new HashMap<>();
+
         List<Inventory> inventoryList = products
             .stream()
             .map(item -> {
-                // Create or fetch the ProductCatalog (read-only reference)
-                ProductCatalog productCatalog = productCatalogMapper.toModel(item);
-                if (item.getSession() != null && item.getClassDetail() != null) {
-                    ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(item.getSession(), item.getClassDetail());
-                    productCatalog.setStd(classDetail);
-                }
+                String key = item.getItemName().toUpperCase() + "|" + item.getTag();
+                ProductCatalog productCatalog = catalogCache.computeIfAbsent(key, k -> {
+                    ProductCatalog pc = productCatalogMapper.toModel(item);
+                    if (item.getSession() != null && item.getClassDetail() != null) {
+                        Long sessionId = Long.parseLong(item.getSession());
+                        ClassDetail classDetail = classDetailRepository.findBySessionIdAndStd(sessionId, item.getClassDetail());
+                        pc.setStd(classDetail);
+                    }
+                    return pc;
+                });
 
-                // Create the Inventory entry (refill batch) with pricing and quantity details
                 Inventory inventory = inventoryMapper.toModel(item);
                 inventory.setProduct(productCatalog);
-
                 return inventory;
             })
             .collect(Collectors.toList());

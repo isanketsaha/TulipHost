@@ -11,7 +11,7 @@ public class ProductLoadVM extends DataLoadVM {
     private String tag;
 
     @FieldName("Session")
-    private Long session;
+    private String session;
 
     @FieldName("Size")
     private String size;

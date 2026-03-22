@@ -7,4 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FeesCatalogRepository extends JpaRepository<FeesCatalog, Long> {
     List<FeesCatalog> findAllByActiveAndStd(Boolean active, ClassDetail std);
+
+    List<FeesCatalog> findAllByStd(ClassDetail std);
+
+    void deleteAllByStd(ClassDetail std);
 }
