@@ -277,18 +277,6 @@ jhipster:
     contact-email:
     license: unlicensed
     license-url:
-  security:
-
-# jhipster-needle-add-application-yaml-document
----
-# ===================================================================
-# Application specific properties
-# Add your own application properties here, see the ApplicationProperties class
-# to have type-safe configuration, like in the JHipsterProperties above
-#
-# More documentation is available at:
-# https://www.jhipster.tech/common-application-properties/
-# ===================================================================
 
 application:
   page:
@@ -296,13 +284,10 @@ application:
   aws:
     region:
       value: ap-northeast-1
-  twilio_config:
-    account_sid: ${twilio.asid}
-    key: ${twilio.key}
-    message_sid: ${twilio.msid}
-    default_email: ${default.email}
-    default_phone: ${default.phone}
-    communication_enabled: false
+  communication:
+    email: ${DEFAULT_EMAIL}
+    phone: ${DEFAULT_PHONE}
+    enabled: false
   tinyurl:
     key: ${tinyurl.key}
   whatsapp:

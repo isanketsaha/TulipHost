@@ -101,7 +101,7 @@ public class WhatsAppCommunicationStrategy implements CommunicationStrategy {
         if (isProdProfile(env.getActiveProfiles())) {
             return request.getWhatsAppRecipient();
         }
-        String safePhone = properties.getTwilioConfig().getDefaultPhone();
+        String safePhone = properties.getCommunication().getPhone();
         log.debug("Non-prod profile — redirecting WhatsApp to default phone: {}", safePhone);
         return List.of(safePhone);
     }

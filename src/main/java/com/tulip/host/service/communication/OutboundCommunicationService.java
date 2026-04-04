@@ -58,7 +58,7 @@ public class OutboundCommunicationService {
             request.getEntityType(),
             request.getEntityId()
         );
-        boolean communicationEnabled = properties.getTwilioConfig().isCommunicationEnabled();
+        boolean communicationEnabled = properties.getCommunication().isEnabled();
         boolean shouldSend = isProdProfile(env.getActiveProfiles(), communicationEnabled);
         log.info(
             "IS PROD PROFILE: {}, communicationEnabled: {}, shouldSend: {}",

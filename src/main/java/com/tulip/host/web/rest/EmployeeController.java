@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,5 +83,12 @@ public class EmployeeController {
     @GetMapping("/joiningLetter")
     public String generateJoiningLetter(@RequestParam Long empId) throws IOException {
         return employeeService.fetchAppointment(empId);
+    }
+
+    @PreAuthorize("hasAuthority('UG_PRINCIPAL') or hasAuthority('UG_ADMIN')")
+    @PostMapping("/sendJoiningLetter")
+    public ResponseEntity<Void> sendJoiningLetter(@RequestParam Long empId) {
+        employeeService.notifyOnboard(empId);
+        return ResponseEntity.ok().build();
     }
 }
