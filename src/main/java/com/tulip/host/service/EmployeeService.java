@@ -37,19 +37,25 @@ import com.tulip.host.web.rest.vm.OnboardingVM;
 import com.tulip.host.web.rest.vm.UserEditVM;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
@@ -72,6 +78,9 @@ public class EmployeeService {
     private final OutboundCommunicationService outboundCommunicationService;
     private final MailService mailService;
     private final UploadMapper uploadMapper;
+
+    @Value("${application.static-path}")
+    private String staticPath;
 
     @Transactional
     public List<EmployeeBasicDTO> fetchAllEmployee(boolean isActive, UserRoleEnum role) {
@@ -293,6 +302,23 @@ public class EmployeeService {
                     "portalUrl",
                     "https://tulipschool.co.in/"
                 );
+                List<MailService.EmailAttachment> attachments = new ArrayList<>();
+                attachments.add(
+                    MailService.EmailAttachment.builder()
+                        .filename("Appointment_Letter.pdf")
+                        .content(uploadService.download(employee.getAppointmentLetter().getUid(), uploadService.getDocsBucket()))
+                        .build()
+                );
+                try {
+                    attachments.add(
+                        MailService.EmailAttachment.builder()
+                            .filename("Employee_Rulebook.pdf")
+                            .content(Files.readAllBytes(Path.of(staticPath, "rulebook", "Employee_Rulebook.pdf")))
+                            .build()
+                    );
+                } catch (IOException e) {
+                    log.error("Rulebook PDF not found under {}/rulebook/, skipping attachment", staticPath);
+                }
                 outboundCommunicationService.send(
                     CommunicationRequest.builder()
                         .mailRecipient(new String[] { employee.getEmail() })
@@ -301,16 +327,7 @@ public class EmployeeService {
                         .entityType(employee.getClass().getName())
                         .subject(employee.getName() + " - Welcome to Tulip Family")
                         .entityId(employee.getId())
-                        .attachments(
-                            List.of(
-                                MailService.EmailAttachment.builder()
-                                    .filename("Appointment_Letter.pdf")
-                                    .content(
-                                        uploadService.download(employee.getAppointmentLetter().getUid(), uploadService.getDocsBucket())
-                                    )
-                                    .build()
-                            )
-                        )
+                        .attachments(attachments)
                         .build()
                 );
             });

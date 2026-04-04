@@ -6,6 +6,11 @@
 !.env.example
 
 ######################
+# Static assets (served via Docker volume — see STATIC_ROOT in .env)
+######################
+public/static/
+
+######################
 # Node
 ######################
 /node/

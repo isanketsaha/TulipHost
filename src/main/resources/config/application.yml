@@ -308,3 +308,4 @@ application:
   whatsapp:
     integrated-number: ${whatsapp.integrated.number}
     namespace: ${whatsapp.namespace}
+  static-path: ${STATIC_PATH:/app/public/static}

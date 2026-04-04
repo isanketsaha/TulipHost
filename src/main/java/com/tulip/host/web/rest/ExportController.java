@@ -63,7 +63,7 @@ public class ExportController {
     @PostMapping("/receipt")
     public String paymentReceipt(@RequestParam Long paymentId) throws IOException, FileUploadException {
         String uid = exportService.downloadReceipt(paymentId);
-        return uploadService.getURL(uid, uploadService.getInvoiceBucket());
+        return uploadService.getInvoiceURL(uid);
     }
 
     @GetMapping("/download")

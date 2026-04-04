@@ -496,11 +496,31 @@ public class PaymentService {
     }
 
     @Transactional
+    public void attachInvoiceAndNotify(Long paymentId, FileUploadVM save) {
+        Transaction transaction = transactionRepository.findById(paymentId).orElseThrow();
+        Upload upload = uploadMapper.toModel(save);
+        transaction.setInvoice(upload);
+        transactionRepository.saveAndFlush(transaction);
+        String invoiceUrl = uploadService.getInvoiceURL(save.getUid());
+        notifyWithInvoice(transaction, invoiceUrl);
+    }
+
+    @Transactional
     public void notifyTransaction(Long transactionId) {
         Transaction transaction = transactionRepository.findById(transactionId).orElseThrow();
         if (List.of(PayTypeEnum.PURCHASE.name(), PayTypeEnum.FEES.name()).contains(transaction.getType())) {
+            if (transaction.getInvoice() == null) {
+                log.warn("notifyTransaction() skipped for transactionId={} — invoice not yet attached", transactionId);
+                return;
+            }
+            String invoiceUrl = uploadService.getInvoiceURL(transaction.getInvoice().getUid());
+            notifyWithInvoice(transaction, invoiceUrl);
+        }
+    }
+
+    private void notifyWithInvoice(Transaction transaction, String invoiceUrl) {
+        if (List.of(PayTypeEnum.PURCHASE.name(), PayTypeEnum.FEES.name()).contains(transaction.getType())) {
             Student student = transaction.getStudent();
-            String invoiceUrl = uploadService.getURL(transaction.getInvoice().getUid(), uploadService.getInvoiceBucket());
 
             if (Boolean.TRUE.equals(student.getWhatsappAvailable())) {
                 outboundCommunicationService.send(

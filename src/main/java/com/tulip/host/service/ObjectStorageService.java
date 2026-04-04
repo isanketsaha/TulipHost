@@ -52,6 +52,11 @@ public class ObjectStorageService {
         );
     }
 
+    public String createPublicURL(String key, String bucketName) {
+        String region = properties.getAws().getRegion().getValue();
+        return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + key;
+    }
+
     public byte[] downloadObject(String keys) {
         return downloadObject(keys, getDocsBucket());
     }

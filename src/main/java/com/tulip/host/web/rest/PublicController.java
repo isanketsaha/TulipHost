@@ -8,20 +8,32 @@ import com.tulip.host.data.GalleryImageDTO;
 import com.tulip.host.data.PublicSchoolInfoDTO;
 import com.tulip.host.domain.Session;
 import com.tulip.host.enums.UserRoleEnum;
+import com.tulip.host.repository.EmployeeRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.service.CalendarService;
 import com.tulip.host.service.ClassroomService;
 import com.tulip.host.service.ContentService;
 import com.tulip.host.service.EmployeeService;
 import com.tulip.host.service.GalleryService;
+import com.tulip.host.service.MailService;
 import com.tulip.host.service.SessionService;
 import com.tulip.host.service.UploadService;
+import com.tulip.host.service.communication.CommunicationRequest;
+import com.tulip.host.service.communication.OutboundCommunicationService;
+import com.tulip.host.web.rest.vm.ContactRequestVM;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,6 +50,11 @@ public class PublicController {
     private final UploadService uploadService;
     private final GalleryService galleryService;
     private final ContentService contentService;
+    private final EmployeeRepository employeeRepository;
+    private final MailService mailService;
+    private final OutboundCommunicationService outboundCommunicationService;
+
+    private static final List<UserRoleEnum> CONTACT_ROLES = Arrays.asList(UserRoleEnum.STAFF, UserRoleEnum.PRINCIPAL, UserRoleEnum.ADMIN);
 
     @GetMapping("/content/about")
     public AboutContentDTO getAboutContent() {
@@ -116,5 +133,39 @@ public class PublicController {
             .toList();
 
         return PublicSchoolInfoDTO.builder().classes(classes).teachers(teachers).events(events).birthdays(birthdays).build();
+    }
+
+    @PostMapping("/contact")
+    public ResponseEntity<Void> submitContact(@Valid @RequestBody ContactRequestVM request) {
+        String[] recipients = employeeRepository
+            .fetchAll(true, CONTACT_ROLES)
+            .stream()
+            .map(e -> e.getEmail())
+            .filter(email -> email != null && !email.isBlank())
+            .distinct()
+            .toArray(String[]::new);
+
+        if (recipients.length == 0) {
+            return ResponseEntity.accepted().build();
+        }
+
+        Map<String, Object> vars = new HashMap<>();
+        vars.put("name", request.getName());
+        vars.put("email", request.getEmail());
+        vars.put("phone", request.getPhone());
+        vars.put("message", request.getMessage());
+        vars.put("std", request.getStd());
+        vars.put("childName", request.getChildName());
+
+        outboundCommunicationService.send(
+            CommunicationRequest.builder()
+                .mailRecipient(recipients)
+                .subject("Website Inquiry from " + request.getName())
+                .content(mailService.renderTemplate("mail/contact_inquiry.vm", vars))
+                .entityType("ContactInquiry")
+                .build()
+        );
+
+        return ResponseEntity.accepted().build();
     }
 }
