@@ -16,7 +16,7 @@ public class ApplicationProperties {
     public final Page page = new Page();
     public final Aws aws = new Aws();
     public final Whatsapp whatsapp = new Whatsapp();
-    public final TwilioConfig twilioConfig = new TwilioConfig();
+    public final Communication communication = new Communication();
     public final TinyUrl tinyurl = new TinyUrl();
     private String staticPath;
 
@@ -67,14 +67,11 @@ public class ApplicationProperties {
     }
 
     @Data
-    public static class TwilioConfig {
+    public static class Communication {
 
-        private String accountSid;
-        private String key;
-        private String messageSid;
-        private String defaultEmail;
-        private String defaultPhone;
-        private boolean communicationEnabled = false;
+        private String email;
+        private String phone;
+        private boolean enabled = false;
     }
 
     @Data

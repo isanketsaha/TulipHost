@@ -39,7 +39,7 @@ public class SmsCommunicationStrategy implements CommunicationStrategy {
         String templateId = request.getContent();
 
         if (!isProdProfile(env.getActiveProfiles())) {
-            String defaultPhone = CALLING_CODE + properties.getTwilioConfig().getDefaultPhone();
+            String defaultPhone = CALLING_CODE + properties.getCommunication().getPhone();
             if (StringUtils.isNotBlank(defaultPhone)) {
                 recipients.stream().forEach(item -> item.put("mobiles", defaultPhone));
                 log.debug("Non-prod environment: Overriding SMS recipient to default phone: {}", defaultPhone);

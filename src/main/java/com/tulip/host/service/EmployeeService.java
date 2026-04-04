@@ -281,9 +281,11 @@ public class EmployeeService {
 
     @Transactional
     public void notifyOnboard(Long id) {
+        log.info("Initiating onboard notification for employee id: {}", id);
         employeeRepository
             .findById(id)
             .ifPresent(employee -> {
+                log.info("Found employee: {} ({}), sending to: {}", employee.getName(), employee.getId(), employee.getEmail());
                 String[] ccEmails = getCCEmails(employee.getGroup().getAuthority());
                 Map<String, Object> map = Map.of(
                     "employeeName",
@@ -319,6 +321,12 @@ public class EmployeeService {
                 } catch (IOException e) {
                     log.error("Rulebook PDF not found under {}/rulebook/, skipping attachment", staticPath);
                 }
+                log.info(
+                    "Dispatching onboard email to {} with {} attachment(s), cc: {}",
+                    employee.getEmail(),
+                    attachments.size(),
+                    String.join(", ", ccEmails)
+                );
                 outboundCommunicationService.send(
                     CommunicationRequest.builder()
                         .mailRecipient(new String[] { employee.getEmail() })
@@ -330,6 +338,7 @@ public class EmployeeService {
                         .attachments(attachments)
                         .build()
                 );
+                log.info("Onboard notification dispatched successfully for employee: {} (id: {})", employee.getName(), employee.getId());
             });
     }
 
