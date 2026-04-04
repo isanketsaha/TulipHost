@@ -20,6 +20,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 40
+    volumes:
+      - ${STATIC_ROOT}:/app/public/static:ro
     depends_on:
       mysql:
         condition: service_healthy

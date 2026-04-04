@@ -96,4 +96,8 @@ public class UploadService {
     public String getInvoiceBucket() {
         return storageService.getInvoiceBucket();
     }
+
+    public String getInvoiceURL(String key) {
+        return storageService.createPublicURL(key, storageService.getInvoiceBucket());
+    }
 }

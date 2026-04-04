@@ -1,0 +1,47 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+
+<p>Hello,</p>
+
+<p>A new contact inquiry has been submitted via the school website.</p>
+
+<table style="border-collapse: collapse; width: 100%; max-width: 480px;">
+  <tr>
+    <td style="padding: 8px 12px; background: #f5f5f5; font-weight: bold; border: 1px solid #ddd; width: 30%;">Name</td>
+    <td style="padding: 8px 12px; border: 1px solid #ddd;">$name</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px 12px; background: #f5f5f5; font-weight: bold; border: 1px solid #ddd; width: 30%;">Child Name</td>
+    <td style="padding: 8px 12px; border: 1px solid #ddd;">$childName</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px 12px; background: #f5f5f5; font-weight: bold; border: 1px solid #ddd; width: 30%;">Class</td>
+    <td style="padding: 8px 12px; border: 1px solid #ddd;">$std</td>
+  </tr>
+  #if($email)
+  <tr>
+    <td style="padding: 8px 12px; background: #f5f5f5; font-weight: bold; border: 1px solid #ddd;">Email</td>
+    <td style="padding: 8px 12px; border: 1px solid #ddd;">$email</td>
+  </tr>
+  #end
+  #if($phone)
+  <tr>
+    <td style="padding: 8px 12px; background: #f5f5f5; font-weight: bold; border: 1px solid #ddd;">Phone</td>
+    <td style="padding: 8px 12px; border: 1px solid #ddd;">$phone</td>
+  </tr>
+  #end
+  <tr>
+    <td style="padding: 8px 12px; background: #f5f5f5; font-weight: bold; border: 1px solid #ddd; vertical-align: top;">Message</td>
+    <td style="padding: 8px 12px; border: 1px solid #ddd;">$message</td>
+  </tr>
+</table>
+
+<p style="color: #888; font-size: 12px; margin-top: 20px;">Please respond to this inquiry at your earliest convenience.</p>
+
+#parse("mail/_signature.vm")
+
+</body>
+</html>

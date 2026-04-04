@@ -52,11 +52,15 @@ public class PaymentController {
         CompletableFuture.runAsync(() -> {
             try {
                 byte[] bytes = exportService.paymentReceipt(paymentId);
-                FileUploadVM save = null;
-                save = uploadService.save(bytes, MediaType.APPLICATION_PDF_VALUE, INVOICE, uploadService.getInvoiceBucket(), null);
+                FileUploadVM save = uploadService.save(
+                    bytes,
+                    MediaType.APPLICATION_PDF_VALUE,
+                    INVOICE,
+                    uploadService.getInvoiceBucket(),
+                    null
+                );
                 save.setName("INVOICE-" + paymentId);
-                paymentService.attachInvoice(paymentId, save);
-                paymentService.notifyTransaction(paymentId);
+                paymentService.attachInvoiceAndNotify(paymentId, save);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

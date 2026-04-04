@@ -18,6 +18,7 @@ public class ApplicationProperties {
     public final Whatsapp whatsapp = new Whatsapp();
     public final TwilioConfig twilioConfig = new TwilioConfig();
     public final TinyUrl tinyurl = new TinyUrl();
+    private String staticPath;
 
     // Logging performance thresholds
     private long slowMethodThresholdMs = 2000;
