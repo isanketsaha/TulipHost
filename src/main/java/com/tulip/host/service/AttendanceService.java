@@ -16,6 +16,8 @@ import com.tulip.host.repository.ClassroomAttendanceRepository;
 import com.tulip.host.repository.StudentAttendanceRepository;
 import com.tulip.host.repository.StudentRepository;
 import com.tulip.host.repository.UploadRecordRepository;
+import com.tulip.host.utils.ExcelTemplateStyle;
+import com.tulip.host.utils.ExcelUploadValidator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,15 +34,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -118,7 +115,7 @@ public class AttendanceService {
             leavesByStudent.computeIfAbsent(leave.getStudent().getId(), k -> new java.util.HashSet<>()).addAll(leaveDates);
         }
 
-        return buildExcel(students, weekStart, weekEnd, holidayDates, leavesByStudent);
+        return buildExcel(students, weekStart, weekEnd, holidayDates, leavesByStudent, classroomId, classDetail.getStd());
     }
 
     private byte[] buildExcel(
@@ -126,59 +123,52 @@ public class AttendanceService {
         LocalDate weekStart,
         LocalDate weekEnd,
         Set<LocalDate> holidayDates,
-        Map<Long, Set<LocalDate>> leavesByStudent
+        Map<Long, Set<LocalDate>> leavesByStudent,
+        Long classroomId,
+        String std
     ) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Attendance");
 
-            // ── Styles ──
-            CellStyle headerStyle = workbook.createCellStyle();
-            XSSFFont boldFont = workbook.createFont();
-            boldFont.setBold(true);
-            headerStyle.setFont(boldFont);
-            headerStyle.setAlignment(HorizontalAlignment.CENTER);
-            headerStyle.setBorderBottom(BorderStyle.MEDIUM);
-
-            CellStyle holidayStyle = workbook.createCellStyle();
-            holidayStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-            holidayStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            holidayStyle.setAlignment(HorizontalAlignment.CENTER);
-            holidayStyle.setLocked(true);
-
-            CellStyle leaveStyle = workbook.createCellStyle();
-            leaveStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
-            leaveStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            leaveStyle.setAlignment(HorizontalAlignment.CENTER);
-            leaveStyle.setLocked(true);
-
-            CellStyle dataStyle = workbook.createCellStyle();
-            dataStyle.setAlignment(HorizontalAlignment.CENTER);
-
-            // ── Header row ──
-            Row header = sheet.createRow(0);
-            header.createCell(0).setCellValue("Student Name");
-            header.getCell(0).setCellStyle(headerStyle);
-            header.createCell(1).setCellValue("Student ID");
-            header.getCell(1).setCellStyle(headerStyle);
+            // ── Styles via shared factory ─────────────────────────────
+            CellStyle infoLabel = ExcelTemplateStyle.infoLabel(workbook);
+            CellStyle infoValue = ExcelTemplateStyle.infoValue(workbook);
+            CellStyle headerStyle = ExcelTemplateStyle.columnHeader(workbook);
+            CellStyle holidayStyle = ExcelTemplateStyle.holidayCell(workbook);
+            CellStyle leaveStyle = ExcelTemplateStyle.leaveCell(workbook);
+            CellStyle dataStyle = ExcelTemplateStyle.dataCell(workbook);
 
             List<LocalDate> weekDates = weekStart.datesUntil(weekEnd.plusDays(1)).collect(Collectors.toList());
+
+            // ── Row 0: info banner ────────────────────────────────────
+            ExcelTemplateStyle.writeAttendanceBanner(
+                sheet.createRow(0),
+                std,
+                weekStart.format(DATE_HEADER) + " – " + weekEnd.format(DATE_HEADER),
+                classroomId,
+                infoLabel,
+                infoValue
+            );
+
+            // ── Row 1: column headers ─────────────────────────────────
+            Row header = sheet.createRow(1);
+            header.setHeightInPoints(20);
+            ExcelTemplateStyle.styledCell(header, 0, "Student Name", headerStyle);
+            ExcelTemplateStyle.styledCell(header, 1, "Student ID", headerStyle);
             for (int i = 0; i < weekDates.size(); i++) {
                 LocalDate day = weekDates.get(i);
                 String dayLabel = WEEK_DAYS[i] + " " + day.format(DATE_HEADER);
-                Cell cell = header.createCell(i + 2);
-                cell.setCellValue(holidayDates.contains(day) ? dayLabel + " (H)" : dayLabel);
-                cell.setCellStyle(headerStyle);
+                ExcelTemplateStyle.styledCell(header, i + 2, holidayDates.contains(day) ? dayLabel + " (H)" : dayLabel, headerStyle);
             }
 
-            // ── Data rows ──
-            int rowIdx = 1;
+            // ── Rows 2+: one row per student ──────────────────────────
+            int rowIdx = 2;
             for (Student student : students) {
                 Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(student.getName());
-                row.createCell(1).setCellValue(student.getId());
+                ExcelTemplateStyle.styledCell(row, 0, student.getName(), dataStyle);
+                ExcelTemplateStyle.numericCell(row, 1, student.getId(), dataStyle);
 
                 Set<LocalDate> studentLeaves = leavesByStudent.getOrDefault(student.getId(), Collections.emptySet());
-
                 for (int i = 0; i < weekDates.size(); i++) {
                     LocalDate day = weekDates.get(i);
                     Cell cell = row.createCell(i + 2);
@@ -195,7 +185,7 @@ public class AttendanceService {
                 }
             }
 
-            // Auto-size columns
+            sheet.createFreezePane(0, 2);
             for (int i = 0; i < weekDates.size() + 2; i++) {
                 sheet.autoSizeColumn(i);
             }
@@ -215,6 +205,8 @@ public class AttendanceService {
      */
     @Transactional
     public ClassroomAttendanceDTO processUpload(Long classroomId, LocalDate weekStart, MultipartFile file) throws Exception {
+        ExcelUploadValidator.validateFile(file);
+
         // Duplicate guard
         if (classroomAttendanceRepository.findByClassDetailIdAndWeekStartDate(classroomId, weekStart).isPresent()) {
             throw new IllegalStateException("Attendance already uploaded for this classroom and week.");
@@ -313,8 +305,10 @@ public class AttendanceService {
 
         try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(file.getBytes()))) {
             Sheet sheet = workbook.getSheetAt(0);
-            // Row 0 is the header — skip it. Data starts at row 1.
-            for (int rowIdx = 1; rowIdx <= sheet.getLastRowNum(); rowIdx++) {
+            ExcelUploadValidator.requireMinDataRows(sheet, 2);
+            ExcelUploadValidator.validateAttendanceValues(sheet, 2, 2, weekDates.size() + 1);
+            // Row 0 = info banner, Row 1 = header. Data starts at row 2.
+            for (int rowIdx = 2; rowIdx <= sheet.getLastRowNum(); rowIdx++) {
                 Row row = sheet.getRow(rowIdx);
                 if (row == null) continue;
 

@@ -20,7 +20,6 @@ public class PlannerDataDTO {
     private String teachingAids;
     private String activityExplanation;
     private String activityLearningObjective;
-    private String learningObjective;
     private String learningOutcome;
     private String evaluation;
     private String homeworkWorksheet;

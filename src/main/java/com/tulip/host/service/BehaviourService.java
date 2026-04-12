@@ -20,6 +20,8 @@ import com.tulip.host.repository.ClassSubjectRepository;
 import com.tulip.host.repository.ClassroomAcademicUploadRepository;
 import com.tulip.host.repository.StudentBehaviourScoreRepository;
 import com.tulip.host.repository.UploadRecordRepository;
+import com.tulip.host.utils.ExcelTemplateStyle;
+import com.tulip.host.utils.ExcelUploadValidator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
@@ -157,33 +160,41 @@ public class BehaviourService {
         try (XSSFWorkbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Behaviour - " + subjectKey);
 
-            // Row 0: metadata — Subject | <value> | Week | <YYYY-MM-DD> | ClassroomID | <id> | Class | <std>
-            Row meta = sheet.createRow(0);
-            meta.createCell(0).setCellValue("Subject");
-            meta.createCell(1).setCellValue(subjectKey);
-            meta.createCell(2).setCellValue("Week");
-            meta.createCell(3).setCellValue(weekStart.format(DateTimeFormatter.ISO_LOCAL_DATE));
-            meta.createCell(4).setCellValue("ClassroomID");
-            meta.createCell(5).setCellValue(classroomId);
-            meta.createCell(6).setCellValue("Class");
-            meta.createCell(7).setCellValue(std != null ? std : "");
+            // ── Styles via shared factory ─────────────────────────────
+            CellStyle infoLabel = ExcelTemplateStyle.infoLabel(workbook);
+            CellStyle infoValue = ExcelTemplateStyle.infoValue(workbook);
+            CellStyle headerStyle = ExcelTemplateStyle.columnHeader(workbook);
+            CellStyle dataStyle = ExcelTemplateStyle.dataCell(workbook);
 
-            // Row 1: header — ID | Name | [params...]
+            // ── Row 0: info banner ────────────────────────────────────
+            ExcelTemplateStyle.writeInfoBanner(
+                sheet.createRow(0),
+                subjectKey,
+                weekStart.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                classroomId,
+                std,
+                infoLabel,
+                infoValue
+            );
+
+            // ── Row 1: column headers ─────────────────────────────────
             Row header = sheet.createRow(1);
-            header.createCell(0).setCellValue("Student ID");
-            header.createCell(1).setCellValue("Student Name");
+            header.setHeightInPoints(20);
+            ExcelTemplateStyle.styledCell(header, 0, "Student ID", headerStyle);
+            ExcelTemplateStyle.styledCell(header, 1, "Student Name", headerStyle);
             for (int i = 0; i < params.size(); i++) {
-                header.createCell(i + 2).setCellValue(params.get(i).getName());
+                ExcelTemplateStyle.styledCell(header, i + 2, params.get(i).getName(), headerStyle);
             }
 
-            // Row 2+: one row per student, empty score cells for teacher to fill
+            // ── Row 2+: one row per student ───────────────────────────
             int rowIdx = 2;
             for (Student student : students) {
                 Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(student.getId());
-                row.createCell(1).setCellValue(student.getName());
+                ExcelTemplateStyle.numericCell(row, 0, student.getId(), dataStyle);
+                ExcelTemplateStyle.styledCell(row, 1, student.getName(), dataStyle);
             }
 
+            sheet.createFreezePane(0, 2);
             for (int i = 0; i < Math.max(4, params.size() + 2); i++) {
                 sheet.autoSizeColumn(i);
             }
@@ -199,6 +210,7 @@ public class BehaviourService {
 
     @Transactional
     public AcademicUploadDTO processUpload(Long classroomId, MultipartFile file) throws Exception {
+        ExcelUploadValidator.validateFile(file);
         String[] meta = readMetadata(file);
         String subjectKey = meta[0];
         LocalDate weekStart = LocalDate.parse(meta[1], DateTimeFormatter.ISO_LOCAL_DATE);
@@ -283,6 +295,7 @@ public class BehaviourService {
         List<String> errors = new ArrayList<>();
         try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(file.getBytes()))) {
             Sheet sheet = workbook.getSheetAt(0);
+            ExcelUploadValidator.requireMinDataRows(sheet, 2);
             for (int rowIdx = 2; rowIdx <= sheet.getLastRowNum(); rowIdx++) {
                 Row row = sheet.getRow(rowIdx);
                 if (row == null) continue;
@@ -351,6 +364,12 @@ public class BehaviourService {
             }
             return new String[] { subjectKey, weekStart, classroomId };
         }
+    }
+
+    private void styledCell(Row row, int col, String value, CellStyle style) {
+        Cell cell = row.createCell(col);
+        cell.setCellValue(value);
+        cell.setCellStyle(style);
     }
 
     private byte readScore(Cell cell) {

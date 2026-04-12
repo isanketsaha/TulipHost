@@ -11,6 +11,8 @@ import com.tulip.host.repository.ClassDetailRepository;
 import com.tulip.host.repository.ClassroomAcademicUploadRepository;
 import com.tulip.host.repository.PlannerEntryRepository;
 import com.tulip.host.repository.UploadRecordRepository;
+import com.tulip.host.utils.ExcelTemplateStyle;
+import com.tulip.host.utils.ExcelUploadValidator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
@@ -42,7 +45,6 @@ public class PlannerService {
     static final String F_TEACHING_AIDS = "teaching_aids";
     static final String F_ACT_EXPLANATION = "activity_explanation";
     static final String F_ACT_OBJECTIVE = "activity_learning_objective";
-    static final String F_LEARNING_OBJ = "learning_objective";
     static final String F_LEARNING_OUT = "learning_outcome";
     static final String F_EVALUATION = "evaluation";
     static final String F_HOMEWORK = "homework_worksheet";
@@ -55,8 +57,7 @@ public class PlannerService {
         "Topic / Sub Topic", // offset 0 → F_TOPIC
         "Teaching Aids / Resources", // offset 1 → F_TEACHING_AIDS
         "Activity", // offset 2 → F_ACT_EXPLANATION (col B) + F_ACT_OBJECTIVE (col C)
-        "Learning Objective", // offset 3 → F_LEARNING_OBJ
-        "Learning Outcome", // offset 4 → F_LEARNING_OUT
+        "Learning Outcome", // offset 3 → F_LEARNING_OUT
         "Evaluation", // offset 5 → F_EVALUATION
         "Homework / Worksheet", // offset 6 → F_HOMEWORK
     };
@@ -84,41 +85,60 @@ public class PlannerService {
     private byte[] buildTemplate(String subjectKey, LocalDate weekStart, Long classroomId, String std) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Planner - " + subjectKey);
+            sheet.setDisplayGridlines(true);
+            sheet.setPrintGridlines(true);
 
-            // Row 0: metadata — Subject | <val> | Week | <YYYY-MM-DD> | ClassroomID | <id> | Class | <std>
-            Row meta = sheet.createRow(0);
-            meta.createCell(0).setCellValue("Subject");
-            meta.createCell(1).setCellValue(subjectKey);
-            meta.createCell(2).setCellValue("Week");
-            meta.createCell(3).setCellValue(weekStart.format(DateTimeFormatter.ISO_LOCAL_DATE));
-            meta.createCell(4).setCellValue("ClassroomID");
-            meta.createCell(5).setCellValue(classroomId);
-            meta.createCell(6).setCellValue("Class");
-            meta.createCell(7).setCellValue(std != null ? std : "");
+            // ── Styles via shared factory ─────────────────────────────
+            CellStyle infoLabel = ExcelTemplateStyle.infoLabel(workbook);
+            CellStyle infoValue = ExcelTemplateStyle.infoValue(workbook);
+            CellStyle headerStyle = ExcelTemplateStyle.columnHeader(workbook);
+            CellStyle labelStyle = ExcelTemplateStyle.paramLabel(workbook);
+            CellStyle inputStyle = ExcelTemplateStyle.inputCell(workbook);
 
-            // Row 1: column headers
+            // ── Row 0: info banner ────────────────────────────────────
+            ExcelTemplateStyle.writeInfoBanner(
+                sheet.createRow(0),
+                subjectKey,
+                weekStart.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                classroomId,
+                std,
+                infoLabel,
+                infoValue
+            );
+
+            // ── Row 1: column headers ─────────────────────────────────
             Row header = sheet.createRow(1);
-            header.createCell(0).setCellValue("Parameter");
-            header.createCell(1).setCellValue("Details");
-            header.createCell(2).setCellValue("Learning Objective (Activity only)");
+            header.setHeightInPoints(24);
+            setCellValue(header, 0, "Parameter", headerStyle);
+            setCellValue(header, 1, "Details", headerStyle);
+            setCellValue(header, 2, "Objective", headerStyle);
 
-            // Row 2+: fixed planner rows
+            // ── Rows 2+: planner fields ───────────────────────────────
             for (int i = 0; i < ROW_LABELS.length; i++) {
                 Row row = sheet.createRow(DATA_START_ROW + i);
-                row.createCell(0).setCellValue(ROW_LABELS[i]);
-                row.createCell(1).setCellValue(""); // teacher fills here
-                if (i == ACTIVITY_OFFSET) {
-                    row.createCell(2).setCellValue(""); // second value col for Activity only
-                }
+                row.setHeightInPoints(60);
+                setCellValue(row, 0, ROW_LABELS[i], labelStyle);
+                setCellValue(row, 1, "", inputStyle);
+                setCellValue(row, 2, "", inputStyle);
             }
 
-            sheet.autoSizeColumn(0);
-            sheet.setColumnWidth(1, 15000);
-            sheet.setColumnWidth(2, 15000);
+            // ── Column widths ─────────────────────────────────────────
+            sheet.setColumnWidth(0, 7000); // Parameter — fixed label width
+            sheet.setColumnWidth(1, 18000); // Details — wide input area
+            sheet.setColumnWidth(2, 14000); // Objective — narrower
+
+            // Freeze info + header rows so both stay visible while scrolling
+            sheet.createFreezePane(0, 2);
 
             workbook.write(out);
             return out.toByteArray();
         }
+    }
+
+    private void setCellValue(Row row, int col, String value, CellStyle style) {
+        Cell cell = row.createCell(col);
+        cell.setCellValue(value);
+        cell.setCellStyle(style);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -127,6 +147,7 @@ public class PlannerService {
 
     @Transactional
     public AcademicUploadDTO processUpload(Long classroomId, MultipartFile file) throws Exception {
+        ExcelUploadValidator.validateFile(file);
         String[] meta = readMetadata(file);
         String subjectKey = meta[0];
         LocalDate weekStart = LocalDate.parse(meta[1], DateTimeFormatter.ISO_LOCAL_DATE);
@@ -193,10 +214,12 @@ public class PlannerService {
     private Map<String, String> parseEntries(MultipartFile file) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(file.getBytes()))) {
             Sheet sheet = workbook.getSheetAt(0);
+            ExcelUploadValidator.requireMinDataRows(sheet, DATA_START_ROW);
+            ExcelUploadValidator.validatePlannerRequiredFields(sheet, DATA_START_ROW);
             Map<String, String> result = new LinkedHashMap<>();
 
             // Ordered keys matching ROW_LABELS — Activity at offset 2 produces two entries
-            String[] keys = { F_TOPIC, F_TEACHING_AIDS, F_ACT_EXPLANATION, F_LEARNING_OBJ, F_LEARNING_OUT, F_EVALUATION, F_HOMEWORK };
+            String[] keys = { F_TOPIC, F_TEACHING_AIDS, F_ACT_EXPLANATION, F_LEARNING_OUT, F_EVALUATION, F_HOMEWORK };
 
             for (int i = 0; i < ROW_LABELS.length; i++) {
                 Row row = sheet.getRow(DATA_START_ROW + i);
@@ -234,7 +257,6 @@ public class PlannerService {
             .teachingAids(entries.get(F_TEACHING_AIDS))
             .activityExplanation(entries.get(F_ACT_EXPLANATION))
             .activityLearningObjective(entries.get(F_ACT_OBJECTIVE))
-            .learningObjective(entries.get(F_LEARNING_OBJ))
             .learningOutcome(entries.get(F_LEARNING_OUT))
             .evaluation(entries.get(F_EVALUATION))
             .homeworkWorksheet(entries.get(F_HOMEWORK))
