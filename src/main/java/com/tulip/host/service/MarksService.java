@@ -21,6 +21,8 @@ import com.tulip.host.repository.ClassSubjectRepository;
 import com.tulip.host.repository.ExamMarksUploadRepository;
 import com.tulip.host.repository.StudentExamScoreRepository;
 import com.tulip.host.repository.UploadRecordRepository;
+import com.tulip.host.utils.ExcelTemplateStyle;
+import com.tulip.host.utils.ExcelUploadValidator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,17 +33,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -322,13 +319,17 @@ public class MarksService {
         try (XSSFWorkbook wb = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = wb.createSheet("Marks - " + examName);
 
-            // Row 0: metadata
-            Row meta = sheet.createRow(0);
-            writeMetadata(meta, classroomId, examType, examName, std);
+            CellStyle infoLabel = ExcelTemplateStyle.infoLabel(wb);
+            CellStyle infoValue = ExcelTemplateStyle.infoValue(wb);
+            CellStyle headerStyle = ExcelTemplateStyle.columnHeader(wb);
+            CellStyle dataStyle = ExcelTemplateStyle.dataCell(wb);
 
-            // Row 1: header — Student ID | Student Name | Math (/10) | ...
-            CellStyle headerStyle = headerStyle(wb);
+            // Row 0: info banner (cell positions match readMetadata — do not reorder)
+            ExcelTemplateStyle.writeMarksBanner(sheet.createRow(0), classroomId, examType.name(), examName, std, infoLabel, infoValue);
+
+            // Row 1: column headers
             Row header = sheet.createRow(1);
+            header.setHeightInPoints(20);
             styledCell(header, 0, "Student ID", headerStyle);
             styledCell(header, 1, "Student Name", headerStyle);
             for (int i = 0; i < subjects.size(); i++) {
@@ -339,10 +340,11 @@ public class MarksService {
             int rowIdx = 2;
             for (Student s : students) {
                 Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(s.getId());
-                row.createCell(1).setCellValue(s.getName());
+                ExcelTemplateStyle.numericCell(row, 0, s.getId(), dataStyle);
+                ExcelTemplateStyle.styledCell(row, 1, s.getName(), dataStyle);
             }
 
+            sheet.createFreezePane(0, 2);
             autoSize(sheet, subjects.size() + 2);
             wb.write(out);
             return out.toByteArray();
@@ -360,12 +362,14 @@ public class MarksService {
         try (XSSFWorkbook wb = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = wb.createSheet("Marks - " + examName);
 
-            // Row 0: metadata
-            Row meta = sheet.createRow(0);
-            writeMetadata(meta, classroomId, examType, examName, std);
+            CellStyle infoLabel = ExcelTemplateStyle.infoLabel(wb);
+            CellStyle infoValue = ExcelTemplateStyle.infoValue(wb);
+            CellStyle headerStyle = ExcelTemplateStyle.columnHeader(wb);
+            CellStyle subjectHeaderStyle = ExcelTemplateStyle.groupHeader(wb);
+            CellStyle dataStyle = ExcelTemplateStyle.dataCell(wb);
 
-            CellStyle subjectHeaderStyle = subjectHeaderStyle(wb);
-            CellStyle headerStyle = headerStyle(wb);
+            // Row 0: info banner (cell positions match readMetadata — do not reorder)
+            ExcelTemplateStyle.writeMarksBanner(sheet.createRow(0), classroomId, examType.name(), examName, std, infoLabel, infoValue);
 
             // Row 1: subject name headers (FULL spans 2 cols, HALF spans 1 col)
             Row subjectRow = sheet.createRow(1);
@@ -406,10 +410,11 @@ public class MarksService {
             int rowIdx = 3;
             for (Student s : students) {
                 Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(s.getId());
-                row.createCell(1).setCellValue(s.getName());
+                ExcelTemplateStyle.numericCell(row, 0, s.getId(), dataStyle);
+                ExcelTemplateStyle.styledCell(row, 1, s.getName(), dataStyle);
             }
 
+            sheet.createFreezePane(0, 3);
             autoSize(sheet, col);
             wb.write(out);
             return out.toByteArray();
@@ -422,6 +427,7 @@ public class MarksService {
 
     @Transactional
     public void processUpload(Long classroomId, ExamType examType, String examName, MultipartFile file) throws Exception {
+        ExcelUploadValidator.validateFile(file);
         // Validate metadata in the file matches the request
         String[] meta = readMetadata(file);
         String fileClassroomId = meta[0];
@@ -501,6 +507,7 @@ public class MarksService {
         // CT: data starts at row 2 (row 0=meta, row 1=header)
         try (XSSFWorkbook wb = new XSSFWorkbook(new ByteArrayInputStream(file.getBytes()))) {
             Sheet sheet = wb.getSheetAt(0);
+            ExcelUploadValidator.requireMinDataRows(sheet, 2);
             for (int rowIdx = 2; rowIdx <= sheet.getLastRowNum(); rowIdx++) {
                 Row row = sheet.getRow(rowIdx);
                 if (row == null) continue;
@@ -541,6 +548,7 @@ public class MarksService {
         // TERM: data starts at row 3 (row 0=meta, row 1=subject headers, row 2=sub-headers)
         try (XSSFWorkbook wb = new XSSFWorkbook(new ByteArrayInputStream(file.getBytes()))) {
             Sheet sheet = wb.getSheetAt(0);
+            ExcelUploadValidator.requireMinDataRows(sheet, 3);
             for (int rowIdx = 3; rowIdx <= sheet.getLastRowNum(); rowIdx++) {
                 Row row = sheet.getRow(rowIdx);
                 if (row == null) continue;
@@ -613,17 +621,6 @@ public class MarksService {
     // HELPERS
     // ─────────────────────────────────────────────────────────────
 
-    private void writeMetadata(Row meta, Long classroomId, ExamType examType, String examName, String std) {
-        meta.createCell(0).setCellValue("ClassroomID");
-        meta.createCell(1).setCellValue(classroomId);
-        meta.createCell(2).setCellValue("ExamType");
-        meta.createCell(3).setCellValue(examType.name());
-        meta.createCell(4).setCellValue("ExamName");
-        meta.createCell(5).setCellValue(examName);
-        meta.createCell(6).setCellValue("Class");
-        meta.createCell(7).setCellValue(std != null ? std : "");
-    }
-
     private String[] readMetadata(MultipartFile file) throws IOException {
         try (XSSFWorkbook wb = new XSSFWorkbook(new ByteArrayInputStream(file.getBytes()))) {
             Sheet sheet = wb.getSheetAt(0);
@@ -682,36 +679,6 @@ public class MarksService {
         Cell cell = row.createCell(col);
         cell.setCellValue(value);
         cell.setCellStyle(style);
-    }
-
-    private CellStyle headerStyle(XSSFWorkbook wb) {
-        CellStyle style = wb.createCellStyle();
-        XSSFFont font = wb.createFont();
-        font.setBold(true);
-        style.setFont(font);
-        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        style.setAlignment(HorizontalAlignment.CENTER);
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBorderTop(BorderStyle.THIN);
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        return style;
-    }
-
-    private CellStyle subjectHeaderStyle(XSSFWorkbook wb) {
-        CellStyle style = wb.createCellStyle();
-        XSSFFont font = wb.createFont();
-        font.setBold(true);
-        style.setFont(font);
-        style.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
-        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        style.setAlignment(HorizontalAlignment.CENTER);
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBorderTop(BorderStyle.THIN);
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        return style;
     }
 
     private void autoSize(Sheet sheet, int colCount) {
