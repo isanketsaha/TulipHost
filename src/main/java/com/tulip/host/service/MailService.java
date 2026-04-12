@@ -1,6 +1,7 @@
 package com.tulip.host.service;
 
 import com.tulip.host.domain.Employee;
+import com.tulip.host.utils.CommonUtils;
 import jakarta.mail.internet.MimeMessage;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -164,8 +165,10 @@ public class MailService {
     }
 
     private String appendEnvToSubjectIfNotProd(String subject) {
-        String label = !env.getDefaultProfiles()[0].equalsIgnoreCase("prod") ? env.getDefaultProfiles()[0].toUpperCase() : "";
-        return "[" + label + "] " + subject;
+        if (CommonUtils.isProdProfile(env.getActiveProfiles())) {
+            return subject;
+        }
+        return "[DEV] " + subject;
     }
 
     public String renderTemplate(String templateName, Map<String, Object> variables) {
